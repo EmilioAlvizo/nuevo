@@ -1,6 +1,6 @@
 // models/Municipios.js
 //const mysql = require('mysql2/promise');
-const sql = require('mssql');
+const mysql = require('mssql');
 
 
 class Municipios {
