@@ -1,36 +1,63 @@
 const express = require("express");
-const mssql = require("mssql");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const itemRoutes = require("./routes/itemRoutes");
 
 const app = express();
 const PORT = 3000;
 
-// Configuración de la base de datos
-const config = {
-  server: "172.31.27.44",
-  user: "sajg",
-  password: "Sajg!.25",
-  database: "sajg_20252001",
-  options: {
-    trustedConnection: true,
-    encrypt: false,
-  },
-};
+// Middlewares
+app.use(cors()); // Permitir peticiones desde el frontend
+app.use(bodyParser.json()); // Parsear JSON
+app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formularios
 
-// Ruta principal
-app.get("/", async (req, res) => {
-  try {
-    await mssql.connect(config);
-    const result = await mssql.query("SELECT * FROM municipio");
-    res.send(`<pre>${JSON.stringify(result.recordset, null, 2)}</pre>`);
-  } catch (err) {
-    console.error("Error:", err);
-    res.send(`Error: ${err.message}`);
-  } finally {
-    await mssql.close();
-  }
+// Ruta de bienvenida
+app.get("/", (req, res) => {
+  res.json({
+    message: "🚀 API REST con Node.js y Express",
+    version: "1.0.0",
+    endpoints: {
+      getAll: "GET /api/items",
+      getById: "GET /api/items/:id",
+      create: "POST /api/items",
+      update: "PUT /api/items/:id",
+      delete: "DELETE /api/items/:id",
+    },
+  });
 });
 
-// Iniciar servidor
+// Rutas del API
+app.use("/api", itemRoutes);
+
+// Manejo de rutas no encontradas
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Ruta no encontrada",
+  });
+});
+
+// Manejo global de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Error interno del servidor",
+    error: err.message,
+  });
+});
+
+// Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor en http://localhost:${PORT}`);
+  console.log(`\n🚀 Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`📡 API disponible en http://localhost:${PORT}/api`);
+  console.log(`📚 Documentación en http://localhost:${PORT}/\n`);
+});
+
+// Manejo de cierre graceful
+process.on("SIGINT", async () => {
+  console.log("\n⏹️  Cerrando servidor...");
+  const { closeConnection } = require("./config/database");
+  await closeConnection();
+  process.exit(0);
 });
