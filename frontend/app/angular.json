@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "app": {
+    "sii": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -14,6 +14,9 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -58,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "app:build:production"
+              "buildTarget": "sii:build:production"
             },
             "development": {
-              "buildTarget": "app:build:development"
+              "buildTarget": "sii:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -72,6 +75,10 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {
@@ -88,6 +95,6 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": "1f976db3-6289-423b-93ef-99114398c067"
   }
 }

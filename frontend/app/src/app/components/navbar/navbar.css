@@ -1,0 +1,40 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 17px;
+  flex-wrap: wrap; 
+}
+
+.gto-nav {
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.gto-nav .nav-link {
+  color: #0c4fb4ad !important;
+  font-weight: bold;
+  position: relative;
+  padding: 8px 12px;
+}
+
+.gto-nav .nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  left: 0;
+  bottom: 0;
+  background-color: #0464f5;
+  transition: width 0.3s ease;
+}
+
+.gto-nav .nav-link:hover::after {
+  width: 100%;
+}
+
+.gto-nav .nav-link.active::after {
+  width: 100%;
+}
