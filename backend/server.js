@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formular
 // Ruta de bienvenida
 app.get("/", (req, res) => {
   res.json({
-    message: "🚀 API REST con Node.js y Express",
+    message: "🚀 API REST con Node.js y Express (esto es desde el backend)",
     version: "1.0.0",
     endpoints: {
       getAll: "GET /api/items",
