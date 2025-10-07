@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
-export class ApiService {
+export class Api {
   //url del backend
   private apiUrl = 'http://localhost:3000';
   //inyecta el servicio HttpClient
