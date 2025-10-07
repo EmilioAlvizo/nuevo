@@ -7,6 +7,7 @@ import { Api } from '../../api'
   templateUrl: './prueba.html',
   styleUrl: './prueba.css'
 })
+
 export class Prueba implements OnInit{
   message: string | undefined;
   constructor(private apiService: Api) {}
