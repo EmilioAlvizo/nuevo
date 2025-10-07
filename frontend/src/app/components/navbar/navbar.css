@@ -1,3 +1,4 @@
+
 .container {
   display: flex;
   justify-content: space-between;
@@ -11,6 +12,7 @@
 .gto-nav {
   background-color: #fff;
   border-bottom: 1px solid #ddd;
+  margin-bottom: 40px;
 }
 
 .gto-nav .nav-link {
@@ -38,3 +40,4 @@
 .gto-nav .nav-link.active::after {
   width: 100%;
 }
+
