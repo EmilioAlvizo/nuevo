@@ -1,7 +1,7 @@
 const ItemModel = require("../models/itemModel");
 
 // Nombre de la tabla (cámbialo según tu tabla)
-const TABLE_NAME = "Items"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
+const TABLE_NAME = "municipio"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
 
 class ItemController {
