@@ -1,1 +1,31 @@
-<p>tabla works!</p>
+<div class="container">
+  <aside class="sidebar">
+    <h3>Filtros</h3>
+    <div class="filter-section">
+      <h4>Buscar municipio</h4>
+      <input
+        type="text"
+        placeholder="Escribe el nombre..."
+        (input)="onSearch($event.target.value)"
+      />
+    </div>
+    <p class="results">{{ filteredMunicipios.length }} resultados</p>
+  </aside>
+
+  <main class="content">
+    <div class="cards-grid">
+      <div class="card" *ngFor="let m of filteredMunicipios">
+        <div class="badge">Municipio</div>
+        <h3>{{ m.nombre }}</h3>
+        <p><strong>Fecha de captura:</strong> {{ formatDate(m.Fecha_Captura) }}</p>
+        <a
+          [href]="'/uploads/' + m.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📄 Ver documento
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
