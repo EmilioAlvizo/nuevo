@@ -17,9 +17,9 @@ export class Tabla implements OnInit {
 
   ngOnInit(): void {
     this.datasetService.getMessage().subscribe({
-      next: (data) => {
-        this.municipios = data;
-        this.filteredMunicipios = data;
+      next: (datos) => {
+        this.municipios = datos.data;
+        this.filteredMunicipios = datos.data;
       },
       error: (err) => console.error('Error fetching datasets:', err)
     });

@@ -1,31 +1,45 @@
 <div class="container">
   <aside class="sidebar">
-    <h3>Filtros</h3>
-    <div class="filter-section">
-      <h4>Buscar municipio</h4>
-      <input
-        type="text"
-        placeholder="Escribe el nombre..."
-        (input)="onSearch($event.target.value)"
-      />
+    <div class="filtro-encabezado">
+      <h3>Filtros</h3>
+    </div>
+    <div class="contenedor-filtros">
+      <div class="filter-section">
+        <button>
+          <span>Buscar nombre</span>
+          <span class="plus">▼</span>
+        </button>
+        <h4>Buscar nombre</h4>
+        <input
+          type="text"
+          placeholder="Escribe el nombre..."
+          (input)="onSearch($event.target.value)"
+        />
+      </div>
     </div>
     <p class="results">{{ filteredMunicipios.length }} resultados</p>
   </aside>
-
   <main class="content">
     <div class="cards-grid">
       <div class="card" *ngFor="let m of filteredMunicipios">
-        <div class="badge">Municipio</div>
-        <h3>{{ m.nombre }}</h3>
-        <p><strong>Fecha de captura:</strong> {{ formatDate(m.Fecha_Captura) }}</p>
-        <a
-          [href]="'/uploads/' + m.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          📄 Ver documento
-        </a>
+        <div class="contenido">
+          <div>
+            <div class="badge">Municipio</div>
+          </div>
+          <div class="titulo">
+            <h3>{{ m.nombre }}</h3>
+          </div>
+          <div class="descripcion">
+            <p><strong>Fecha de captura:</strong> {{ formatDate(m.Fecha_Captura) }}</p>
+          </div>
+        </div>
+        <div class="metadato">
+          <a target="_blank" rel="noopener noreferrer" [href]="'/uploads/' + m.pdf">
+            📄 Ver documento
+          </a>
+        </div>
       </div>
+      <!--container-->
     </div>
   </main>
 </div>

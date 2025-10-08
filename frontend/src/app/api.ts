@@ -11,24 +11,30 @@ export interface Municipio {
   pdf: string;
 }
 
+// Agrega esta nueva interfaz para la respuesta de la API
+export interface ApiResponse {
+  success: boolean;
+  data: Municipio[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 
 //esto es para comunicarse con el backend real
-/*export class Api {
+export class Api {
   //url del backend
   private apiUrl = 'http://localhost:3000/api';
   //inyecta el servicio HttpClient
   constructor(private http: HttpClient) {}
-  getMessage():Observable<Municipio[]> {
+  getMessage():Observable<ApiResponse> {
     //realiza una solicitud GET a la URL del backend
-    return this.http.get<Municipio[]>(`${this.apiUrl}/items`,{});
+    return this.http.get<ApiResponse>(`${this.apiUrl}/items`,{});
   }
-}*/
+}
 
 //esto es para comunicarse con el backend simulado
-export class Api {
+/*export class Api {
   private usarMock = true;
 
   private apiUrl = 'http://localhost:3000/api/items';
@@ -84,4 +90,4 @@ export class Api {
       return of([]);
     }
   }
-}
+}*/
