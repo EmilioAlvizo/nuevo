@@ -1,1 +1,62 @@
-<p>login works!</p>
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="fas fa-lock"></i>
+      <h2>Iniciar Sesión</h2>
+      <p>Ingresa tus credenciales para continuar</p>
+    </div>
+
+    <!-- Alerta de error -->
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i> Email
+        </label>
+        <input 
+          type="email" 
+          id="email" 
+          class="form-control" 
+          [(ngModel)]="email" 
+          name="email"
+          placeholder="correo@ejemplo.com"
+          required
+          [disabled]="loading">
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-key"></i> Contraseña
+        </label>
+        <input 
+          type="password" 
+          id="password" 
+          class="form-control" 
+          [(ngModel)]="password" 
+          name="password"
+          placeholder="••••••••"
+          required
+          [disabled]="loading">
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="loading">
+        <span *ngIf="!loading">
+          <i class="fas fa-sign-in-alt"></i> Ingresar
+        </span>
+        <span *ngIf="loading">
+          <i class="fas fa-spinner fa-spin"></i> Ingresando...
+        </span>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+    </div>
+  </div>
+</div>
