@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { Router } from '@angular/router';
@@ -26,15 +27,22 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api/auth';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
   ) {
-    // Cargar usuario desde localStorage al iniciar
-    const user = this.getUserFromStorage();
-    if (user) {
-      this.currentUserSubject.next(user);
+    // Detectar si estamos en el navegador
+    this.isBrowser = isPlatformBrowser(platformId);
+    
+    // Cargar usuario desde localStorage solo si estamos en el navegador
+    if (this.isBrowser) {
+      const user = this.getUserFromStorage();
+      if (user) {
+        this.currentUserSubject.next(user);
+      }
     }
   }
 
@@ -64,14 +72,20 @@ export class AuthService {
 
   // Logout
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    if (this.isBrowser) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
 
   // Verificar si está autenticado
   isAuthenticated(): boolean {
+    if (!this.isBrowser) {
+      return false;
+    }
+
     const token = this.getToken();
     if (!token) return false;
 
@@ -87,6 +101,9 @@ export class AuthService {
 
   // Obtener token
   getToken(): string | null {
+    if (!this.isBrowser) {
+      return null;
+    }
     return localStorage.getItem('token');
   }
 
@@ -103,13 +120,19 @@ export class AuthService {
 
   // Guardar sesión
   private setSession(authData: { user: User; token: string }): void {
-    localStorage.setItem('token', authData.token);
-    localStorage.setItem('user', JSON.stringify(authData.user));
+    if (this.isBrowser) {
+      localStorage.setItem('token', authData.token);
+      localStorage.setItem('user', JSON.stringify(authData.user));
+    }
     this.currentUserSubject.next(authData.user);
   }
 
   // Obtener usuario del storage
   private getUserFromStorage(): User | null {
+    if (!this.isBrowser) {
+      return null;
+    }
+
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
