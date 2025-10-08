@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const ItemController = require("../controllers/itemController");
+//autenticacion
+const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
 // Rutas del API REST
 

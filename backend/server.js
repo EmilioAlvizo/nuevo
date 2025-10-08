@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const itemRoutes = require("./routes/itemRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -17,17 +18,26 @@ app.get("/", (req, res) => {
     message: "🚀 API REST con Node.js y Express (esto es desde el backend)",
     version: "1.0.0",
     endpoints: {
-      getAll: "GET /api/items",
-      getById: "GET /api/items/:id",
-      create: "POST /api/items",
-      update: "PUT /api/items/:id",
-      delete: "DELETE /api/items/:id",
+      auth: {
+        register: "POST /api/auth/register",
+        login: "POST /api/auth/login",
+        profile: "GET /api/auth/profile (requiere token)",
+        verify: "GET /api/auth/verify (requiere token)"
+      },
+      items: {
+        getAll: "GET /api/items (requiere token)",
+        getById: "GET /api/items/:id (requiere token)",
+        create: "POST /api/items (requiere token)",
+        update: "PUT /api/items/:id (requiere token)",
+        delete: "DELETE /api/items/:id (requiere token + rol admin)"
+      }
     },
   });
 });
 
 // Rutas del API
 app.use("/api", itemRoutes);
+app.use("/api/auth", authRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
