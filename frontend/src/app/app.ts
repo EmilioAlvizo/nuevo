@@ -9,7 +9,7 @@ import { Prueba } from './components/prueba/prueba';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Footer, Topbar, Navbar, Prueba],
+  imports: [RouterOutlet, Footer, Topbar, Navbar],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

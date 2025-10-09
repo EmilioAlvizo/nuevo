@@ -1,3 +1,4 @@
+//nuevo/backend/models/itemModel.js
 const { getConnection, mssql } = require("../config/database");
 
 // Modelo para operaciones CRUD

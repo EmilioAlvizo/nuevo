@@ -1,3 +1,4 @@
+//nuevo/backend/config/database.js
 const mssql = require("mssql");
 
 // Configuración de la base de datos

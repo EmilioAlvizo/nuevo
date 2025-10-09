@@ -1,10 +1,13 @@
+//nuevo/backend/controllers/authController.js
 const UserModel = require("../models/userModel");
 const { generateToken } = require("../config/jwt");
+const { getConnection, mssql } = require("../config/database");
 
 class AuthController {
   // Registro de usuario
   static async register(req, res) {
     try {
+      const pool = await getConnection();
       const { nombre, email, password, confirmPassword } = req.body;
 
       // Validaciones
@@ -29,6 +32,18 @@ class AuthController {
         });
       }
 
+      // ⭐ VERIFICAR si el email está autorizado (ajustado para SQL Server)
+      const result = await pool.request()
+        .input('email', email.toLowerCase().trim())
+        .query('SELECT * FROM authorized_emails WHERE email = @email AND used = 0');
+
+      if (!result.recordset || result.recordset.length === 0) {
+        return res.status(403).json({
+          success: false,
+          message: "Este email no está autorizado para registrarse. Contacta al administrador para solicitar acceso."
+        });
+      }
+
       // Verificar si el email ya existe
       const existingUser = await UserModel.findByEmail(email);
       if (existingUser) {
@@ -40,6 +55,11 @@ class AuthController {
 
       // Crear usuario
       const newUser = await UserModel.create({ nombre, email, password });
+
+      // ⭐ Marcar el email autorizado como usado (ajustado para SQL Server)
+      await pool.request()
+        .input('email', email.toLowerCase().trim())
+        .query('UPDATE authorized_emails SET used = 1, used_at = GETDATE() WHERE email = @email');
 
       // Generar token
       const token = generateToken(newUser);
@@ -81,6 +101,7 @@ class AuthController {
       // Buscar usuario
       const user = await UserModel.findByEmail(email);
       if (!user) {
+        console.log('no se encontro email');
         return res.status(401).json({
           success: false,
           message: "Credenciales inválidas"
@@ -89,7 +110,10 @@ class AuthController {
 
       // Verificar contraseña
       const isPasswordValid = await UserModel.verifyPassword(password, user.password);
+      console.log('password ', password);
+      console.log('user.password ', user.password);
       if (!isPasswordValid) {
+        console.log('error en la contraseña');
         return res.status(401).json({
           success: false,
           message: "Credenciales inválidas"

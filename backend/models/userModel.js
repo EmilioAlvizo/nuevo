@@ -40,7 +40,8 @@ class UserModel {
         .input("email", mssql.NVarChar, email)
         .query("SELECT * FROM Usuarios WHERE email = @email AND activo = 1");
 
-      return result.recordset[0];
+      //console.log('buscar user',result);
+        return result.recordset[0];
     } catch (error) {
       throw new Error(`Error al buscar usuario: ${error.message}`);
     }
