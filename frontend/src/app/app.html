@@ -1,12 +1,12 @@
-<app-topbar></app-topbar>
+@if (showHeader) {<app-topbar></app-topbar>}
 
 <div class="app-layout">
-  <app-navbar></app-navbar>
+  @if (showHeader) {<app-navbar ></app-navbar>}
   
   <main class="content">
     <router-outlet></router-outlet>
   </main>
 </div>
-<app-prueba></app-prueba>
-<app-footer></app-footer>
+<!--<app-prueba></app-prueba>-->
+@if (showFooter) {<app-footer></app-footer>}
 

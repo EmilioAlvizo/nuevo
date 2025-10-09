@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Api, Municipio } from '../../api';
 import { CommonModule } from '@angular/common';
 
+type SectionKey = 'policyAreas' | 'policyIssues' | 'policySubIssues';
+
 @Component({
   selector: 'app-tabla',
   imports: [CommonModule],
@@ -40,4 +42,25 @@ export class Tabla implements OnInit {
     const date = new Date(fecha);
     return date.toLocaleDateString();
   }
+
+  //la parte de los filtros
+  isOpen = {
+    policyAreas: true,
+    policyIssues: false,
+    policySubIssues: true
+  };
+  
+  policyAreas = [
+    { name: 'Economy', count: 290 },
+    { name: 'Taxation', count: 194 },
+    { name: 'Regional, rural and urban development', count: 176 },
+    { name: 'Education and skills', count: 108 },
+    { name: 'Health', count: 85 },
+    { name: 'Trade', count: 81 }
+  ];
+  
+  toggleSection(section: SectionKey) {
+    this.isOpen[section] = !this.isOpen[section];
+  }
+  
 }

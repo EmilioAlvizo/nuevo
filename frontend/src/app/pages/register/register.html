@@ -1,0 +1,92 @@
+<div class="register-container">
+    <div class="register-card">
+      <div class="register-header">
+        <i class="fas fa-user-plus"></i>
+        <h2>Crear Cuenta</h2>
+        <p>Regístrate para acceder al sistema</p>
+      </div>
+  
+      <!-- Alerta de error -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+  
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="nombre">
+            <i class="fas fa-user"></i> Nombre Completo
+          </label>
+          <input 
+            type="text" 
+            id="nombre" 
+            class="form-control" 
+            [(ngModel)]="nombre" 
+            name="nombre"
+            placeholder="Juan Pérez"
+            required
+            [disabled]="loading">
+        </div>
+  
+        <div class="form-group">
+          <label for="email">
+            <i class="fas fa-envelope"></i> Email
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-control" 
+            [(ngModel)]="email" 
+            name="email"
+            placeholder="correo@ejemplo.com"
+            required
+            [disabled]="loading">
+        </div>
+  
+        <div class="form-group">
+          <label for="password">
+            <i class="fas fa-key"></i> Contraseña
+          </label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-control" 
+            [(ngModel)]="password" 
+            name="password"
+            placeholder="Mínimo 6 caracteres"
+            required
+            [disabled]="loading">
+        </div>
+  
+        <div class="form-group">
+          <label for="confirmPassword">
+            <i class="fas fa-check-circle"></i> Confirmar Contraseña
+          </label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            class="form-control" 
+            [(ngModel)]="confirmPassword" 
+            name="confirmPassword"
+            placeholder="Repite tu contraseña"
+            required
+            [disabled]="loading">
+        </div>
+  
+        <button 
+          type="submit" 
+          class="btn btn-primary btn-block"
+          [disabled]="loading">
+          <span *ngIf="!loading">
+            <i class="fas fa-user-plus"></i> Registrarse
+          </span>
+          <span *ngIf="loading">
+            <i class="fas fa-spinner fa-spin"></i> Registrando...
+          </span>
+        </button>
+      </form>
+  
+      <div class="register-footer">
+        <p>¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
+      </div>
+    </div>
+  </div>

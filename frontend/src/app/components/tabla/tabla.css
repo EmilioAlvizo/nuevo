@@ -12,8 +12,19 @@
     flex-shrink: 0;
 }
 
+.sidebar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    margin: 0;
+  }
+
 .filter-section {
     margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
 .filter-section input {
@@ -22,6 +33,71 @@
     border-radius: 6px;
     border: 1px solid #ccc;
 }
+
+.filter-section:last-child {
+    border-bottom: none;
+  }
+  
+  /* --- Botón del encabezado --- */
+  .filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    width: 100%;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    padding: 0.9rem 1.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .filter-header:hover {
+    background: #f1f5f9;
+  }
+
+  .toggle-icon {
+    font-weight: bold;
+    color: #475569;
+    transition: transform 0.2s ease;
+  }
+  
+  /* --- Contenido --- */
+  .filter-content {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 1.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  /* Cuando la sección está abierta */
+  .filter-section.open .filter-content {
+    max-height: 400px; /* suficiente para el contenido */
+    opacity: 1;
+    padding-bottom: 1rem;
+  }
+  
+  .filter-section.open .toggle-icon {
+    transform: rotate(180deg);
+    color: #1e40af;
+  }
+  
+  /* --- Opciones de filtro --- */
+  .filter-option {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #334155;
+    margin: 0.3rem 0;
+    line-height: 1.4;
+  }
+  
+  .filter-option input {
+    margin-right: 0.6rem;
+    accent-color: #2563eb; /* color azul moderno */
+  }
 
 .results {
     margin-top: 1rem;
@@ -110,3 +186,33 @@ h3 {
     border-radius: 5px;
     padding: 1rem;
 }
+
+.search-box {
+    position: relative;
+    margin-top: 0.5rem;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: 0.6rem 2rem 0.6rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #0f172a;
+    transition: border-color 0.2s;
+  }
+  
+  .search-box input:focus {
+    outline: none;
+    border-color: #2563eb;
+  }
+  
+  .search-icon {
+    position: absolute;
+    right: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 0.9rem;
+  }

@@ -22,7 +22,7 @@ export interface ApiResponse {
 })
 
 //esto es para comunicarse con el backend real
-export class Api {
+/*export class Api {
   //url del backend
   private apiUrl = 'http://localhost:3000/api';
   //inyecta el servicio HttpClient
@@ -31,16 +31,16 @@ export class Api {
     //realiza una solicitud GET a la URL del backend
     return this.http.get<ApiResponse>(`${this.apiUrl}/items`,{});
   }
-}
+}*/
 
 //esto es para comunicarse con el backend simulado
-/*export class Api {
+export class Api {
   private usarMock = true;
 
   private apiUrl = 'http://localhost:3000/api/items';
   
-  private mockData: Municipio[] = [
-    {
+  private mockData: ApiResponse = {
+  "success":true,"data":[{
       id_municipio: 1,
       nombre: 'Abasolo',
       Fecha_Captura: '2022-10-19T15:42:11.970Z',
@@ -76,18 +76,18 @@ export class Api {
       Fecha_Captura: '2024-02-02T18:15:29.703Z',
       pdf: 'irapuato_2024.pdf'
     }
-  ];
+  ]};
 
   constructor() {}
 
-  getMessage():Observable<Municipio[]> {
+  getMessage():Observable<ApiResponse> {
     if (this.usarMock) {
       console.warn('⚠️ Usando datos locales (mock), no se conecta al backend.');
       return of(this.mockData);
     } else {
       // Cuando tengas conexión, cambia usarMock = false y descomenta:
       // return this.http.get<{ data: Municipio[] }>(this.apiUrl).pipe(map(res => res.data));
-      return of([]);
+      return of();
     }
   }
-}*/
+}

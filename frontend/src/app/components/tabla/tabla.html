@@ -1,23 +1,46 @@
 <div class="container">
   <aside class="sidebar">
-    <div class="filtro-encabezado">
-      <h3>Filtros</h3>
-    </div>
-    <div class="contenedor-filtros">
-      <div class="filter-section">
-        <button>
-          <span>Buscar nombre</span>
-          <span class="plus">▼</span>
-        </button>
-        <h4>Buscar nombre</h4>
-        <input
-          type="text"
-          placeholder="Escribe el nombre..."
-          (input)="onSearch($event.target.value)"
-        />
+    <h3 class="sidebar-title">Filtros</h3>
+
+    <!-- Policy areas -->
+    <div class="filter-section open">
+      <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+        <span>Tipo</span>
+        <span class="toggle-icon">−</span>
+      </button>
+      <div class="filter-content">
+        <label class="filter-option"><input type="checkbox" /> Economy (290)</label>
+        <label class="filter-option"><input type="checkbox" /> Taxation (194)</label>
+        <label class="filter-option"><input type="checkbox" /> Regional, rural and urban development (176)</label>
+        <label class="filter-option"><input type="checkbox" /> Education and skills (108)</label>
+        <label class="filter-option"><input type="checkbox" /> Health (85)</label>
+        <label class="filter-option"><input type="checkbox" /> Trade (81)</label>
       </div>
     </div>
-    <p class="results">{{ filteredMunicipios.length }} resultados</p>
+
+    <!-- Policy issues -->
+    <div class="filter-section">
+      <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+        <span>Municipio</span>
+        <span class="toggle-icon">+</span>
+      </button>
+      <div class="filter-content"></div>
+    </div>
+
+    <!-- Policy sub-issues -->
+    <div class="filter-section open">
+      <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+        <span>Nombre</span>
+        <span class="toggle-icon">−</span>
+      </button>
+      <div class="filter-content">
+        <div class="search-box">
+          <input type="text" placeholder="Search for a topic" />
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+    </div>
+
   </aside>
   <main class="content">
     <div class="cards-grid">
