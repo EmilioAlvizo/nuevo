@@ -24,7 +24,7 @@ export class LoginComponent {
     private route: ActivatedRoute
   ) {
     // Obtener la URL de retorno
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.returnUrl = this.route.snapshot.queryParams['/admin'] || '/admin';
   }
 
   onSubmit(): void {

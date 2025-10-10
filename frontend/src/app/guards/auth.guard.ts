@@ -6,10 +6,17 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  console.log('🔒 AuthGuard activado');
+  console.log('Token:', authService.getToken());
+  console.log('Usuario:', authService.getCurrentUser());
+  console.log('¿Autenticado?:', authService.isAuthenticated());
+
   if (authService.isAuthenticated()) {
+    console.log('✅ Acceso permitido');
     return true;
   }
 
+  console.log('❌ Acceso denegado - Redirigiendo a login');
   // Guardar la URL a la que intentaba acceder
   router.navigate(['/login'], { 
     queryParams: { returnUrl: state.url }
@@ -23,17 +30,24 @@ export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
+    console.log('🔒 RoleGuard activado para roles:', allowedRoles);
+
     if (!authService.isAuthenticated()) {
+      console.log('❌ No autenticado');
       router.navigate(['/login']);
       return false;
     }
 
     const user = authService.getCurrentUser();
+    console.log('Usuario actual:', user);
+    
     if (user && allowedRoles.includes(user.rol)) {
+      console.log('✅ Rol permitido');
       return true;
     }
 
-    router.navigate(['/dashboard']);
+    console.log('❌ Rol no permitido');
+    router.navigate(['/admin']);
     return false;
   };
 };

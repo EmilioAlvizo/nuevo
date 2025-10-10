@@ -83,18 +83,34 @@ export class AuthService {
   // Verificar si está autenticado
   isAuthenticated(): boolean {
     if (!this.isBrowser) {
+      console.log('⚠️ No está en el navegador');
       return false;
     }
 
     const token = this.getToken();
-    if (!token) return false;
+    
+    if (!token) {
+      console.log('⚠️ No hay token');
+      return false;
+    }
 
     // Verificar si el token ha expirado
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const exp = payload.exp * 1000; // Convertir a milliseconds
-      return Date.now() < exp;
-    } catch {
+      const isValid = Date.now() < exp;
+      
+      if (!isValid) {
+        console.log('⚠️ Token expirado');
+        // Limpiar token expirado
+        this.logout();
+        return false;
+      }
+      
+      console.log('✅ Token válido');
+      return true;
+    } catch (error) {
+      console.log('❌ Error al validar token:', error);
       return false;
     }
   }

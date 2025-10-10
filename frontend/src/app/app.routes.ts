@@ -8,6 +8,8 @@ import { InformacionInteres } from './pages/informacion-interes/informacion-inte
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';
 import { Contactanos } from './components/contactanos/contactanos';
+import { Admin } from './pages/admin/admin';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     {path: '', component: Home},
@@ -19,4 +21,5 @@ export const routes: Routes = [
     {path: 'login',component: LoginComponent},
     {path: 'register',component: RegisterComponent},
     {path: 'contactanos', component: Contactanos},
+    {path: 'admin',component: Admin, canActivate: [authGuard]},
 ];
