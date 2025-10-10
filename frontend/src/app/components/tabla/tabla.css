@@ -25,6 +25,7 @@
     margin-bottom: 1rem;
     overflow: hidden;
     transition: all 0.3s ease;
+    border-bottom: 1px solid #dee3e9;
 }
 
 .filter-section input {
@@ -52,10 +53,6 @@
     padding: 0.9rem 1.5rem;
     cursor: pointer;
     transition: background 0.2s;
-  }
-  
-  .filter-header:hover {
-    background: #f1f5f9;
   }
 
   .toggle-icon {
@@ -92,6 +89,7 @@
     color: #334155;
     margin: 0.3rem 0;
     line-height: 1.4;
+    flex-direction: row-reverse;
   }
   
   .filter-option input {
@@ -181,6 +179,11 @@ h3 {
     transition: color 0.3s ease;
 }
 
+button:hover .titulo-header {
+    color: #156df9;
+    transition: color 0.3s ease;
+}
+
 .contenedor-filtros {
     background: #f6f7f9;
     border-radius: 5px;
@@ -216,3 +219,43 @@ h3 {
     color: #64748b;
     font-size: 0.9rem;
   }
+
+  .parte-superior {
+    gap: 1.5rem;
+    width: 100%;
+    display: flex;
+}
+
+.parte-superior-contenedor-botones {
+    align-items: flex-end;
+    gap: 1rem;
+    padding-block-start: 1rem;
+    display: flex;
+}
+
+.modos-vista {
+    gap: .5rem;
+    display: flex;
+}
+
+.boton-lista {
+  /* Estilos básicos del botón */
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  font-family: sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+
+  /* Propiedades de la máscara */
+  mask-image: url('tu-imagen-de-mascara.svg'); /* O un gradiente */
+  -webkit-mask-image: url('tu-imagen-de-mascara.svg'); /* Para compatibilidad con navegadores */
+  mask-size: cover;
+  -webkit-mask-size: cover;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-position: center;
+}

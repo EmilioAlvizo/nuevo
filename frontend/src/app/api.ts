@@ -22,7 +22,7 @@ export interface ApiResponse {
 })
 
 //esto es para comunicarse con el backend real
-/*export class Api {
+export class Api {
   //url del backend
   private apiUrl = 'http://localhost:3000/api';
   //inyecta el servicio HttpClient
@@ -31,10 +31,10 @@ export interface ApiResponse {
     //realiza una solicitud GET a la URL del backend
     return this.http.get<ApiResponse>(`${this.apiUrl}/items`,{});
   }
-}*/
+}
 
 //esto es para comunicarse con el backend simulado
-export class Api {
+/*export class Api {
   private usarMock = true;
 
   private apiUrl = 'http://localhost:3000/api/items';
@@ -90,4 +90,4 @@ export class Api {
       return of();
     }
   }
-}
+}*/

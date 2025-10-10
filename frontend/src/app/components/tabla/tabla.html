@@ -1,68 +1,110 @@
 <div class="container">
   <aside class="sidebar">
-    <h3 class="sidebar-title">Filtros</h3>
-
+    <div>
+      <h3 class="sidebar-title">Filtros</h3>
+    </div>
     <!-- Policy areas -->
-    <div class="filter-section open">
-      <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
-        <span>Tipo</span>
-        <span class="toggle-icon">−</span>
-      </button>
-      <div class="filter-content">
-        <label class="filter-option"><input type="checkbox" /> Economy (290)</label>
-        <label class="filter-option"><input type="checkbox" /> Taxation (194)</label>
-        <label class="filter-option"><input type="checkbox" /> Regional, rural and urban development (176)</label>
-        <label class="filter-option"><input type="checkbox" /> Education and skills (108)</label>
-        <label class="filter-option"><input type="checkbox" /> Health (85)</label>
-        <label class="filter-option"><input type="checkbox" /> Trade (81)</label>
+    <div>
+      <div class="filter-section open">
+        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="titulo-header">Tipo</span>
+          <span class="toggle-icon">−</span>
+        </button>
+        <div class="filter-content">
+          <label class="filter-option"><input type="checkbox" /> Economy (290)</label>
+          <label class="filter-option"><input type="checkbox" /> Taxation (194)</label>
+          <label class="filter-option"
+            ><input type="checkbox" /> Regional, rural and urban development (176)</label
+          >
+          <label class="filter-option"><input type="checkbox" /> Education and skills (108)</label>
+          <label class="filter-option"><input type="checkbox" /> Health (85)</label>
+          <label class="filter-option"><input type="checkbox" /> Trade (81)</label>
+        </div>
       </div>
-    </div>
 
-    <!-- Policy issues -->
-    <div class="filter-section">
-      <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
-        <span>Municipio</span>
-        <span class="toggle-icon">+</span>
-      </button>
-      <div class="filter-content"></div>
-    </div>
+      <!-- Policy issues -->
+      <div class="filter-section">
+        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="titulo-header">Municipio</span>
+          <span class="toggle-icon">+</span>
+        </button>
+        <div class="filter-content"></div>
+      </div>
 
-    <!-- Policy sub-issues -->
-    <div class="filter-section open">
-      <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
-        <span>Nombre</span>
-        <span class="toggle-icon">−</span>
-      </button>
-      <div class="filter-content">
-        <div class="search-box">
-          <input type="text" placeholder="Search for a topic" />
-          <span class="search-icon">🔍</span>
+      <!-- Policy sub-issues -->
+      <div class="filter-section open">
+        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="titulo-header">Nombre</span>
+          <span class="toggle-icon">−</span>
+        </button>
+        <div class="filter-content">
+          <div class="search-box">
+            <input type="text" placeholder="Search for a topic" (input)="onSearch($event.target.value)"/>
+            <span class="search-icon">🔍</span>
+          </div>
         </div>
       </div>
     </div>
-
   </aside>
   <main class="content">
-    <div class="cards-grid">
-      <div class="card" *ngFor="let m of filteredMunicipios">
-        <div class="contenido">
-          <div>
-            <div class="badge">Municipio</div>
-          </div>
-          <div class="titulo">
-            <h3>{{ m.nombre }}</h3>
-          </div>
-          <div class="descripcion">
-            <p><strong>Fecha de captura:</strong> {{ formatDate(m.Fecha_Captura) }}</p>
-          </div>
+    <div class="parte-superior">
+      <h2>
+        <span>{{ filteredMunicipios.length }} resultados</span>
+      </h2>
+      <div class="parte-superior-contenedor-botones">
+        <div>
+          <label class="cmp-search-results__sort-control-label" for="search-order-toggle"
+            >Order</label
+          ><select class="cmp-search-results__sort-control-select" id="search-order-toggle">
+            <option value="mostRelevant">Most relevant</option>
+            <option value="mostRecent">Most recent</option>
+            <option value="oldest">Oldest</option>
+            <option value="AZ">A-Z</option>
+            <option value="ZA">Z-A</option>
+          </select>
         </div>
-        <div class="metadato">
-          <a target="_blank" rel="noopener noreferrer" [href]="'/uploads/' + m.pdf">
-            📄 Ver documento
-          </a>
-        </div>
+        <ul class="modos-vista">
+          <li
+            class="cmp-search-results__view-mode cmp-search-results__view-mode--list button button--secondary"
+          >
+            <button class="boton-lista" type="button" aria-pressed="false">
+              <span class="cmp-button__text">List view</span>
+            </button>
+          </li>
+          <li
+            class="cmp-search-results__view-mode cmp-search-results__view-mode--grid button button--secondary"
+          >
+            <button class="cmp-button" type="button" aria-pressed="true">
+              <span class="cmp-button__text">Grid view</span>
+            </button>
+          </li>
+        </ul>
       </div>
-      <!--container-->
+    </div>
+    <div>
+      <div class="cards-grid">
+        @for (m of filteredMunicipios; track m.id_municipio) {
+        <div class="card">
+          <div class="contenido">
+            <div>
+              <div class="badge">Municipio</div>
+            </div>
+            <div class="titulo">
+              <h3>{{ m.nombre }}</h3>
+            </div>
+            <div class="descripcion">
+              <p><strong>Fecha de captura:</strong> {{ formatDate(m.Fecha_Captura) }}</p>
+            </div>
+          </div>
+          <div class="metadato">
+            <a target="_blank" rel="noopener noreferrer" [href]="'/uploads/' + m.pdf">
+              📄 Ver documento
+            </a>
+          </div>
+        </div>
+        }
+        <!--container-->
+      </div>
     </div>
   </main>
 </div>
