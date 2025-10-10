@@ -7,6 +7,7 @@ import { CentroDocumental } from './pages/centro-documental/centro-documental';
 import { InformacionInteres } from './pages/informacion-interes/informacion-interes';
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';
+import { Contactanos } from './components/contactanos/contactanos';
 
 export const routes: Routes = [
     {path: '', component: Home},
@@ -17,4 +18,5 @@ export const routes: Routes = [
     {path: 'informacion-interes', component: InformacionInteres},
     {path: 'login',component: LoginComponent},
     {path: 'register',component: RegisterComponent},
+    {path: 'contactanos', component: Contactanos},
 ];

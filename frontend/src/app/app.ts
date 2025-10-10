@@ -4,12 +4,12 @@ import { filter } from 'rxjs/operators';
 import { Topbar } from './components/topbar/topbar';
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
-import { Prueba } from './components/prueba/prueba';
+import { BotonContactanos } from './components/boton-contactanos/boton-contactanos';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Footer, Topbar, Navbar],
+  imports: [RouterOutlet, Footer, Topbar, Navbar, BotonContactanos],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

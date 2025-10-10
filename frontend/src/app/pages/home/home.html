@@ -1,6 +1,168 @@
-<div class="video-container">
-    <video controls width="100%">
-        <source src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4" type="video/mp4">
-        Tu navegador no soporta el elemento de video.
-    </video>
+
+<div class="container">
+<!-- Sección 1: Vídeo -->
+<section class="home-section mb-4">
+    <div class="video-container">
+        <video controls width="100%">
+            <source src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4" type="video/mp4">
+            Tu navegador no soporta el elemento de video.
+        </video>
+    </div>
+</section>
+
+<!-- Sección 2: Testimonios -->
+<section class="home-section mb-4">
+    <div class="row align-items-center">
+    <div class="col-lg-9 col-md-8 col-sm-12 mb-2 carrusel-espacio">
+            <!-- Carrusel de testimonios -->
+            <div id="testimoniosCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class ="testimonial-item ">
+                            <div class="row">
+                                
+                                <div class="col-md-4 text-center" style="padding: 10px;">
+                                    <img class="img-fluid testimonial-img" src="provisionales/joven.jpg">
+                                    <p class="client-name mt-2">
+                                        Juan Zambrano</p>
+                                    <p class="client-name mt-1">
+                                        Municipio de Dolores Hidalgo</p>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="testimonial-text" style="padding: 20px;">
+                                        <p style="text-align: justify; font-size: medium;">
+                                            El ser parte del programa "Semillero de Investigadores Jóvenes" me ha permitido desarrollar mis habilidades como investigador y he podido ampliar mis redes de contactos con personas de distintas áreas de conocimiento.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class ="testimonial-item ">
+                            <div class="row">
+                                
+                                <div class="col-md-4 text-center" style="padding: 10px;">
+                                    <img class="img-fluid testimonial-img" src="provisionales/joven.jpg">
+                                    <p class="client-name mt-2">
+                                        Natalia Negrete </p>
+                                    <p class="client-name mt-1">
+                                        Municipio de León</p>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="testimonial-text" style="padding: 20px;">
+                                        <p style="text-align: justify; font-size: medium;">
+                                            El ser parte del programa "Semillero de Investigadores Jóvenes" me ha permitido desarrollar mis habilidades como investigadora y he podido ampliar mis redes de contactos con personas de distintas áreas de conocimiento.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class ="testimonial-item ">
+                            <div class="row">
+                                
+                                <div class="col-md-4 text-center" style="padding: 10px;">
+                                    <img class="img-fluid testimonial-img" src="provisionales/joven.jpg">
+                                    <p class="client-name mt-2">
+                                        Alma Gómez</p>
+                                    <p class="client-name mt-1">
+                                        Municipio de Celaya</p>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="testimonial-text" style="padding: 20px;">
+                                        <p style="text-align: justify; font-size: medium;">
+                                            El ser parte del programa "Semillero de Investigadores Jóvenes" me ha permitido desarrollar mis habilidades como investigadora y he podido ampliar mis redes de contactos con personas de distintas áreas de conocimiento.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#testimoniosCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#testimoniosCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+    <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25">
+            <div class="p-4 bg-light rounded">
+                <h5>¿Quieres compartir tu experiencia?</h5>
+                <button class="btn btn-primary mt-2">Deja tu testimonio</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sección 3: Encuestas -->
+<section class="home-section mb-4">
+    <div class="row">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
+                <h5>¿Qué tema te interesa más?</h5>
+                <form>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="encuesta" id="opcion1">
+                        <label class="form-check-label" for="opcion1">Educación</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="encuesta" id="opcion2">
+                        <label class="form-check-label" for="opcion2">Empleo</label>
+                    </div>
+                    <button class="btn btn-primary mt-3">Votar</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
+                <h5>Resultados</h5>
+                <!-- Aquí va el gráfico, puedes usar una imagen o integrar una librería de gráficos -->
+                <img src="provisionales/grafica.jpg" alt="Gráfico de resultados" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sección 4: Temas de interés -->
+<section class="home-section mb-4">
+    <div class="row align-items-center">
+    <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25">
+            <div class="p-4 bg-light rounded">
+                <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
+                <button class="btn btn-success mt-2">Regístrala aquí</button>
+            </div>
+        </div>
+    <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
+            <!-- Carrusel de temas de interés -->
+            <div id="temasCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <blockquote class="blockquote">
+                            <p><strong>Educación</strong></p>
+                            <footer class="blockquote-footer">Últimas noticias</footer>
+                        </blockquote>
+                    </div>
+                    <div class="carousel-item">
+                        <blockquote class="blockquote">
+                            <p><strong>Salud</strong></p>
+                            <footer class="blockquote-footer">Últimas noticias</footer>
+                        </blockquote>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#temasCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#temasCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
 </div>
