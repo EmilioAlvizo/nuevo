@@ -20,6 +20,7 @@ export class App {
   showFooter = true;
   showHeader = true;
   showTopBar = true;
+  showBotonContactanos = true;
 
   constructor(private router: Router) {
     // Escucha cambios de ruta
@@ -41,6 +42,11 @@ export class App {
         // Rutas donde NO quieres mostrar el topbar
         const hiddenTopBarRoutes = ['/login', '/register'];
         this.showTopBar = !hiddenTopBarRoutes.some(route => 
+          event.url.includes(route)
+        );
+        // Rutas donde NO quieres mostrar el boton de contactanos
+        const hiddenBotonContactanosRoutes = ['/login', '/register', '/admin'];
+        this.showBotonContactanos = !hiddenBotonContactanosRoutes.some(route => 
           event.url.includes(route)
         );
       });
