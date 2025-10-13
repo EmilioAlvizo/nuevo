@@ -1,9 +1,177 @@
 <div class="container">
-  <aside class="sidebar">
+  <div class="panel-filtros">
+    <div class="encabezado-filtros">
+      <h2 class="titulo-filtros">Filtros</h2>
+    </div>
+  
+    <div class="contenido-filtros">
+      <!-- Grupo de Policy areas -->
+      <fieldset class="grupo-facetas">
+        <legend class="encabezado-grupo">
+          <!-- <button 
+            type="button" 
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="gruposPolicyAreas.expandido"
+            (click)="alternarGrupo('policyAreas')">
+            <span class="titulo-grupo">Áreas de política</span>
+            <span class="icono-grupo">
+              <svg *ngIf="!gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z" fill="currentcolor"/>
+              </svg>
+              <svg *ngIf="gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z" fill="currentcolor"/>
+              </svg>
+            </span>
+          </button> -->
+          <button 
+            type="button" 
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="gruposPolicyAreas.expandido"
+            (click)="alternarGrupo('policyAreas')">
+            <span class="titulo-grupo">Áreas de política</span>
+            <span class="icono-grupo">
+              <svg *ngIf="!gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z" fill="currentcolor"/>
+              </svg>
+              <svg *ngIf="gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z" fill="currentcolor"/>
+              </svg>
+            </span>
+          </button>
+        </legend>
+        <div 
+          class="contenido-grupo"
+          [class.contenido-grupo--expandido]="gruposPolicyAreas.expandido"
+          [attr.aria-hidden]="!gruposPolicyAreas.expandido">
+          <div class="area-scroll">
+            <label class="etiqueta-campo">
+              <input 
+                type="checkbox" 
+                class="campo-checkbox">
+              <span class="descripcion-input">
+                asa
+                <span class="contador-input">786</span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+  
+      <!-- Grupo de Policy issues con búsqueda -->
+      <fieldset class="grupo-facetas">
+        <legend class="encabezado-grupo">
+          <button 
+            type="button" 
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="gruposPolicyIssues.expandido"
+            (click)="alternarGrupo('policyIssues')">
+            <span class="titulo-grupo">Temas de política</span>
+            <span class="icono-grupo">
+              <svg *ngIf="!gruposPolicyIssues.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z" fill="currentcolor"/>
+              </svg>
+              <svg *ngIf="gruposPolicyIssues.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z" fill="currentcolor"/>
+              </svg>
+            </span>
+          </button>
+        </legend>
+        <div 
+          class="contenido-grupo"
+          [class.contenido-grupo--expandido]="gruposPolicyIssues.expandido"
+          [attr.aria-hidden]="!gruposPolicyIssues.expandido">
+          <div class="combobox-busqueda">
+            <div class="contenedor-busqueda">
+              <label for="busqueda-policy-issues" class="etiqueta-busqueda">Buscar un tema</label>
+              <div class="contenedor-input-busqueda">
+                <input 
+                  id="busqueda-policy-issues"
+                  type="search" 
+                  class="input-busqueda"
+                  placeholder="Buscar un tema"
+                  autocomplete="off">
+                <svg class="icono-busqueda" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="opciones-busqueda">
+              <label class="etiqueta-campo">
+                <input 
+                  type="checkbox" 
+                  class="campo-checkbox">
+                <span class="descripcion-input">
+                  jyt
+                  <span class="contador-input">84</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+  
+      <!-- Grupo de Policy sub-issues con búsqueda -->
+      <fieldset class="grupo-facetas">
+        <legend class="encabezado-grupo">
+          <button 
+            type="button" 
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="gruposPolicySubIssues.expandido"
+            (click)="alternarGrupo('policySubIssues')">
+            <span class="titulo-grupo">Nombre</span>
+            <span class="icono-grupo">
+              <svg *ngIf="!gruposPolicySubIssues.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z" fill="currentcolor"/>
+              </svg>
+              <svg *ngIf="gruposPolicySubIssues.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z" fill="currentcolor"/>
+              </svg>
+            </span>
+          </button>
+        </legend>
+        <div 
+          class="contenido-grupo"
+          [class.contenido-grupo--expandido]="gruposPolicySubIssues.expandido"
+          [attr.aria-hidden]="!gruposPolicySubIssues.expandido">
+          <div class="combobox-busqueda">
+            <div class="contenedor-busqueda">
+              <label for="busqueda-policy-subissues" class="etiqueta-busqueda">Buscar un tema</label>
+              <div class="contenedor-input-busqueda">
+                <input 
+                  id="busqueda-policy-subissues"
+                  type="search" 
+                  class="input-busqueda"
+                  placeholder="Buscar un tema"
+                  (input)="onSearch($event.target.value)"
+                  autocomplete="off">
+                <svg class="icono-busqueda" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="opciones-busqueda">
+              <label class="etiqueta-campo">
+                <input 
+                  type="checkbox" 
+                  class="campo-checkbox">
+                <span class="descripcion-input">
+                  hgj
+                  <span class="contador-input">45</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <!-- <aside class="sidebar">
     <div>
       <h3 class="sidebar-title">Filtros</h3>
     </div>
-    <!-- Policy areas -->
+    
     <div>
       <div class="filter-section open">
         <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
@@ -13,16 +181,14 @@
         <div class="filter-content">
           <label class="filter-option"><input type="checkbox" /> Economy (290)</label>
           <label class="filter-option"><input type="checkbox" /> Taxation (194)</label>
-          <label class="filter-option"
-            ><input type="checkbox" /> Regional, rural and urban development (176)</label
-          >
+          <label class="filter-option"><input type="checkbox" /> Regional, rural and urban development (176)</label>
           <label class="filter-option"><input type="checkbox" /> Education and skills (108)</label>
           <label class="filter-option"><input type="checkbox" /> Health (85)</label>
           <label class="filter-option"><input type="checkbox" /> Trade (81)</label>
         </div>
       </div>
 
-      <!-- Policy issues -->
+      
       <div class="filter-section">
         <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
           <span class="titulo-header">Municipio</span>
@@ -31,7 +197,7 @@
         <div class="filter-content"></div>
       </div>
 
-      <!-- Policy sub-issues -->
+      
       <div class="filter-section open">
         <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
           <span class="titulo-header">Nombre</span>
@@ -39,46 +205,60 @@
         </button>
         <div class="filter-content">
           <div class="search-box">
-            <input type="text" placeholder="Search for a topic" (input)="onSearch($event.target.value)"/>
+            <input type="text" placeholder="Search for a topic" (input)="onSearch($event.target.value)" />
             <span class="search-icon">🔍</span>
           </div>
         </div>
       </div>
     </div>
-  </aside>
+  </aside> -->
   <main class="content">
-    <div class="parte-superior">
-      <h2>
-        <span>{{ filteredMunicipios.length }} resultados</span>
+    <div class="encabezado-busqueda">
+      <h2 class="titulo-resultados">
+        <span class="contador-resultados">{{filteredMunicipios.length}} resultados</span>
       </h2>
-      <div class="parte-superior-contenedor-botones">
-        <div>
-          <label class="cmp-search-results__sort-control-label" for="search-order-toggle"
-            >Order</label
-          ><select class="cmp-search-results__sort-control-select" id="search-order-toggle">
-            <option value="mostRelevant">Most relevant</option>
-            <option value="mostRecent">Most recent</option>
-            <option value="oldest">Oldest</option>
+      <div class="acciones-encabezado">
+        <!-- Dropdown de ordenamiento -->
+        <div class="contenedor-ordenar">
+          <label class="etiqueta-ordenar" for="orden-busqueda">Ordenar</label>
+          <select class="selector-ordenar" id="orden-busqueda" (change)="ordenar($event)">
+            <option value="masRelevante">Más relevante</option>
+            <option value="masReciente">Más reciente</option>
+            <option value="masAntiguo">Más antiguo</option>
             <option value="AZ">A-Z</option>
             <option value="ZA">Z-A</option>
           </select>
         </div>
-        <ul class="modos-vista">
-          <li
-            class="cmp-search-results__view-mode cmp-search-results__view-mode--list button button--secondary"
-          >
-            <button class="boton-lista" type="button" aria-pressed="false">
-              <span class="cmp-button__text">List view</span>
-            </button>
-          </li>
-          <li
-            class="cmp-search-results__view-mode cmp-search-results__view-mode--grid button button--secondary"
-          >
-            <button class="cmp-button" type="button" aria-pressed="true">
-              <span class="cmp-button__text">Grid view</span>
-            </button>
-          </li>
-        </ul>
+        
+        <!-- Botones de vista -->
+        <div class="alternador-vista">
+          <button 
+            class="boton-vista" 
+            [class.boton-vista--activo]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            type="button" 
+            [attr.aria-pressed]="viewMode === 'list'"
+            aria-label="Vista de list">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="m4.48 2.10526c0-.29313.10114-.57426.28118-.78154.18003-.20727.42421-.32372.67882-.32372h9.6c.2546 0 .4988.11645.6788.32372.1801.20728.2812.48841.2812.78154 0 .29314-.1011.57427-.2812.78154-.18.20728-.4242.32373-.6788.32373h-9.6c-.25461 0-.49879-.11645-.67882-.32373-.18004-.20727-.28118-.4884-.28118-.78154zm10.56 4.78948h-9.6c-.25461 0-.49879.11644-.67882.32372-.18004.20728-.28118.48841-.28118.78154s.10114.57426.28118.78154c.18003.20728.42421.32372.67882.32372h9.6c.2546 0 .4988-.11644.6788-.32372.1801-.20728.2812-.48841.2812-.78154s-.1011-.57426-.2812-.78154c-.18-.20728-.4242-.32372-.6788-.32372zm0 5.89476h-9.6c-.25461 0-.49879.1164-.67882.3237-.18004.2073-.28118.4884-.28118.7815 0 .2932.10114.5743.28118.7816.18003.2073.42421.3237.67882.3237h9.6c.2546 0 .4988-.1164.6788-.3237.1801-.2073.2812-.4884.2812-.7816 0-.2931-.1011-.5742-.2812-.7815-.18-.2073-.4242-.3237-.6788-.3237zm-12.8-11.7895h-1.28c-.254608 0-.498788.11645-.678822.32372-.180035.20728-.281178.48841-.281178.78154 0 .29314.101143.57427.281178.78154.180034.20728.424214.32373.678822.32373h1.28c.25461 0 .49879-.11645.67882-.32373.18004-.20727.28118-.4884.28118-.78154 0-.29313-.10114-.57426-.28118-.78154-.18003-.20727-.42421-.32372-.67882-.32372zm0 5.89474h-1.28c-.254608 0-.498788.11644-.678822.32372-.180035.20728-.281178.48841-.281178.78154s.101143.57426.281178.78154c.180034.20728.424214.32372.678822.32372h1.28c.25461 0 .49879-.11644.67882-.32372.18004-.20728.28118-.48841.28118-.78154s-.10114-.57426-.28118-.78154c-.18003-.20728-.42421-.32372-.67882-.32372zm0 5.89476h-1.28c-.254608 0-.498788.1164-.678822.3237-.180035.2073-.281178.4884-.281178.7815 0 .2932.101143.5743.281178.7816.180034.2073.424214.3237.678822.3237h1.28c.25461 0 .49879-.1164.67882-.3237.18004-.2073.28118-.4884.28118-.7816 0-.2931-.10114-.5742-.28118-.7815-.18003-.2073-.42421-.3237-.67882-.3237z" fill="currentcolor"/>
+            </svg>
+          </button>
+          
+          <button 
+            class="boton-vista"
+            [class.boton-vista--activo]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            type="button" 
+            [attr.aria-pressed]="viewMode === 'grid'"
+            aria-label="Vista de cuadrícula">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="6" height="6" rx="1" fill="currentcolor"/>
+              <rect x="9" y="1" width="6" height="6" rx="1" fill="currentcolor"/>
+              <rect x="1" y="9" width="6" height="6" rx="1" fill="currentcolor"/>
+              <rect x="9" y="9" width="6" height="6" rx="1" fill="currentcolor"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
     <div>

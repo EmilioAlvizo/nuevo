@@ -75,6 +75,42 @@ export class Api {
       nombre: 'Irapuato',
       Fecha_Captura: '2024-02-02T18:15:29.703Z',
       pdf: 'irapuato_2024.pdf'
+    },
+    {
+      id_municipio: 7,
+      nombre: 'Abalo',
+      Fecha_Captura: '2022-10-19T15:42:11.970Z',
+      pdf: '1677619285_118fd15de8062eb76e29.pdf'
+    },
+    {
+      id_municipio: 8,
+      nombre: 'Acáaro',
+      Fecha_Captura: '2022-10-19T15:42:22.110Z',
+      pdf: '1677619381_a5bfa3eadf24efec9a1b.pdf'
+    },
+    {
+      id_municipio: 9,
+      nombre: 'Apaseo Alto',
+      Fecha_Captura: '2022-10-19T15:42:29.703Z',
+      pdf: '1677619395_c8fb1220bceecf2af95b.pdf'
+    },
+    {
+      id_municipio: 10,
+      nombre: 'Cela',
+      Fecha_Captura: '2023-03-10T12:22:29.703Z',
+      pdf: 'celaya_2023.pdf'
+    },
+    {
+      id_municipio: 11,
+      nombre: 'Lón',
+      Fecha_Captura: '2024-01-15T09:11:45.500Z',
+      pdf: 'leon_2024.pdf'
+    },
+    {
+      id_municipio: 12,
+      nombre: 'Irapuo',
+      Fecha_Captura: '2024-02-02T18:15:29.703Z',
+      pdf: 'irapuato_2024.pdf'
     }
   ]};
 
