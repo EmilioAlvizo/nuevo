@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Api, Municipio } from '../../api';
+import { Api, Municipio } from '../../../api';
 import { CommonModule } from '@angular/common';
 
 type SectionKey = 'policyAreas' | 'policyIssues' | 'policySubIssues';
