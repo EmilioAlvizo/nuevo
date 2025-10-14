@@ -48,10 +48,10 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('./admin/admin.routes').then(m => m.publicRoutes),
       }
-    ],
+    ], canActivate: [authGuard]
     
   },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  {path: 'admin',component: Admin, canActivate: [authGuard]},
+  //{path: 'admin',component: Admin, canActivate: [authGuard]},
 ];
