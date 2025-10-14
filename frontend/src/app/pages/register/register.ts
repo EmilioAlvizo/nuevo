@@ -54,7 +54,7 @@ export class RegisterComponent {
     this.authService.register(userData).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/admin']);
         }
       },
       error: (error) => {

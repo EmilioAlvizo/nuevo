@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const itemRoutes = require("./routes/itemRoutes");
 const authRoutes = require("./routes/authRoutes");
+const testimoniosRoutes = require("./routes/testimoniosRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 });
 
 // Rutas del API
+app.use("/api", testimoniosRoutes);
 app.use("/api", itemRoutes);
 app.use("/api/auth", authRoutes);
 

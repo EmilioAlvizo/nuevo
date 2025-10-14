@@ -1,3 +1,4 @@
+// nuevo/backend/controllers/itemController.js
 const ItemModel = require("../models/itemModel");
 
 // Nombre de la tabla (cámbialo según tu tabla)

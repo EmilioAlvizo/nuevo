@@ -1,3 +1,5 @@
+// nuevo/backend/routes/itemRoutes.js
+
 const express = require("express");
 const router = express.Router();
 const ItemController = require("../controllers/itemController");
