@@ -1,4 +1,4 @@
-<app-topbar></app-topbar>
+<!-- <app-topbar></app-topbar>
 
 <div class="app-layout">
   <app-navbar></app-navbar>
@@ -8,4 +8,20 @@
 </div>
 
 <app-boton-contactanos></app-boton-contactanos>
-<app-footer></app-footer>
+
+<app-footer></app-footer> -->
+
+<app-topbar></app-topbar>
+
+<div class="app-layout">
+  <app-navbar></app-navbar>
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Si este botón es flotante, puede quedarse fuera -->
+  <app-boton-contactanos></app-boton-contactanos>
+
+  <!-- Footer debe estar dentro del layout -->
+  <app-footer></app-footer>
+</div>

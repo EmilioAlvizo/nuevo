@@ -47,7 +47,7 @@
 .dropdown-menu {
   display: none;
   position: absolute;
-  top: 100%; /* justo debajo del menú padre */
+  top: 100%;
   left: 0;
   background-color: white;
   border: 1px solid #ddd;
