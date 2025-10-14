@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Topbar } from '../components/topbar/topbar';
-import { Navbar } from '../components/navbar/navbar';
-import { Footer } from '../components/footer/footer';
-import { BotonContactanos } from '../components/boton-contactanos/boton-contactanos';
+import { Topbar } from '../../shared/topbar/topbar';
+import { Navbar } from '../shared/navbar/navbar';
+import { Footer } from '../../shared/footer/footer';
+import { BotonContactanos } from '../shared/boton-contactanos/boton-contactanos';
 
 @Component({
   selector: 'public-layout',

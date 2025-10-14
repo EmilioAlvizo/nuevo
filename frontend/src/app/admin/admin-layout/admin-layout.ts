@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Topbar } from '../../public/components/topbar/topbar';
-import { NavbarAdmin } from '../components/navbar-admin/navbar-admin';
-import { Footer } from '../../public/components/footer/footer';
+import { Topbar } from '../../shared/topbar/topbar';
+import { NavbarAdmin } from '../shared/navbar-admin/navbar-admin';
+import { Footer } from '../../shared/footer/footer';
 
 
 @Component({
