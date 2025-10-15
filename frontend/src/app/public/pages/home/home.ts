@@ -2,6 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { ApiTestimonios, Testimonios } from '../../../services/api';
+import { Api, Municipio } from '../../../services/api';
 
 @Component({
   selector: 'app-home',
@@ -11,16 +12,25 @@ import { ApiTestimonios, Testimonios } from '../../../services/api';
 })
 export class Home implements OnInit {
   testimonios: Testimonios[] = [];
+  municipios: Municipio[] = [];
 
-  constructor(private datasetService: ApiTestimonios) {}
+  constructor(private datasetService: ApiTestimonios, private municipioService: Api) {}
 
   ngOnInit(): void {
+    //cargar testimonios
     this.datasetService.getMessage().subscribe({
       next: (datos) => {
-        console.log(datos.data);
         this.testimonios = datos.data;
       },
-      error: (err) => console.error('Error fetching datasets:', err)
+      error: (err) => console.error('Error fetching datasets:', err),
+    });
+
+    //cargar municipios
+    this.municipioService.getMessage().subscribe({
+      next: (datos) => {
+        this.municipios = datos.data;
+      },
+      error: (err) => console.error('Error fetching municipios:', err),
     });
   }
 }
