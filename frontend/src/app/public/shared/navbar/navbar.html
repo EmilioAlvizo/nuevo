@@ -32,13 +32,19 @@
             <span class="d-lg-none ms-2">Inicio</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" 
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" 
              routerLink="/sistema-juventudes"
              (click)="closeMenu()"
              routerLinkActive="active">
             Sistema Juventudes
           </a>
+            <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="">¿Qué es?</a></li>
+            <li><a class="dropdown-item" href="">Consejo Estatal de la Juventud</a></li>
+            <li><a class="dropdown-item" href="">Programa Estatal</a></li>
+            <li><a class="dropdown-item" href="">Red de investigadores</a></li>
+          </ul>
         </li>
         <li class="nav-item">
           <a class="nav-link" 
@@ -64,30 +70,13 @@
             Centro Documental
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" 
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" 
              routerLink="/informacion-interes"
              (click)="closeMenu()"
              routerLinkActive="active">
             Información de interés
           </a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="/sistema-juventudes">Sistema Juventudes</a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="">¿Qué es?</a></li>
-            <li><a class="dropdown-item" href="">Consejo Estatal de la Juventud</a></li>
-            <li><a class="dropdown-item" href="">Programa Estatal</a></li>
-            <li><a class="dropdown-item" href="">Red de investigadores</a></li>
-          </ul>
-        </li>
-        <!-- <li class="nav-item"><a class="nav-link" href="/sistema-juventudes">Sistema Juventudes</a></li> -->
-        <li class="nav-item"><a class="nav-link" href="/estadisticas">Estadísticas</a></li>
-        <li class="nav-item"><a class="nav-link" href="/revista">Revista Voces Emergentes</a></li>
-        <li class="nav-item"><a class="nav-link" href="/centro-documental">Centro Documental</a></li>
-        <!-- <li class="nav-item"><a class="nav-link" href="/informacion-interes">Información de interés</a></li> -->
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="/informacion-interes">Información de interés</a>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="">Apoyos y servicios</a></li>
               <li><a class="dropdown-item" href="">Directorios</a></li>
