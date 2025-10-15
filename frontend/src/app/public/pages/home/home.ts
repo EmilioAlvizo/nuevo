@@ -1,35 +1,26 @@
+//nuevo/frontend/src/app/public/pages/home/home.ts
+
 import { Component, OnInit } from '@angular/core';
-import { Api, Municipio } from '../../../services/api';
-import { CommonModule } from '@angular/common';
+import { ApiTestimonios, Testimonios } from '../../../services/api';
 
 @Component({
   selector: 'app-home',
-  imports: [ CommonModule],
+  imports: [],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  
-  municipios: Municipio[] = [];
-  
-  constructor(private api: Api) {}
+  testimonios: Testimonios[] = [];
+
+  constructor(private datasetService: ApiTestimonios) {}
 
   ngOnInit(): void {
-    this.cargarMunicipios();
-  }
-
-  cargarMunicipios(): void {
-    this.api.getMessage().subscribe(
-      response => {
-        if(response.success) {
-          this.municipios = response.data;
-        } else {
-          console.error('Error al obtener municipios');
-        }
+    this.datasetService.getMessage().subscribe({
+      next: (datos) => {
+        console.log(datos.data);
+        this.testimonios = datos.data;
       },
-      error => {
-        console.error('Error en la llamada al backend', error);
-      }
-    );
+      error: (err) => console.error('Error fetching datasets:', err)
+    });
   }
 }

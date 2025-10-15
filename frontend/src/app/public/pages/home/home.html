@@ -18,24 +18,25 @@
             <div id="testimoniosCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <div class ="testimonial-item ">
+                        @for (m of testimonios; track m.id_testimonios) {
+                            <div class ="testimonial-item ">
                             <div class="row">
                                 
                                 <div class="col-md-4 text-center" style="padding: 10px;">
-                                    <img class="img-fluid testimonial-img" src="provisionales/joven.jpg">
+                                    <img class="img-fluid testimonial-img" [src]="`testimonios/${m.id_testimonios}/${m.imagenT}`">
                                     <p class="client-name mt-2">
-                                        Juan Zambrano</p>
+                                        {{ m.nombreM }}</p>
                                     <p class="client-name mt-1">
-                                        Municipio de Dolores Hidalgo</p>
+                                        Municipio de {{ m.nombreMunicipio }}</p>
                                 </div>
                                 <div class="col-md-8">
                                     <div class="testimonial-text" style="padding: 20px;">
                                         <p style="text-align: justify; font-size: medium;">
-                                            El ser parte del programa "Semillero de Investigadores Jóvenes" me ha permitido desarrollar mis habilidades como investigador y he podido ampliar mis redes de contactos con personas de distintas áreas de conocimiento.</p>
+                                            {{ m.descripcion }}</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div>}
                     </div>
 
                     <div class="carousel-item">
