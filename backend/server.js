@@ -3,6 +3,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const municipioRoutes = require("./routes/municipioRoutes");
 const authRoutes = require("./routes/authRoutes");
+const testimoniosRoutes = require("./routes/testimoniosRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 
 // Rutas del API
 app.use("/api", municipioRoutes);
+app.use("/api", testimoniosRoutes);
 app.use("/api/auth", authRoutes);
 
 // Manejo de rutas no encontradas
