@@ -29,7 +29,7 @@ export class Api {
   constructor(private http: HttpClient) {}
   getMessage():Observable<ApiResponse> {
     //realiza una solicitud GET a la URL del backend
-    return this.http.get<ApiResponse>(`${this.apiUrl}/items`,{});
+    return this.http.get<ApiResponse>(`${this.apiUrl}/municipios`,{});
   }
 }
 

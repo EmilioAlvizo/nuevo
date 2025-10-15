@@ -2,7 +2,7 @@
 const { getConnection, mssql } = require("../config/database");
 
 // Modelo para operaciones CRUD
-class ItemModel {
+class MunicipioModel {
   // Obtener todos los registros
   static async getAll(tableName) {
     try {
@@ -94,4 +94,4 @@ class ItemModel {
   }
 }
 
-module.exports = ItemModel;
+module.exports = MunicipioModel;
