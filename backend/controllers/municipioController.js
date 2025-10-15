@@ -1,9 +1,4 @@
-<<<<<<< HEAD:backend/controllers/municipioController.js
 const MunicipioModel = require("../models/municipioModel");
-=======
-// nuevo/backend/controllers/itemController.js
-const ItemModel = require("../models/itemModel");
->>>>>>> b9d9f08799b0e6b9b50718ce46a807f0a4075931:backend/controllers/itemController.js
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "municipio"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
