@@ -1,24 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const ItemController = require("../controllers/itemController");
+const MunicipioController = require("../controllers/municipioController");
 //autenticacion
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
 // Rutas del API REST
 
 // GET - Obtener todos los registros
-router.get("/items", ItemController.getAll);
+router.get("/municipios", MunicipioController.getAll);
 
 // GET - Obtener un registro por ID
-router.get("/items/:id", ItemController.getById);
+router.get("/municipios/:id", MunicipioController.getById);
 
 // POST - Crear un nuevo registro
-router.post("/items", ItemController.create);
+router.post("/municipios", MunicipioController.create);
 
 // PUT - Actualizar un registro
-router.put("/items/:id", ItemController.update);
+router.put("/municipios/:id", MunicipioController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/items/:id", ItemController.delete);
+router.delete("/municipios/:id", MunicipioController.delete);
 
 module.exports = router;

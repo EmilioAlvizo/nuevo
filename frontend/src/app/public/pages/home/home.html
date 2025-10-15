@@ -93,11 +93,61 @@
     <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25">
             <div class="p-4 bg-light rounded">
                 <h5>¿Quieres compartir tu experiencia?</h5>
-                <button class="btn btn-primary mt-2">Deja tu testimonio</button>
+                <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarNTestimonio">Deja tu testimonio</button>
             </div>
         </div>
     </div>
 </section>
+
+
+<!-- Modal agregar testimonio -->
+<div class="modal fade" id="agregarNTestimonio" tabindex="-1" aria-labelledby="publicacionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form method="POST" enctype="multipart/form-data" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="publicacionTitle">Agregar testimonio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label class="form-label">Nombre completo:</label>
+                    <input type="text" class="form-control" name="nombreT" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Correo:</label>
+                    <input type="email" class="form-control" name="correo" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Teléfono:</label>
+                    <input type="tel" maxlength="10" class="form-control" name="telefono" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Descripción:</label>
+                    <textarea maxlength="431" name="descripcionT" class="form-control" rows="6" placeholder="Describe aquí tus experiencias positivas relacionadas con JuventudEsGto. Puede ser sobre programas, eventos, ayuda o tu participación en actividades de alguna red juvenil." required></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Municipio:</label>
+                    <select class="form-select" name="municipioT" required>
+                        <option selected disabled value="">Seleccione una opción</option>
+                        <option *ngFor="let municipio of municipios" [value]="municipio.id_municipio">{{ municipio.nombre }}</option>    
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Subir imagen:</label>
+                    <input class="form-control" name="imagenT" type="file" required />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Enviar testimonio</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Fin Modal agregar testimonio -->
+
+
+
 
 <!-- Sección 3: Encuestas -->
 <section class="home-section mb-4">
@@ -122,7 +172,7 @@
             <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
                 <h5>Resultados</h5>
                 <!-- Aquí va el gráfico, puedes usar una imagen o integrar una librería de gráficos -->
-                <img src="provisionales/grafica.jpg" alt="Gráfico de resultados" class="img-fluid">
+                <img src="provisionales/grafica.png" alt="Gráfico de resultados" class="img-fluid">
             </div>
         </div>
     </div>
@@ -134,7 +184,7 @@
     <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25">
             <div class="p-4 bg-light rounded">
                 <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
-                <button class="btn btn-success mt-2">Regístrala aquí</button>
+                <button class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#agregarPropuesta">Regístrala aquí</button>
             </div>
         </div>
     <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
@@ -164,5 +214,98 @@
         </div>
     </div>
 </section>
+
+<!-- Modal propuesta de acción -->
+<div class="modal fade" id="agregarPropuesta" tabindex="-1" aria-labelledby="publicacionTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form method="POST" enctype="multipart/form-data" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Propuesta de acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Nombre completo:</label>
+                    <input type="text" class="form-control" name="nombre" id="nombre" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Sexo:</label>
+                    <select class="form-select form-control" id="sexo" name="sexo" required>
+                        <option selected disabled value="">Seleccione un opción</option>
+                        <option value=" Mujer">Mujer</option>
+                        <option value="Hombre">Hombre</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Edad:</label>
+                    <input type="numeric" maxlength="2" class="form-control" name="edad" id="edad" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Actividad principal:</label>
+                    <select class="form-select form-control" id="actividad" name="actividad"  required>
+                        <option selected disabled value="">Seleccione un opción</option>
+                        <option value=" Investigador">Investigador</option>
+                        <option value="Ama de casa">Ama de casa</option>
+                        <option value="Estudiante">Estudiante</option>
+                        <option value="Empleado">Empleado</option>
+                        <option value="Servidor público">Servidor público</option>
+                        <option value="Docente">Docente</option>
+                        <option value="Ciudadano">Ciudadano</option>
+                        <option value="1">Otro</option>
+                        <input type="text" class="form-control" style="margin-top: 5px;" name="especifica"
+                            id="especifica" placeholder="Especifica: " />
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Correo electrónico:</label>
+                    <input type="email" class="form-control" name="correo" id="correo" required />
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Municipio:</label>
+                    <select class="form-select" name="municipioT" required>
+                        <option selected disabled value="">Seleccione una opción</option>
+                        <option *ngFor="let municipio of municipios" [value]="municipio.id_municipio">{{ municipio.nombre }}</option>    
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Zona:</label>
+                    <select class="form-select form-control" id="zona" name="zona" required>
+                        <option selected disabled value="">Seleccione un opción</option>
+                        <option value=" Urbana">Urbana</option>
+                        <option value="Rural">Rural</option>
+                        <option value="Semiurbana">Semiurbana</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Detalla tu acción o propuesta en favor de las juventudes:</label>
+                    <textarea class="form-control" name="detalle" id="detalle" cols="30" rows="10"
+                        required></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">Justifica tu acción o propuesta: 
+                        ¿Por qué consideras que es importante?, ¿cuál es el problema que viste para hacer la
+                        propuesta?</label>
+                    <textarea class="form-control" name="justificacion" id="justificacion" cols="30" rows="10"
+                        required></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label class="col-form-label">
+                        Comenta ¿de qué y/o de quien necesitas para lograrlo?
+                    </label>
+                    <textarea class="form-control" name="necesidades" id="necesidades" cols="30" rows="10"
+                        required>
+                    </textarea>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-success">Enviar propuesta</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Fin Modal propuesta de acción -->
+
 
 </div>

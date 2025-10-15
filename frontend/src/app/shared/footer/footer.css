@@ -1,10 +1,7 @@
 
-.background-footer {
-    background-color: #E4ECFA;
-    border-top: 1px solid #e0e0e0;
-    margin-top: 40px;
-    text-align: center;
-}
+/* .background-footer {
+    
+} */
 
 .container {
     padding: 16px 0;
@@ -43,4 +40,8 @@ footer {
     bottom: 0;
     width: 100%;
     z-index: 10;
+    background-color: #E4ECFA;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 40px;
+    text-align: center;
 }

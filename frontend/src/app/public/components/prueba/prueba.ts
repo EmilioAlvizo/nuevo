@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Api } from '../../../api'
+import { Api } from '../../../services/api'
 
 @Component({
   selector: 'app-prueba',

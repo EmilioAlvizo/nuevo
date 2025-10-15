@@ -1,18 +1,18 @@
-const ItemModel = require("../models/itemModel");
+const MunicipioModel = require("../models/municipioModel");
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "municipio"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
 
-class ItemController {
+class MunicipioController {
   // GET - Obtener todos los registros
   static async getAll(req, res) {
     try {
-      const items = await ItemModel.getAll(TABLE_NAME);
+      const municipio = await MunicipioModel.getAll(TABLE_NAME);
       res.status(200).json({
         success: true,
-        data: items,
-        count: items.length,
+        data: municipio,
+        count: municipio.length,
       });
     } catch (error) {
       res.status(500).json({
@@ -26,9 +26,9 @@ class ItemController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const item = await ItemModel.getById(TABLE_NAME, id, ID_COLUMN);
+      const municipio = await MunicipioModel.getById(TABLE_NAME, id, ID_COLUMN);
 
-      if (!item) {
+      if (!municipio) {
         return res.status(404).json({
           success: false,
           message: "Registro no encontrado",
@@ -37,7 +37,7 @@ class ItemController {
 
       res.status(200).json({
         success: true,
-        data: item,
+        data: municipio,
       });
     } catch (error) {
       res.status(500).json({
@@ -59,11 +59,11 @@ class ItemController {
         });
       }
 
-      const newItem = await ItemModel.create(TABLE_NAME, data);
+      const newMunicipio = await MunicipioModel.create(TABLE_NAME, data);
       res.status(201).json({
         success: true,
         message: "Registro creado exitosamente",
-        data: newItem,
+        data: newMunicipio,
       });
     } catch (error) {
       res.status(500).json({
@@ -86,11 +86,11 @@ class ItemController {
         });
       }
 
-      const updatedItem = await ItemModel.update(TABLE_NAME, id, data, ID_COLUMN);
+      const updatedMunicipio = await MunicipioModel.update(TABLE_NAME, id, data, ID_COLUMN);
       res.status(200).json({
         success: true,
         message: "Registro actualizado exitosamente",
-        data: updatedItem,
+        data: updatedMunicpio,
       });
     } catch (error) {
       res.status(500).json({
@@ -104,7 +104,7 @@ class ItemController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const result = await ItemModel.delete(TABLE_NAME, id, ID_COLUMN);
+      const result = await Municipio.delete(TABLE_NAME, id, ID_COLUMN);
       
       res.status(200).json({
         success: true,
@@ -120,4 +120,4 @@ class ItemController {
   }
 }
 
-module.exports = ItemController;
+module.exports = MunicipioController;

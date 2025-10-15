@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const itemRoutes = require("./routes/itemRoutes");
+const municipioRoutes = require("./routes/municipioRoutes");
 const authRoutes = require("./routes/authRoutes");
 
 const app = express();
@@ -24,19 +24,19 @@ app.get("/", (req, res) => {
         profile: "GET /api/auth/profile (requiere token)",
         verify: "GET /api/auth/verify (requiere token)"
       },
-      items: {
-        getAll: "GET /api/items (requiere token)",
-        getById: "GET /api/items/:id (requiere token)",
-        create: "POST /api/items (requiere token)",
-        update: "PUT /api/items/:id (requiere token)",
-        delete: "DELETE /api/items/:id (requiere token + rol admin)"
+      municipios: {
+        getAll: "GET /api/municipios (requiere token)",
+        getById: "GET /api/municipios/:id (requiere token)",
+        create: "POST /api/municipios (requiere token)",
+        update: "PUT /api/municipios/:id (requiere token)",
+        delete: "DELETE /api/municipios/:id (requiere token + rol admin)"
       }
     },
   });
 });
 
 // Rutas del API
-app.use("/api", itemRoutes);
+app.use("/api", municipioRoutes);
 app.use("/api/auth", authRoutes);
 
 // Manejo de rutas no encontradas
