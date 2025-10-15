@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 /* navbar.component.css */
->>>>>>> b9d9f08799b0e6b9b50718ce46a807f0a4075931
 .container {
   display: flex;
   justify-content: space-between;
@@ -46,7 +43,6 @@
   width: 100%;
 }
 
-<<<<<<< HEAD
 .dropdown {
   position: relative;
 }
@@ -85,7 +81,6 @@
   background-color: #f0f0f0;
   color: #0464f5;
 }
-=======
 /* Estilos del botón hamburguesa */
 .navbar-toggler {
   border: 2px solid #0c4fb4ad;
@@ -200,4 +195,3 @@
     display: none !important;
   }
 }
->>>>>>> b9d9f08799b0e6b9b50718ce46a807f0a4075931
