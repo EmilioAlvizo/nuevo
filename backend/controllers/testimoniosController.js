@@ -1,9 +1,9 @@
-const ItemModel = require("../models/itemModel");
+const TestimoniosModel = require("../models/testimoniosModel");
 
 class TestimoniosController {
   static async getAll(req, res) {
     try {
-      const items = await ItemModel.getAll("testimonios");
+      const items = await TestimoniosModel.getAll();
       res.status(200).json({
         success: true,
         data: items,
@@ -20,7 +20,7 @@ class TestimoniosController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const item = await ItemModel.getById("testimonios", id, "id");
+      const item = await TestimoniosModel.getById("testimonios", id, "id");
 
       if (!item) {
         return res.status(404).json({

@@ -1,3 +1,5 @@
+// nuevo/frontend/src/app/services/api.ts
+
 import { Injectable } from '@angular/core';
 //esto es para comunicarse con el backend
 import { HttpClient } from '@angular/common/http';
@@ -32,6 +34,43 @@ export class Api {
     return this.http.get<ApiResponse>(`${this.apiUrl}/items`,{});
   }
 }
+
+// testimonios
+export interface Testimonios {
+  id_testimonios: number;
+  id_municipio: number;
+  nombreMunicipio: string;
+  nombreM: string;
+  descripcion: string;
+  fecha_modificacion: string;
+  imagenT: string;
+  estatus: string
+  correo: string;
+  telefono: number;
+}
+
+// Agrega esta nueva interfaz para la respuesta de la API
+export interface ApiResponseTestimonios {
+  success: boolean;
+  data: Testimonios[];
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+
+//esto es para comunicarse con el backend real
+export class ApiTestimonios {
+  //url del backend
+  private apiUrl = 'http://localhost:3000/api';
+  //inyecta el servicio HttpClient
+  constructor(private http: HttpClient) {}
+  getMessage():Observable<ApiResponseTestimonios> {
+    //realiza una solicitud GET a la URL del backend
+    return this.http.get<ApiResponseTestimonios>(`${this.apiUrl}/testimonios`,{});
+  }
+}
+
 
 //esto es para comunicarse con el backend simulado
 /*export class Api {
