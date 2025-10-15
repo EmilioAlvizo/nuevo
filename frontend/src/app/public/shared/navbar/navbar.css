@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 /* navbar.component.css */
+>>>>>>> b9d9f08799b0e6b9b50718ce46a807f0a4075931
 .container {
   display: flex;
   justify-content: space-between;
@@ -43,6 +46,46 @@
   width: 100%;
 }
 
+<<<<<<< HEAD
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%; /* justo debajo del menú padre */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  z-index: 1000;
+  min-width: 200px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Mostrar el submenú al hacer hover sobre el item padre */
+.dropdown:hover .dropdown-menu {
+  display: block;
+} 
+
+/* Estilos para los enlaces del submenú */
+.dropdown-menu .dropdown-item {
+  display: block;
+  padding: 10px 16px;
+  color: #0c4fb4ad;
+  text-decoration: none;
+  font-weight: normal;
+  transition: background 0.2s ease;
+} 
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f0f0f0;
+  color: #0464f5;
+}
+=======
 /* Estilos del botón hamburguesa */
 .navbar-toggler {
   border: 2px solid #0c4fb4ad;
@@ -157,3 +200,4 @@
     display: none !important;
   }
 }
+>>>>>>> b9d9f08799b0e6b9b50718ce46a807f0a4075931

@@ -26,7 +26,6 @@ import { PublicLayoutComponent } from '../app/public/public-layout/public-layout
 import { AdminLayoutComponent } from './admin/admin-layout/admin-layout';
 import { LoginComponent } from './pages/login/login';
 import { RegisterComponent } from './pages/register/register';
-import { Admin } from './pages/admin/admin';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -42,13 +41,13 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    component: AdminLayoutComponent,
+    component: AdminLayoutComponent, canActivate: [authGuard],
     children: [
       {
         path: '',
         loadChildren: () => import('./admin/admin.routes').then(m => m.publicRoutes),
       }
-    ], canActivate: [authGuard]
+    ],
     
   },
   { path: 'login', component: LoginComponent },
