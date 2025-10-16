@@ -4,7 +4,8 @@
     align-items: center;
     justify-content: center;
     /*background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);*/
-     background: linear-gradient(to right, #fffde4, #005aa7);
+    /*linear-gradient(90deg, #1CB5E0 0%, #000851 100%)*/
+     background: linear-gradient(135deg, #1CB5E0, #000851);
     padding: 20px;
   }
   
@@ -36,7 +37,7 @@
   
   .register-header i {
     font-size: 50px;
-    color: #005aa7;
+    color: #000851;
     margin-bottom: 15px;
   }
   
@@ -65,7 +66,7 @@
   
   .form-group label i {
     margin-right: 5px;
-    color: #005aa7;
+    color: #000851;
   }
   
   .form-control {
@@ -79,7 +80,7 @@
   
   .form-control:focus {
     outline: none;
-    border-color: #005aa7;
+    border-color: #000851;
     box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
   }
   
@@ -101,13 +102,13 @@
   }
   
   .btn-primary {
-    background: linear-gradient(135deg, #fffde4 0%, #005aa7 100%);
+    background: linear-gradient(135deg, #1CB5E0 0%, #000851 100%);
     color: white;
   }
   
   .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+    box-shadow: 0 5px 15px rgba(54, 43, 211, 0.4);
   }
   
   .btn-primary:disabled {
@@ -155,14 +156,14 @@
   }
   
   .register-footer a {
-    color: #005aa7;
+    color: #000851;
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
   }
   
   .register-footer a:hover {
-    color: #fffde4;
+    color: #1CB5E0;
     text-decoration: underline;
   }
   
