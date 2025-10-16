@@ -416,6 +416,10 @@ button:hover .titulo-header {
   padding: 0;
 }
 
+.grupo-facetas:last-child {
+  border-bottom: none;
+}
+
 .encabezado-grupo {
   margin: 0;
   padding: 0;
@@ -577,10 +581,6 @@ button:hover .titulo-header {
   box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
 }
 
-.input-busqueda::placeholder {
-  color: #9ca3af;
-}
-
 .icono-busqueda {
   position: absolute;
   left: 10px;
@@ -618,4 +618,108 @@ button:hover .titulo-header {
   .panel-filtros {
     max-width: 100%;
   }
+}
+
+/* Mensaje de sin resultados en la búsqueda de filtros */
+.sin-resultados {
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Mensaje de sin resultados en el grid */
+.sin-resultados-grid {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.sin-resultados-grid p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+/* Botón para limpiar filtros */
+.boton-limpiar-filtros {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.boton-limpiar-filtros:hover {
+  background: #0056b3;
+}
+
+.boton-limpiar-filtros:active {
+  transform: scale(0.98);
+}
+
+/* Estilos para las opciones de búsqueda */
+.opciones-busqueda {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+}
+
+.opciones-busqueda::-webkit-scrollbar {
+  width: 8px;
+}
+
+.opciones-busqueda::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.opciones-busqueda::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.opciones-busqueda::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Mejorar el estilo de las etiquetas */
+.etiqueta-campo {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border-radius: 4px;
+}
+
+.etiqueta-campo:hover {
+  background: #f5f5f5;
+}
+
+.campo-checkbox {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.descripcion-input {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.contador-input {
+  background: #e0e0e0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  color: #666;
+  margin-left: 0.5rem;
 }

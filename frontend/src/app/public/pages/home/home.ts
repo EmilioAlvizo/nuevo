@@ -1,8 +1,8 @@
 //nuevo/frontend/src/app/public/pages/home/home.ts
 
 import { Component, OnInit } from '@angular/core';
-import { Api, Municipio } from '../../../services/api';
-import { ApiTestimonios, Testimonios } from '../../../services/api';
+import { ApiMunicipio, Municipio } from '../../../services/municipios';
+import { ApiTestimonios, Testimonios } from '../../../services/testimonios';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -16,10 +16,7 @@ export class Home implements OnInit {
   municipios: Municipio[] = [];
   testimonios: Testimonios[] = [];
 
-  constructor(
-    private api: Api,
-    private datasetService: ApiTestimonios
-  ) {}
+  constructor(private api: ApiMunicipio, private datasetService: ApiTestimonios) {}
 
   ngOnInit(): void {
     this.cargarMunicipios();
@@ -27,20 +24,19 @@ export class Home implements OnInit {
   }
 
   cargarMunicipios(): void {
-    this.api.getMessage().subscribe(
-      response => {
+    this.api.getMessage().subscribe({
+      next: (response) => {
         if (response.success) {
           this.municipios = response.data;
           this.municipios.pop(); // Elimina el último elemento del array
-
         } else {
           console.error('Error al obtener municipios');
         }
       },
-      error => {
-        console.error('Error en la llamada al backend (municipios)', error);
-      }
-    );
+      error: (err) => {
+        console.error('Error en la llamada al backend (municipios)', err);
+      },
+    });
   }
 
   cargarTestimonios(): void {
@@ -50,21 +46,7 @@ export class Home implements OnInit {
       },
       error: (err) => {
         console.error('Error al obtener testimonios', err);
-      }
+      },
     });
   }
-
-  // ngOnInit(): void {
-  //   this.datasetService.getMessage().subscribe({
-  //     next: (datos) => {
-  //       console.log(datos.data);
-  //       this.testimonios = datos.data;
-  //     },
-  //     error: (err) => console.error('Error fetching datasets:', err)
-  //   });
-  // }
-
-
 }
-
-

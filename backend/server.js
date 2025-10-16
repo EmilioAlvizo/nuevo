@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const municipioRoutes = require("./routes/municipioRoutes");
 const authRoutes = require("./routes/authRoutes");
 const testimoniosRoutes = require("./routes/testimoniosRoutes");
+const archivos_municipioRoutes = require("./routes/archivos_municipioRoutes");
+const documentos_cendocRoutes = require("./routes/documentos_cendocRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -37,6 +39,8 @@ app.get("/", (req, res) => {
 });
 
 // Rutas del API
+app.use("/api", documentos_cendocRoutes);
+app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
 app.use("/api/auth", authRoutes);
