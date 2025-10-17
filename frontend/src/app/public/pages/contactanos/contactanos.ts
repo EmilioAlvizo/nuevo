@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Api, Municipio } from '../../../services/api';
+
+
+
+import { ApiMunicipio, Municipio } from '../../../services/municipios';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -13,7 +16,7 @@ export class Contactanos implements OnInit {
   municipios: Municipio[] = [];
 
   constructor(
-    private api: Api,
+    private api: ApiMunicipio,
   ) {}
 
   ngOnInit(): void {
