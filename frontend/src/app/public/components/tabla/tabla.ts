@@ -1,8 +1,11 @@
+// nuevo/frontend/src/app/public/components/tabla/tabla.ts
 import { Component, OnInit } from '@angular/core';
 import { ApiArchivos_municipio, Archivos_municipio } from '../../../services/archivos_municipio';
 import { ApiMunicipio, Municipio } from '../../../services/municipios';
+import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../services/documentos_cendoc';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, Subject } from 'rxjs';
 
 type SectionKey = 'policyAreas' | 'policyIssues' | 'policySubIssues';
 
@@ -10,7 +13,9 @@ interface GrupoExpandible {
   expandido: boolean;
 }
 
-interface MunicipioConContador extends Municipio {
+interface MunicipioConContador {
+  id_municipio: number;
+  nombre: string;
   contador: number;
 }
 
@@ -21,10 +26,10 @@ interface MunicipioConContador extends Municipio {
   styleUrl: './tabla.css'
 })
 export class Tabla implements OnInit {
+  // Datos originales (solo para referencia)
   municipios: Municipio[] = [];
-  filteredMunicipios: Municipio[] = [];
-  searchTerm: string = '';
-  archivos_municipio: Archivos_municipio[] = [];
+  
+  // Datos filtrados que se muestran
   filteredArchivos_municipio: Archivos_municipio[] = [];
 
   // Para el filtro de municipios
@@ -33,43 +38,86 @@ export class Tabla implements OnInit {
   terminoBusquedaMunicipio: string = '';
   municipiosSeleccionados: Set<number> = new Set();
 
-  constructor(private datasetService: ApiMunicipio, private archivos_municipioService: ApiArchivos_municipio) {}
+  // Para búsqueda general
+  searchTerm: string = '';
+  private searchSubject = new Subject<string>();
+
+  // Para ordenamiento
+  ordenActual: string = '';
+
+  // Paginación
+  paginaActual: number = 1;
+  totalResultados: number = 0;
+  totalPaginas: number = 0;
+  limite: number = 50;
+
+  // Estado de carga
+  cargando: boolean = false;
+
+  constructor(
+    private datasetService: ApiMunicipio, 
+    private archivos_municipioService: ApiArchivos_municipio
+  ) {
+    // Debounce para la búsqueda (espera 500ms después de que el usuario deje de escribir)
+    this.searchSubject.pipe(
+      debounceTime(500)
+    ).subscribe(term => {
+      this.searchTerm = term;
+      this.applyFilters();
+    });
+  }
 
   ngOnInit(): void {
     this.cargarMunicipios();
-    this.cargarArchivos_municipio();
+    this.cargarConteosMunicipios();
+    this.cargarArchivosFiltrados(); // Carga inicial
   }
 
   cargarMunicipios(): void {
     this.datasetService.getMessage().subscribe({
       next: (datos) => {
         this.municipios = datos.data;
-        this.filteredMunicipios = datos.data;
-        this.calcularContadorMunicipios();
       },
-      error: (err) => console.error('Error fetching datasets:', err)
+      error: (err) => console.error('Error fetching municipios:', err)
     });
   }
 
-  cargarArchivos_municipio(): void {
-    this.archivos_municipioService.getMessage().subscribe({
-      next: (datos) => {
-        this.archivos_municipio = datos.data;
-        this.filteredArchivos_municipio = datos.data;
-        this.calcularContadorMunicipios();
+  // ✅ NUEVO - Carga los conteos desde el backend
+  cargarConteosMunicipios(): void {
+    this.archivos_municipioService.getConteosPorMunicipio().subscribe({
+      next: (response) => {
+        this.municipiosConContador = response.data;
+        this.municipiosFiltrados = [...this.municipiosConContador];
       },
-      error: (err) => console.error('Error fetching datasets:', err)
+      error: (err) => console.error('Error fetching conteos:', err)
     });
   }
 
-  calcularContadorMunicipios(): void {
-    if (this.municipios.length > 0 && this.archivos_municipio.length > 0) {
-      this.municipiosConContador = this.municipios.map(m => {
-        const contador = this.archivos_municipio.filter(a => a.id_municipio === m.id_municipio).length;
-        return { ...m, contador };
-      });
-      this.municipiosFiltrados = [...this.municipiosConContador];
-    }
+  // ✅ NUEVO - Carga archivos con filtros desde el backend
+  cargarArchivosFiltrados(): void {
+    this.cargando = true;
+
+    const params = {
+      municipios: Array.from(this.municipiosSeleccionados),
+      busqueda: this.searchTerm || undefined,
+      ordenar: this.ordenActual || undefined,
+      limite: this.limite,
+      pagina: this.paginaActual
+    };
+
+    this.archivos_municipioService.getArchivosFiltrados(params).subscribe({
+      next: (response) => {
+        this.filteredArchivos_municipio = response.data;
+        this.totalResultados = response.total || 0;
+        this.totalPaginas = response.totalPaginas || 0;
+        this.cargando = false;
+        console.log('Archivos cargados:', this.filteredArchivos_municipio.length);
+      },
+      error: (err) => {
+        console.error('Error fetching archivos filtrados:', err);
+        this.cargando = false;
+      }
+    });
   }
 
   buscarMunicipio(event: Event): void {
@@ -86,11 +134,16 @@ export class Tabla implements OnInit {
   }
 
   toggleMunicipio(idMunicipio: number): void {
+    console.log('Toggle municipio:', idMunicipio);
+    
     if (this.municipiosSeleccionados.has(idMunicipio)) {
       this.municipiosSeleccionados.delete(idMunicipio);
     } else {
       this.municipiosSeleccionados.add(idMunicipio);
     }
+    
+    console.log('Municipios seleccionados:', Array.from(this.municipiosSeleccionados));
+    this.paginaActual = 1; // Resetear a la primera página
     this.applyFilters();
   }
 
@@ -99,108 +152,20 @@ export class Tabla implements OnInit {
   }
 
   onSearch(term: string) {
-    this.searchTerm = term.toLowerCase();
-    this.applyFilters();
+    this.searchSubject.next(term.toLowerCase());
   }
 
+  // ✅ AHORA SOLO LLAMA AL BACKEND
   applyFilters() {
-    console.log('Aplicando filtros...');
-    console.log('Municipios seleccionados:', Array.from(this.municipiosSeleccionados));
-    console.log('Término de búsqueda:', this.searchTerm);
-
-    // Empezar con todos los archivos
-    let archivosFiltrados = [...this.archivos_municipio];
-
-    // Filtrar por búsqueda general (nombre del archivo)
-    if (this.searchTerm) {
-      archivosFiltrados = archivosFiltrados.filter(a =>
-        a.nombre_archivo.toLowerCase().includes(this.searchTerm)
-      );
-    }
-
-    // Filtrar por municipios seleccionados (ESTE ES EL FILTRO PRINCIPAL)
-    if (this.municipiosSeleccionados.size > 0) {
-      archivosFiltrados = archivosFiltrados.filter(a => {
-        const pertenece = this.municipiosSeleccionados.has(a.id_municipio);
-        return pertenece;
-      });
-    }
-
-    this.filteredArchivos_municipio = archivosFiltrados;
-
-    // Filtrar municipios (para la vista de municipios si la usas)
-    let municipiosFiltrados = [...this.municipios];
-
-    if (this.searchTerm) {
-      municipiosFiltrados = municipiosFiltrados.filter(m =>
-        m.nombre.toLowerCase().includes(this.searchTerm)
-      );
-    }
-
-    if (this.municipiosSeleccionados.size > 0) {
-      municipiosFiltrados = municipiosFiltrados.filter(m =>
-        this.municipiosSeleccionados.has(m.id_municipio)
-      );
-    }
-
-    this.filteredMunicipios = municipiosFiltrados;
-    
-    console.log('Archivos filtrados:', this.filteredArchivos_municipio.length);
-    console.log('Municipios filtrados:', this.filteredMunicipios.length);
-  
-
-    /*this.filteredMunicipios = this.municipios.filter(m =>
-      m.nombre.toLowerCase().includes(this.searchTerm)
-    );
-    this.filteredArchivos_municipio = this.archivos_municipio.filter(a =>
-      a.nombre_archivo.toLowerCase().includes(this.searchTerm)
-    );*/
-    console.log('Filtered Municipios:', this.filteredMunicipios.length);
+    this.cargarArchivosFiltrados();
   }
 
-  //esto es para ordenar
+  // Ordenamiento
   ordenar(event: Event) {
     const valor = (event.target as HTMLSelectElement).value;
-  
-    switch (valor) {
-      case 'AZ':
-        this.ordenarAscendente();
-        break;
-      case 'ZA':
-        this.ordenarDescendente();
-        break;
-      case 'masReciente':
-        this.ordenarPorFechaDescendente();
-        break;
-      case 'masAntiguo':
-        this.ordenarPorFechaAscendente();
-        break;
-      default:
-        this.filteredMunicipios;
-        this.filteredArchivos_municipio;
-        break;
-    }
-  }
-  
-  // Ejemplo de filtros
-  ordenarAscendente() {
-    this.filteredMunicipios.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    this.filteredArchivos_municipio.sort((a, b) => a.nombre_archivo.localeCompare(b.nombre_archivo));
-  }
-  
-  ordenarDescendente() {
-    this.filteredMunicipios.sort((a, b) => b.nombre.localeCompare(a.nombre));
-    this.filteredArchivos_municipio.sort((a, b) => b.nombre_archivo.localeCompare(a.nombre_archivo));
-  }
-  
-  ordenarPorFechaAscendente() {
-    this.filteredMunicipios.sort((a, b) => new Date(a.Fecha_Captura).getTime() - new Date(b.Fecha_Captura).getTime());
-    this.filteredArchivos_municipio.sort((a, b) => new Date(a.fecha_archivo).getTime() - new Date(b.fecha_archivo).getTime());  
-  }
-  
-  ordenarPorFechaDescendente() {
-    this.filteredMunicipios.sort((a, b) => new Date(b.Fecha_Captura).getTime() - new Date(a.Fecha_Captura).getTime());
-    this.filteredArchivos_municipio.sort((a, b) => new Date(b.fecha_archivo).getTime() - new Date(a.fecha_archivo).getTime());
+    this.ordenActual = valor;
+    this.paginaActual = 1; // Resetear a la primera página
+    this.applyFilters();
   }
 
   formatDate(fecha: string): string {
@@ -208,38 +173,21 @@ export class Tabla implements OnInit {
     return date.toLocaleDateString();
   }
 
-  //la parte de los filtros
-  isOpen = {
-    policyAreas: true,
-    policyIssues: false,
-    policySubIssues: true
-  };
-  
-  policyAreas = [
-    { name: 'Economy', count: 290 },
-    { name: 'Taxation', count: 194 },
-    { name: 'Regional, rural and urban development', count: 176 },
-    { name: 'Education and skills', count: 108 },
-    { name: 'Health', count: 85 },
-    { name: 'Trade', count: 81 }
-  ];
-  
-  toggleSection(section: SectionKey) {
-    this.isOpen[section] = !this.isOpen[section];
+  // Paginación
+  irAPagina(pagina: number): void {
+    if (pagina >= 1 && pagina <= this.totalPaginas) {
+      this.paginaActual = pagina;
+      this.applyFilters();
+    }
   }
-  
-  //los modos de vista
+
+  // Modos de vista
   viewMode: 'list' | 'grid' = 'list';
 
   setViewMode(mode: 'list' | 'grid'): void {
     this.viewMode = mode;
-    console.log('View mode changed to:', mode);
-    // Aquí puedes emitir un evento o actualizar un servicio si necesitas
-    // comunicar el cambio a otros componentes
   }
 
-  //
-  //
   // Estado de expansión de grupos
   gruposPolicyAreas: GrupoExpandible = { expandido: false };
   gruposPolicyIssues: GrupoExpandible = { expandido: true };
@@ -271,6 +219,8 @@ export class Tabla implements OnInit {
     this.municipiosSeleccionados.clear();
     this.terminoBusquedaMunicipio = '';
     this.searchTerm = '';
+    this.ordenActual = '';
+    this.paginaActual = 1;
     this.municipiosFiltrados = [...this.municipiosConContador];
     this.applyFilters();
   }

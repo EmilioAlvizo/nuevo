@@ -23,11 +23,80 @@ class Archivos_municipioController {
     }
   }
 
+  // ✅ NUEVO - GET con filtros
+  static async getFiltrados(req, res) {
+    try {
+      const {
+        municipios, // "1,2,3" - IDs separados por coma
+        busqueda, // Término de búsqueda
+        categoria, // Categoría del archivo
+        tipo, // Tipo de archivo
+        ordenar, // "AZ", "ZA", "masReciente", "masAntiguo"
+        limite, // Límite de resultados
+        pagina, // Página actual
+      } = req.query;
+
+      // Procesar parámetros
+      const params = {
+        municipios: municipios
+          ? municipios.split(",").map((id) => parseInt(id))
+          : [],
+        busqueda: busqueda || null,
+        categoria: categoria || null,
+        tipo: tipo || null,
+        ordenar: ordenar || "masReciente",
+        limite: parseInt(limite) || 50,
+        pagina: parseInt(pagina) || 1,
+      };
+
+      const resultado = await Archivos_municipioModel.getArchivosFiltrados(
+        params
+      );
+
+      res.status(200).json({
+        success: true,
+        data: resultado.data,
+        total: resultado.total,
+        pagina: resultado.pagina,
+        totalPaginas: resultado.totalPaginas,
+        count: resultado.data.length,
+      });
+    } catch (error) {
+      console.error("Error en getFiltrados:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  // ✅ NUEVO - GET conteos por municipio
+  static async getConteosMunicipio(req, res) {
+    try {
+      const conteos = await Archivos_municipioModel.getConteosPorMunicipio();
+      res.status(200).json({
+        success: true,
+        data: conteos,
+        count: conteos.length,
+      });
+    } catch (error) {
+      console.error("Error en getConteosMunicipio:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
   // GET - Obtener un registro por ID
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const municipio = await Archivos_municipioModel.getById(TABLE_NAME, id, ID_COLUMN);
+      const municipio = await Archivos_municipioModel.getById(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
 
       if (!municipio) {
         return res.status(404).json({
@@ -60,7 +129,10 @@ class Archivos_municipioController {
         });
       }
 
-      const newMunicipio = await Archivos_municipioModel.create(TABLE_NAME, data);
+      const newMunicipio = await Archivos_municipioModel.create(
+        TABLE_NAME,
+        data
+      );
       res.status(201).json({
         success: true,
         message: "Registro creado exitosamente",
@@ -87,7 +159,12 @@ class Archivos_municipioController {
         });
       }
 
-      const updatedMunicipio = await Archivos_municipioModel.update(TABLE_NAME, id, data, ID_COLUMN);
+      const updatedMunicipio = await Archivos_municipioModel.update(
+        TABLE_NAME,
+        id,
+        data,
+        ID_COLUMN
+      );
       res.status(200).json({
         success: true,
         message: "Registro actualizado exitosamente",
@@ -105,8 +182,12 @@ class Archivos_municipioController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const result = await Archivos_municipioModel.delete(TABLE_NAME, id, ID_COLUMN);
-      
+      const result = await Archivos_municipioModel.delete(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
+
       res.status(200).json({
         success: true,
         message: result.message,

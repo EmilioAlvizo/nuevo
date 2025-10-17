@@ -8,6 +8,12 @@ const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
 // Rutas del API REST
 
+// ✅ NUEVO - GET con filtros (DEBE IR ANTES de /:id)
+router.get("/documentos_cendoc/filtrados", Documentos_cendocController.getFiltrados);
+
+// ✅ NUEVO - GET conteos por municipio
+router.get("/documentos_cendoc/conteos-documentos_cendoc", Documentos_cendocController.getConteosDocumentos_cendoc);
+
 // GET - Obtener todos los registros
 router.get("/documentos_cendoc", Documentos_cendocController.getAll);
 

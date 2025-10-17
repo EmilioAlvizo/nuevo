@@ -23,6 +23,71 @@ class Documentos_cendocController {
     }
   }
 
+  // ✅ NUEVO - GET con filtros
+  static async getFiltrados(req, res) {
+    try {
+      const {
+        busqueda, // Término de búsqueda
+        categoria, // Categoría del archivo
+        autor,
+        palabras_clave,
+        ordenar, // "AZ", "ZA", "masReciente", "masAntiguo"
+        limite, // Límite de resultados
+        pagina, // Página actual
+      } = req.query;
+
+      // Procesar parámetros
+      const params = {
+        busqueda: busqueda || null,
+        categoria: categoria || null,
+        autor: autor || null,
+        palabras_clave: palabras_clave || null,
+        ordenar: ordenar || "masReciente",
+        limite: parseInt(limite) || 50,
+        pagina: parseInt(pagina) || 1,
+      };
+
+      const resultado = await Documentos_cendocModel.getArchivosFiltrados(
+        params
+      );
+
+      console.log("Resultado de getFiltrados:", params);
+
+      res.status(200).json({
+        success: true,
+        data: resultado.data,
+        total: resultado.total,
+        pagina: resultado.pagina,
+        totalPaginas: resultado.totalPaginas,
+        count: resultado.data.length,
+      });
+    } catch (error) {
+      console.error("Error en getFiltrados:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  /// ✅ NUEVO - GET conteos por municipio
+  static async getConteosDocumentos_cendoc(req, res) {
+    try {
+      const conteos = await Documentos_cendocModel.getConteosPorDocumentos_cendoc();
+      res.status(200).json({
+        success: true,
+        data: conteos,
+        count: conteos.length,
+      });
+    } catch (error) {
+      console.error("Error en getConteosDocumentos_cendoc:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
   // GET - Obtener un registro por ID
   static async getById(req, res) {
     try {

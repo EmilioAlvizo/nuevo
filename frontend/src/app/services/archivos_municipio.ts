@@ -2,7 +2,7 @@
 
 import { Injectable } from '@angular/core';
 //esto es para comunicarse con el backend
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 
 // usar Observable<any> es una mala practica, por ello usamos interfaces (ejemplo para municipio)
@@ -18,12 +18,15 @@ export interface Archivos_municipio {
   categoria_archivo: string;
   palabras_clave: string;
   subcategoria_archivo: string;
+  // Datos del municipio (JOIN)
+  nombre_municipio?: string;
 }
 
 // Agrega esta nueva interfaz para la respuesta de la API
 export interface ApiResponse {
   success: boolean;
   data: Archivos_municipio[];
+  total?: number;
 }
 
 @Injectable({
@@ -39,5 +42,63 @@ export class ApiArchivos_municipio {
   getMessage():Observable<ApiResponse> {
     //realiza una solicitud GET a la URL del backend
     return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio`,{});
+  }
+
+  // ✅ NUEVO - Método con filtros (más eficiente)
+  getArchivosFiltrados(params: {
+    municipios?: number[],
+    busqueda?: string,
+    categoria?: string,
+    tipo?: string,
+    ordenar?: string,
+    limite?: number,
+    pagina?: number
+  }): Observable<ApiResponse & { total?: number, pagina?: number, totalPaginas?: number }> {
+    let httpParams = new HttpParams();
+
+    // Agregar municipios seleccionados
+    if (params.municipios && params.municipios.length > 0) {
+      httpParams = httpParams.set('municipios', params.municipios.join(','));
+    }
+
+    // Agregar búsqueda
+    if (params.busqueda) {
+      httpParams = httpParams.set('busqueda', params.busqueda);
+    }
+
+    // Agregar categoría
+    if (params.categoria) {
+      httpParams = httpParams.set('categoria', params.categoria);
+    }
+
+    // Agregar tipo
+    if (params.tipo) {
+      httpParams = httpParams.set('tipo', params.tipo);
+    }
+
+    // Agregar ordenamiento
+    if (params.ordenar) {
+      httpParams = httpParams.set('ordenar', params.ordenar);
+    }
+
+    // Paginación
+    if (params.limite) {
+      httpParams = httpParams.set('limite', params.limite.toString());
+    }
+
+    if (params.pagina) {
+      httpParams = httpParams.set('pagina', params.pagina.toString());
+    }
+
+    console.log('Llamando a API con params:', httpParams.toString());
+
+    return this.http.get<any>(`${this.apiUrl}/archivos_municipio/filtrados`, {
+      params: httpParams
+    });
+  }
+
+  // Obtener conteo de archivos por municipio
+  getConteosPorMunicipio(): Observable<{success: boolean, data: {id_municipio: number, nombre: string, contador: number}[]}> {
+    return this.http.get<any>(`${this.apiUrl}/archivos_municipio/conteos-municipio`);
   }
 }

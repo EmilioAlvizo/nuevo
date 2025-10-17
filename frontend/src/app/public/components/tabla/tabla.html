@@ -1,62 +1,55 @@
 <div class="container">
+  <!-- <aside class="sidebar">
+    <div>
+      <h3 class="sidebar-title">Filtros</h3>
+    </div>
+    
+    <div>
+      <div class="filter-section open">
+        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="titulo-header">Tipo</span>
+          <span class="toggle-icon">−</span>
+        </button>
+        <div class="filter-content">
+          <label class="filter-option"><input type="checkbox" /> Economy (290)</label>
+          <label class="filter-option"><input type="checkbox" /> Taxation (194)</label>
+          <label class="filter-option"><input type="checkbox" /> Regional, rural and urban development (176)</label>
+          <label class="filter-option"><input type="checkbox" /> Education and skills (108)</label>
+          <label class="filter-option"><input type="checkbox" /> Health (85)</label>
+          <label class="filter-option"><input type="checkbox" /> Trade (81)</label>
+        </div>
+      </div>
+
+      
+      <div class="filter-section">
+        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="titulo-header">Municipio</span>
+          <span class="toggle-icon">+</span>
+        </button>
+        <div class="filter-content"></div>
+      </div>
+
+      
+      <div class="filter-section open">
+        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
+          <span class="titulo-header">Nombre</span>
+          <span class="toggle-icon">−</span>
+        </button>
+        <div class="filter-content">
+          <div class="search-box">
+            <input type="text" placeholder="Search for a topic" (input)="onSearch($event.target.value)" />
+            <span class="search-icon">🔍</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside> -->
   <div class="panel-filtros">
     <div class="encabezado-filtros">
       <h2 class="titulo-filtros">Filtros</h2>
     </div>
 
     <div class="contenido-filtros">
-      <!-- Grupo de municipio -->
-      <!-- <fieldset class="grupo-facetas">
-        <legend class="encabezado-grupo">
-          <button 
-            type="button" 
-            class="boton-encabezado-grupo"
-            [attr.aria-expanded]="gruposPolicyAreas.expandido"
-            (click)="alternarGrupo('policyAreas')">
-            <span class="titulo-grupo">Áreas de política</span>
-            <span class="icono-grupo">
-              <svg *ngIf="!gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z" fill="currentcolor"/>
-              </svg>
-              <svg *ngIf="gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z" fill="currentcolor"/>
-              </svg>
-            </span>
-          </button>
-          <button 
-            type="button" 
-            class="boton-encabezado-grupo"
-            [attr.aria-expanded]="gruposPolicyAreas.expandido"
-            (click)="alternarGrupo('policyAreas')">
-            <span class="titulo-grupo">Áreas de política</span>
-            <span class="icono-grupo">
-              <svg *ngIf="!gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z" fill="currentcolor"/>
-              </svg>
-              <svg *ngIf="gruposPolicyAreas.expandido" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z" fill="currentcolor"/>
-              </svg>
-            </span>
-          </button>
-        </legend>
-        <div 
-          class="contenido-grupo"
-          [class.contenido-grupo--expandido]="gruposPolicyAreas.expandido"
-          [attr.aria-hidden]="!gruposPolicyAreas.expandido">
-          <div class="area-scroll">
-            <label class="etiqueta-campo">
-              <input 
-                type="checkbox" 
-                class="campo-checkbox">
-              <span class="descripcion-input">
-                asa
-                <span class="contador-input">786</span>
-              </span>
-            </label>
-          </div>
-        </div>
-      </fieldset> -->
-
       <!-- Grupo de Policy issues con búsqueda -->
       <fieldset class="grupo-facetas">
         <legend class="encabezado-grupo">
@@ -245,72 +238,17 @@
                 </svg>
               </div>
             </div>
-            <!-- <div class="opciones-busqueda">
-              <label class="etiqueta-campo">
-                <input 
-                  type="checkbox" 
-                  class="campo-checkbox">
-                <span class="descripcion-input">
-                  hgj
-                  <span class="contador-input">45</span>
-                </span>
-              </label>
-            </div> -->
           </div>
         </div>
       </fieldset>
     </div>
   </div>
-  <!-- <aside class="sidebar">
-    <div>
-      <h3 class="sidebar-title">Filtros</h3>
-    </div>
-    
-    <div>
-      <div class="filter-section open">
-        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
-          <span class="titulo-header">Tipo</span>
-          <span class="toggle-icon">−</span>
-        </button>
-        <div class="filter-content">
-          <label class="filter-option"><input type="checkbox" /> Economy (290)</label>
-          <label class="filter-option"><input type="checkbox" /> Taxation (194)</label>
-          <label class="filter-option"><input type="checkbox" /> Regional, rural and urban development (176)</label>
-          <label class="filter-option"><input type="checkbox" /> Education and skills (108)</label>
-          <label class="filter-option"><input type="checkbox" /> Health (85)</label>
-          <label class="filter-option"><input type="checkbox" /> Trade (81)</label>
-        </div>
-      </div>
-
-      
-      <div class="filter-section">
-        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
-          <span class="titulo-header">Municipio</span>
-          <span class="toggle-icon">+</span>
-        </button>
-        <div class="filter-content"></div>
-      </div>
-
-      
-      <div class="filter-section open">
-        <button class="filter-header" onclick="this.parentElement.classList.toggle('open')">
-          <span class="titulo-header">Nombre</span>
-          <span class="toggle-icon">−</span>
-        </button>
-        <div class="filter-content">
-          <div class="search-box">
-            <input type="text" placeholder="Search for a topic" (input)="onSearch($event.target.value)" />
-            <span class="search-icon">🔍</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside> -->
+  
   <main class="content">
     <div class="encabezado-busqueda">
       <h2 class="titulo-resultados">
         <span class="contador-resultados"
-          >{{ filteredMunicipios.length + filteredArchivos_municipio.length }} resultados</span
+          >{{ filteredArchivos_municipio.length }} resultados</span
         >
       </h2>
       <div class="acciones-encabezado">
@@ -405,7 +343,7 @@
         }
 
         <!-- Mensaje cuando no hay resultados -->
-        @if (filteredArchivos_municipio.length === 0 && filteredMunicipios.length === 0) {
+        @if (filteredArchivos_municipio.length === 0) {
         <div class="sin-resultados-grid">
           <p>No se encontraron resultados con los filtros aplicados.</p>
           @if (municipiosSeleccionados.size > 0) {
@@ -414,7 +352,7 @@
           </button>
           }
         </div>
-        } @for (m of filteredMunicipios; track m.id_municipio) {
+        } <!-- @for (m of filteredArchivos_cendoc; track m.id_archivo) {
         <div class="card">
           <div class="contenido">
             <div>
@@ -433,7 +371,7 @@
             </a>
           </div>
         </div>
-        }
+        } -->
       </div>
     </div>
   </main>
