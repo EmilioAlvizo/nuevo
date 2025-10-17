@@ -1,8 +1,13 @@
+<div class="row text-wrap text-break">
+  <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+    <p class="text-center texto-title-pages mb-4">Contáctanos</p>
+  </div>
+</div>
+
 <section >
     <div class="container">
         <div class="row">
-            <div class="my-3 col-lg-6 col-md-6 col-xl-6 col-sm-auto animate__animated animate__fadeInLeft">
-                <h1>Contáctanos</h1>
+            <div class="my-3 col-lg-6 col-md-6 col-xl-6 col-sm-auto">
                 <p class="text-center">Hemos detectado retos que nos desafían como jóvenes. <br> <b>¡ Tu voz es esencial !</b><br> ¡ Compártenos tu opinión y ayúdanos a seguir fomentando el empoderamiento de las juventudes !</p>
 
                 <form>
@@ -17,17 +22,23 @@
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Municipio:</label>
-                        <select class="form-select form-control" name="municipio" required>
-                            <option selected disabled value="">Seleccione una opción</option>
+                        <select class="form-select form-control" name="municipioC" required>
+                        <option selected disabled value="">Seleccione una opción</option>
+                        @for (m of municipios; track m.id_municipio) {
+                        <option [value]="m.id_municipio">
+                        {{ m.nombre }}
+                        </option>
+                        }
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label class="col-form-label">Género:</label>
                         <select class="form-select form-control" id="sexo" name="sexo" required>
                             <option selected disabled value="">Seleccione una opción</option>
                             <option value="Femenino">Femenino</option>
                             <option value="Masculino">Masculino</option>
-                            <option value="No Binario">No Binario</option>
+                            <option value="No Binario">No binario</option>
                             <option value="Prefiero no decirlo">Prefiero no decirlo</option>
                         </select>
                     </div>
@@ -58,12 +69,11 @@
                 </form>
             </div>
             <div class="my-3 col-lg-6 col-md-6 col-xl-6 col-sm-auto">
-                <div class="map-area animate__animated animate__fadeInRight">
-                    <h2 class="subtitle">Búscanos
-                    </h2>
+                <br>
+                <br>
+                <div class="map-area">
                     <div class="map">
                         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3722.4657120323905!2d-101.67020922553252!3d21.093991385536476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x842bbfeda8d63b17%3A0xe19a4b8fd793a7e3!2sJuventudEsGto!5e0!3m2!1ses!2smx!4v1683220443330!5m2!1ses!2smx" width="100%" height="400" frameborder="0" style="border:0" allowfullscreen></iframe>
-
                     </div>
                 </div>
             </div>

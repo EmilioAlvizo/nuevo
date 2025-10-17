@@ -1,0 +1,98 @@
+
+:root {
+  --bg-color: #f9f9f9;
+  --card-bg: #ffffff;
+}
+
+.card-stack-container {
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 48px;
+    margin: 72px auto;
+}
+
+
+.card-stack {
+  position: relative;
+  height: 0;
+  padding-bottom: 120%;
+  cursor: pointer;
+  --offset-multiplier: 4px;
+  --translate: 0;
+  transform: translate(var(--translate), var(--translate));
+  transition: transform 0.6s ease;
+}
+
+.card-stack:hover {
+  --offset-multiplier: 6px;
+  --translate: calc(-1px * (var(--cards) - 1));
+  transition: transform 0.3s ease;
+}
+
+.card-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+  background-color: var(--card-bg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 -4px 8px rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  transition: inherit;
+  transform: translate(var(--translate), var(--translate));
+}
+
+
+/* Define offset y z-index para hasta 5 capas */
+.card-stack .card-layer:nth-child(1) {
+  --offset: 0;
+  z-index: 4;
+}
+.card-stack .card-layer:nth-child(2) {
+  --offset: 1;
+  z-index: 3;
+}
+.card-stack .card-layer:nth-child(3) {
+  --offset: 2;
+  z-index: 2;
+}
+.card-stack .card-layer:nth-child(4) {
+  --offset: 3;
+  z-index: 1;
+}
+.card-stack .card-layer:nth-child(5) {
+  --offset: 4;
+  z-index: 0;
+}
+
+.card-layer {
+  --translate: calc(var(--offset) * var(--offset-multiplier));
+}
+
+.card-layer h2 {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #000;
+}
+
+.card-layer p {
+  position: absolute;
+  bottom: 1rem;
+  margin: 0;
+  font-size: 14px;
+  color: #495456;
+}
+
+.card-layer.with-image {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+}
+
+
+
+

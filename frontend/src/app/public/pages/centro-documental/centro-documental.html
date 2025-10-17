@@ -1,1 +1,213 @@
-<p>centro-documental works!</p>
+<div class="row text-wrap text-break">
+  <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+    <p class="text-center texto-title-pages mb-4">Centro documental</p>
+  </div>
+</div>
+
+    <section>
+
+        <div class="container mt-5">
+            <h2 style="font-size: 25px; text-transform: none;">
+                <b>¿Qué es el Centro Documental?</b>
+            </h2>
+            <br>
+            <h2 class="animate__animated animate_fadeIn" style="background-color: white; font-size: 15px; text-transform: none; margin-top: -20px;">
+                El Centro Documental es la unidad especializada en la recopilación, preservación y
+                difusión de información sobre diagnósticos, artículos científicos, investigaciones y
+                política pública resultado de actividades realizadas por instituciones públicas y
+                privadas locales, nacionales e internacionales, con el objetivo de ser consultadas,
+                referenciadas y usadas, para la reflexión o generación de nuevo conocimiento.
+                <br>
+                El Sistema de Información e Investigación pone a disposición el Cendoc, que
+                proporciona información oportuna y actualizada en materia de juventud a todos los
+                usuarios interesados en realizar investigación sobre la temática y la realidad de la
+                juventud en sus diversos contextos.
+            </h2>
+
+        </div>
+
+
+        <div class="container mb-5 mt-5" style="width: 100%; margin: 0 auto 15% auto; text-align: center;">
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDigital">
+                    <!-- <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDigital" onclick="toggleCollapse('collapseDigital', 'collapseFisico')" aria-expanded="false" aria-controls="collapseDigital"> -->
+                        Cendoc Digital
+                    </button>
+                </div>
+                <div class="col">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFisico">
+                        Cendoc Físico
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla Físicos -->
+            <div class="collapse mb-5 mt-3" id="collapseFisico">
+                <div class="card card-body">
+                    <h1 class="text-primary">Físico</h1>
+                    <div class="container" style="width: 50%; margin: 0 auto 0 auto;">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#solicitud">
+                                    Solicitar préstamo
+                                </button>
+                            </div>
+                            <!-- <div class="col">
+                                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#mapa">
+                                    ¿Cómo llegar?
+                                </button>
+                            </div> -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla Digitales -->
+            <div class="collapse mb-5 mt-3" id="collapseDigital">
+                <div class="card card-body">
+                    <h1 class="text-primary">Digital</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--Modal mapa -->
+    <!-- <section>
+        <div class="modal fade" id="mapa" tabindex="-1" role="dialog" aria-labelledby="publicacionTitle">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="publicacionTitle">¿Cómo llegar?</h5>
+                        <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">X</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3722.4657120323905!2d-101.67020922553252!3d21.093991385536476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x842bbfeda8d63b17%3A0xe19a4b8fd793a7e3!2sJuventudEsGto!5e0!3m2!1ses!2smx!4v1683220443330!5m2!1ses!2smx" style="border:0; min-width: 100%; min-height: 70vh;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+<!--Modal Solicitud -->
+<section>
+  <div class="modal fade" id="solicitud" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="solicitudModalLabel">Solicitar préstamo</h5>
+          <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">X</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Nav tabs -->
+          <ul class="nav nav-tabs" id="solicitudTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="reglamento-tab" data-bs-toggle="tab" data-bs-target="#reglamento" type="button" role="tab" aria-controls="reglamento" aria-selected="true">
+                Reglamento
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="instrucciones-tab" data-bs-toggle="tab" data-bs-target="#instrucciones" type="button" role="tab" aria-controls="instrucciones" aria-selected="false">
+                Instrucciones para solicitud
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tab panes -->
+          <div class="tab-content mt-3">
+
+            <!-- Reglamento -->
+            <div class="tab-pane fade show active" id="reglamento" role="tabpanel" aria-labelledby="reglamento-tab">
+              <div class="text-justify">
+
+                <p>
+                  Con el propósito de reglamentar los servicios que ofrece JuventudEsGTO, la Coordinación de Política Pública pone a disposición materiales para consulta y construcción del conocimiento en el ámbito juvenil a través del “Centro Documental de Política Pública”, siendo éstos, libros, artículos bibliográficos, audiográficos, videográficos y de folletería...
+                </p>
+
+                <p>
+                  Por consiguiente, se considera como usuario interno a los integrantes del JuventudEsGTO y como usuario externo al público o instituciones cuyos intereses se relacionen con el área de juventud.
+                </p>
+
+                <p>
+                  Los usuarios podrán hacer uso de los servicios del Centro Documental de Política Pública a través de la Coordinación de Política Pública mediante una solicitud de préstamo y apegándose a lo siguiente:
+                </p>
+
+                <hr>
+
+                <ol>
+                  <li>El préstamo de materiales se realizará durante días hábiles en que se labore en JuventudEsGTO.</li>
+                  <li>Se prestará el material sólo al personal del Instituto. Los usuarios externos deberán solicitarlo a través del personal del Instituto.</li>
+                  <li>El interesado deberá llenar un formato de solicitud con el visto bueno de la Coordinación.</li>
+                  <li>El préstamo será hasta por un mes y debe devolverse en las mismas condiciones.</li>
+                  <li>Para renovar el préstamo se requiere una nueva solicitud.</li>
+                  <li>Máximo 3 materiales por solicitud.</li>
+                  <li>No se permiten solicitudes simultáneas sin devolver el primer préstamo.</li>
+                  <li>No colocar objetos sobre el material.</li>
+                  <li>No marcar o dañar el material.</li>
+                  <li>No transferir préstamos a terceros.</li>
+                  <li>
+                    Si el material sufre daños:
+                    <ul>
+                      <li>a) Reposición en 15 días o cubrir valor comercial.</li>
+                      <li>b) Si está agotado, reponer con otro equivalente asignado por la Coordinación.</li>
+                    </ul>
+                  </li>
+                  <li>La Coordinación puede añadir información adicional no contemplada aquí.</li>
+                </ol>
+              </div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="tab-pane fade" id="instrucciones" role="tabpanel" aria-labelledby="instrucciones-tab">
+              <div class="text-justify">
+
+                <p class="lead">
+                  Para solicitar el préstamo de un documento, sigue los siguientes pasos:
+                </p>
+
+                <ol>
+                  <li>Verificar que el documento se encuentre disponible.</li>
+                  <li>
+                    Descargar el formato de solicitud desde el botón en la tabla de documentos o
+                    <a href="documentos_cendoc/Solicitud_Prestamo.pdf" download="Solicitud_Prestamo.pdf">aquí</a>.
+                  </li>
+                  <li>
+                    Imprimir el formato y llenar a mano los siguientes datos personales:
+                    <ul>
+                      <li>Nombre completo</li>
+                      <li>Dirección (opcional)</li>
+                      <li>Área específica (opcional)</li>
+                      <li>Correo electrónico</li>
+                      <li>Teléfono celular</li>
+                    </ul>
+                  </li>
+                  <li>Acudir al Instituto JuventudEsGTO con el formato impreso.</li>
+                </ol>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

@@ -87,7 +87,9 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/app/public/public-layout/public-layout.css",
+              "src/app/admin/admin-layout/admin-layout.css"
             ]
           }
         }
