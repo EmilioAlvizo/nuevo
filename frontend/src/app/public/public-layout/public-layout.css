@@ -48,3 +48,20 @@ app-footer {
   width: 100%;
 }
 
+.texto-title-pages {
+  /* font-family: vollkorn; */
+  font-family:'Baloo 2', sans-serif;
+  font-weight: bold;
+  color: #000599;
+  font-size: calc(1.5em + 0.8vw);
+  margin-bottom: 1em;
+
+  animation-name: fadeInDown;
+  animation-duration: 1.5s;
+  
+}
+
+.text-break {
+  word-break: break-word !important;
+  word-wrap: break-word !important;
+}

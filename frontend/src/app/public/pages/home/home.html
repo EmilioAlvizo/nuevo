@@ -122,12 +122,15 @@
             ></textarea>
           </div>
           <div class="form-group mb-3">
-            <label class="form-label">Municipio:</label>
-            @for (m of municipios; track m.id_municipio) {
+            <label class="col-form-label">Municipio:</label>
+            <select class="form-select" name="municipioT" required>
+              <option selected disabled value="">Seleccione una opción</option>
+              @for (m of municipios; track m.id_municipio) {
             <option [value]="m.id_municipio">
               {{ m.nombre }}
             </option>
             }
+            </select>
           </div>
           <div class="form-group mb-3">
             <label class="form-label">Subir imagen:</label>
@@ -296,7 +299,7 @@
           </div>
           <div class="form-group mb-3">
             <label class="col-form-label">Municipio:</label>
-            <select class="form-select" name="municipioT" required>
+            <select class="form-select" name="municipioP" required>
               <option selected disabled value="">Seleccione una opción</option>
               @for (m of municipios; track m.id_municipio) {
             <option [value]="m.id_municipio">
