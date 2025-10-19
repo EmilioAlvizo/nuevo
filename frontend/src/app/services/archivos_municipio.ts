@@ -36,7 +36,8 @@ export interface ApiResponse {
 //esto es para comunicarse con el backend real
 export class ApiArchivos_municipio {
   //url del backend
-  private apiUrl = 'http://localhost:3000/api';
+  //private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'https://mock.apidog.com/m1/1099917-1089948-default/api';
   //inyecta el servicio HttpClient
   constructor(private http: HttpClient) {}
   getMessage():Observable<ApiResponse> {
