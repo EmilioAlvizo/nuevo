@@ -1,47 +1,199 @@
+p {
+    margin: 0;
+    padding: 0;
+}
 
-/* .background-footer {
-    
-} */
+/* Footer Principal */
+footer {
+    width: 100%;
+    background-color: #E4ECFA;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 60px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
 
 .container {
-    padding: 16px 0;
-    
+    max-width: 1200px;
+    margin: 40px auto 0 auto;
+    padding: 0 24px;
 }
 
-.footer-social-col p {
-    color: #2a3a5e;
-    margin-bottom: 16px;
+/* Grid principal de columnas - estilo Bloomberg */
+.footer-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 2rem 0;
 }
 
-.social {
+/* Columnas individuales */
+.footer-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-col h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    margin: 0 0 20px 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Listas de enlaces */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.footer-links li i {
+    width: 18px;
+    margin-right: 8px;
+    color: #4267B2;
+}
+
+/* Sección de redes sociales horizontal */
+.footer-social {
+    padding: 14px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.social-links {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
-    flex-direction: column;
-    gap: 25px;
+    gap: 32px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
-.social a {
-    align-items: center;
-    gap: 8px;
+.social-links li {
+    margin: 0;
+}
+
+.social-links a {
     color: #4267B2;
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.social a:hover {
+.social-links a:hover {
     color: #1d3557;
 }
 
-footer {
-    /* position: fixed; */
-    left: 0;
-    bottom: 0;
+.social-links i {
+    font-size: 20px;
+}
+
+/* Línea divisoria horizontal */
+.footer-divider {
     width: 100%;
-    z-index: 10;
-    background-color: #E4ECFA;
-    border-top: 1px solid #e0e0e0;
-    margin-top: 40px;
-    text-align: center;
+    height: 1px;
+    background-color: #000000;
+    margin: 0;
+}
+
+/* Sección del logo y copyright */
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 32px;
+}
+
+.footer-bottom img {
+    height: 50px;
+    width: auto;
+}
+
+.footer-copyright {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 20px;
+}
+
+/* Enlaces legales */
+.footer-legal {
+    padding: 24px 0;
+    /*text-align: center;*/
+}
+
+.footer-legal a {
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-legal a:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+/* Responsive para tablets */
+@media (max-width: 992px) {
+    .footer-main {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .footer-col:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .container {
+        width: 736px;
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+        width: 100%;
+    }
+    
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 32px 0;
+    }
+    
+    .footer-social {
+        padding: 20px 0;
+    }
+    
+    .social-links {
+        gap: 24px;
+    }
+    
+    .social-links i {
+        font-size: 18px;
+    }
+    
+    .footer-bottom {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        text-align: center;
+    }
+    
+    .footer-bottom img {
+        height: 40px;
+    }
 }

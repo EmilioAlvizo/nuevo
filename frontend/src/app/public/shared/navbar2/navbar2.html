@@ -1,0 +1,83 @@
+<!-- Barra informativa superior -->
+@if (showTopBar) {
+<div class="top-bar">
+    <div class="top-bar-content">
+        <div class="top-bar-info">
+            <a>477 710 34 00</a>
+            <a href="http://directorio.juventudesgto.com/directoriojegto/">DIRECTORIO</a>
+            <!-- <a href="#" class="highlight">Bloomberg Anywhere Remote Login</a>
+        <a href="#">Bloomberg Customer Support</a> -->
+        </div>
+        <div class="social">
+            <a href="https://www.instagram.com/juventudesgente/" target="_blank"><i
+                    class="fa-brands fa-instagram"></i></a>
+            <a href="https://www.facebook.com/Juventudesgente/" target="_blank"><i
+                    class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://x.com/juventudesgente" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="https://www.youtube.com/@juventudesgto" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+            <a href="https://www.tiktok.com/@juventudesgente" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+    </div>
+
+</div>
+}
+
+<!-- Header principal -->
+<header class="main-header">
+    <div class="header-content">
+        <a class="navbar-brand" routerLink="/">
+            <img src="assets/Logo_juventudes_blanco.png" alt="Logo" height="100">
+        </a>
+        <div class="contenedor-flex">
+
+
+            <!-- Toggle móvil -->
+            <button class="mobile-toggle" (click)="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Navegación principal -->
+            <nav class="nav-center" [class.active]="mobileMenuOpen">
+                <div class="nav-dropdown">
+                    <button class="nav-item-btn" [class.active]="dropdownOpen" (click)="toggleDropdown($event)">
+                        Sistema Juventudes
+                    </button>
+                    <div class="dropdown-content" [class.active]="dropdownOpen">
+                        <div class="dropdown-item">
+                            <div class="dropdown-item-title">¿Qué es?</div>
+                        </div>
+                        <div class="dropdown-item">
+                            <div class="dropdown-item-title">Consejo Estatal de la Juventud</div>
+                        </div>
+                        <!-- <div class="dropdown-highlight">
+                            <div class="dropdown-highlight-title">Programa Estatal</div>
+                            <div class="dropdown-highlight-desc">
+                                Navigate the complexities of policy influence.
+                            </div>
+                            <a href="#">Learn More →</a>
+                        </div> -->
+                        <div class="dropdown-item">
+                            <div class="dropdown-item-title">Red de investigadores</div>
+                        </div>
+                    </div>
+                </div>
+                <a class="boton-rutas" routerLink="/estadisticas" (click)="closeMobileMenu()"
+                    routerLinkActive="active">Estadísticas</a>
+                <a class="boton-rutas" routerLink="/revista" (click)="closeMobileMenu()"
+                    routerLinkActive="active">Revista Voces Emergentes</a>
+                <a class="boton-rutas" (click)="closeMobileMenu()" routerLink="/centro-documental"
+                    routerLinkActive="active">Centro Documental</a>
+                <a class="boton-rutas" routerLink="/informacion-interes" (click)="closeMobileMenu()"
+                    routerLinkActive="active">Información de interés</a>
+            </nav>
+            <div class="nav-right">
+                <!-- <a routerLink="#pricing" class="btn-pricing">Request Pricing</a> -->
+                <a routerLink="/login" class="btn-login">Login</a>
+                <!-- <span class="search-icon">🔍</span> -->
+            </div>
+        </div>
+
+    </div>
+</header>
