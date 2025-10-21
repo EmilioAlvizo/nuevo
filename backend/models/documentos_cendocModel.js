@@ -55,9 +55,14 @@ class Documentos_cendocModel {
       }
 
       // Filtrar por categoría
-      if (params.categoria) {
-        conditions.push(`m.nombre_categoria_cendoc = @categoria`);
-        request.input("categoria", mssql.NVarChar, params.categoria);
+      if (params.categoria && params.categoria.length > 0) {
+        const categoriaList = params.categoria
+          .map((_, index) => `@categoria${index}`)
+          .join(",");
+        conditions.push(`a.id_categoria_cendoc IN (${categoriaList})`);
+        params.categoria.forEach((id, index) => {
+          request.input(`categoria${index}`, mssql.Int, id);
+        });
       }
 
       // filtrar por autor
@@ -125,9 +130,16 @@ class Documentos_cendocModel {
         countRequest.input("busqueda", mssql.NVarChar, `%${params.busqueda}%`);
       }
 
-      if (params.categoria) {
-        countConditions.push(`m.nombre_categoria_cendoc = @categoria`);
-        countRequest.input("categoria", mssql.NVarChar, params.categoria);
+      if (params.categoria && params.categoria.length > 0) {
+        const categoriaList = params.categoria
+          .map((_, index) => `@categoria${index}`)
+          .join(",");
+
+        countConditions.push(`a.id_categoria_cendoc IN (${categoriaList})`);
+
+        params.categoria.forEach((id, index) => {
+          countRequest.input(`categoria${index}`, mssql.Int, id);
+        });
       }
 
       if (params.autor) {
@@ -137,7 +149,11 @@ class Documentos_cendocModel {
 
       if (params.palabras_clave) {
         countConditions.push(`a.palabras_clave = @palabras_clave`);
-        countRequest.input("palabras_clave", mssql.NVarChar, params.palabras_clave);
+        countRequest.input(
+          "palabras_clave",
+          mssql.NVarChar,
+          params.palabras_clave
+        );
       }
 
       if (params.tipo) {
@@ -169,12 +185,13 @@ class Documentos_cendocModel {
       const pool = await getConnection();
       const query = `
         SELECT 
-        c.nombre_categoria_cendoc AS categoria,
-        COUNT(*) AS total
-      FROM documentos_cendoc d
-      INNER JOIN categorias_cendoc c ON d.id_categoria_cendoc = c.id_categoria_cendoc
-      GROUP BY c.nombre_categoria_cendoc
-      ORDER BY total DESC
+          m.id_categoria_cendoc,
+          m.nombre_categoria_cendoc,
+          COUNT(a.id_categoria_cendoc) as contador
+        FROM categorias_cendoc m
+        LEFT JOIN documentos_cendoc a ON m.id_categoria_cendoc = a.id_categoria_cendoc
+        GROUP BY m.id_categoria_cendoc, m.nombre_categoria_cendoc
+        ORDER BY m.nombre_categoria_cendoc ASC
       `;
 
       const result = await pool.request().query(query);
@@ -196,7 +213,7 @@ class Documentos_cendocModel {
         .join(", ");
 
       const request = pool.request();
-      
+
       // Agregar parámetros dinámicamente
       Object.keys(data).forEach((key) => {
         request.input(key, data[key]);
@@ -204,7 +221,7 @@ class Documentos_cendocModel {
 
       const query = `INSERT INTO ${tableName} (${columns}) VALUES (${values}); SELECT SCOPE_IDENTITY() AS id;`;
       const result = await request.query(query);
-      
+
       return { id: result.recordset[0].id, ...data };
     } catch (error) {
       throw new Error(`Error al crear registro: ${error.message}`);
@@ -229,7 +246,7 @@ class Documentos_cendocModel {
 
       const query = `UPDATE ${tableName} SET ${setClause} WHERE ${idColumn} = @id`;
       await request.query(query);
-      
+
       return { id, ...data };
     } catch (error) {
       throw new Error(`Error al actualizar registro: ${error.message}`);
@@ -244,7 +261,7 @@ class Documentos_cendocModel {
         .request()
         .input("id", mssql.Int, id)
         .query(`DELETE FROM ${tableName} WHERE ${idColumn} = @id`);
-      
+
       return { message: "Registro eliminado exitosamente", id };
     } catch (error) {
       throw new Error(`Error al eliminar registro: ${error.message}`);

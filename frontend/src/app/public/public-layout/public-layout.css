@@ -13,9 +13,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-} */
+} 
 
- /* footer {
+ footer {
   width: 100%;
   background-color: #333;
   color: white;
@@ -23,10 +23,14 @@ body {
   text-align: center;
 } */
 
-html, body {
+html, body, app-root, public-layout, .app-layout {
   height: 100%;
   margin: 0;
   scrollbar-gutter: stable;
+}
+
+app-tabla {
+  margin: 0;
 }
 
 body {
@@ -47,6 +51,7 @@ body {
 
 app-footer {
   width: 100%;
+  margin-top: auto;
 }
 
 .texto-title-pages {

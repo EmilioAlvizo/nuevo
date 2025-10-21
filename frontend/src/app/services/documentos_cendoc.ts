@@ -44,7 +44,7 @@ export class ApiDocumentos_cendoc {
   // ✅ NUEVO - Método con filtros (más eficiente)
   getArchivosFiltrados(params: {
     busqueda?: string,
-    categoria?: string,
+    categoria?: number[],
     autor?: string,
     palabras_clave?: string,
     ordenar?: string,
@@ -60,7 +60,7 @@ export class ApiDocumentos_cendoc {
 
     // Agregar categoría
     if (params.categoria) {
-      httpParams = httpParams.set('categoria', params.categoria);
+      httpParams = httpParams.set('categoria',  params.categoria.join(','));
     }
 
     // Agregar autor
@@ -87,7 +87,7 @@ export class ApiDocumentos_cendoc {
       httpParams = httpParams.set('pagina', params.pagina.toString());
     }
 
-    console.log('Llamando a API con params:', httpParams.toString());
+    console.log('Llamando a API documentos_cendoc con params:', httpParams.toString());
 
     return this.http.get<any>(`${this.apiUrl}/documentos_cendoc/filtrados`, {
       params: httpParams
@@ -95,7 +95,7 @@ export class ApiDocumentos_cendoc {
   }
 
   // Obtener conteo de archivos por municipio
-  getConteosPorDocumentos_cendoc(): Observable<{success: boolean, data: {id_categoria: number, nombre: string, contador: number}[]}> {
+  getConteosPorDocumentos_cendoc(): Observable<{success: boolean, data: {id_categoria_cendoc: number, nombre_categoria_cendoc: string, contador: number}[]}> {
     return this.http.get<any>(`${this.apiUrl}/documentos_cendoc/conteos-documentos_cendoc`);
   }
 }

@@ -39,7 +39,9 @@ class Documentos_cendocController {
       // Procesar parámetros
       const params = {
         busqueda: busqueda || null,
-        categoria: categoria || null,
+        categoria: categoria
+          ? categoria.split(",").map((id) => parseInt(id))
+          : [],
         autor: autor || null,
         palabras_clave: palabras_clave || null,
         ordenar: ordenar || "masReciente",

@@ -48,7 +48,7 @@ export class Navbar2 implements OnInit, OnDestroy{
   @HostListener('window:scroll')
   onScroll(): void {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    console.log('Scroll position:', scrollTop);
+    /* console.log('Scroll position:', scrollTop); */
     this.showTopBar = scrollTop < 50;
   }
 }

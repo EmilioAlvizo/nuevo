@@ -50,18 +50,18 @@
     </div>
 
     <div class="contenido-filtros">
-      <!-- Grupo de Policy issues con búsqueda -->
+      <!-- busqueda por categorias -->
       <fieldset class="grupo-facetas">
         <legend class="encabezado-grupo">
           <button
             type="button"
             class="boton-encabezado-grupo"
-            [attr.aria-expanded]="gruposPolicyIssues.expandido"
-            (click)="alternarGrupo('policyIssues')"
+            [attr.aria-expanded]="filtroPorCategoria.expandido"
+            (click)="alternarGrupo('porCategoria')"
           >
-            <span class="titulo-grupo">Por municipio</span>
+            <span class="titulo-grupo">Por categoria</span>
             <span class="icono-grupo">
-              @if (!gruposPolicyIssues.expandido) {
+              @if (!filtroPorCategoria.expandido) {
               <svg
                 width="16"
                 height="16"
@@ -74,7 +74,7 @@
                   fill="currentcolor"
                 />
               </svg>
-              } @if (gruposPolicyIssues.expandido) {
+              } @if (filtroPorCategoria.expandido) {
               <svg
                 width="16"
                 height="16"
@@ -93,8 +93,114 @@
         </legend>
         <div
           class="contenido-grupo"
-          [class.contenido-grupo--expandido]="gruposPolicyIssues.expandido"
-          [attr.aria-hidden]="!gruposPolicyIssues.expandido"
+          [class.contenido-grupo--expandido]="filtroPorCategoria.expandido"
+          [attr.aria-hidden]="!filtroPorCategoria.expandido"
+        >
+          <div class="combobox-busqueda">
+            <div class="contenedor-busqueda">
+              <label for="busqueda-categorias" class="etiqueta-busqueda">Buscar una categoria</label>
+              <div class="contenedor-input-busqueda">
+                <input
+                  id="busqueda-categorias"
+                  type="search"
+                  class="input-busqueda"
+                  placeholder="Buscar una categoria"
+                  autocomplete="off"
+                  [(ngModel)]="terminoBusquedaDocumentoCendoc"
+                  (input)="buscarCategoriasDocumentoCendoc($event)"
+                />
+                <svg
+                  class="icono-busqueda"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M10.5 10.5L14 14"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div class="opciones-busqueda">
+              @for (municipio of documentosCendocFiltrados; track municipio.id_categoria_cendoc) {
+              <label class="etiqueta-campo">
+                <input
+                  type="checkbox"
+                  class="campo-checkbox"
+                  [id]="'categoria-' + municipio.id_categoria_cendoc"
+                  [checked]="isDocumento_cendocSeleccionado(municipio.id_categoria_cendoc)"
+                  (change)="toggleDocumento_cendoc(municipio.id_categoria_cendoc)"
+                />
+                <span class="descripcion-input">
+                  {{ municipio.nombre_categoria_cendoc }}
+                  <span class="contador-input">{{ municipio.contador }}</span>
+                </span>
+              </label>
+              }
+
+              <!-- Mensaje cuando no hay resultados -->
+              @if (municipiosFiltrados.length === 0) {
+              <div class="sin-resultados">No se encontraron municipios</div>
+              }
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      <!-- Busqueda por municipos -->
+      <fieldset class="grupo-facetas">
+        <legend class="encabezado-grupo">
+          <button
+            type="button"
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="filtroPorMunicipio.expandido"
+            (click)="alternarGrupo('porMunicipio')"
+          >
+            <span class="titulo-grupo">Por municipio</span>
+            <span class="icono-grupo">
+              @if (!filtroPorMunicipio.expandido) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z"
+                  fill="currentcolor"
+                />
+              </svg>
+              } @if (filtroPorMunicipio.expandido) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z"
+                  fill="currentcolor"
+                />
+              </svg>
+              }
+            </span>
+          </button>
+        </legend>
+        <div
+          class="contenido-grupo"
+          [class.contenido-grupo--expandido]="filtroPorMunicipio.expandido"
+          [attr.aria-hidden]="!filtroPorMunicipio.expandido"
         >
           <div class="combobox-busqueda">
             <div class="contenedor-busqueda">
@@ -157,19 +263,19 @@
         </div>
       </fieldset>
 
-      <!-- Grupo de Policy sub-issues con búsqueda -->
+      <!-- Busqueda por texto o nombre -->
       <fieldset class="grupo-facetas">
         <legend class="encabezado-grupo">
           <button
             type="button"
             class="boton-encabezado-grupo"
-            [attr.aria-expanded]="gruposPolicySubIssues.expandido"
-            (click)="alternarGrupo('policySubIssues')"
+            [attr.aria-expanded]="filtroPorNombre.expandido"
+            (click)="alternarGrupo('porNombre')"
           >
             <span class="titulo-grupo">Nombre</span>
             <span class="icono-grupo">
               <svg
-                *ngIf="!gruposPolicySubIssues.expandido"
+                *ngIf="!filtroPorNombre.expandido"
                 width="16"
                 height="16"
                 viewBox="0 0 16 16"
@@ -182,7 +288,7 @@
                 />
               </svg>
               <svg
-                *ngIf="gruposPolicySubIssues.expandido"
+                *ngIf="filtroPorNombre.expandido"
                 width="16"
                 height="16"
                 viewBox="0 0 16 16"
@@ -199,8 +305,8 @@
         </legend>
         <div
           class="contenido-grupo"
-          [class.contenido-grupo--expandido]="gruposPolicySubIssues.expandido"
-          [attr.aria-hidden]="!gruposPolicySubIssues.expandido"
+          [class.contenido-grupo--expandido]="filtroPorNombre.expandido"
+          [attr.aria-hidden]="!filtroPorNombre.expandido"
         >
           <div class="combobox-busqueda">
             <div class="contenedor-busqueda">
@@ -248,7 +354,7 @@
     <div class="encabezado-busqueda">
       <h2 class="titulo-resultados">
         <span class="contador-resultados"
-          >{{ filteredArchivos_municipio.length }} resultados</span
+          >{{ filteredArchivos_municipio.length + filteredDocumentos_cendoc.length }} resultados</span
         >
       </h2>
       <div class="acciones-encabezado">
@@ -352,7 +458,35 @@
           </button>
           }
         </div>
-        } <!-- @for (m of filteredArchivos_cendoc; track m.id_archivo) {
+        } 
+        <!-- Mostrar documentos cendoc filtrados -->
+        @for (archivo of filteredDocumentos_cendoc; track archivo.id_documento) {
+        <div class="card">
+          <div class="contenido">
+            <div>
+              <div class="badge">{{ archivo.id_categoria_cendoc }}</div>
+            </div>
+            <div class="titulo">
+              <h3>{{ archivo.nombre_documento }}</h3>
+            </div>
+            <div class="descripcion">
+              <p><strong>Descripcion:</strong> {{ archivo.descripcion_documento }}</p>
+              <p>
+                <strong>Fecha de modificación:</strong> {{ formatDate(archivo.fecha_modificacion) }}
+              </p>
+              @if (archivo.autor_documento) {
+              <p><strong>Autor:</strong> {{ archivo.autor_documento }}</p>
+              }
+            </div>
+          </div>
+          <div class="metadato">
+            <a target="_blank" rel="noopener noreferrer" [href]="'/uploads/' + archivo.archivo_documento">
+              📄 Ver documento
+            </a>
+          </div>
+        </div>
+        }
+        <!-- @for (m of filteredArchivos_cendoc; track m.id_archivo) {
         <div class="card">
           <div class="contenido">
             <div>

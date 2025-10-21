@@ -1,25 +1,17 @@
-<div class="row text-wrap text-break">
-  <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
-    <p class="text-center texto-title-pages mb-4">Voces Emergentes</p>
+<div class="contenedor">
+  <div class="row text-wrap text-break">
+    <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+      <p class="text-center texto-title-pages mb-4">Voces Emergentes</p>
+    </div>
   </div>
-</div>
 
-<div class="card-stack-container">
-  <div
-    *ngFor="let card of cards"
-    class="card-stack"
-    [style.--cards]="card.layers"
-  >
-    <div
-      class="card-layer with-image"
-      [style.background-image]="'url(' + card.image + ')'"
-    >
+  <div class="card-stack-container">
+    <div *ngFor="let card of cards" class="card-stack" [style.--cards]="card.layers">
+      <div class="card-layer with-image" [style.background-image]="'url(' + card.image + ')'">
         <h2>{{ card.title }}</h2>
         <p>{{ card.articles }} articles</p>
+      </div>
+      <div class="card-layer" *ngFor="let i of [].constructor(card.layers - 1)"></div>
     </div>
-    <div
-      class="card-layer"
-      *ngFor="let i of [].constructor(card.layers - 1)"
-    ></div>
   </div>
 </div>
