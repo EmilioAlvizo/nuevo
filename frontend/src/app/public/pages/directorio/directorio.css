@@ -47,18 +47,34 @@ body {
   transform-style: preserve-3d;
 }
 .card-object.card-1 .front {
-  background: #222 90% 35%;
+  /* background: #222 90% 35%; */
+  background: #bdc3c7;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #2c3e50, #bdc3c7);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, #2c3e50, #bdc3c7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   background-size: 115%;
 }
 
 .card-object.card-2 .front {
   /* background: #222 url() 50% 90% no-repeat; */
-  background: #222 50% 90% no-repeat;
+  /* background: #222 50% 90% no-repeat; */
+  background: #000428;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #004e92, #000428);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, #004e92, #000428); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   background-size: 105%;
 }
 
 .card-object.card-3 .front {
-  background: #222 80% 100% no-repeat;
+  /* background: #222 80% 100% no-repeat; */
+  background: #141E30;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to top, #243B55, #141E30);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to top, #243B55, #141E30); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background-size: 108%;
+}
+
+.card-object.card-4 .front {
+  background: #4CA1AF;
+  background: -webkit-linear-gradient(to top, #C4E0E5, #4CA1AF);
+  background: linear-gradient(to top, #C4E0E5, #4CA1AF);
   background-size: 108%;
 }
 
