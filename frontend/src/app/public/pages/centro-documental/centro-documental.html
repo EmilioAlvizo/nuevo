@@ -101,44 +101,42 @@
         </div>
     </section> -->
 
-  <!--Modal Solicitud -->
-  <section>
-    <div class="modal fade" id="solicitud" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
+<!-- Modal Solicitud -->
+<div class="modal fade" id="solicitud" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
 
-          <div class="modal-header">
-            <h5 class="modal-title" id="solicitudModalLabel">Solicitar préstamo</h5>
-            <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Cerrar">
-              <span aria-hidden="true">X</span>
+      <div class="modal-header">
+        <h5 class="modal-title" id="solicitudModalLabel">Solicitar préstamo</h5>
+        <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">X</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="solicitudTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="reglamento-tab" data-bs-toggle="tab" data-bs-target="#reglamento"
+              type="button" role="tab" aria-controls="reglamento" aria-selected="true">
+              Reglamento
             </button>
-          </div>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="instrucciones-tab" data-bs-toggle="tab" data-bs-target="#instrucciones"
+              type="button" role="tab" aria-controls="instrucciones" aria-selected="false">
+              Instrucciones para solicitud
+            </button>
+          </li>
+        </ul>
 
-          <div class="modal-body">
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs" id="solicitudTabs" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="reglamento-tab" data-bs-toggle="tab" data-bs-target="#reglamento"
-                  type="button" role="tab" aria-controls="reglamento" aria-selected="true">
-                  Reglamento
-                </button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="instrucciones-tab" data-bs-toggle="tab" data-bs-target="#instrucciones"
-                  type="button" role="tab" aria-controls="instrucciones" aria-selected="false">
-                  Instrucciones para solicitud
-                </button>
-              </li>
-            </ul>
+        <!-- Tab panes -->
+        <div class="tab-content mt-3">
 
-            <!-- Tab panes -->
-            <div class="tab-content mt-3">
-
-              <!-- Reglamento -->
-              <div class="tab-pane fade show active" id="reglamento" role="tabpanel" aria-labelledby="reglamento-tab">
-                <div class="text-justify">
-
-                  <p>
+          <!-- Reglamento -->
+          <div class="tab-pane fade show active" id="reglamento" role="tabpanel" aria-labelledby="reglamento-tab">
+            <div class="text-justify">
+              <p>
                     Con el propósito de reglamentar los servicios que ofrece JuventudEsGTO, la Coordinación de Política
                     Pública pone a disposición materiales para consulta y construcción del conocimiento en el ámbito
                     juvenil a través del “Centro Documental de Política Pública”, siendo éstos, libros, artículos
@@ -179,14 +177,13 @@
                     </li>
                     <li>La Coordinación puede añadir información adicional no contemplada aquí.</li>
                   </ol>
-                </div>
-              </div>
+            </div>
+          </div>
 
-              <!-- Instrucciones -->
-              <div class="tab-pane fade" id="instrucciones" role="tabpanel" aria-labelledby="instrucciones-tab">
-                <div class="text-justify">
-
-                  <p class="lead">
+          <!-- Instrucciones -->
+          <div class="tab-pane fade" id="instrucciones" role="tabpanel" aria-labelledby="instrucciones-tab">
+            <div class="text-justify">
+              <p class="lead">
                     Para solicitar el préstamo de un documento, sigue los siguientes pasos:
                   </p>
 
@@ -208,18 +205,16 @@
                     </li>
                     <li>Acudir al Instituto JuventudEsGTO con el formato impreso.</li>
                   </ol>
-                </div>
-              </div>
-
             </div>
           </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          </div>
-
         </div>
       </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+
     </div>
-  </section>
+  </div>
+</div>
 </div>

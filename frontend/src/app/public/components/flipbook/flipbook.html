@@ -1,0 +1,18 @@
+<div class="flipbook-root" tabindex="0">
+  <div class="controls">
+    <button (click)="prev()" [disabled]="currentFolioIndex === 0">◀ Prev</button>
+    <div class="page-counter">Folio {{ currentFolioIndex + 1 }} / {{ folios.length }}</div>
+    <button (click)="next()" [disabled]="currentFolioIndex >= folios.length - 1">Next ▶</button>
+  </div>
+
+  <div class="book-stage" #stage>
+    <ng-container *ngFor="let folio of folios; let fi = index">
+      <div class="folio" [class.flipped]="folio.flipped" [class.active]="fi === currentFolioIndex" (click)="toggleFolio(fi)">
+        <div class="leaf front"><canvas #frontCanvas></canvas></div>
+        <div class="leaf back"><canvas #backCanvas></canvas></div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="tips">Click o desliza para cambiar página.</div>
+</div>

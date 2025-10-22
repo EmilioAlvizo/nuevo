@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Flipbook } from '../../components/flipbook/flipbook';
 
 @Component({
   selector: 'app-revista-voces',
-  imports: [ CommonModule],
+  standalone: true,
+  imports: [CommonModule, Flipbook ],
   templateUrl: './revista-voces.html',
   styleUrl: './revista-voces.css'
 })
