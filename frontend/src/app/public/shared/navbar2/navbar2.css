@@ -149,11 +149,10 @@
     width: 100%;
 }
 
-/*.boton-rutas.active {
-    border-bottom: 5px solid #0d6efd !important;
+.boton-rutas.active {
     font-weight: 600 !important;
     background: #181818 !important;
-}*/
+}
 
 .boton-rutas::after {
     content: "";
