@@ -30,7 +30,7 @@ class Documentos_cendocController {
         busqueda, // Término de búsqueda
         categoria, // Categoría del archivo
         autor,
-        palabras_clave,
+        palabra_clave,
         ordenar, // "AZ", "ZA", "masReciente", "masAntiguo"
         limite, // Límite de resultados
         pagina, // Página actual
@@ -43,7 +43,7 @@ class Documentos_cendocController {
           ? categoria.split(",").map((id) => parseInt(id))
           : [],
         autor: autor || null,
-        palabras_clave: palabras_clave || null,
+        palabra_clave: palabra_clave || null,
         ordenar: ordenar || "masReciente",
         limite: parseInt(limite) || 50,
         pagina: parseInt(pagina) || 1,

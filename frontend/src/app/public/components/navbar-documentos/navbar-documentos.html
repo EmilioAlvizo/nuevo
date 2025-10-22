@@ -1,0 +1,25 @@
+<!-- src/app/components/navbar-documentos/navbar-documentos.html -->
+<div class="navbar_documentos_container">
+  <nav class="navbar-documentos">
+  <!-- <button 
+    [class.active]="mostrarFisicos"
+    (click)="cambiarTipo(true)">
+    Archivos Municipio
+  </button>
+
+  <button 
+    [class.active]="!mostrarFisicos"
+    (click)="cambiarTipo(false)">
+    Documentos cendoc
+  </button> -->
+
+  @for(opcion of opciones; track opcion.id) {
+    <button
+    [class.active]="activo === opcion.id"
+    (click)="cambiarTipo(opcion)">
+    {{ opcion.label }}
+    </button>
+  }
+
+</nav>
+</div>

@@ -14,7 +14,7 @@ export interface Documentos_cendoc {
   archivo_documento: string;
   estatus_documento: string;
   fecha_modificacion: string;
-  palabras_clave: string;
+  palabra_clave: string;
   // Datos del municipio (JOIN)
   nombre_categoria?: string;
 }
@@ -46,7 +46,7 @@ export class ApiDocumentos_cendoc {
     busqueda?: string,
     categoria?: number[],
     autor?: string,
-    palabras_clave?: string,
+    palabra_clave?: string,
     ordenar?: string,
     limite?: number,
     pagina?: number
@@ -69,8 +69,8 @@ export class ApiDocumentos_cendoc {
     }
 
     // Agregar palabras clave
-    if (params.palabras_clave) {
-      httpParams = httpParams.set('palabras_clave', params.palabras_clave);
+    if (params.palabra_clave) {
+      httpParams = httpParams.set('palabra_clave', params.palabra_clave);
     }
 
     // Agregar ordenamiento

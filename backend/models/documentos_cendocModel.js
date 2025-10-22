@@ -71,10 +71,14 @@ class Documentos_cendocModel {
         request.input("autor", mssql.NVarChar, `%${params.autor}%`);
       }
 
-      // filtrar por palabras_clave
-      if (params.palabras_clave) {
-        conditions.push(`a.palabras_clave = @palabras_clave`);
-        request.input("palabras_clave", mssql.NVarChar, params.palabras_clave);
+      // Filtrar por palabra clave específica
+      if (params.palabra_clave) {
+        conditions.push(`a.palabras_clave LIKE @palabra_clave`);
+        request.input(
+          "palabra_clave",
+          mssql.NVarChar,
+          `%${params.palabra_clave}%`
+        );
       }
 
       // Agregar condiciones a la consulta
@@ -147,12 +151,13 @@ class Documentos_cendocModel {
         countRequest.input("autor", mssql.NVarChar, params.autor);
       }
 
-      if (params.palabras_clave) {
-        countConditions.push(`a.palabras_clave = @palabras_clave`);
+      // Filtrar por palabra clave específica
+      if (params.palabra_clave) {
+        countConditions.push(`a.palabras_clave LIKE @palabra_clave`);
         countRequest.input(
-          "palabras_clave",
+          "palabra_clave",
           mssql.NVarChar,
-          params.palabras_clave
+          `%${params.palabra_clave}%`
         );
       }
 

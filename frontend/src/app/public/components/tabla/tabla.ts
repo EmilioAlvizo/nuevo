@@ -1,5 +1,5 @@
 // nuevo/frontend/src/app/public/components/tabla/tabla.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { ApiArchivos_municipio, Archivos_municipio } from '../../../services/archivos_municipio';
 import { ApiMunicipio, Municipio } from '../../../services/municipios';
 import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../services/documentos_cendoc';
@@ -27,12 +27,13 @@ interface Documentos_cendocConContador {
   selector: 'app-tabla',
   imports: [CommonModule, FormsModule],
   templateUrl: './tabla.html',
-  styleUrl: './tabla.css'
+  styleUrl: './tabla.css',
 })
 export class Tabla implements OnInit {
+  @Input() tipoDocumento: string = 'archivos_municipio';
   // Datos originales (solo para referencia)
   municipios: Municipio[] = [];
-  
+
   // Datos filtrados que se muestran
   filteredArchivos_municipio: Archivos_municipio[] = [];
   filteredDocumentos_cendoc: Documentos_cendoc[] = [];
@@ -53,6 +54,10 @@ export class Tabla implements OnInit {
   searchTerm: string = '';
   private searchSubject = new Subject<string>();
 
+  // ✅ NUEVO - Para búsqueda por palabra clave
+  palabrasClaveTerm: string = '';
+  private palabrasClaveSubject = new Subject<string>();
+
   // Para ordenamiento
   ordenActual: string = '';
 
@@ -60,21 +65,26 @@ export class Tabla implements OnInit {
   paginaActual: number = 1;
   totalResultados: number = 0;
   totalPaginas: number = 0;
-  limite: number = 50;
+  limite: number = 10;
+  Math = Math;
 
   // Estado de carga
   cargando: boolean = false;
 
   constructor(
-    private datasetService: ApiMunicipio, 
+    private datasetService: ApiMunicipio,
     private archivos_municipioService: ApiArchivos_municipio,
     private documentos_cendocService: ApiDocumentos_cendoc
   ) {
     // Debounce para la búsqueda (espera 500ms después de que el usuario deje de escribir)
-    this.searchSubject.pipe(
-      debounceTime(500)
-    ).subscribe(term => {
+    this.searchSubject.pipe(debounceTime(500)).subscribe((term) => {
       this.searchTerm = term;
+      this.applyFilters();
+    });
+
+    // ✅ NUEVO - Debounce para palabras clave
+    this.palabrasClaveSubject.pipe(debounceTime(500)).subscribe((term) => {
+      this.palabrasClaveTerm = term;
       this.applyFilters();
     });
   }
@@ -92,7 +102,7 @@ export class Tabla implements OnInit {
       next: (datos) => {
         this.municipios = datos.data;
       },
-      error: (err) => console.error('Error fetching municipios:', err)
+      error: (err) => console.error('Error fetching municipios:', err),
     });
   }
 
@@ -103,7 +113,7 @@ export class Tabla implements OnInit {
         this.municipiosConContador = response.data;
         this.municipiosFiltrados = [...this.municipiosConContador];
       },
-      error: (err) => console.error('Error fetching conteos:', err)
+      error: (err) => console.error('Error fetching conteos:', err),
     });
   }
 
@@ -113,22 +123,24 @@ export class Tabla implements OnInit {
         this.documentosCendocConContador = response.data;
         this.documentosCendocFiltrados = [...this.documentosCendocConContador];
       },
-      error: (err) => console.error('Error fetching conteos documentos cendoc:', err)
+      error: (err) => console.error('Error fetching conteos documentos cendoc:', err),
     });
   }
 
   // ✅ NUEVO - Carga archivos con filtros desde el backend
   cargarArchivosFiltrados(): void {
-    console.log('Cargando ', this.documentosCendocSeleccionados);
+    //console.log('Cargando ', this.documentosCendocSeleccionados);
 
     this.cargando = true;
 
     const params = {
       municipios: Array.from(this.municipiosSeleccionados),
       busqueda: this.searchTerm || undefined,
+      //categoria: Array.from(this.documentosCendocSeleccionados),
+      palabra_clave: this.palabrasClaveTerm || undefined,
       ordenar: this.ordenActual || undefined,
       limite: this.limite,
-      pagina: this.paginaActual
+      pagina: this.paginaActual,
     };
 
     this.archivos_municipioService.getArchivosFiltrados(params).subscribe({
@@ -143,7 +155,7 @@ export class Tabla implements OnInit {
       error: (err) => {
         console.error('Error fetching archivos filtrados:', err);
         this.cargando = false;
-      }
+      },
     });
   }
 
@@ -153,9 +165,10 @@ export class Tabla implements OnInit {
     const params = {
       categoria: Array.from(this.documentosCendocSeleccionados),
       busqueda: this.searchTerm || undefined,
+      palabra_clave: this.palabrasClaveTerm || undefined,
       ordenar: this.ordenActual || undefined,
       limite: this.limite,
-      pagina: this.paginaActual
+      pagina: this.paginaActual,
     };
 
     this.documentos_cendocService.getArchivosFiltrados(params).subscribe({
@@ -170,18 +183,18 @@ export class Tabla implements OnInit {
       error: (err) => {
         console.error('Error fetching documentos cendoc filtrados:', err);
         this.cargando = false;
-      }
+      },
     });
   }
 
   buscarMunicipio(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.terminoBusquedaMunicipio = input.value.toLowerCase();
-    
+
     if (this.terminoBusquedaMunicipio === '') {
       this.municipiosFiltrados = [...this.municipiosConContador];
     } else {
-      this.municipiosFiltrados = this.municipiosConContador.filter(m =>
+      this.municipiosFiltrados = this.municipiosConContador.filter((m) =>
         m.nombre.toLowerCase().includes(this.terminoBusquedaMunicipio)
       );
     }
@@ -194,36 +207,39 @@ export class Tabla implements OnInit {
     if (this.terminoBusquedaDocumentoCendoc === '') {
       this.documentosCendocFiltrados = [...this.documentosCendocConContador];
     } else {
-      this.documentosCendocFiltrados = this.documentosCendocConContador.filter(d =>
-        d.nombre_categoria_cendoc.toString().toLowerCase().includes(this.terminoBusquedaDocumentoCendoc)
+      this.documentosCendocFiltrados = this.documentosCendocConContador.filter((d) =>
+        d.nombre_categoria_cendoc
+          .toString()
+          .toLowerCase()
+          .includes(this.terminoBusquedaDocumentoCendoc)
       );
     }
   }
 
   toggleMunicipio(idMunicipio: number): void {
-    console.log('Toggle municipio:', idMunicipio);
-    
+    //console.log('Toggle municipio:', idMunicipio);
+
     if (this.municipiosSeleccionados.has(idMunicipio)) {
       this.municipiosSeleccionados.delete(idMunicipio);
     } else {
       this.municipiosSeleccionados.add(idMunicipio);
     }
-    
-    console.log('Municipios seleccionados:', Array.from(this.municipiosSeleccionados));
+
+    //console.log('Municipios seleccionados:', Array.from(this.municipiosSeleccionados));
     this.paginaActual = 1; // Resetear a la primera página
     this.applyFilters();
   }
 
   toggleDocumento_cendoc(idCategoria: number): void {
-    console.log('Toggle categoria documento cendoc:', idCategoria);
+    //console.log('Toggle categoria documento cendoc:', idCategoria);
 
     if (this.documentosCendocSeleccionados.has(idCategoria)) {
       this.documentosCendocSeleccionados.delete(idCategoria);
     } else {
       this.documentosCendocSeleccionados.add(idCategoria);
-    } 
+    }
 
-    console.log('Categorias documento cendoc seleccionadas:', Array.from(this.documentosCendocSeleccionados));
+    //console.log('Categorias documento cendoc seleccionadas:', Array.from(this.documentosCendocSeleccionados));
     this.paginaActual = 1;
     this.applyFilters();
   }
@@ -233,17 +249,32 @@ export class Tabla implements OnInit {
   }
 
   isDocumento_cendocSeleccionado(idCategoria: number): boolean {
-    return this.documentosCendocSeleccionados.has(idCategoria)
+    return this.documentosCendocSeleccionados.has(idCategoria);
   }
 
   onSearch(term: string) {
     this.searchSubject.next(term.toLowerCase());
   }
 
+  onPalabrasClaveSearch(term: string) {
+    this.palabrasClaveSubject.next(term.toLowerCase());
+  }
+
   // ✅ AHORA SOLO LLAMA AL BACKEND
   applyFilters() {
-    this.cargarArchivosFiltrados();
-    this.cargarDocumentosCendocFiltrados();
+    switch (this.tipoDocumento) {
+      case 'archivos_municipio':
+        this.cargarArchivosFiltrados();
+        break;
+      case 'documentos_cendoc':
+        this.cargarDocumentosCendocFiltrados();
+        break;
+      case 'otra_tabla':
+        //this.cargarOtraTabla(); // método que tendrás que implementar
+        break;
+      default:
+        console.warn('Tipo de documento desconocido:', this.tipoDocumento);
+    }
   }
 
   // Ordenamiento
@@ -263,8 +294,54 @@ export class Tabla implements OnInit {
   irAPagina(pagina: number): void {
     if (pagina >= 1 && pagina <= this.totalPaginas) {
       this.paginaActual = pagina;
+      // Hacer scroll hacia arriba cuando se cambia de página
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       this.applyFilters();
     }
+  }
+
+  cambiarLimite(event: Event): void {
+    const nuevoLimite = parseInt((event.target as HTMLSelectElement).value);
+    this.limite = nuevoLimite;
+    this.paginaActual = 1; // Resetear a la primera página
+    this.applyFilters();
+  }
+
+  obtenerPaginasVisibles(): (number | string)[] {
+    const paginas: (number | string)[] = [];
+    const totalPaginas = this.totalPaginas;
+    const paginaActual = this.paginaActual;
+
+    if (totalPaginas <= 7) {
+      // Si hay 7 o menos páginas, mostrar todas
+      for (let i = 1; i <= totalPaginas; i++) {
+        paginas.push(i);
+      }
+    } else {
+      // Siempre mostrar primera página
+      paginas.push(1);
+
+      if (paginaActual > 3) {
+        paginas.push('...');
+      }
+
+      // Páginas alrededor de la actual
+      const inicio = Math.max(2, paginaActual - 1);
+      const fin = Math.min(totalPaginas - 1, paginaActual + 1);
+
+      for (let i = inicio; i <= fin; i++) {
+        paginas.push(i);
+      }
+
+      if (paginaActual < totalPaginas - 2) {
+        paginas.push('...');
+      }
+
+      // Siempre mostrar última página
+      paginas.push(totalPaginas);
+    }
+
+    return paginas;
   }
 
   // Modos de vista
@@ -278,9 +355,13 @@ export class Tabla implements OnInit {
   filtroPorCategoria: GrupoExpandible = { expandido: false };
   filtroPorMunicipio: GrupoExpandible = { expandido: false };
   filtroPorNombre: GrupoExpandible = { expandido: true };
+  filtroPorPalabrasClave: GrupoExpandible = { expandido: false };
 
   alternarGrupo(grupo: string): void {
     switch (grupo) {
+      case 'porPalabrasClave':
+        this.filtroPorPalabrasClave.expandido = !this.filtroPorPalabrasClave.expandido;
+        break;
       case 'porCategoria':
         this.filtroPorCategoria.expandido = !this.filtroPorCategoria.expandido;
         break;
@@ -295,10 +376,9 @@ export class Tabla implements OnInit {
 
   // Obtener nombre del municipio por ID
   obtenerNombreMunicipio(idMunicipio: number): string {
-    const municipio = this.municipios.find(m => m.id_municipio === idMunicipio);
+    const municipio = this.municipios.find((m) => m.id_municipio === idMunicipio);
     return municipio ? municipio.nombre : 'Desconocido';
   }
-  
 
   // Limpiar todos los filtros
   limpiarFiltros(): void {
@@ -311,6 +391,8 @@ export class Tabla implements OnInit {
     this.municipiosFiltrados = [...this.municipiosConContador];
     this.applyFilters();
 
+    this.palabrasClaveTerm = '';
+
     this.documentosCendocSeleccionados.clear();
     this.terminoBusquedaDocumentoCendoc = '';
     this.searchTerm = '';
@@ -319,5 +401,4 @@ export class Tabla implements OnInit {
     this.documentosCendocFiltrados = [...this.documentosCendocConContador];
     this.applyFilters();
   }
-
 }

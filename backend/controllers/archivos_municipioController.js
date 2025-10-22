@@ -30,6 +30,7 @@ class Archivos_municipioController {
         municipios, // "1,2,3" - IDs separados por coma
         busqueda, // Término de búsqueda
         categoria, // Categoría del archivo
+        palabra_clave, // Palabra clave específica
         tipo, // Tipo de archivo
         ordenar, // "AZ", "ZA", "masReciente", "masAntiguo"
         limite, // Límite de resultados
@@ -43,6 +44,7 @@ class Archivos_municipioController {
           : [],
         busqueda: busqueda || null,
         categoria: categoria || null,
+        palabra_clave: palabra_clave || null,
         tipo: tipo || null,
         ordenar: ordenar || "masReciente",
         limite: parseInt(limite) || 50,

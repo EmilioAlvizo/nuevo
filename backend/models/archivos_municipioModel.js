@@ -73,6 +73,16 @@ class Archivos_municipioModel {
         request.input("categoria", mssql.NVarChar, params.categoria);
       }
 
+      // Filtrar por palabra clave específica
+      if (params.palabra_clave) {
+        conditions.push(`a.palabras_clave LIKE @palabra_clave`);
+        request.input(
+          "palabra_clave",
+          mssql.NVarChar,
+          `%${params.palabra_clave}%`
+        );
+      }
+
       // Filtrar por tipo
       if (params.tipo) {
         conditions.push(`a.tipo_archivo = @tipo`);
@@ -147,6 +157,16 @@ class Archivos_municipioModel {
       if (params.categoria) {
         countConditions.push(`a.categoria_archivo = @categoria`);
         countRequest.input("categoria", mssql.NVarChar, params.categoria);
+      }
+
+      // Filtrar por palabra clave específica
+      if (params.palabra_clave) {
+        countConditions.push(`a.palabras_clave LIKE @palabra_clave`);
+        countRequest.input(
+          "palabra_clave",
+          mssql.NVarChar,
+          `%${params.palabra_clave}%`
+        );
       }
 
       if (params.tipo) {

@@ -1,9 +1,10 @@
 <div class="contenedor">
   <div class="row text-wrap text-break">
-  <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
-    <p class="text-center texto-title-pages mb-4">Estadísticas de las juventudes</p>
+    <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+      <p class="text-center texto-title-pages mb-4">Estadísticas de las juventudes</p>
+    </div>
   </div>
 </div>
-</div>
 
-<app-tabla></app-tabla>
+<app-navbar-documentos (tipoCambio)="onTipoCambio($event)"></app-navbar-documentos>
+<app-tabla [tipoDocumento]="mostrarTabla"></app-tabla>

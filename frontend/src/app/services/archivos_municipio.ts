@@ -16,7 +16,7 @@ export interface Archivos_municipio {
   fecha_modificacion: string;
   tipo_archivo: string;
   categoria_archivo: string;
-  palabras_clave: string;
+  palabra_clave: string;
   subcategoria_archivo: string;
   // Datos del municipio (JOIN)
   nombre_municipio?: string;
@@ -50,6 +50,7 @@ export class ApiArchivos_municipio {
     municipios?: number[],
     busqueda?: string,
     categoria?: string,
+    palabra_clave?: string,
     tipo?: string,
     ordenar?: string,
     limite?: number,
@@ -72,6 +73,11 @@ export class ApiArchivos_municipio {
       httpParams = httpParams.set('categoria', params.categoria);
     }
 
+    // Agregar palabras clave
+    if (params.palabra_clave) {
+      httpParams = httpParams.set('palabra_clave', params.palabra_clave);
+    }
+
     // Agregar tipo
     if (params.tipo) {
       httpParams = httpParams.set('tipo', params.tipo);
@@ -91,7 +97,7 @@ export class ApiArchivos_municipio {
       httpParams = httpParams.set('pagina', params.pagina.toString());
     }
 
-    console.log('Llamando a API con params:', httpParams.toString());
+    console.log('Llamando a API archivos_municipio con params:', httpParams.toString());
 
     return this.http.get<any>(`${this.apiUrl}/archivos_municipio/filtrados`, {
       params: httpParams

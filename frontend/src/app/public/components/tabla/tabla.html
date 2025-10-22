@@ -50,6 +50,91 @@
     </div>
 
     <div class="contenido-filtros">
+      <!-- ✅ NUEVO - Búsqueda por palabras clave -->
+      <fieldset class="grupo-facetas">
+        <legend class="encabezado-grupo">
+          <button
+            type="button"
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="filtroPorPalabrasClave.expandido"
+            (click)="alternarGrupo('porPalabrasClave')"
+          >
+            <span class="titulo-grupo">Palabras clave</span>
+            <span class="icono-grupo">
+              @if (!filtroPorPalabrasClave.expandido) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z"
+                  fill="currentcolor"
+                />
+              </svg>
+              } @if (filtroPorPalabrasClave.expandido) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z"
+                  fill="currentcolor"
+                />
+              </svg>
+              }
+            </span>
+          </button>
+        </legend>
+        <div
+          class="contenido-grupo"
+          [class.contenido-grupo--expandido]="filtroPorPalabrasClave.expandido"
+          [attr.aria-hidden]="!filtroPorPalabrasClave.expandido"
+        >
+          <div class="combobox-busqueda">
+            <div class="contenedor-busqueda">
+              <label for="busqueda-palabras-clave" class="etiqueta-busqueda"
+                >Buscar por palabras clave</label
+              >
+              <div class="contenedor-input-busqueda">
+                <input
+                  id="busqueda-palabras-clave"
+                  type="search"
+                  class="input-busqueda"
+                  placeholder="Ej: educación, salud, infraestructura"
+                  (input)="onPalabrasClaveSearch($event.target.value)"
+                  autocomplete="off"
+                />
+                <svg
+                  class="icono-busqueda"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M10.5 10.5L14 14"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
       <!-- busqueda por categorias -->
       <fieldset class="grupo-facetas">
         <legend class="encabezado-grupo">
@@ -98,7 +183,9 @@
         >
           <div class="combobox-busqueda">
             <div class="contenedor-busqueda">
-              <label for="busqueda-categorias" class="etiqueta-busqueda">Buscar una categoria</label>
+              <label for="busqueda-categorias" class="etiqueta-busqueda"
+                >Buscar una categoria</label
+              >
               <div class="contenedor-input-busqueda">
                 <input
                   id="busqueda-categorias"
@@ -349,13 +436,15 @@
       </fieldset>
     </div>
   </div>
-  
+
   <main class="content">
     <div class="encabezado-busqueda">
       <h2 class="titulo-resultados">
-        <span class="contador-resultados"
-          >{{ filteredArchivos_municipio.length + filteredDocumentos_cendoc.length }} resultados</span
-        >
+        @if (tipoDocumento === 'archivos_municipio') {<span class="contador-resultados"
+          >{{ filteredArchivos_municipio.length }} resultados</span
+        >} @if (tipoDocumento === 'documentos_cendoc') {<span class="contador-resultados"
+          >{{ filteredDocumentos_cendoc.length }} resultados</span
+        >}
       </h2>
       <div class="acciones-encabezado">
         <!-- Dropdown de ordenamiento -->
@@ -421,7 +510,8 @@
     <div>
       <div class="cards-grid">
         <!-- Mostrar archivos filtrados -->
-        @for (archivo of filteredArchivos_municipio; track archivo.id_archivo) {
+        @if (tipoDocumento === 'archivos_municipio') { @for (archivo of filteredArchivos_municipio; track
+        archivo.id_archivo) {
         <div class="card">
           <div class="contenido">
             <div>
@@ -446,25 +536,14 @@
             </a>
           </div>
         </div>
-        }
-
-        <!-- Mensaje cuando no hay resultados -->
-        @if (filteredArchivos_municipio.length === 0) {
-        <div class="sin-resultados-grid">
-          <p>No se encontraron resultados con los filtros aplicados.</p>
-          @if (municipiosSeleccionados.size > 0) {
-          <button type="button" class="boton-limpiar-filtros" (click)="limpiarFiltros()">
-            Limpiar filtros
-          </button>
-          }
-        </div>
-        } 
+        } }
         <!-- Mostrar documentos cendoc filtrados -->
-        @for (archivo of filteredDocumentos_cendoc; track archivo.id_documento) {
-        <div class="card">
+        @if (tipoDocumento === 'documentos_cendoc') { @for (archivo of filteredDocumentos_cendoc; track
+        archivo.id_documento) {
+        <div class="card_documentos_cendoc">
           <div class="contenido">
             <div>
-              <div class="badge">{{ archivo.id_categoria_cendoc }}</div>
+              <div class="badge">{{ archivo.nombre_categoria }}</div>
             </div>
             <div class="titulo">
               <h3>{{ archivo.nombre_documento }}</h3>
@@ -480,33 +559,200 @@
             </div>
           </div>
           <div class="metadato">
-            <a target="_blank" rel="noopener noreferrer" [href]="'/uploads/' + archivo.archivo_documento">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              [href]="'/uploads/' + archivo.archivo_documento"
+            >
               📄 Ver documento
             </a>
           </div>
+        </div>
+        } }
+
+        <!-- Mensaje cuando no hay resultados -->
+        @if (filteredArchivos_municipio.length === 0) {
+        <div class="sin-resultados-grid">
+          <p>No se encontraron archivos_municipio con los filtros aplicados.</p>
+          @if (municipiosSeleccionados.size > 0) {
+          <button type="button" class="boton-limpiar-filtros" (click)="limpiarFiltros()">
+            Limpiar filtros
+          </button>
+          }
         </div>
         }
-        <!-- @for (m of filteredArchivos_cendoc; track m.id_archivo) {
-        <div class="card">
-          <div class="contenido">
-            <div>
-              <div class="badge">Municipio</div>
-            </div>
-            <div class="titulo">
-              <h3>{{ m.nombre }}</h3>
-            </div>
-            <div class="descripcion">
-              <p><strong>Fecha de captura:</strong> {{ formatDate(m.Fecha_Captura) }}</p>
-            </div>
-          </div>
-          <div class="metadato">
-            <a target="_blank" rel="noopener noreferrer" [href]="'/uploads/' + m.pdf">
-              📄 Ver documento
-            </a>
-          </div>
+        <!-- Mensaje cuando no hay resultados -->
+        @if (filteredDocumentos_cendoc.length === 0) {
+        <div class="sin-resultados-grid">
+          <p>No se encontraron documentos_cendoc con los filtros aplicados.</p>
+          @if (municipiosSeleccionados.size > 0) {
+          <button type="button" class="boton-limpiar-filtros" (click)="limpiarFiltros()">
+            Limpiar filtros
+          </button>
+          }
         </div>
-        } -->
+        }
       </div>
+      @if (totalPaginas > 1) {
+      <div class="contenedor-paginacion">
+        <div class="info-paginacion">
+          <p class="texto-info">
+            Mostrando
+            <strong>{{ (paginaActual - 1) * limite + 1 }}</strong>
+            a
+            <strong>{{ Math.min(paginaActual * limite, totalResultados) }}</strong>
+            de
+            <strong>{{ totalResultados }}</strong>
+            resultados
+          </p>
+        </div>
+
+        <nav class="navegacion-paginacion" aria-label="Paginación">
+          <button
+            type="button"
+            class="boton-paginacion"
+            [disabled]="paginaActual === 1"
+            (click)="irAPagina(1)"
+            aria-label="Ir a la primera página"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11 2L5 8L11 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 2L2 8L8 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="boton-paginacion"
+            [disabled]="paginaActual === 1"
+            (click)="irAPagina(paginaActual - 1)"
+            aria-label="Página anterior"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 2L4 8L10 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+
+          <!-- Números de página -->
+          <div class="numeros-pagina">
+            @for (pagina of obtenerPaginasVisibles(); track pagina) { @if (pagina === '...') {
+            <span class="puntos-suspensivos">...</span>
+            } @else {
+            <button
+              type="button"
+              class="boton-numero-pagina"
+              [class.activo]="pagina === paginaActual"
+              (click)="irAPagina(+pagina)"
+              [attr.aria-current]="pagina === paginaActual ? 'page' : null"
+            >
+              {{ pagina }}
+            </button>
+            } }
+          </div>
+
+          <button
+            type="button"
+            class="boton-paginacion"
+            [disabled]="paginaActual === totalPaginas"
+            (click)="irAPagina(paginaActual + 1)"
+            aria-label="Página siguiente"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6 2L12 8L6 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            class="boton-paginacion"
+            [disabled]="paginaActual === totalPaginas"
+            (click)="irAPagina(totalPaginas)"
+            aria-label="Ir a la última página"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5 2L11 8L5 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 2L14 8L8 14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </nav>
+
+        <!-- Selector de items por página -->
+        <div class="selector-limite">
+          <label for="items-por-pagina" class="etiqueta-limite">Items por página:</label>
+          <select
+            id="items-por-pagina"
+            class="select-limite"
+            [(ngModel)]="limite"
+            (change)="cambiarLimite($event)"
+          >
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+            <option [value]="100">100</option>
+          </select>
+        </div>
+      </div>
+      }
     </div>
   </main>
 </div>
