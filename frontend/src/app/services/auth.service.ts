@@ -1,7 +1,7 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+// nuevo/frontend/src/app/services/auth.service.ts
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, map, catchError, of } from 'rxjs';
 import { Router } from '@angular/router';
 
 export interface User {
@@ -16,24 +16,25 @@ export interface AuthResponse {
   message?: string;
   data?: {
     user: User;
-    token: string;
   };
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api/auth';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  private isBrowser: boolean;
+  //private isBrowser: boolean;
+
+  private authChecked = false;
 
   constructor(
     private http: HttpClient,
-    private router: Router,
-    @Inject(PLATFORM_ID) platformId: Object
+    private router: Router //@Inject(PLATFORM_ID) platformId: Object
   ) {
+    /*
     // Detectar si estamos en el navegador
     this.isBrowser = isPlatformBrowser(platformId);
     
@@ -43,84 +44,86 @@ export class AuthService {
       if (user) {
         this.currentUserSubject.next(user);
       }
-    }
+    }*/
+    this.checkAuth().subscribe();
   }
 
   // Registro
-  register(userData: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData)
+  register(userData: any): Observable<User> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register`, userData, { withCredentials: true })
       .pipe(
-        tap(response => {
+        tap((response) => {
           if (response.success && response.data) {
-            this.setSession(response.data);
+            this.currentUserSubject.next(response.data.user);
+            this.authChecked = true;
           }
-        })
+        }),
+        map((response) => response.data!.user)
       );
   }
 
   // Login
-  login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password })
+  login(email: string, password: string): Observable<User> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true })
       .pipe(
-        tap(response => {
+        tap((response) => {
           if (response.success && response.data) {
-            this.setSession(response.data);
+            this.currentUserSubject.next(response.data.user);
+            this.authChecked = true;
           }
-        })
+        }),
+        map((response) => response.data!.user)
       );
   }
 
   // Logout
   logout(): void {
-    if (this.isBrowser) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/login']);
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
+      next: () => {
+        this.currentUserSubject.next(null);
+        this.authChecked = false;
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        // Aunque falle, limpiamos el estado local
+        this.currentUserSubject.next(null);
+        this.authChecked = false;
+        this.router.navigate(['/login']);
+      },
+    });
   }
 
-  // Verificar si está autenticado
-  isAuthenticated(): boolean {
-    if (!this.isBrowser) {
-      console.log('⚠️ No está en el navegador');
-      return false;
+  // ✅ Verificar autenticación (consulta al backend)
+  checkAuth(): Observable<User | null> {
+    // Si ya verificamos y hay usuario, retornar el usuario actual
+    if (this.authChecked && this.currentUserSubject.value) {
+      return of(this.currentUserSubject.value);
     }
 
-    const token = this.getToken();
-    
-    if (!token) {
-      console.log('⚠️ No hay token');
-      return false;
-    }
-
-    // Verificar si el token ha expirado
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const exp = payload.exp * 1000; // Convertir a milliseconds
-      const isValid = Date.now() < exp;
-      
-      if (!isValid) {
-        console.log('⚠️ Token expirado');
-        // Limpiar token expirado
-        this.logout();
-        return false;
-      }
-      
-      console.log('✅ Token válido');
-      return true;
-    } catch (error) {
-      console.log('❌ Error al validar token:', error);
-      return false;
-    }
-  }
-
-  // Obtener token
-  getToken(): string | null {
-    if (!this.isBrowser) {
-      return null;
-    }
-    return localStorage.getItem('token');
+    return this.http
+      .get<AuthResponse>(`${this.apiUrl}/verify`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            this.authChecked = true;
+            this.currentUserSubject.next(response.data.user);
+            return response.data.user;
+          }
+          this.authChecked = true;
+          this.currentUserSubject.next(null);
+          return null;
+        }),
+        catchError((error) => {
+          console.error('Error verificando autenticación:', error);
+          this.authChecked = true;
+          this.currentUserSubject.next(null);
+          return of(null);
+        })
+      );
   }
 
   // Obtener usuario actual
@@ -128,35 +131,14 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  // Verificar si la autenticación ya fue verificada
+  isAuthChecked(): boolean {
+    return this.authChecked;
+  }
+
   // Verificar rol
   hasRole(role: string): boolean {
     const user = this.getCurrentUser();
     return user ? user.rol === role : false;
-  }
-
-  // Guardar sesión
-  private setSession(authData: { user: User; token: string }): void {
-    if (this.isBrowser) {
-      localStorage.setItem('token', authData.token);
-      localStorage.setItem('user', JSON.stringify(authData.user));
-    }
-    this.currentUserSubject.next(authData.user);
-  }
-
-  // Obtener usuario del storage
-  private getUserFromStorage(): User | null {
-    if (!this.isBrowser) {
-      return null;
-    }
-
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch {
-        return null;
-      }
-    }
-    return null;
   }
 }

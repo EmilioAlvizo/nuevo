@@ -1,6 +1,6 @@
 //nuevo/backend/controllers/authController.js
 const UserModel = require("../models/userModel");
-const { generateToken } = require("../config/jwt");
+const { generateToken, verifyToken } = require("../config/jwt");
 const { getConnection, mssql } = require("../config/database");
 
 class AuthController {
@@ -14,33 +14,37 @@ class AuthController {
       if (!nombre || !email || !password) {
         return res.status(400).json({
           success: false,
-          message: "Todos los campos son obligatorios"
+          message: "Todos los campos son obligatorios",
         });
       }
 
       if (password !== confirmPassword) {
         return res.status(400).json({
           success: false,
-          message: "Las contraseñas no coinciden"
+          message: "Las contraseñas no coinciden",
         });
       }
 
       if (password.length < 6) {
         return res.status(400).json({
           success: false,
-          message: "La contraseña debe tener al menos 6 caracteres"
+          message: "La contraseña debe tener al menos 6 caracteres",
         });
       }
 
       // ⭐ VERIFICAR si el email está autorizado (ajustado para SQL Server)
-      const result = await pool.request()
-        .input('email', email.toLowerCase().trim())
-        .query('SELECT * FROM authorized_emails WHERE email = @email AND used = 0');
+      const result = await pool
+        .request()
+        .input("email", email.toLowerCase().trim())
+        .query(
+          "SELECT * FROM authorized_emails WHERE email = @email AND used = 0"
+        );
 
       if (!result.recordset || result.recordset.length === 0) {
         return res.status(403).json({
           success: false,
-          message: "Este email no está autorizado para registrarse. Contacta al administrador para solicitar acceso."
+          message:
+            "Este email no está autorizado para registrarse. Contacta al administrador para solicitar acceso.",
         });
       }
 
@@ -49,7 +53,7 @@ class AuthController {
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          message: "El email ya está registrado"
+          message: "El email ya está registrado",
         });
       }
 
@@ -57,12 +61,22 @@ class AuthController {
       const newUser = await UserModel.create({ nombre, email, password });
 
       // ⭐ Marcar el email autorizado como usado (ajustado para SQL Server)
-      await pool.request()
-        .input('email', email.toLowerCase().trim())
-        .query('UPDATE authorized_emails SET used = 1, used_at = GETDATE() WHERE email = @email');
+      await pool
+        .request()
+        .input("email", email.toLowerCase().trim())
+        .query(
+          "UPDATE authorized_emails SET used = 1, used_at = GETDATE() WHERE email = @email"
+        );
 
       // Generar token
       const token = generateToken(newUser);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // true solo en producción
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000, // 24 horas
+      });
 
       res.status(201).json({
         success: true,
@@ -72,15 +86,14 @@ class AuthController {
             id: newUser.id,
             nombre: newUser.nombre,
             email: newUser.email,
-            rol: newUser.rol
+            rol: newUser.rol,
           },
-          token
-        }
+        },
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -94,34 +107,45 @@ class AuthController {
       if (!email || !password) {
         return res.status(400).json({
           success: false,
-          message: "Email y contraseña son obligatorios"
+          message: "Email y contraseña son obligatorios",
         });
       }
 
       // Buscar usuario
       const user = await UserModel.findByEmail(email);
       if (!user) {
-        console.log('no se encontro email');
+        console.log("no se encontro email");
         return res.status(401).json({
           success: false,
-          message: "Credenciales inválidas"
+          message: "Credenciales inválidas",
         });
       }
 
       // Verificar contraseña
-      const isPasswordValid = await UserModel.verifyPassword(password, user.password);
-      console.log('password ', password);
-      console.log('user.password ', user.password);
+      const isPasswordValid = await UserModel.verifyPassword(
+        password,
+        user.password
+      );
+      console.log("password ", password);
+      console.log("user.password ", user.password);
       if (!isPasswordValid) {
-        console.log('error en la contraseña');
+        console.log("error en la contraseña");
         return res.status(401).json({
           success: false,
-          message: "Credenciales inválidas"
+          message: "Credenciales inválidas",
         });
       }
 
       // Generar token
       const token = generateToken(user);
+
+      // ✅ Enviar token como cookie HTTP-only
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
 
       res.status(200).json({
         success: true,
@@ -131,15 +155,14 @@ class AuthController {
             id: user.id,
             nombre: user.nombre,
             email: user.email,
-            rol: user.rol
+            rol: user.rol,
           },
-          token
-        }
+        },
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -152,18 +175,18 @@ class AuthController {
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: "Usuario no encontrado"
+          message: "Usuario no encontrado",
         });
       }
 
       res.status(200).json({
         success: true,
-        data: user
+        data: user,
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -175,15 +198,63 @@ class AuthController {
         success: true,
         message: "Token válido",
         data: {
-          user: req.user
-        }
+          user: req.user,
+        },
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: error.message
+        message: error.message,
       });
     }
+  }
+
+  // ✅ Verificar si hay sesión activa
+  static async verify(req, res) {
+    try {
+      const token = req.cookies.token;
+
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "No hay token",
+        });
+      }
+
+      const decoded = verifyToken(token);
+
+      if (!decoded) {
+        return res.status(401).json({
+          success: false,
+          message: "Token inválido o expirado",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: {
+          user: decoded,
+        },
+      });
+    } catch (error) {
+      res.status(401).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  // ✅ Cerrar sesión (elimina cookie)
+  static async logout(req, res) {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+    res.status(200).json({
+      success: true,
+      message: "Sesión cerrada",
+    });
   }
 }
 

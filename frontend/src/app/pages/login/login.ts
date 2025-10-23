@@ -9,14 +9,14 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class LoginComponent {
   email = '';
   password = '';
   loading = false;
   error = '';
-  returnUrl = '/dashboard';
+  returnUrl = '/admin';
 
   constructor(
     private authService: AuthService,
@@ -24,7 +24,14 @@ export class LoginComponent {
     private route: ActivatedRoute
   ) {
     // Obtener la URL de retorno
-    this.returnUrl = this.route.snapshot.queryParams['/admin'] || '/admin';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin';
+
+    // ✅ Si ya hay sesión activa, redirigir
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.router.navigate([this.returnUrl]);
+      }
+    });
   }
 
   onSubmit(): void {
@@ -37,18 +44,19 @@ export class LoginComponent {
     this.error = '';
 
     this.authService.login(this.email, this.password).subscribe({
-      next: (response) => {
-        if (response.success) {
+      next: (user) => {
+        if (user) {
+          // usuario autenticado
           this.router.navigate([this.returnUrl]);
+        } else {
+          // login fallido
+          this.error = 'Credenciales inválidas';
         }
       },
-      error: (error) => {
-        this.loading = false;
-        this.error = error.error?.message || 'Error al iniciar sesión';
+      error: (err) => {
+        this.error = 'Error al iniciar sesión';
+        console.error(err);
       },
-      complete: () => {
-        this.loading = false;
-      }
     });
   }
 }

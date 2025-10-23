@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/pages/register/register.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './register.html',
-  styleUrls: ['./register.css']
+  styleUrls: ['./register.css'],
 })
 export class RegisterComponent {
   nombre = '';
@@ -19,10 +20,7 @@ export class RegisterComponent {
   loading = false;
   error = '';
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit(): void {
     // Validaciones
@@ -48,22 +46,24 @@ export class RegisterComponent {
       nombre: this.nombre,
       email: this.email,
       password: this.password,
-      confirmPassword: this.confirmPassword
+      confirmPassword: this.confirmPassword,
     };
 
     this.authService.register(userData).subscribe({
-      next: (response) => {
-        if (response.success) {
+      next: (user) => {
+        if (user) {
           this.router.navigate(['/admin']);
+        } else {
+          this.error = 'No se pudo registrar el usuario';
         }
       },
-      error: (error) => {
+      error: (err) => {
+        this.error = err.error?.message || 'Error al registrar usuario';
         this.loading = false;
-        this.error = error.error?.message || 'Error al registrar usuario';
       },
       complete: () => {
         this.loading = false;
-      }
+      },
     });
   }
 }

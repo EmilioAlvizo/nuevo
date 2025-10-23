@@ -1,20 +1,18 @@
-const { verifyToken } = require('../config/jwt');
+// nuevo/backend/middleware/authMiddleware.js
+const { verifyToken } = require("../config/jwt");
 
 // Middleware para verificar token
 const authMiddleware = (req, res, next) => {
   try {
-    // Obtener token del header
-    const authHeader = req.headers.authorization;
+    // Obtener token desde cookie (no desde headers)
+    const token = req.cookies.token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'Token no proporcionado'
+        message: "Token no proporcionado en la cookie",
       });
     }
-
-    // Extraer el token
-    const token = authHeader.split(' ')[1];
 
     // Verificar token
     const decoded = verifyToken(token);
@@ -22,7 +20,7 @@ const authMiddleware = (req, res, next) => {
     if (!decoded) {
       return res.status(401).json({
         success: false,
-        message: 'Token inválido o expirado'
+        message: "Token inválido o expirado",
       });
     }
 
@@ -32,8 +30,8 @@ const authMiddleware = (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error al verificar token',
-      error: error.message
+      message: "Error al verificar token",
+      error: error.message,
     });
   }
 };
@@ -44,14 +42,14 @@ const checkRole = (...allowedRoles) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'Usuario no autenticado'
+        message: "Usuario no autenticado",
       });
     }
 
     if (!allowedRoles.includes(req.user.rol)) {
       return res.status(403).json({
         success: false,
-        message: 'No tienes permisos para acceder a este recurso'
+        message: "No tienes permisos para acceder a este recurso",
       });
     }
 
@@ -61,5 +59,5 @@ const checkRole = (...allowedRoles) => {
 
 module.exports = {
   authMiddleware,
-  checkRole
+  checkRole,
 };

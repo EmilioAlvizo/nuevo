@@ -1,4 +1,6 @@
+// nuevo/backend/server.js
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const municipioRoutes = require("./routes/municipioRoutes");
@@ -10,8 +12,17 @@ const documentos_cendocRoutes = require("./routes/documentos_cendocRoutes");
 const app = express();
 const PORT = 3000;
 
+app.use(cookieParser()); // Parsear cookies
+
 // Middlewares
-app.use(cors()); // Permitir peticiones desde el frontend
+app.use(
+  cors({
+    origin: "http://localhost:4200", // tu frontend Angular
+    credentials: true, // ⚠️ CRÍTICO para que las cookies funcionen
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+); // Permitir peticiones desde el frontend
 app.use(bodyParser.json()); // Parsear JSON
 app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formularios
 
@@ -25,15 +36,15 @@ app.get("/", (req, res) => {
         register: "POST /api/auth/register",
         login: "POST /api/auth/login",
         profile: "GET /api/auth/profile (requiere token)",
-        verify: "GET /api/auth/verify (requiere token)"
+        verify: "GET /api/auth/verify (requiere token)",
       },
       municipios: {
         getAll: "GET /api/municipios (requiere token)",
         getById: "GET /api/municipios/:id (requiere token)",
         create: "POST /api/municipios (requiere token)",
         update: "PUT /api/municipios/:id (requiere token)",
-        delete: "DELETE /api/municipios/:id (requiere token + rol admin)"
-      }
+        delete: "DELETE /api/municipios/:id (requiere token + rol admin)",
+      },
     },
   });
 });
