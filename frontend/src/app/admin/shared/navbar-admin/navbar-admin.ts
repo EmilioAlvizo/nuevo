@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar-admin',
@@ -8,12 +9,20 @@ import { AuthService } from '../../../services/auth.service';
   styleUrl: './navbar-admin.css'
 })
 export class NavbarAdmin {
-  //funcion para cerrar cesion usando el servicio authservice
-  constructor(private authService: AuthService) {
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  }
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('✅ Sesión cerrada');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Error al cerrar sesión:', err);
+        // Aún así redirigir
+        this.router.navigate(['/login']);
+      }
+    });
   }
-
 }

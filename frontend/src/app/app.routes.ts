@@ -21,6 +21,7 @@
 //     {path: 'contactanos', component: Contactanos},
 // ];
 
+// nuevo/frontend/src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { PublicLayoutComponent } from '../app/public/public-layout/public-layout';
 import { AdminLayoutComponent } from './admin/admin-layout/admin-layout';
@@ -53,4 +54,9 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   //{path: 'admin',component: Admin, canActivate: [authGuard]},
+  // Ruta 404
+  {
+    path: '**',
+    redirectTo: ''
+  }
 ];

@@ -6,7 +6,7 @@ import { catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+  // ✅ Inyección perezosa para evitar dependencia circular
   const router = inject(Router);
 
   // Clonar siempre con withCredentials
@@ -15,8 +15,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error) => {
       // Si el token expiró o es inválido, redirigir al login
-      if (error.status === 401) {
-        authService.logout();
+      if (error.status === 401 && !req.url.includes('/auth/verify')) {
+        // ⚠️ No llamar authService.logout() - causa circular dependency
+        // Solo redirigir
         router.navigate(['/login']);
       }
       return throwError(() => error);

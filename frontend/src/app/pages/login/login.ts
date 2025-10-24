@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+// nuevo/frontend/src/app/pages/login/login.ts
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -11,23 +12,23 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email = '';
   password = '';
   loading = false;
   error = '';
   returnUrl = '/admin';
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  ngOnInit(): void {
     // Obtener la URL de retorno
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin';
-
-    // ✅ Si ya hay sesión activa, redirigir
-    this.authService.currentUser$.subscribe(user => {
+    
+    // ✅ Verificar sesión de forma asíncrona
+    this.authService.checkAuth().then(user => {
       if (user) {
         this.router.navigate([this.returnUrl]);
       }
@@ -45,17 +46,17 @@ export class LoginComponent {
 
     this.authService.login(this.email, this.password).subscribe({
       next: (user) => {
+        this.loading = false;
         if (user) {
-          // usuario autenticado
           this.router.navigate([this.returnUrl]);
         } else {
-          // login fallido
           this.error = 'Credenciales inválidas';
         }
       },
       error: (err) => {
-        this.error = 'Error al iniciar sesión';
-        console.error(err);
+        this.loading = false;
+        this.error = err.error?.message || 'Error al iniciar sesión';
+        console.error('Error de login:', err);
       },
     });
   }

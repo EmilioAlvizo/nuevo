@@ -1,54 +1,57 @@
+// nuevo/frontend/src/app/guards/auth.guard.ts
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  return authService.checkAuth().pipe(
-    map(user => {
-      if (user) {
-        console.log('✅ Acceso permitido');
-        return true;
-      } else {
-        console.log('❌ Acceso denegado - Redirigiendo a login');
-        router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-        return false;
-      }
-    }),
-    catchError(err => {
-      console.log('❌ Error de autenticación', err);
+  try {
+    // ✅ Esperar a que checkAuth() termine (ya sea inicial o nueva verificación)
+    const user = await authService.checkAuth();
+    
+    if (user) {
+      return true;
+    } else {
+      console.log('🔒 Acceso denegado - Se requiere autenticación');
       router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
-      return of(false);
-    })
-  );
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ Error en authGuard:', error);
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+    return false;
+  }
 };
 
 // Guard para verificar roles
 export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
-  return (route, state) => {
+  return async (route, state) => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    return authService.checkAuth().pipe(
-      map(user => {
-        if (!user) {
-          router.navigate(['/login']);
-          return false;
-        }
-        if (allowedRoles.includes(user.rol)) {
-          return true;
-        }
-        router.navigate(['/admin']);
-        return false;
-      }),
-      catchError(err => {
+    try {
+      const user = await authService.checkAuth();
+      
+      if (!user) {
+        console.log('❌ No autenticado');
         router.navigate(['/login']);
-        return of(false);
-      })
-    );
+        return false;
+      }
+      
+      if (allowedRoles.includes(user.rol)) {
+        console.log('✅ Rol permitido:', user.rol);
+        return true;
+      }
+      
+      console.log('❌ Rol no permitido. Requerido:', allowedRoles, 'Actual:', user.rol);
+      router.navigate(['/admin']);
+      return false;
+    } catch (error) {
+      console.error('❌ Error en roleGuard:', error);
+      router.navigate(['/login']);
+      return false;
+    }
   };
 };

@@ -1,8 +1,7 @@
 // nuevo/frontend/src/app/services/auth.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map, catchError, of } from 'rxjs';
-import { Router } from '@angular/router';
+import { Observable, BehaviorSubject, tap, map, catchError, of, firstValueFrom } from 'rxjs';
 
 export interface User {
   id: number;
@@ -26,32 +25,31 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api/auth';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  //private isBrowser: boolean;
-
+  
+  // ✅ Promise para rastrear la verificación inicial
+  private initialCheckPromise: Promise<User | null> | null = null;
   private authChecked = false;
+  
+  private http = inject(HttpClient);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router //@Inject(PLATFORM_ID) platformId: Object
-  ) {
-    /*
-    // Detectar si estamos en el navegador
-    this.isBrowser = isPlatformBrowser(platformId);
-    
-    // Cargar usuario desde localStorage solo si estamos en el navegador
-    if (this.isBrowser) {
-      const user = this.getUserFromStorage();
-      if (user) {
-        this.currentUserSubject.next(user);
-      }
-    }*/
-    this.checkAuth().subscribe();
+  constructor() {}
+
+  // ✅ Método para inicializar - se llama desde APP_INITIALIZER
+  async initialize(): Promise<void> {
+    if (!this.initialCheckPromise) {
+      this.initialCheckPromise = firstValueFrom(this.performAuthCheck());
+    }
+    await this.initialCheckPromise;
   }
 
   // Registro
   register(userData: any): Observable<User> {
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/register`, userData, { withCredentials: true })
+      .post<AuthResponse>(
+        `${this.apiUrl}/register`,
+        userData,
+        { withCredentials: true }
+      )
       .pipe(
         tap((response) => {
           if (response.success && response.data) {
@@ -66,7 +64,11 @@ export class AuthService {
   // Login
   login(email: string, password: string): Observable<User> {
     return this.http
-      .post<AuthResponse>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true })
+      .post<AuthResponse>(
+        `${this.apiUrl}/login`,
+        { email, password },
+        { withCredentials: true }
+      )
       .pipe(
         tap((response) => {
           if (response.success && response.data) {
@@ -79,29 +81,41 @@ export class AuthService {
   }
 
   // Logout
-  logout(): void {
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
-      next: () => {
-        this.currentUserSubject.next(null);
-        this.authChecked = false;
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        // Aunque falle, limpiamos el estado local
-        this.currentUserSubject.next(null);
-        this.authChecked = false;
-        this.router.navigate(['/login']);
-      },
-    });
+  logout(): Observable<void> {
+    return this.http
+      .post<{ success: boolean }>(`${this.apiUrl}/logout`, {}, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.currentUserSubject.next(null);
+          this.authChecked = true;
+        }),
+        map(() => void 0),
+        catchError(() => {
+          this.currentUserSubject.next(null);
+          this.authChecked = true;
+          return of(void 0);
+        })
+      );
   }
 
-  // ✅ Verificar autenticación (consulta al backend)
-  checkAuth(): Observable<User | null> {
-    // Si ya verificamos y hay usuario, retornar el usuario actual
-    if (this.authChecked && this.currentUserSubject.value) {
-      return of(this.currentUserSubject.value);
+  // ✅ Verificar autenticación - espera a la verificación inicial
+  async checkAuth(): Promise<User | null> {
+    // Si hay una verificación inicial en curso, esperarla
+    if (this.initialCheckPromise) {
+      return this.initialCheckPromise;
     }
 
+    // Si ya verificamos, retornar el valor actual
+    if (this.authChecked) {
+      return this.currentUserSubject.value;
+    }
+
+    // Hacer nueva verificación
+    return firstValueFrom(this.performAuthCheck());
+  }
+
+  // ✅ Método privado que hace la petición HTTP
+  private performAuthCheck(): Observable<User | null> {
     return this.http
       .get<AuthResponse>(`${this.apiUrl}/verify`, {
         withCredentials: true,
@@ -118,7 +132,9 @@ export class AuthService {
           return null;
         }),
         catchError((error) => {
-          console.error('Error verificando autenticación:', error);
+          if (error.status !== 401) {
+            console.error('⚠️ Error verificando sesión:', error.status, error.statusText);
+          }
           this.authChecked = true;
           this.currentUserSubject.next(null);
           return of(null);
