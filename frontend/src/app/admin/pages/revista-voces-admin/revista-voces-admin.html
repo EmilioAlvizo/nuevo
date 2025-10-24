@@ -1,0 +1,85 @@
+<!-- <div class="container">
+    <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarRevista">Agregar revista</button>
+
+
+    <div
+        class="modal fade"
+        id="agregarRevista"
+        tabindex="-1"
+        aria-labelledby="publicacionTitle"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-lg">
+            <form #revistaForm="ngForm" (ngSubmit)="guardarRevista(revistaForm)" enctype="multipart/form-data">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="publicacionTitle">Agregar revista</h5>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar"
+                    ></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="col-form-label">Volumen:</label>
+                            <input type="number" min="1" class="form-control" maxlength="3" name="volumen" [(ngModel)]="nuevaRevista.volumen" required />
+                        </div>
+                        <div class="col">
+                            <label class="col-form-label">Número de año:</label>
+                            <input type="number" min="1" class="form-control" maxlength="2" name="numero_year" [(ngModel)]="nuevaRevista.numero_year" required />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-8">
+                            <label class="col-form-label">Descripción:</label>
+                            <textarea class="form-control" maxlength="250" name="descripcion" [(ngModel)]="nuevaRevista.descripcion" required></textarea>
+                        </div>
+                        <div class="col-4">
+                            <label class="col-form-label">Fecha de publicación:</label>
+                            <input type="date" class="form-control" name="fecha" [(ngModel)]="nuevaRevista.fecha" required />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="col-form-label">Subir portada:</label>
+                            <input class="form-control" type="file" (change)="onFileSelected($event, 'portada')" required /><br />
+                            <span id="file-error-portada" style="color:red;"></span>
+                        </div>
+                        <div class="col">
+                            <label class="col-form-label">Subir archivo:</label>
+                            <input class="form-control" type="file" (change)="onFileSelected($event, 'archivo')" /><br />
+                            <span id="file-error-archivo" style="color:red;"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="col-form-label">Seleccione el estatus:</label>
+                            <select class="form-select form-control" [(ngModel)]="nuevaRevista.estatus" name="estatus" required>
+                                <option selected disabled>Seleccione un estatus</option>
+                                <option value="A">Activo</option>
+                                <option value="B">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success" [disabled]="revistaForm.invalid">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+
+</div> -->

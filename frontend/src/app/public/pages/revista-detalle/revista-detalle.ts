@@ -1,15 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, LOCALE_ID, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 import { ApiRevistas, Revistas } from '../../../services/revistas';
 import { Flipbook } from '../../components/flipbook/flipbook';
+import localeEs from '@angular/common/locales/es';
+
+registerLocaleData(localeEs);
+
 
 @Component({
   selector: 'app-revista-detalle',
   standalone: true,
   imports: [CommonModule, Flipbook],
   templateUrl: './revista-detalle.html',
-  styleUrls: ['./revista-detalle.css']
+  styleUrls: ['./revista-detalle.css'],
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }] 
 })
 export class RevistaDetalle implements OnInit {
 
@@ -26,7 +31,7 @@ export class RevistaDetalle implements OnInit {
   }
 
   obtenerRevista(id: number): void {
-    this.apiRevistas.getMessage().subscribe({
+    this.apiRevistas.getRevistas().subscribe({
       next: (response) => {
         const encontrada = response.data.find(r => r.id_revista === id);
         if (encontrada) this.revista = encontrada;

@@ -35,11 +35,28 @@ export class ApiRevistas {
   private apiUrl = 'http://localhost:3000/api';
   //inyecta el servicio HttpClient
   constructor(private http: HttpClient) {}
-  getMessage():Observable<ApiResponse> {
-    
-    //realiza una solicitud GET a la URL del backend
+
+  //PETICIÓN GET
+  getRevistas():Observable<ApiResponse> {
     return this.http.get<ApiResponse>(`${this.apiUrl}/revistas`,{});
   }
+
+  //PETICIÓN POST
+  // crearRevista(nuevaRevista: Partial<Revistas>): Observable<ApiResponse>{
+  //   return this.http.post<ApiResponse>(`${this.apiUrl}/revistas`, nuevaRevista);
+  // }
+
+  crearRevista(formData: FormData) {
+  return this.http.post<any>(`${this.apiUrl}/revistas`, formData);
+}
+
+
+    //realiza una solicitud POST a la URL del backend
+  // getMessage():Observable<ApiResponse>{
+  //   return this.http.post<ApiResponse>(`${this.apiUrl}/revistas`, {});
+  // }
+
+  
 
 
 

@@ -1,17 +1,17 @@
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
-import { SistemaJuventudes } from '../admin/pages/sistema-juventudes/sistema-juventudes';
-import { Estadisticas } from '../admin/pages/estadisticas/estadisticas';
-import { RevistaVoces } from '../admin/pages/revista-voces/revista-voces';
-import { CentroDocumental } from '../admin/pages/centro-documental/centro-documental';
-import { InformacionInteres } from '../admin/pages/informacion-interes/informacion-interes';
+import { HomeAdmin } from './pages/home-admin/home-admin';
+import { SistemaJuventudesAdmin } from '../admin/pages/sistema-juventudes-admin/sistema-juventudes-admin';
+import { EstadisticasAdmin } from '../admin/pages/estadisticas-admin/estadisticas-admin';
+// import { RevistaVocesAdmin } from '../admin/pages/revista-voces-admin/revista-voces-admin';
+import { CentroDocumentalAdmin } from '../admin/pages/centro-documental-admin/centro-documental-admin';
+import { InformacionInteresAdmin } from '../admin/pages/informacion-interes-admin/informacion-interes-admin';
 
 
 export const publicRoutes: Routes = [
-  { path: 'admin', component: Home },
-  { path: 'sistema-juventudes', component: SistemaJuventudes },
-  { path: 'estadisticas', component: Estadisticas },
-  { path: 'revista', component: RevistaVoces },
-  { path: 'centro-documental', component: CentroDocumental },
-  { path: 'informacion-interes', component: InformacionInteres },
+  { path: '', component: HomeAdmin },
+  { path: 'sistema-juventudes', component: SistemaJuventudesAdmin },
+  { path: 'estadisticas', component: EstadisticasAdmin },
+  // { path: 'revista', component: RevistaVocesAdmin },
+  { path: 'centro-documental', component: CentroDocumentalAdmin },
+  { path: 'informacion-interes', component: InformacionInteresAdmin },
 ];
