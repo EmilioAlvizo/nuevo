@@ -6,8 +6,18 @@ import { routes } from './app.routes';
 import { authInterceptor } from './services/auth.interceptor';
 import { AuthService } from './services/auth.service';
 
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
+
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAnimations(),
+    providePrimeNG({
+            theme: {
+                preset: Aura
+            }
+        }),
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([authInterceptor]),

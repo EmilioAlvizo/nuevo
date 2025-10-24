@@ -45,6 +45,11 @@ export class ApiArchivos_municipio {
     return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio`,{});
   }
 
+  get_archivos():Observable<ApiResponse> {
+    //realiza una solicitud GET a la URL del backend
+    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio/filtrados`,{});
+  }
+
   // ✅ NUEVO - Método con filtros (más eficiente)
   getArchivosFiltrados(params: {
     municipios?: number[],

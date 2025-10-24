@@ -1,0 +1,23 @@
+.contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 17px;
+}
+
+/* @media only screen and (min-width: 800px) {
+  .contenedor {
+    max-width: 2000px;
+  }
+}
+ */
+@media only screen and (min-width: 640px) {
+  .contenedor {
+    max-width: 550px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .contenedor {
+    max-width: 1800px;
+  }
+}
