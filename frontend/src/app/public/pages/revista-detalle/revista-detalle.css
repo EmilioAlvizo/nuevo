@@ -1,0 +1,28 @@
+.detalle-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 20px;
+}
+
+.flipbook-wrapper {
+  margin: 20px auto;
+}
+
+.descripcion {
+  font-size: 1rem;
+  margin: 20px 0;
+}
+
+.btn-descargar {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-descargar:hover {
+  background-color: #555;
+}

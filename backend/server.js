@@ -6,6 +6,7 @@ const authRoutes = require("./routes/authRoutes");
 const testimoniosRoutes = require("./routes/testimoniosRoutes");
 const archivos_municipioRoutes = require("./routes/archivos_municipioRoutes");
 const documentos_cendocRoutes = require("./routes/documentos_cendocRoutes");
+const revistasRoutes = require("./routes/revistasRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -44,6 +45,7 @@ app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api", revistasRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

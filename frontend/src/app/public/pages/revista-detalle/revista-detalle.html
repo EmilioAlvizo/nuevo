@@ -1,0 +1,14 @@
+<div class="detalle-container" *ngIf="revista">
+    <h1>Volumen {{ revista.volumen }} — {{ revista.numero_year }}</h1>
+    <p class="fecha">{{ revista.fecha | date:'longDate' }}</p>
+
+    <div class="flipbook-wrapper">
+        <app-flipbook [src]="'/revistas_archivos/' + revista.id_revista + '/' + revista.archivo" [pageWidth]="900"></app-flipbook>
+    </div>
+
+    <p class="descripcion">{{ revista.descripcion }}</p>
+
+    <button class="btn-descargar" (click)="descargarPDF()">
+        Descargar PDF completo
+    </button>
+</div>
