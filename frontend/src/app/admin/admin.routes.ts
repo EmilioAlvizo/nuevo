@@ -5,10 +5,10 @@ import { Estadisticas } from '../admin/pages/estadisticas/estadisticas';
 import { RevistaVoces } from '../admin/pages/revista-voces/revista-voces';
 import { CentroDocumental } from '../admin/pages/centro-documental/centro-documental';
 import { InformacionInteres } from '../admin/pages/informacion-interes/informacion-interes';
+import { AuthGuard } from '../core/guards/auth.guard';
 
-
-export const publicRoutes: Routes = [
-  { path: 'admin', component: Home },
+export const adminRoutes: Routes = [
+  { path: 'admin', component: Home, canActivate: [AuthGuard], },
   { path: 'sistema-juventudes', component: SistemaJuventudes },
   { path: 'estadisticas', component: Estadisticas },
   { path: 'revista', component: RevistaVoces },

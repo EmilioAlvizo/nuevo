@@ -1,10 +1,10 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Topbar } from '../../shared/topbar/topbar';
-import { Navbar } from '../shared/navbar/navbar';
+import { Navbar } from '../components/navbar/navbar';
 import { Footer } from '../../shared/footer/footer';
-import { Navbar2 } from '../shared/navbar2/navbar2';
-import { BotonContactanos } from '../shared/boton-contactanos/boton-contactanos';
+import { Navbar2 } from '../components/navbar2/navbar2';
+import { BotonContactanos } from '../components/boton-contactanos/boton-contactanos';
 
 @Component({
   selector: 'public-layout',

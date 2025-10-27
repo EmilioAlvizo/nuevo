@@ -1,9 +1,9 @@
-// nuevo/frontend/src/app/pages/login/login.ts
+// nuevo/frontend/src/app/auth/pages/login/login.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,30 +12,18 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   email = '';
   password = '';
   loading = false;
   error = '';
-  returnUrl = '/admin';
+  returnUrl = '/'; // Ruta por defecto después del login
 
   private authService = inject(AuthService);
   private router = inject(Router);
-  private route = inject(ActivatedRoute);
-
-  ngOnInit(): void {
-    // Obtener la URL de retorno
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin';
-    
-    // ✅ Verificar sesión de forma asíncrona
-    this.authService.checkAuth().then(user => {
-      if (user) {
-        this.router.navigate([this.returnUrl]);
-      }
-    });
-  }
 
   onSubmit(): void {
+    // Validación básica
     if (!this.email || !this.password) {
       this.error = 'Por favor completa todos los campos';
       return;
@@ -45,18 +33,27 @@ export class LoginComponent implements OnInit {
     this.error = '';
 
     this.authService.login(this.email, this.password).subscribe({
-      next: (user) => {
+      next: (response) => {
         this.loading = false;
-        if (user) {
-          this.router.navigate([this.returnUrl]);
+        
+        if (response.success && response.data) {
+          console.log('✅ Login exitoso:', response.data.user.email);
+          this.router.navigate(['/admin']);
+          /* // Redirigir según el rol del usuario
+          if (response.data.user.rol === 'admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate([this.returnUrl]);
+          } */
         } else {
-          this.error = 'Credenciales inválidas';
+          this.router.navigate([this.returnUrl]);
         }
+
       },
       error: (err) => {
         this.loading = false;
-        this.error = err.error?.message || 'Error al iniciar sesión';
-        console.error('Error de login:', err);
+        this.error = err.message || 'Error al iniciar sesión';
+        console.error('❌ Error de login:', err);
       },
     });
   }

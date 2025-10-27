@@ -1,3 +1,4 @@
+// nuevo/backend/models/userModel.js
 const { getConnection, mssql } = require("../config/database");
 const bcrypt = require("bcryptjs");
 
@@ -24,7 +25,7 @@ class UserModel {
 
       return result.recordset[0];
     } catch (error) {
-      if (error.number === 2627) { // Error de clave duplicada
+      if (error.number === 2627) {
         throw new Error("El email ya está registrado");
       }
       throw new Error(`Error al crear usuario: ${error.message}`);
@@ -40,8 +41,7 @@ class UserModel {
         .input("email", mssql.NVarChar, email)
         .query("SELECT * FROM Usuarios WHERE email = @email AND activo = 1");
 
-      //console.log('buscar user',result);
-        return result.recordset[0];
+      return result.recordset[0];
     } catch (error) {
       throw new Error(`Error al buscar usuario: ${error.message}`);
     }
@@ -65,6 +65,95 @@ class UserModel {
   // Verificar password
   static async verifyPassword(plainPassword, hashedPassword) {
     return await bcrypt.compare(plainPassword, hashedPassword);
+  }
+
+  // 🆕 Guardar refresh token
+  static async saveRefreshToken(userId, refreshToken) {
+    try {
+      const pool = await getConnection();
+      
+      // Guardar el token con fecha de expiración
+      await pool
+        .request()
+        .input("userId", mssql.Int, userId)
+        .input("refreshToken", mssql.NVarChar, refreshToken)
+        .input("expiresAt", mssql.DateTime, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)) // 7 días
+        .query(`
+          INSERT INTO RefreshTokens (user_id, token, expires_at)
+          VALUES (@userId, @refreshToken, @expiresAt)
+        `);
+
+      return true;
+    } catch (error) {
+      throw new Error(`Error al guardar refresh token: ${error.message}`);
+    }
+  }
+
+  // 🆕 Verificar si el refresh token existe y es válido
+  static async findRefreshToken(refreshToken) {
+    try {
+      const pool = await getConnection();
+      const result = await pool
+        .request()
+        .input("refreshToken", mssql.NVarChar, refreshToken)
+        .query(`
+          SELECT rt.*, u.id, u.nombre, u.email, u.rol
+          FROM RefreshTokens rt
+          INNER JOIN Usuarios u ON rt.user_id = u.id
+          WHERE rt.token = @refreshToken 
+            AND rt.revoked = 0 
+            AND rt.expires_at > GETDATE()
+            AND u.activo = 1
+        `);
+
+      return result.recordset[0];
+    } catch (error) {
+      throw new Error(`Error al buscar refresh token: ${error.message}`);
+    }
+  }
+
+  // 🆕 Revocar refresh token (al hacer logout)
+  static async revokeRefreshToken(refreshToken) {
+    try {
+      const pool = await getConnection();
+      await pool
+        .request()
+        .input("refreshToken", mssql.NVarChar, refreshToken)
+        .query("UPDATE RefreshTokens SET revoked = 1 WHERE token = @refreshToken");
+
+      return true;
+    } catch (error) {
+      throw new Error(`Error al revocar refresh token: ${error.message}`);
+    }
+  }
+
+  // 🆕 Revocar todos los tokens de un usuario
+  static async revokeAllUserTokens(userId) {
+    try {
+      const pool = await getConnection();
+      await pool
+        .request()
+        .input("userId", mssql.Int, userId)
+        .query("UPDATE RefreshTokens SET revoked = 1 WHERE user_id = @userId");
+
+      return true;
+    } catch (error) {
+      throw new Error(`Error al revocar tokens del usuario: ${error.message}`);
+    }
+  }
+
+  // 🆕 Limpiar tokens expirados (ejecutar periódicamente)
+  static async cleanExpiredTokens() {
+    try {
+      const pool = await getConnection();
+      const result = await pool
+        .request()
+        .query("DELETE FROM RefreshTokens WHERE expires_at < GETDATE()");
+
+      return result.rowsAffected[0];
+    } catch (error) {
+      throw new Error(`Error al limpiar tokens expirados: ${error.message}`);
+    }
   }
 
   // Obtener todos los usuarios (solo admin)
@@ -92,7 +181,6 @@ class UserModel {
         .input("nombre", mssql.NVarChar, userData.nombre)
         .input("email", mssql.NVarChar, userData.email);
 
-      // Si se proporciona nueva contraseña
       if (userData.password) {
         const hashedPassword = await bcrypt.hash(userData.password, 10);
         query += ", password = @password";

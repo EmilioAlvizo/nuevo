@@ -8,9 +8,12 @@ const { authMiddleware } = require("../middleware/authMiddleware");
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
 router.post("/logout", AuthController.logout);
+router.get("/verify", AuthController.verify);
+
+// 🆕 Ruta para refrescar el access token
+router.post("/refresh", AuthController.refresh);
 
 // Rutas protegidas (requieren autenticación)
 router.get("/profile", authMiddleware, AuthController.getProfile);
-router.get("/verify", AuthController.verify);
 
 module.exports = router;

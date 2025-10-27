@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiArchivos_municipio, Archivos_municipio } from '../../../services/archivos_municipio';
+import { ApiArchivos_municipio, Archivos_municipio } from '../../../core/services/archivos_municipio';
 
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';

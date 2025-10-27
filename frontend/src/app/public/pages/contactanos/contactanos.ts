@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 
 
-import { ApiMunicipio, Municipio } from '../../../services/municipios';
+import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { CommonModule } from '@angular/common';
 
 @Component({

@@ -1,9 +1,30 @@
-//nuevo/backend/controllers/authController.js
+// nuevo/backend/controllers/authController.js
 const UserModel = require("../models/userModel");
-const { generateToken, verifyToken } = require("../config/jwt");
+const { generateTokens, verifyAccessToken, verifyRefreshToken } = require("../config/jwt");
 const { getConnection, mssql } = require("../config/database");
 
 class AuthController {
+  // Configurar cookies de tokens
+  static setTokenCookies(res, accessToken, refreshToken) {
+    const isProduction = process.env.NODE_ENV === "production";
+    
+    // Cookie para Access Token (15 minutos)
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000, // 15 minutos
+    });
+
+    // Cookie para Refresh Token (7 días)
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+    });
+  }
+
   // Registro de usuario
   static async register(req, res) {
     try {
@@ -32,7 +53,7 @@ class AuthController {
         });
       }
 
-      // ⭐ VERIFICAR si el email está autorizado (ajustado para SQL Server)
+      // Verificar si el email está autorizado
       const result = await pool
         .request()
         .input("email", email.toLowerCase().trim())
@@ -44,7 +65,7 @@ class AuthController {
         return res.status(403).json({
           success: false,
           message:
-            "Este email no está autorizado para registrarse. Contacta al administrador para solicitar acceso.",
+            "Este email no está autorizado para registrarse. Contacta al administrador.",
         });
       }
 
@@ -60,7 +81,7 @@ class AuthController {
       // Crear usuario
       const newUser = await UserModel.create({ nombre, email, password });
 
-      // ⭐ Marcar el email autorizado como usado (ajustado para SQL Server)
+      // Marcar el email autorizado como usado
       await pool
         .request()
         .input("email", email.toLowerCase().trim())
@@ -68,15 +89,14 @@ class AuthController {
           "UPDATE authorized_emails SET used = 1, used_at = GETDATE() WHERE email = @email"
         );
 
-      // Generar token
-      const token = generateToken(newUser);
+      // Generar tokens
+      const { accessToken, refreshToken } = generateTokens(newUser);
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // true solo en producción
-        sameSite: "lax",
-        maxAge: 24 * 60 * 60 * 1000, // 24 horas
-      });
+      // Guardar refresh token en la base de datos
+      await UserModel.saveRefreshToken(newUser.id, refreshToken);
+
+      // Enviar cookies
+      AuthController.setTokenCookies(res, accessToken, refreshToken);
 
       res.status(201).json({
         success: true,
@@ -114,7 +134,6 @@ class AuthController {
       // Buscar usuario
       const user = await UserModel.findByEmail(email);
       if (!user) {
-        console.log("no se encontro email");
         return res.status(401).json({
           success: false,
           message: "Credenciales inválidas",
@@ -126,26 +145,22 @@ class AuthController {
         password,
         user.password
       );
-      console.log("password ", password);
-      console.log("user.password ", user.password);
+
       if (!isPasswordValid) {
-        console.log("error en la contraseña");
         return res.status(401).json({
           success: false,
           message: "Credenciales inválidas",
         });
       }
 
-      // Generar token
-      const token = generateToken(user);
+      // Generar tokens
+      const { accessToken, refreshToken } = generateTokens(user);
 
-      // ✅ Enviar token como cookie HTTP-only
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 24 * 60 * 60 * 1000,
-      });
+      // Guardar refresh token en la base de datos
+      await UserModel.saveRefreshToken(user.id, refreshToken);
+
+      // Enviar cookies
+      AuthController.setTokenCookies(res, accessToken, refreshToken);
 
       res.status(200).json({
         success: true,
@@ -157,6 +172,72 @@ class AuthController {
             email: user.email,
             rol: user.rol,
           },
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  // 🆕 Refrescar Access Token usando Refresh Token
+  static async refresh(req, res) {
+    try {
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+        return res.status(401).json({
+          success: false,
+          message: "Refresh token no proporcionado",
+        });
+      }
+
+      // Verificar el refresh token
+      const decoded = verifyRefreshToken(refreshToken);
+
+      if (!decoded) {
+        return res.status(401).json({
+          success: false,
+          message: "Refresh token inválido o expirado",
+        });
+      }
+
+      // Verificar que el token existe en la base de datos y no ha sido revocado
+      const tokenData = await UserModel.findRefreshToken(refreshToken);
+
+      if (!tokenData) {
+        return res.status(401).json({
+          success: false,
+          message: "Refresh token no válido",
+        });
+      }
+
+      // Crear nuevo access token
+      const user = {
+        id: tokenData.id,
+        email: tokenData.email,
+        nombre: tokenData.nombre,
+        rol: tokenData.rol,
+      };
+
+      const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+
+      // Revocar el refresh token anterior
+      await UserModel.revokeRefreshToken(refreshToken);
+
+      // Guardar el nuevo refresh token
+      await UserModel.saveRefreshToken(user.id, newRefreshToken);
+
+      // Enviar nuevas cookies
+      AuthController.setTokenCookies(res, accessToken, newRefreshToken);
+
+      res.status(200).json({
+        success: true,
+        message: "Token renovado exitosamente",
+        data: {
+          user,
         },
       });
     } catch (error) {
@@ -191,52 +272,50 @@ class AuthController {
     }
   }
 
-  // Verificar token
-  static async verifyToken(req, res) {
-    try {
-      res.status(200).json({
-        success: true,
-        message: "Token válido",
-        data: {
-          user: req.user,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-
-  // ✅ Verificar si hay sesión activa
+  // Verificar si hay sesión activa (simple check, NO renueva tokens)
   static async verify(req, res) {
     try {
-      const token = req.cookies.token;
+      const accessToken = req.cookies.accessToken;
 
-      if (!token) {
+      console.log('🔍 [VERIFY] Verificando sesión...', {
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!req.cookies.refreshToken
+      });
+
+      if (!accessToken) {
+        console.log('❌ [VERIFY] No hay access token');
         return res.status(401).json({
           success: false,
-          message: "No hay token",
+          message: "No hay token de acceso",
         });
       }
 
-      const decoded = verifyToken(token);
+      const decoded = verifyAccessToken(accessToken);
 
       if (!decoded) {
+        console.log('⚠️ [VERIFY] Access token expirado - el cliente debe llamar a /refresh');
         return res.status(401).json({
           success: false,
-          message: "Token inválido o expirado",
+          message: "Token expirado",
+          needsRefresh: true // Indicador para el frontend
         });
       }
+
+      console.log('✅ [VERIFY] Sesión válida para:', decoded.email);
 
       res.status(200).json({
         success: true,
         data: {
-          user: decoded,
+          user: {
+            id: decoded.id,
+            nombre: decoded.nombre,
+            email: decoded.email,
+            rol: decoded.rol
+          }
         },
       });
     } catch (error) {
+      console.error('💥 [VERIFY] Error:', error.message);
       res.status(401).json({
         success: false,
         message: error.message,
@@ -244,17 +323,39 @@ class AuthController {
     }
   }
 
-  // ✅ Cerrar sesión (elimina cookie)
+  // Cerrar sesión
   static async logout(req, res) {
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-    res.status(200).json({
-      success: true,
-      message: "Sesión cerrada",
-    });
+    try {
+      const refreshToken = req.cookies.refreshToken;
+
+      // Revocar el refresh token si existe
+      if (refreshToken) {
+        await UserModel.revokeRefreshToken(refreshToken);
+      }
+
+      // Limpiar cookies
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Sesión cerrada exitosamente",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 }
 
