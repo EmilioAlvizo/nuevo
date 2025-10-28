@@ -51,14 +51,6 @@ export class ApiRevistas {
 }
 
 
-    //realiza una solicitud POST a la URL del backend
-  // getMessage():Observable<ApiResponse>{
-  //   return this.http.post<ApiResponse>(`${this.apiUrl}/revistas`, {});
-  // }
-
-  
-
-
 
 
 }

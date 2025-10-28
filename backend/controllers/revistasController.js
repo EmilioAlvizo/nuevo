@@ -48,94 +48,135 @@ class RevistasController {
     }
   }
 
-  // POST - Crear un nuevo registro
-  // static async create(req, res) {
-  //   try {
-  //     const data = req.body;
+  
 
-  //     if (!data || Object.keys(data).length === 0) {
-  //       return res.status(400).json({
-  //         success: false,
-  //         message: "Datos inválidos o vacíos",
-  //       });
-  //     }
+// static async create(req, res) {
+//   try {
+//     const { volumen, numero_year, descripcion, fecha, estatus } = req.body;
 
-  //     const newRevista = await RevistasModel.create(TABLE_NAME, data);
-  //     res.status(201).json({
-  //       success: true,
-  //       message: "Registro creado exitosamente",
-  //       data: newRevista,
-  //     });
-  //   } catch (error) {
-  //     res.status(500).json({
-  //       success: false,
-  //       message: error.message,
-  //     });
-  //   }
-  // }
+//     if (!volumen || !numero_year || !descripcion || !fecha || !estatus) {
+//       return res.status(400).json({ success: false, message: "Datos incompletos" });
+//     }
 
-   // POST - Crear revista con archivos
-  static async create(req, res) {
+//     // 1️⃣ Crear revista en la BD
+//     const newRevista = await RevistasModel.create(TABLE_NAME, {
+//       volumen,
+//       numero_year,
+//       descripcion,
+//       fecha,
+//       estatus,
+//       archivo: "",
+//       portada: "",
+//       fecha_modificacion: new Date()
+//     });
+
+//     const revistaId = newRevista.id;
+
+//     // 2️⃣ Guardar rutas de archivos
+//     // const archivosActualizados = {};
+
+//     // if (req.files["portada"] && req.files["portada"][0]) {
+//     //   archivosActualizados.portada = req.files["portada"][0].path.replace("public/", "");
+//     // }
+
+//     // if (req.files["archivo"] && req.files["archivo"][0]) {
+//     //   archivosActualizados.archivo = req.files["archivo"][0].path.replace("public/", "");
+//     // }
+
+
+
+
+//     const archivosActualizados = {};
+
+// if (req.files["portada"] && req.files["portada"][0]) {
+//   archivosActualizados.portada = req.files["portada"][0].filename;
+// }
+
+// if (req.files["archivo"] && req.files["archivo"][0]) {
+//   archivosActualizados.archivo = req.files["archivo"][0].filename;
+// }
+
+
+//     const updatedRevista = await RevistasModel.update(
+//       TABLE_NAME,
+//       revistaId,
+//       archivosActualizados,
+//       ID_COLUMN
+//     );
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Revista creada correctamente",
+//       data: updatedRevista
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// }
+
+static async create(req, res) {
+  upload.fields([
+    { name: "portada", maxCount: 1 },
+    { name: "archivo", maxCount: 1 }
+  ])(req, res, async (err) => {
+    if (err) return res.status(500).json({ success: false, message: err.message });
+
     try {
-      // 1️⃣ Extraer datos sin archivos
+      // 1️⃣ Extraer datos del formulario
       const { volumen, numero_year, descripcion, fecha, estatus } = req.body;
-
       if (!volumen || !numero_year || !descripcion || !fecha || !estatus) {
         return res.status(400).json({ success: false, message: "Datos incompletos" });
       }
 
-      // 2️⃣ Crear revista en la BD
+      // 2️⃣ Preparar nombres de archivos
+      const portadaNombre = req.files["portada"]?.[0].filename || "";
+      const archivoNombre = req.files["archivo"]?.[0].filename || "";
+
+      // 3️⃣ Crear revista en BD
       const newRevista = await RevistasModel.create(TABLE_NAME, {
         volumen,
         numero_year,
         descripcion,
         fecha,
         estatus,
-        archivo: "",   // temporal, se actualizará después
-        portada: "",   // temporal
+        portada: portadaNombre,
+        archivo: archivoNombre,
         fecha_modificacion: new Date()
       });
 
+      // 4️⃣ Renombrar carpeta temporal a la carpeta con ID (opcional)
       const revistaId = newRevista.id;
-      req.revistaId = revistaId; // importante para multer
+      req.revistaId = revistaId;
 
-      // 3️⃣ Subir archivos (portada y archivo)
-      upload.fields([
-        { name: "portada", maxCount: 1 },
-        { name: "archivo", maxCount: 1 }
-      ])(req, res, async (err) => {
-        if (err) {
-          return res.status(500).json({ success: false, message: err.message });
-        }
+      const folders = [
+        { tipo: "portadas", nombre: portadaNombre },
+        { tipo: "archivos", nombre: archivoNombre }
+      ];
 
-        // 4️⃣ Guardar rutas finales en la BD
-        const archivosActualizados = {};
-
-        if (req.files["portada"] && req.files["portada"][0]) {
-          archivosActualizados.portada = req.files["portada"][0].path.replace("public/", "");
-        }
-
-        if (req.files["archivo"] && req.files["archivo"][0]) {
-          archivosActualizados.archivo = req.files["archivo"][0].path.replace("public/", "");
-        }
-
-        const updatedRevista = await RevistasModel.update(
-          TABLE_NAME,
-          revistaId,
-          archivosActualizados,
-          ID_COLUMN
-        );
-
-        return res.status(201).json({
-          success: true,
-          message: "Revista creada correctamente",
-          data: updatedRevista
-        });
+      folders.forEach(f => {
+        if (!f.nombre) return;
+        const base = f.tipo === "portadas" ? "public/revistas_portadas" : "public/revistas_archivos";
+        const tempPath = path.join(base, f.nombre); 
+        const finalPath = path.join(base, String(revistaId), f.nombre);
+        fs.mkdirSync(path.join(base, String(revistaId)), { recursive: true });
+        if (fs.existsSync(tempPath)) fs.renameSync(tempPath, finalPath);
       });
+
+      res.status(201).json({ success: true, message: "Revista creada correctamente", data: newRevista });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
-  }
+  });
+}
+
+
+
+
+
+
+
+
 
   // PUT - Actualizar un registro
   static async update(req, res) {
