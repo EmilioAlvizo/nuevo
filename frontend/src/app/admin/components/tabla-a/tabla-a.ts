@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/admin/components/tabla-a/tabla-a.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -65,7 +66,7 @@ export class TablaA {
 
   cargarArchivos(): void {
     this.loading = true;
-    this.apiArchivos_municipio.get_archivos().subscribe({
+    this.apiArchivos_municipio.getMessage().subscribe({
       next: (datos) => {
         this.Archivos_municipio = datos.data;
         this.loading = false;

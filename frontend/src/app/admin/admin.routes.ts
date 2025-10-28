@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/admin/admin.routes.ts
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { SistemaJuventudes } from '../admin/pages/sistema-juventudes/sistema-juventudes';
@@ -5,10 +6,9 @@ import { Estadisticas } from '../admin/pages/estadisticas/estadisticas';
 import { RevistaVoces } from '../admin/pages/revista-voces/revista-voces';
 import { CentroDocumental } from '../admin/pages/centro-documental/centro-documental';
 import { InformacionInteres } from '../admin/pages/informacion-interes/informacion-interes';
-import { AuthGuard } from '../core/guards/auth.guard';
 
 export const adminRoutes: Routes = [
-  { path: 'admin', component: Home, canActivate: [AuthGuard], },
+  { path: '', component: Home},
   { path: 'sistema-juventudes', component: SistemaJuventudes },
   { path: 'estadisticas', component: Estadisticas },
   { path: 'revista', component: RevistaVoces },

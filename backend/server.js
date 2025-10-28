@@ -67,11 +67,11 @@ app.get("/", (req, res) => {
 });
 
 // Rutas del API
+app.use("/api/auth", authRoutes);
 app.use("/api", documentos_cendocRoutes);
 app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
-app.use("/api/auth", authRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

@@ -6,12 +6,14 @@
       <p>Ingresa tus credenciales para continuar</p>
     </div>
 
-    <!-- Alerta de error. -->
-    <div *ngIf="error" class="alert alert-danger" role="alert">
-      <i class="fas fa-exclamation-circle"></i> {{ error }}
-    </div>
+    <!-- Alerta de error usando signals -->
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle"></i> {{ error() }}
+      </div>
+    }
 
-    <form (ngSubmit)="onSubmit()">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="email">
           <i class="fas fa-envelope"></i> Email
@@ -19,13 +21,23 @@
         <input 
           type="email" 
           id="email" 
-          class="form-control" 
-          [(ngModel)]="email" 
-          name="email"
+          class="form-control"
+          formControlName="email"
           placeholder="correo@ejemplo.com"
-          required
-          autocomplete="on"
-          [disabled]="loading">
+          autocomplete="email"
+          [disabled]="loading()"
+          [class.is-invalid]="emailControl?.invalid && emailControl?.touched">
+        
+        @if (emailControl?.invalid && emailControl?.touched) {
+          <div class="invalid-feedback">
+            @if (emailControl?.errors?.['required']) {
+              El email es obligatorio
+            }
+            @if (emailControl?.errors?.['email']) {
+              Email inválido
+            }
+          </div>
+        }
       </div>
 
       <div class="form-group">
@@ -35,25 +47,34 @@
         <input 
           type="password" 
           id="password" 
-          class="form-control" 
-          [(ngModel)]="password" 
-          name="password"
+          class="form-control"
+          formControlName="password"
           placeholder="••••••••"
-          autocomplete="on"
-          required
-          [disabled]="loading">
+          autocomplete="current-password"
+          [disabled]="loading()"
+          [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched">
+        
+        @if (passwordControl?.invalid && passwordControl?.touched) {
+          <div class="invalid-feedback">
+            @if (passwordControl?.errors?.['required']) {
+              La contraseña es obligatoria
+            }
+            @if (passwordControl?.errors?.['minlength']) {
+              Mínimo 6 caracteres
+            }
+          </div>
+        }
       </div>
 
       <button 
         type="submit" 
         class="btn btn-primary btn-block"
-        [disabled]="loading">
-        <span *ngIf="!loading">
-          <i class="fas fa-sign-in-alt"></i> Ingresar
-        </span>
-        <span *ngIf="loading">
+        [disabled]="loading() || loginForm.invalid">
+        @if (loading()) {
           <i class="fas fa-spinner fa-spin"></i> Ingresando...
-        </span>
+        } @else {
+          <i class="fas fa-sign-in-alt"></i> Ingresar
+        }
       </button>
     </form>
 

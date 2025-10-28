@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/public/public.routes.ts
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { SistemaJuventudes } from './pages/sistema-juventudes/sistema-juventudes';

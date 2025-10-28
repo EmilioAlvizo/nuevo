@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg gto-nav">
   <div class="container">
     
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand" routerLink="/">
       <img src="assets/logo_1.png" alt="Logo" height="60">
     </a>
 
@@ -15,37 +15,37 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav ms-auto" >
         <li class="nav-item dropdown">
-            <a class="nav-link active dropdown-toggle" href="/admin">
+            <a class="nav-link active dropdown-toggle" routerLink="/admin">
               <i class="bi bi-house-fill"></i>
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="">Propuestas</a></li>
-              <li><a class="dropdown-item" href="">Testimonios</a></li>
-              <li><a class="dropdown-item" href="">Encuestas</a></li>
-              <li><a class="dropdown-item" href="">Gráficas</a></li>
-              <li><a class="dropdown-item" href="">Temas de interés</a></li>
+              <li><a class="dropdown-item" routerLink="">Propuestas</a></li>
+              <li><a class="dropdown-item" routerLink="">Testimonios</a></li>
+              <li><a class="dropdown-item" routerLink="">Encuestas</a></li>
+              <li><a class="dropdown-item" routerLink="">Gráficas</a></li>
+              <li><a class="dropdown-item" routerLink="">Temas de interés</a></li>
             </ul>
         </li>
-        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="/admin/sistema-juventudes">Sistema Juventudes</a>
+        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" routerLink="/admin/sistema-juventudes">Sistema Juventudes</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="">Red de investigadores</a></li>
+            <li><a class="dropdown-item" routerLink="">Red de investigadores</a></li>
           </ul>
         </li>
-        <li class="nav-item"><a class="nav-link" href="/admin/estadisticas">Estadísticas</a></li>
-        <li class="nav-item"><a class="nav-link" href="/admin/revista">Revista Voces Emergentes</a></li>
-        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="/admin/centro-documental">Centro Documental</a>
+        <li class="nav-item"><a class="nav-link" routerLink="/admin/estadisticas" routerLinkActive="active">Estadísticas</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/admin/revista">Revista Voces Emergentes</a></li>
+        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" routerLink="/admin/centro-documental">Centro Documental</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="">Banco de datos</a></li>
+            <li><a class="dropdown-item" routerLink="">Banco de datos</a></li>
           </ul>
         </li>
-        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="/admin/informacion-interes">Información de interés</a>
+        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" routerLink="/admin/informacion-interes">Información de interés</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="">Apoyos y servicios</a></li>
-            <li><a class="dropdown-item" href="">Directorios</a></li>
+            <li><a class="dropdown-item" routerLink="">Apoyos y servicios</a></li>
+            <li><a class="dropdown-item" routerLink="">Directorios</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="" (click)="logout()" title="Cerrar sesión">
+          <a class="nav-link" routerLink="" (click)="logout()" title="Cerrar sesión">
             <i class="bi bi-box-arrow-in-right fs-5"></i>
           </a>
         </li>

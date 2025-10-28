@@ -22,7 +22,7 @@
 // ];
 
 // nuevo/frontend/src/app/app.routes.ts
-// src/app/app.routes.ts
+// nuevo/frontend/src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { PublicLayoutComponent } from './public/layout/public-layout';
 import { AdminLayoutComponent } from './admin/layout/admin-layout';
@@ -51,6 +51,7 @@ export const routes: Routes = [
         loadChildren: () => import('./admin/admin.routes').then(m => m.adminRoutes), // Corregí el nombre
       }
     ],
+    runGuardsAndResolvers: 'always',
   },
   // Rutas públicas de autenticación
   { 
@@ -67,8 +68,4 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },*/
   // Ruta 404
-  {
-    path: '**',
-    redirectTo: ''
-  }
 ];

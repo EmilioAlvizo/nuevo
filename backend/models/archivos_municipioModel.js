@@ -7,7 +7,12 @@ class Archivos_municipioModel {
   static async getAll(tableName) {
     try {
       const pool = await getConnection();
-      const result = await pool.request().query(`SELECT * FROM ${tableName}`);
+      const result = await pool.request().query(`SELECT 
+          a.*,
+          m.nombre as nombre_municipio
+        FROM archivos_municipio a
+        INNER JOIN municipio m ON a.id_municipio = m.id_municipio
+        WHERE 1=1`);
       return result.recordset;
     } catch (error) {
       throw new Error(`Error al obtener registros: ${error.message}`);

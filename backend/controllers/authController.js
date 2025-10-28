@@ -1,13 +1,17 @@
 // nuevo/backend/controllers/authController.js
 const UserModel = require("../models/userModel");
-const { generateTokens, verifyAccessToken, verifyRefreshToken } = require("../config/jwt");
+const {
+  generateTokens,
+  verifyAccessToken,
+  verifyRefreshToken,
+} = require("../config/jwt");
 const { getConnection, mssql } = require("../config/database");
 
 class AuthController {
   // Configurar cookies de tokens
   static setTokenCookies(res, accessToken, refreshToken) {
     const isProduction = process.env.NODE_ENV === "production";
-    
+
     // Cookie para Access Token (15 minutos)
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
@@ -222,7 +226,8 @@ class AuthController {
         rol: tokenData.rol,
       };
 
-      const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+      const { accessToken, refreshToken: newRefreshToken } =
+        generateTokens(user);
 
       // Revocar el refresh token anterior
       await UserModel.revokeRefreshToken(refreshToken);
@@ -277,31 +282,37 @@ class AuthController {
     try {
       const accessToken = req.cookies.accessToken;
 
-      console.log('🔍 [VERIFY] Verificando sesión...', {
-        hasAccessToken: !!accessToken,
-        hasRefreshToken: !!req.cookies.refreshToken
-      });
-
       if (!accessToken) {
-        console.log('❌ [VERIFY] No hay access token');
         return res.status(401).json({
           success: false,
           message: "No hay token de acceso",
+          code: "NO_TOKEN",
         });
       }
 
       const decoded = verifyAccessToken(accessToken);
 
       if (!decoded) {
-        console.log('⚠️ [VERIFY] Access token expirado - el cliente debe llamar a /refresh');
+        // ✅ Verificar si hay refresh token antes de indicar que debe refrescar
+        const hasRefreshToken = !!req.cookies.refreshToken;
+
         return res.status(401).json({
           success: false,
           message: "Token expirado",
-          needsRefresh: true // Indicador para el frontend
+          code: "TOKEN_EXPIRED",
+          needsRefresh: hasRefreshToken,
         });
       }
 
-      console.log('✅ [VERIFY] Sesión válida para:', decoded.email);
+      // ✅ Verificar que el usuario aún existe en la BD
+      const user = await UserModel.findById(decoded.id);
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Usuario no encontrado",
+          code: "USER_NOT_FOUND",
+        });
+      }
 
       res.status(200).json({
         success: true,
@@ -310,15 +321,16 @@ class AuthController {
             id: decoded.id,
             nombre: decoded.nombre,
             email: decoded.email,
-            rol: decoded.rol
-          }
+            rol: decoded.rol,
+          },
         },
       });
     } catch (error) {
-      console.error('💥 [VERIFY] Error:', error.message);
-      res.status(401).json({
+      console.error("💥 [VERIFY] Error:", error.message);
+      res.status(500).json({
         success: false,
-        message: error.message,
+        message: "Error interno del servidor",
+        code: "SERVER_ERROR",
       });
     }
   }

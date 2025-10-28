@@ -1,4 +1,4 @@
-// nuevo/frontend/src/app/services/archivos_municipio.ts
+// nuevo/frontend/src/app/core/services/archivos_municipio.ts
 
 import { Injectable } from '@angular/core';
 //esto es para comunicarse con el backend

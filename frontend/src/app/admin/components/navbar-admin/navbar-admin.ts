@@ -1,10 +1,11 @@
+// nuevo/frontend/arc/app/admin/components/navbar-admin
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar-admin',
-  imports: [],
+  imports: [RouterModule],
   templateUrl: './navbar-admin.html',
   styleUrl: './navbar-admin.css'
 })
