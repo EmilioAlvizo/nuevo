@@ -1,75 +1,46 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const crypto = require("crypto");
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
+// Función para generar nombre único
+function generarNombreArchivo(originalname) {
+  const timestamp = Date.now();
+  const ext = path.extname(originalname);
+  return `${timestamp}_${Math.random().toString(36).substr(2, 10)}${ext}`;
+}
+
+// Configuración storage dinámico
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-  const id = req.revistaId || Date.now();
-  let folder = "";
+  destination: function (req, file, cb) {
+    // Debemos esperar a que la revista ya tenga un ID
+    const idRevista = req.params.id || 'temp';
+    let folder = '';
+    
+    if (file.fieldname === 'portada') {
+      folder = `public/revistas/${idRevista}/portadas`;
+    } else if (file.fieldname === 'archivo') {
+      folder = `public/revistas/${idRevista}/archivos`;
+    }
 
-  if (file.fieldname === "portada") folder = `public/revistas_portadas/${id}`;
-  if (file.fieldname === "archivo") folder = `public/revistas_archivos/${id}`;
-
-  fs.mkdirSync(folder, { recursive: true });
-  cb(null, folder);
-},
-
-  filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const hash = crypto.randomBytes(8).toString("hex");
-    const ext = path.extname(file.originalname);
-    cb(null, `${timestamp}_${hash}${ext}`);
+    fs.mkdirSync(folder, { recursive: true }); // crear carpeta si no existe
+    cb(null, folder);
+  },
+  filename: function (req, file, cb) {
+    cb(null, generarNombreArchivo(file.originalname));
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  fileFilter: function (req, file, cb) {
+    if (file.fieldname === 'archivo' && file.mimetype !== 'application/pdf') {
+      return cb(new Error('Solo se permiten PDFs para archivo'));
+    }
+    if (file.fieldname === 'portada' && !file.mimetype.startsWith('image/')) {
+      return cb(new Error('Solo se permiten imágenes para portada'));
+    }
+    cb(null, true);
+  }
+});
+
 module.exports = upload;
-
-// const multer = require("multer");
-// const path = require("path");
-// const fs = require("fs");
-// const crypto = require("crypto");
-
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     // Usamos carpeta temporal si no hay ID
-//     const folderBase = file.fieldname === "portada" ? "public/revistas_portadas" : "public/revistas_archivos";
-//     const folder = req.revistaId ? `${folderBase}/${req.revistaId}` : folderBase;
-
-//     fs.mkdirSync(folder, { recursive: true });
-//     cb(null, folder);
-//   },
-//   filename: (req, file, cb) => {
-//     const timestamp = Date.now();
-//     const hash = crypto.randomBytes(8).toString("hex");
-//     const ext = path.extname(file.originalname);
-//     cb(null, `${timestamp}_${hash}${ext}`);
-//   }
-// });
-
-// const upload = multer({ storage });
-
-// module.exports = upload;
-
-// const multer = require("multer");
-// const path = require("path");
-// const fs = require("fs");
-// const crypto = require("crypto");
-
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const tempDir = "public/temp_uploads";
-//     fs.mkdirSync(tempDir, { recursive: true });
-//     cb(null, tempDir);
-//   },
-//   filename: (req, file, cb) => {
-//     const timestamp = Date.now();
-//     const hash = crypto.randomBytes(8).toString("hex");
-//     const ext = path.extname(file.originalname);
-//     cb(null, `${timestamp}_${hash}${ext}`);
-//   }
-// });
-
-// const upload = multer({ storage });
-// module.exports = upload;
