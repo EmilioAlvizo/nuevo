@@ -2,7 +2,11 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiArchivos_municipio, Archivos_municipio } from '../../../core/services/archivos_municipio';
+import {
+  ApiArchivos_municipio,
+  Archivos_municipio,
+} from '../../../core/services/archivos_municipio';
+import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +21,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { MessageModule } from 'primeng/message';
 import { Table } from 'primeng/table';
 
 @Component({
@@ -35,7 +42,10 @@ import { Table } from 'primeng/table';
     TooltipModule,
     ConfirmDialogModule,
     ToastModule,
-    SelectModule
+    SelectModule,
+    DialogModule,
+    FileUploadModule,
+    MessageModule
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './tabla-a.html',
@@ -45,23 +55,28 @@ export class TablaA {
   Archivos_municipio: Archivos_municipio[] = [];
   selectedArchivos: Archivos_municipio[] = [];
   loading: boolean = true;
+  // Municipios
+  municipios: Municipio[] = [];
+  municipiosOptions: Array<{ label: string; value: number }> = [];
 
   // Opciones para filtros
   tiposArchivo: string[] = ['Resultados', 'Informe', 'Reporte', 'Documento', 'Otro'];
   categorias: string[] = ['Población', 'Económica', 'Social', 'Ambiental', 'Otro'];
-  estatusOptions: Array<{label: string, value: 'A' | 'I'}> = [
+  estatusOptions: Array<{ label: string; value: 'A' | 'I' }> = [
     { label: 'Activo', value: 'A' },
-    { label: 'Inactivo', value: 'I' }
+    { label: 'Inactivo', value: 'I' },
   ];
 
   constructor(
     private apiArchivos_municipio: ApiArchivos_municipio,
+    private apiMunicipio: ApiMunicipio,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     this.cargarArchivos();
+    this.cargarMunicipios();
   }
 
   cargarArchivos(): void {
@@ -78,18 +93,122 @@ export class TablaA {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar los archivos'
+          detail: 'No se pudieron cargar los archivos',
         });
       },
     });
   }
 
-  openNew() {
-    // Abrir diálogo para nuevo archivo
+  cargarMunicipios(): void {
+    this.apiMunicipio.getMessage().subscribe({
+      next: (datos) => {
+        this.municipios = datos.data;
+        // ✅ Transformar los municipios al formato que necesita p-select
+        this.municipiosOptions = this.municipios.map((m) => ({
+          label: m.nombre,
+          value: m.id_municipio,
+        }));
+      },
+      error: (err) => {
+        console.error('Error al cargar municipios:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los municipios',
+        });
+      },
+    });
+  }
+
+  hideDialog() {
+    this.nuevoArchivoDialog = false;
+    this.submitted = false;
+    this.archivoSeleccionado = null;
+  }
+
+  onArchivoSelect(event: any) {
+    const file = event.files[0];
+    if (file) {
+      this.archivoSeleccionado = file;
+
+      // Opcional: Auto-completar nombre del archivo si está vacío
+      if (!this.nuevoArchivo.nombre_archivo) {
+        this.nuevoArchivo.nombre_archivo = file.name.split('.')[0];
+      }
+
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Archivo seleccionado',
+        detail: file.name,
+      });
+    }
+  }
+
+  onArchivoRemove() {
+    this.archivoSeleccionado = null;
     this.messageService.add({
-      severity: 'info',
-      summary: 'Nuevo Archivo',
-      detail: 'Función para agregar nuevo archivo'
+      severity: 'warn',
+      summary: 'Archivo removido',
+      detail: 'Debe seleccionar un archivo',
+    });
+  }
+
+  nuevoArchivoDialog: boolean = false;
+  archivoSeleccionado: File | null = null;
+  submitted: boolean = false;
+
+  nuevoArchivo: Partial<Archivos_municipio> = {
+    estatus_archivo: 'A',
+    tipo_archivo: '',
+    categoria_archivo: '',
+    palabras_clave: '',
+    subcategoria_archivo: '',
+  };
+
+  openNew() {
+    this.nuevoArchivo = {
+      estatus_archivo: 'A',
+      fecha_archivo: new Date().toISOString().split('T')[0],
+      tipo_archivo: '',
+      categoria_archivo: '',
+      palabras_clave: '',
+      subcategoria_archivo: '',
+    };
+    this.archivoSeleccionado = null;
+    this.submitted = false;
+    this.nuevoArchivoDialog = true;
+  }
+
+  guardarNuevoArchivo() {
+    if (!this.nuevoArchivo.nombre_archivo || !this.nuevoArchivo.id_municipio) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos obligatorios',
+        detail: 'Debe ingresar nombre y municipio',
+      });
+      return;
+    }
+    console.log('aaaa ', this.nuevoArchivo);
+
+    this.apiArchivos_municipio.createArchivo(this.nuevoArchivo).subscribe({
+      next: (resp) => {
+        this.Archivos_municipio.push(resp.data);
+        this.cargarArchivos();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Archivo creado correctamente',
+        });
+        this.nuevoArchivoDialog = false;
+      },
+      error: (err) => {
+        console.error('Error al crear archivo:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo crear el archivo',
+        });
+      },
     });
   }
 
@@ -98,7 +217,7 @@ export class TablaA {
     this.messageService.add({
       severity: 'info',
       summary: 'Editar',
-      detail: `Editando: ${archivo.nombre_archivo}`
+      detail: `Editando: ${archivo.nombre_archivo}`,
     });
     // Aquí implementarías la lógica para editar
     // Por ejemplo: abrir un diálogo con los datos del archivo
@@ -109,37 +228,44 @@ export class TablaA {
       message: `¿Está seguro de eliminar el archivo "${archivo.nombre_archivo}"?`,
       header: 'Confirmar Eliminación',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí',
-      rejectLabel: 'No',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-        // Aquí llamarías a tu servicio para eliminar
-        // this.apiArchivos_municipio.deleteArchivo(archivo.id_archivo).subscribe({
-        //   next: () => {
-        //     this.Archivos_municipio = this.Archivos_municipio.filter(a => a.id_archivo !== archivo.id_archivo);
-        //     this.messageService.add({
-        //       severity: 'success',
-        //       summary: 'Eliminado',
-        //       detail: 'Archivo eliminado correctamente'
-        //     });
-        //   },
-        //   error: (err) => {
-        //     console.error('Error al eliminar:', err);
-        //     this.messageService.add({
-        //       severity: 'error',
-        //       summary: 'Error',
-        //       detail: 'No se pudo eliminar el archivo'
-        //     });
-        //   }
-        // });
-
-        // Mientras tanto, eliminación local:
-        this.Archivos_municipio = this.Archivos_municipio.filter(a => a.id_archivo !== archivo.id_archivo);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Eliminado',
-          detail: 'Archivo eliminado correctamente'
+        // ✅ Una sola eliminación
+        this.apiArchivos_municipio.deleteArchivo(archivo.id_archivo).subscribe({
+          next: () => {
+            this.Archivos_municipio = this.Archivos_municipio.filter(
+              (a) => a.id_archivo !== archivo.id_archivo
+            );
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: 'Archivo eliminado correctamente',
+              life: 3000,
+            });
+          },
+          error: (err) => {
+            console.error('Error al eliminar:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.message || 'No se pudo eliminar el archivo',
+              life: 5000,
+            });
+          },
         });
-      }
+      },
+      reject: () => {
+        // ✅ Feedback al cancelar
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'No se eliminó el archivo',
+          life: 2000,
+        });
+      },
     });
   }
 
@@ -147,16 +273,16 @@ export class TablaA {
     this.messageService.add({
       severity: 'success',
       summary: 'Descargando',
-      detail: `Descargando: ${archivo.nombre_archivo}`
+      detail: `Descargando: ${archivo.nombre_archivo}`,
     });
-    
+
     // El campo 'archivo' contiene el nombre del archivo, no base64
     // Asumiendo que tienes una ruta base para los archivos
     if (archivo.archivo) {
       // Opción 1: Si tienes una URL base para descargar archivos
       const baseUrl = 'tu-url-base/archivos/'; // Ajusta según tu API
       window.open(baseUrl + archivo.archivo, '_blank');
-      
+
       // Opción 2: Si necesitas hacer una petición HTTP para obtener el archivo
       // this.apiArchivos_municipio.downloadFile(archivo.id_archivo).subscribe({
       //   next: (blob) => {
@@ -187,15 +313,17 @@ export class TablaA {
       acceptLabel: 'Sí',
       rejectLabel: 'No',
       accept: () => {
-        const idsToDelete = this.selectedArchivos.map(a => a.id_archivo);
-        this.Archivos_municipio = this.Archivos_municipio.filter(a => !idsToDelete.includes(a.id_archivo));
+        const idsToDelete = this.selectedArchivos.map((a) => a.id_archivo);
+        this.Archivos_municipio = this.Archivos_municipio.filter(
+          (a) => !idsToDelete.includes(a.id_archivo)
+        );
         this.selectedArchivos = [];
         this.messageService.add({
           severity: 'success',
           summary: 'Eliminados',
-          detail: 'Archivos eliminados correctamente'
+          detail: 'Archivos eliminados correctamente',
         });
-      }
+      },
     });
   }
 
@@ -204,7 +332,7 @@ export class TablaA {
     this.messageService.add({
       severity: 'success',
       summary: 'Exportando',
-      detail: 'Generando archivo CSV...'
+      detail: 'Generando archivo CSV...',
     });
   }
 
@@ -213,7 +341,7 @@ export class TablaA {
     this.messageService.add({
       severity: 'info',
       summary: 'Filtros Limpiados',
-      detail: 'Se han eliminado todos los filtros'
+      detail: 'Se han eliminado todos los filtros',
     });
   }
 

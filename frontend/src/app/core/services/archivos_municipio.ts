@@ -16,7 +16,7 @@ export interface Archivos_municipio {
   fecha_modificacion: string;
   tipo_archivo: string;
   categoria_archivo: string;
-  palabra_clave: string;
+  palabras_clave: string;
   subcategoria_archivo: string;
   // Datos del municipio (JOIN)
   nombre_municipio?: string;
@@ -40,27 +40,27 @@ export class ApiArchivos_municipio {
   //private apiUrl = 'https://mock.apidog.com/m1/1099917-1089948-default/api';
   //inyecta el servicio HttpClient
   constructor(private http: HttpClient) {}
-  getMessage():Observable<ApiResponse> {
+  getMessage(): Observable<ApiResponse> {
     //realiza una solicitud GET a la URL del backend
-    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio`,{});
+    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio`, {});
   }
 
-  get_archivos():Observable<ApiResponse> {
+  get_archivos(): Observable<ApiResponse> {
     //realiza una solicitud GET a la URL del backend
-    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio/filtrados`,{});
+    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio/filtrados`, {});
   }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
   getArchivosFiltrados(params: {
-    municipios?: number[],
-    busqueda?: string,
-    categoria?: string,
-    palabra_clave?: string,
-    tipo?: string,
-    ordenar?: string,
-    limite?: number,
-    pagina?: number
-  }): Observable<ApiResponse & { total?: number, pagina?: number, totalPaginas?: number }> {
+    municipios?: number[];
+    busqueda?: string;
+    categoria?: string;
+    palabras_clave?: string;
+    tipo?: string;
+    ordenar?: string;
+    limite?: number;
+    pagina?: number;
+  }): Observable<ApiResponse & { total?: number; pagina?: number; totalPaginas?: number }> {
     let httpParams = new HttpParams();
 
     // Agregar municipios seleccionados
@@ -79,8 +79,8 @@ export class ApiArchivos_municipio {
     }
 
     // Agregar palabras clave
-    if (params.palabra_clave) {
-      httpParams = httpParams.set('palabra_clave', params.palabra_clave);
+    if (params.palabras_clave) {
+      httpParams = httpParams.set('palabra_clave', params.palabras_clave);
     }
 
     // Agregar tipo
@@ -105,12 +105,25 @@ export class ApiArchivos_municipio {
     console.log('Llamando a API archivos_municipio con params:', httpParams.toString());
 
     return this.http.get<any>(`${this.apiUrl}/archivos_municipio/filtrados`, {
-      params: httpParams
+      params: httpParams,
     });
   }
 
   // Obtener conteo de archivos por municipio
-  getConteosPorMunicipio(): Observable<{success: boolean, data: {id_municipio: number, nombre: string, contador: number}[]}> {
+  getConteosPorMunicipio(): Observable<{
+    success: boolean;
+    data: { id_municipio: number; nombre: string; contador: number }[];
+  }> {
     return this.http.get<any>(`${this.apiUrl}/archivos_municipio/conteos-municipio`);
+  }
+
+  // Crear nuevo archivo_municipio
+  createArchivo(data: Partial<Archivos_municipio>): Observable<any> {
+    return this.http.post(`${this.apiUrl}/archivos_municipio`, data);
+  }
+
+  // Eliminar archivo
+  deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
+    return this.http.delete<any>(`${this.apiUrl}/archivos_municipio/${id}`);
   }
 }

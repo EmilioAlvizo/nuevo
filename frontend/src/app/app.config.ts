@@ -14,7 +14,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
+import MyPreset from './shared/mypreset';
 
 // ✅ Variable global para asegurar una sola ejecución
 let authInitialized = false;
@@ -25,7 +25,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: MyPreset
       },
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),

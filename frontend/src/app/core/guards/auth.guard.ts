@@ -3,8 +3,8 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { map, take, timeout, catchError } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { map, take, timeout, catchError, switchMap } from 'rxjs/operators';
+import { Observable, of, from } from 'rxjs';
 import { TimeoutError } from 'rxjs';
 
 export const AuthGuard: CanActivateFn = (route, state): Observable<boolean | UrlTree> => {
@@ -13,46 +13,60 @@ export const AuthGuard: CanActivateFn = (route, state): Observable<boolean | Url
   const platformId = inject(PLATFORM_ID);
 
   console.log('🛡️ [GUARD] Verificando acceso a:', state.url);
-  console.log('🛡️ [GUARD] Platform:', isPlatformBrowser(platformId) ? 'Browser' : 'Server');
 
-  // ✅ En SSR, siempre permitir acceso y dejar que el cliente maneje la autenticación
+  // SSR siempre permite acceso, validará en el cliente
   if (!isPlatformBrowser(platformId)) {
-    console.log('✅ [GUARD] SSR - Permitiendo acceso (se validará en el cliente)');
     return of(true);
   }
 
-  // ✅ En el navegador, verificar autenticación normalmente
-  console.log('🛡️ [GUARD] Estado actual de usuario:', authService.currentUser);
-
+  // Esperar inicialización del AuthService
   return authService.waitForInitialization().pipe(
-    timeout(5000),
+    timeout(1),
     take(1),
-    map(() => {
-      console.log('✅ [GUARD] Inicialización completada');
-      const user = authService.currentUser;
-
-      if (user) {
-        const requiredRole = route.data['role'] as string | undefined;
-
-        if (requiredRole && user.rol !== requiredRole) {
-          console.warn('🚫 [GUARD] Rol insuficiente. Requerido:', requiredRole, 'Actual:', user.rol);
-          return router.createUrlTree(['/unauthorized']);
+    switchMap(() => {
+      // Si ya hay usuario en memoria, seguimos con ese
+      if (authService.currentUser) {
+        const requiredRole = route.data['role'];
+        if (requiredRole && authService.currentUser.rol !== requiredRole) {
+          console.warn('🚫 [GUARD] Rol insuficiente');
+          return of(router.createUrlTree(['/unauthorized']));
         }
-
-        console.log('✅ [GUARD] Acceso permitido para:', user.email);
-        return true;
+        console.log('✅ [GUARD] Usuario ya autenticado');
+        return of(true);
       }
 
-      console.warn('❌ [GUARD] No autenticado, redirigiendo a login');
-      return router.createUrlTree(['/login'], {
-        queryParams: { returnUrl: state.url }
-      });
+      // 🚀 Si no hay usuario cargado, verificar con el backend
+      console.log('🔍 [GUARD] Sin usuario local, verificando sesión...');
+      return from(authService.verifySession()).pipe(
+        map(user => {
+          if (user) {
+            console.log('✅ [GUARD] Sesión válida:', user.email);
+
+            const requiredRole = route.data['role'];
+            if (requiredRole && user.rol !== requiredRole) {
+              console.warn('🚫 [GUARD] Rol insuficiente');
+              return router.createUrlTree(['/unauthorized']);
+            }
+            return true;
+          }
+
+          console.warn('❌ [GUARD] No autenticado, redirigiendo a login');
+          return router.createUrlTree(['/login'], {
+            queryParams: { returnUrl: state.url },
+          });
+        }),
+        catchError((error) => {
+          console.error('❌ [GUARD] Error verificando sesión:', error);
+          return of(router.createUrlTree(['/login'], {
+            queryParams: { returnUrl: state.url },
+          }));
+        })
+      );
     }),
     catchError((error) => {
-      console.error('❌ [GUARD] Error en autenticación:', error.message);
-      // En caso de timeout u otro error, redirigir a login
+      console.error('❌ [GUARD] Error general en autenticación:', error);
       return of(router.createUrlTree(['/login'], {
-        queryParams: { returnUrl: state.url }
+        queryParams: { returnUrl: state.url },
       }));
     })
   );

@@ -1,9 +1,10 @@
 // nuevo/frontend/src/app/core/services/auth.service.ts
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpContext } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, EMPTY, lastValueFrom } from 'rxjs';
 import { catchError, map, tap, filter, take, finalize } from 'rxjs/operators';
+//import { SKIP_AUTH_REDIRECT } from '../interceptors/auth.interceptor';
 
 export interface User {
   id: number;
@@ -60,6 +61,7 @@ export class AuthService {
     console.log('🔄 [AUTH] Inicializando autenticación...');
     console.log('🔄 [AUTH] Platform:', this.isBrowser ? 'Browser' : 'Server');
 
+    // SSR: omitir
     if (!this.isBrowser) {
       console.log('✅ [AUTH] SSR - Omitiendo verificación de sesión');
       this.currentUserSubject.next(null);
@@ -67,7 +69,7 @@ export class AuthService {
       return;
     }
 
-    try {
+    /* try {
       const user = await this.verifySession();
 
       if (user) {
@@ -83,7 +85,12 @@ export class AuthService {
     } finally {
       console.log('✅ [AUTH] Inicialización completada');
       this.initializationComplete.next(true);
-    }
+    } */
+
+    // 🚫 Ya no verificamos sesión aquí
+    console.log('ℹ️ [AUTH] Inicialización sin verificación de sesión');
+    this.currentUserSubject.next(null);
+    this.initializationComplete.next(true);
   }
 
   waitForInitialization(): Observable<boolean> {
@@ -95,17 +102,14 @@ export class AuthService {
 
   // ==================== VERIFICACIÓN DE SESIÓN ====================
 
-  private async verifySession(): Promise<User | null> {
+  async verifySession(): Promise<User | null> {
     if (!this.isBrowser) {
       return null;
     }
 
-    // ✅ NUEVO: Verificar si hay cookies antes de hacer la petición
-    const hasCookies = this.checkIfHasCookies();
-    if (!hasCookies) {
-      console.log('ℹ️  [AUTH] No hay cookies de sesión, omitiendo verificación');
-      return null;
-    }
+    // ✅ Siempre intentar verificar - las cookies HttpOnly no son accesibles desde JS
+    // Si no hay cookies, el backend responderá 401 rápidamente
+    console.log('🔍 [AUTH] Verificando sesión...');
 
     try {
       const response = await lastValueFrom(
@@ -124,6 +128,12 @@ export class AuthService {
 
       return null;
     } catch (error: any) {
+      // Si es 401 sin needsRefresh, simplemente no hay sesión (esto es normal)
+      if (error?.status === 401 && !error?.error?.needsRefresh) {
+        console.log('ℹ️  [AUTH] No hay sesión activa (sin cookies)');
+        return null;
+      }
+
       // ✅ Si el error tiene needsRefresh, intentar renovar
       if (error?.error?.needsRefresh) {
         console.log('🔄 [AUTH] Token expirado (error), intentando renovar...');
@@ -136,27 +146,6 @@ export class AuthService {
 
       console.error('❌ [AUTH] Error verificando sesión:', error);
       return null;
-    }
-  }
-
-  // ✅ NUEVO: Verificar si hay cookies de sesión
-  private checkIfHasCookies(): boolean {
-    if (!this.isBrowser) {
-      return false;
-    }
-
-    try {
-      // Verificar si document.cookie contiene nuestras cookies
-      const cookies = document.cookie;
-      const hasAccessToken = cookies.includes('accessToken');
-      const hasRefreshToken = cookies.includes('refreshToken');
-
-      console.log('hasAccessToken ',hasAccessToken)
-      console.log('hasRefreshToken ',hasRefreshToken)
-
-      return hasAccessToken || hasRefreshToken;
-    } catch {
-      return false;
     }
   }
 

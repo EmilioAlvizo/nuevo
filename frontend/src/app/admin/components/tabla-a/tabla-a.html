@@ -1,4 +1,5 @@
-<div class="contenedor">
+<div class="contenedor border-round border-1 surface-border shadow-2">
+  <p-toast></p-toast>
   <p-toolbar class="mb-4">
     <ng-template #start>
       <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="openNew()" />
@@ -21,6 +22,227 @@
     </ng-template>
   </p-toolbar>
 
+  <p-dialog
+    header="Nuevo Archivo Municipal"
+    [(visible)]="nuevoArchivoDialog"
+    [modal]="true"
+    [style]="{ width: '600px' }"
+    [draggable]="false"
+    [resizable]="false"
+  >
+    <div class="container-fluid">
+      <form #archivoForm="ngForm">
+        <!-- Nombre del Archivo -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <label for="nombre" class="form-label fw-semibold">
+              Nombre del Archivo <span class="text-danger">*</span>
+            </label>
+            <input
+              type="text"
+              pInputText
+              id="nombre"
+              [(ngModel)]="nuevoArchivo.nombre_archivo"
+              name="nombre_archivo"
+              class="form-control"
+              placeholder="Ej: Encuesta Estatal de Juventud 2019"
+              required
+              [class.is-invalid]="submitted && !nuevoArchivo.nombre_archivo"
+            />
+            <div class="invalid-feedback" *ngIf="submitted && !nuevoArchivo.nombre_archivo">
+              Este campo es requerido
+            </div>
+          </div>
+        </div>
+
+        <!-- Municipio y Tipo -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="municipio" class="form-label fw-semibold">
+              Municipio <span class="text-danger">*</span>
+            </label>
+            <p-select
+              [options]="municipiosOptions"
+              [(ngModel)]="nuevoArchivo.id_municipio"
+              name="id_municipio"
+              placeholder="Seleccionar municipio"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              filterPlaceholder="Buscar municipio..."
+              [showClear]="true"
+              class="w-100"
+              [class.ng-invalid]="submitted && !nuevoArchivo.id_municipio"
+            >
+              <ng-template let-municipio #item>
+                <div class="d-flex align-items-center">
+                  <i class="pi pi-map-marker me-2 text-primary"></i>
+                  <span>{{ municipio.label }}</span>
+                </div>
+              </ng-template>
+            </p-select>
+            <small class="text-danger" *ngIf="submitted && !nuevoArchivo.id_municipio">
+              Campo requerido
+            </small>
+            <small class="text-muted d-block mt-1" *ngIf="nuevoArchivo.id_municipio">
+              <i class="pi pi-info-circle"></i>
+              ID seleccionado: {{ nuevoArchivo.id_municipio }}
+            </small>
+          </div>
+
+          <div class="col-md-6">
+            <label for="tipo" class="form-label fw-semibold">
+              Tipo de Archivo <span class="text-danger">*</span>
+            </label>
+            <p-select
+              [options]="tiposArchivo"
+              [(ngModel)]="nuevoArchivo.tipo_archivo"
+              name="tipo_archivo"
+              placeholder="Seleccionar tipo"
+              class="w-100"
+              [class.ng-invalid]="submitted && !nuevoArchivo.tipo_archivo"
+            />
+            <small class="text-danger" *ngIf="submitted && !nuevoArchivo.tipo_archivo">
+              Campo requerido
+            </small>
+          </div>
+        </div>
+        <!-- Categoría y Subcategoría -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="categoria" class="form-label fw-semibold">
+              Categoría <span class="text-danger">*</span>
+            </label>
+            <p-select
+              [options]="categorias"
+              [(ngModel)]="nuevoArchivo.categoria_archivo"
+              name="categoria_archivo"
+              placeholder="Seleccionar categoría"
+              class="w-100"
+              [class.ng-invalid]="submitted && !nuevoArchivo.categoria_archivo"
+            />
+            <small class="text-danger" *ngIf="submitted && !nuevoArchivo.categoria_archivo">
+              Campo requerido
+            </small>
+          </div>
+
+          <div class="col-md-6">
+            <label for="subcategoria" class="form-label fw-semibold"> Subcategoría </label>
+            <input
+              type="text"
+              pInputText
+              id="subcategoria"
+              [(ngModel)]="nuevoArchivo.subcategoria_archivo"
+              name="subcategoria_archivo"
+              class="form-control"
+              placeholder="Ej: Encuestas"
+            />
+          </div>
+        </div>
+
+        <!-- Palabras Clave -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <label for="palabras_clave" class="form-label fw-semibold"> Palabras Clave </label>
+            <textarea
+              pInputTextarea
+              id="palabras_clave"
+              [(ngModel)]="nuevoArchivo.palabras_clave"
+              name="palabras_clave"
+              rows="2"
+              class="form-control"
+              placeholder="Ej: Encuesta,Juventud,Estatal (separadas por coma)"
+            ></textarea>
+            <small class="text-muted">
+              <i class="pi pi-info-circle"></i>
+              Separe las palabras clave con comas
+            </small>
+          </div>
+        </div>
+
+        <!-- Estatus -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="estatus" class="form-label fw-semibold"> Estatus </label>
+            <p-select
+              [options]="estatusOptions"
+              [(ngModel)]="nuevoArchivo.estatus_archivo"
+              name="estatus_archivo"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccionar estatus"
+              class="w-100"
+            >
+              <ng-template let-option #item>
+                <p-tag [value]="option.label" [severity]="getSeverity(option.value)" />
+              </ng-template>
+            </p-select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold"> Fecha del Archivo </label>
+            <input
+              type="text"
+              pInputText
+              [value]="nuevoArchivo.fecha_archivo"
+              class="form-control"
+              disabled
+            />
+            <small class="text-muted">
+              <i class="pi pi-calendar"></i>
+              Fecha automática
+            </small>
+          </div>
+        </div>
+
+        <!-- Subir Archivo -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Archivo <span class="text-danger">*</span>
+            </label>
+            <p-fileUpload
+              mode="basic"
+              name="archivo"
+              [maxFileSize]="10000000"
+              chooseLabel="Seleccionar archivo"
+              chooseIcon="pi pi-upload"
+              [auto]="false"
+              (onSelect)="onArchivoSelect($event)"
+              (onRemove)="onArchivoRemove()"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+              [showUploadButton]="false"
+              [showCancelButton]="false"
+              class="w-100"
+            />
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle"></i>
+              Formatos permitidos: PDF, Word, Excel, ZIP, RAR (máx. 10MB)
+            </small>
+            <div *ngIf="archivoSeleccionado" class="alert alert-success mt-2 py-2">
+              <i class="pi pi-check-circle me-2"></i>
+              <strong>{{ archivoSeleccionado.name }}</strong>
+              <small class="ms-2">({{ (archivoSeleccionado.size / 1024).toFixed(2) }} KB)</small>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="d-flex justify-content-end gap-2">
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          [outlined]="true"
+          severity="secondary"
+          (onClick)="hideDialog()"
+        />
+        <p-button label="Guardar Archivo" icon="pi pi-check" (onClick)="guardarNuevoArchivo()" />
+      </div>
+    </ng-template>
+  </p-dialog>
+
   <p-table
     #dt
     [value]="Archivos_municipio"
@@ -35,7 +257,7 @@
       'subcategoria_archivo',
       'estatus_archivo'
     ]"
-    [tableStyle]="{ 'min-width': '90rem' }"
+    [tableStyle]="{ 'min-width': '50rem' }"
     [(selection)]="selectedArchivos"
     [rowHover]="true"
     dataKey="id_archivo"
@@ -182,7 +404,8 @@
             <span class="fw-medium">{{ archivo.nombre_archivo }}</span>
           </div>
           <small class="text-muted d-block mt-1" *ngIf="archivo.palabras_clave">
-            <!-- <i class="pi pi-tag small"></i> --> {{ archivo.palabras_clave }}
+            <!-- <i class="pi pi-tag small"></i> -->
+            {{ archivo.palabras_clave }}
           </small>
         </td>
         <td>{{ archivo.nombre_municipio }}</td>
@@ -218,6 +441,7 @@
               tooltipPosition="top"
               (click)="editArchivo(archivo)"
             />
+            
             <p-button
               icon="pi pi-trash"
               severity="danger"
