@@ -1,9 +1,9 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { ApiRevistas, Revistas } from '../../../services/revistas';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-// import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-revista-voces-admin',
@@ -12,35 +12,88 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './revista-voces-admin.html',
   styleUrls: ['./revista-voces-admin.css']
 })
-export class RevistaVocesAdmin implements OnInit {
+export class RevistaVocesAdmin implements OnInit, AfterViewInit {
+  @ViewChild('modalRevista') modalElement!: ElementRef;
 
   revistas: Revistas[] = [];
-  archivos: { portada?: File; archivo?: File } = {};
   nuevaRevista = {
     volumen: '',
     numero_year: '',
     descripcion: '',
     fecha: '',
-    estatus: ''
+    estatus: '',
+    portada: '',
+    archivo: ''
   };
 
-   private Modal: any; 
+  private modalInstance: any;
+  private bsModule: any; // Módulo dinámico de Bootstrap
 
   constructor(
     private apiRevistas: ApiRevistas,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    // 🔹 Cargar Bootstrap Modal solo en navegador
-    if (isPlatformBrowser(this.platformId)) {
-      import('bootstrap').then(bs => {
-        this.Modal = bs.Modal;
-      }).catch(err => console.error('Error al cargar Bootstrap:', err));
-    }
-  }
+  ) {}
 
   ngOnInit(): void {
     this.cargarRevistas();
+
+    // Solo en navegador, carga Bootstrap dinámicamente
+    if (isPlatformBrowser(this.platformId)) {
+      import('bootstrap').then(bs => {
+        this.bsModule = bs; // guardamos la referencia
+        // Si la vista ya está disponible, inicializamos el modal
+        if (this.modalElement) {
+          this.inicializarModal();
+        }
+      }).catch(err => console.error('❌ Error al cargar Bootstrap:', err));
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      // Si Bootstrap ya está cargado, inicializamos ahora
+      if (this.bsModule) {
+        this.inicializarModal();
+      }
+    }
+  }
+
+  private inicializarModal(): void {
+    if (!this.modalElement) return;
+    const Modal = this.bsModule.Modal;
+
+    this.modalInstance = new Modal(this.modalElement.nativeElement, {
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    // Limpia formulario al cerrar modal
+    this.modalElement.nativeElement.addEventListener('hidden.bs.modal', () => {
+      this.nuevaRevista = {
+        volumen: '',
+        numero_year: '',
+        descripcion: '',
+        fecha: '',
+        estatus: '',
+        archivo: '',
+        portada: ''
+      };
+    });
+  }
+
+  abrirModal(): void {
+    if (this.modalInstance) {
+      this.modalInstance.show();
+    } else {
+      console.warn('⚠️ Modal no inicializado todavía.');
+    }
+  }
+
+  cerrarModal(): void {
+    if (this.modalInstance) {
+      this.modalInstance.hide();
+    }
   }
 
   cargarRevistas(): void {
@@ -54,72 +107,86 @@ export class RevistaVocesAdmin implements OnInit {
     });
   }
 
-//   abrirRevista(revista: Revistas): void {
-//     this.router.navigate(['/revista', revista.id_revista]);
-//   }
-
-  onFileSelected(event: any, tipo: 'portada' | 'archivo') {
-    const file = event.target.files[0];
-    if (file) {
-      this.archivos[tipo] = file;
-    }
-  }
-
-
-
   guardarRevista(form: any): void {
     if (!form.valid) return;
 
     const formData = new FormData();
-    formData.append('volumen', form.value.volumen);
-    formData.append('numero_year', form.value.numero_year);
-    formData.append('descripcion', form.value.descripcion);
-    formData.append('fecha', form.value.fecha);
-    formData.append('estatus', form.value.estatus);
-
-    if (this.archivos.portada) formData.append('portada', this.archivos.portada);
-    if (this.archivos.archivo) formData.append('archivo', this.archivos.archivo);
+    Object.entries(form.value).forEach(([k, v]) => formData.append(k, v as string));
 
     this.apiRevistas.crearRevista(formData).subscribe({
       next: (res: any) => {
         if (res.success) {
           this.cargarRevistas();
-          form.resetForm();
-          this.archivos = {};
-          this.nuevaRevista = { volumen: '', numero_year: '', descripcion: '', fecha: '', estatus: '' };
+          this.cerrarModal();
 
-        //   ✅ Solo se ejecuta en el navegador
-          if (isPlatformBrowser(this.platformId)) {
-            const modal = document.getElementById('agregarRevista');
-            if (modal && this.Modal) {
-              const bsModal = this.Modal.getInstance(modal) || new this.Modal(modal);
-              bsModal.hide();
-            }
-            alert('✅ Revista creada correctamente');
-          }
-
-//         if (isPlatformBrowser(this.platformId) && this.Modal) {
-//   const modalEl = document.getElementById('agregarRevista');
-//   if (modalEl) {
-//     const bsModal = new this.Modal(modalEl);
-//     bsModal.show();
-
-//     // Opcional: enfocar un input al abrir
-//     setTimeout(() => {
-//       const input = modalEl.querySelector<HTMLInputElement>('input[name="volumen"]');
-//       input?.focus();
-//     }, 200);
-//   }
-// }
-
-
-
+          Swal.fire({
+            title: '¡Éxito!',
+            text: 'La revista se creó correctamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+          });
         } else {
-          if (isPlatformBrowser(this.platformId)) alert('❌ Error al crear revista');
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo crear la revista.',
+            icon: 'error',
+            confirmButtonText: 'Cerrar',
+            confirmButtonColor: '#dc3545'
+          });
         }
       },
-      error: (err) => console.error('Error en API:', err)
+      error: (err) => {
+        console.error('Error en API:', err);
+        Swal.fire({
+          title: 'Error',
+          text: 'Ocurrió un problema con la conexión al servidor.',
+          icon: 'error',
+          confirmButtonText: 'Cerrar',
+          confirmButtonColor: '#dc3545'
+        });
+      }
     });
   }
-  
 }
+
+
+
+  // guardarRevista(form: any): void {
+  //   if (!form.valid) return;
+
+  //   const formData = new FormData();
+  //   formData.append('volumen', form.value.volumen);
+  //   formData.append('numero_year', form.value.numero_year);
+  //   formData.append('descripcion', form.value.descripcion);
+  //   formData.append('fecha', form.value.fecha);
+  //   formData.append('estatus', form.value.estatus);
+
+  //   formData.append('archivo', form.value.archivo);
+  //   formData.append('portada', form.value.portada);
+
+
+  //   this.apiRevistas.crearRevista(formData).subscribe({
+  //     next: (res: any) => {
+  //       if (res.success) {
+  //         this.cargarRevistas();
+  //         form.resetForm();
+  //         this.nuevaRevista = { volumen: '', numero_year: '', descripcion: '', fecha: '', estatus: '', archivo: '', portada: '' };
+
+  //       //   ✅ Solo se ejecuta en el navegador
+  //         if (isPlatformBrowser(this.platformId)) {
+  //           const modal = document.getElementById('agregarRevista');
+  //           if (modal && this.Modal) {
+  //             const bsModal = this.Modal.getInstance(modal) || new this.Modal(modal);
+  //             bsModal.hide();
+  //           }
+  //           alert('✅ Revista creada correctamente');
+  //         }
+
+  //       } else {
+  //         if (isPlatformBrowser(this.platformId)) alert('❌ Error al crear revista');
+  //       }
+  //     },
+  //     error: (err) => console.error('Error en API:', err)
+  //   });
+  // }

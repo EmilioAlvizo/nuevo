@@ -54,7 +54,7 @@ class revistasModel {
   }
 
   // Actualizar un registro
-  static async update(tableName, id, data, idColumn = "id") {
+    static async update(tableName, id, data, idColumn = "id") {
     try {
       const pool = await getConnection();
       const setClause = Object.keys(data)
@@ -63,14 +63,18 @@ class revistasModel {
 
       const request = pool.request();
       request.input("id", mssql.Int, id);
+      Object.keys(data).forEach((key) => request.input(key, data[key]));
 
-      // Agregar parámetros dinámicamente
-      Object.keys(data).forEach((key) => {
-        request.input(key, data[key]);
-      });
+      const query = `
+        UPDATE ${tableName}
+        SET ${setClause}
+        WHERE ${idColumn} = @id;
+      `;
+      const result = await request.query(query);
 
-      const query = `UPDATE ${tableName} SET ${setClause} WHERE ${idColumn} = @id`;
-      await request.query(query);
+      if (result.rowsAffected[0] === 0) {
+        return null; // 👈 Ninguna fila actualizada
+      }
 
       return { id, ...data };
     } catch (error) {
@@ -79,13 +83,17 @@ class revistasModel {
   }
 
   // Eliminar un registro
-  static async delete(tableName, id, idColumn = "id") {
+static async delete(tableName, id, idColumn = "id") {
     try {
       const pool = await getConnection();
-      await pool
+      const result = await pool
         .request()
         .input("id", mssql.Int, id)
         .query(`DELETE FROM ${tableName} WHERE ${idColumn} = @id`);
+
+      if (result.rowsAffected[0] === 0) {
+        return null; // 👈 Ninguna fila eliminada
+      }
 
       return { message: "Registro eliminado exitosamente", id };
     } catch (error) {

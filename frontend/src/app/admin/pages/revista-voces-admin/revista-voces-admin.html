@@ -1,8 +1,10 @@
 <div class="container">
-    <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarRevista">Agregar revista</button>
+    <!-- <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarRevista">Agregar revista</button> -->
+    <button class="btn btn-primary mt-2" (click)="abrirModal()">Agregar revista</button>
+    
     <div
         class="modal fade"
-        id="agregarRevista"
+        id="agregarRevista" #modalRevista
         tabindex="-1"
         aria-labelledby="publicacionTitle"
         aria-hidden="true"
@@ -13,12 +15,7 @@
                     <form #revistaForm="ngForm" (ngSubmit)="guardarRevista(revistaForm)" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="publicacionTitle">Agregar revista</h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Cerrar"
-                        ></button>
+                        <button type="button" class="btn-close" (click)="cerrarModal()" aria-label="Cerrar"></button>
                     </div>
                     
                     <div class="modal-body">
@@ -44,7 +41,7 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        <!-- <div class="row mb-3">
                             <div class="col">
                                 <label class="col-form-label">Subir portada:</label>
                                 <input class="form-control" type="file" (change)="onFileSelected($event, 'portada')" required /><br />
@@ -54,6 +51,17 @@
                                 <label class="col-form-label">Subir archivo:</label>
                                 <input class="form-control" type="file" (change)="onFileSelected($event, 'archivo')" /><br />
                                 <span id="file-error-archivo" style="color:red;"></span>
+                            </div>
+                        </div> -->
+
+                        <div class="row mb-3">
+                            <div class="col-8">
+                                <label class="col-form-label">Subir portada:</label>
+                                <input type="text" class="form-control" maxlength="250" name="portada" [(ngModel)]="nuevaRevista.portada" required />
+                            </div>
+                            <div class="col-4">
+                                <label class="col-form-label">Subir archivo:</label>
+                                <input type="text" class="form-control" name="archivo" [(ngModel)]="nuevaRevista.archivo" required />
                             </div>
                         </div>
 
@@ -70,7 +78,9 @@
                     </div>
                     
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-success" [disabled]="revistaForm.invalid">Guardar</button> -->
+                        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
                         <button type="submit" class="btn btn-success" [disabled]="revistaForm.invalid">Guardar</button>
                     </div>
                 </form>
