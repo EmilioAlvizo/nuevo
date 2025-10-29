@@ -41,15 +41,21 @@ export class ApiRevistas {
     return this.http.get<ApiResponse>(`${this.apiUrl}/revistas`,{});
   }
 
-  //PETICIÓN POST
-  // crearRevista(nuevaRevista: Partial<Revistas>): Observable<ApiResponse>{
-  //   return this.http.post<ApiResponse>(`${this.apiUrl}/revistas`, nuevaRevista);
-  // }
-
   crearRevista(formData: FormData) {
   return this.http.post<any>(`${this.apiUrl}/revistas`, formData);
-}
+  }
 
+  // actualizarRevista(id: number, formData: FormData){
+  //   return this.http.put<any>(`${this.apiUrl}/revistas/${id}`, formData);
+  // }
+  actualizarRevista(id: number, data: any){
+  return this.http.put<any>(`${this.apiUrl}/revistas/${id}`, data);
+  }
+
+
+  eliminarRevista(id: number){
+    return this.http.delete<any>(`${this.apiUrl}/revistas/${id}`);
+  }
 
 
 

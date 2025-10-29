@@ -1,7 +1,47 @@
 <div class="container">
     <!-- <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarRevista">Agregar revista</button> -->
     <button class="btn btn-primary mt-2" (click)="abrirModal()">Agregar revista</button>
-    
+
+  <!-- Tabla de revistas -->
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Volumen</th>
+          <th>Número Año</th>
+          <th>Descripción</th>
+          <th>Fecha</th>
+          <th>Estatus</th>
+          <th>Portada</th>
+          <th>Archivo</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let revista of revistas;">
+          <td>{{ revista.id_revista }}</td>
+          <td>{{ revista.volumen }}</td>
+          <td>{{ revista.numero_year }}</td>
+          <td>{{ revista.descripcion }}</td>
+          <td>{{ revista.fecha | date:'yyyy-MM-dd' }}</td>
+          <td>
+            <span class="badge" [class.bg-success]="revista.estatus === 'A'" [class.bg-secondary]="revista.estatus === 'B'">
+              {{ revista.estatus === 'A' ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>{{ revista.portada }}</td>
+          <td>{{ revista.archivo }}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-secondary me-2" (click)="editarRevista(revista)">Editar</button>
+            <button class="btn btn-sm btn-danger" (click)="eliminarRevista(revista.id_revista)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<!-- Modar agregar revista -->
     <div
         class="modal fade"
         id="agregarRevista" #modalRevista
@@ -87,4 +127,8 @@
             </div>
         </div>
     </div>
+<!--Termina modal agregar revista-->
+
+
+
 </div>
