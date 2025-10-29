@@ -47,10 +47,8 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // Limpiar error previo
     this.error.set('');
 
-    // Validar formulario
     if (this.loginForm.invalid) {
       this.error.set('Por favor completa todos los campos correctamente');
       this.markFormAsTouched();
@@ -59,11 +57,14 @@ export class LoginComponent implements OnInit {
 
     const { email, password } = this.loginForm.getRawValue();
 
+    // Deshabilitar el formulario mientras carga
     this.loading.set(true);
+    this.loginForm.disable();
 
     this.authService.login(email, password).subscribe({
       next: (response) => {
         this.loading.set(false);
+        this.loginForm.enable();
 
         if (response.success && response.data) {
           console.log('✅ Login exitoso:', response.data.user.email);
@@ -72,6 +73,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
+        this.loginForm.enable();
         this.error.set(err.message || 'Error al iniciar sesión');
         console.error('❌ Error de login:', err);
       },

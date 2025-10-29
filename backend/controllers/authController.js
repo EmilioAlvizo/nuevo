@@ -27,6 +27,11 @@ class AuthController {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
     });
+
+    console.log("🍪 [AUTH] Cookies configuradas:", {
+      accessToken: accessToken.substring(0, 20) + "...",
+      refreshToken: refreshToken.substring(0, 20) + "...",
+    });
   }
 
   // Registro de usuario
@@ -189,9 +194,13 @@ class AuthController {
   // 🆕 Refrescar Access Token usando Refresh Token
   static async refresh(req, res) {
     try {
+      console.log("🔄 [REFRESH] Iniciando refresh de tokens...");
+      console.log("🍪 [REFRESH] Cookies recibidas:", Object.keys(req.cookies));
+
       const refreshToken = req.cookies.refreshToken;
 
       if (!refreshToken) {
+        console.log("❌ [REFRESH] No hay refresh token en cookies");
         return res.status(401).json({
           success: false,
           message: "Refresh token no proporcionado",
@@ -202,6 +211,7 @@ class AuthController {
       const decoded = verifyRefreshToken(refreshToken);
 
       if (!decoded) {
+        console.log("❌ [REFRESH] Token inválido o expirado");
         return res.status(401).json({
           success: false,
           message: "Refresh token inválido o expirado",
@@ -212,6 +222,7 @@ class AuthController {
       const tokenData = await UserModel.findRefreshToken(refreshToken);
 
       if (!tokenData) {
+        console.log("❌ [REFRESH] Token no encontrado en BD");
         return res.status(401).json({
           success: false,
           message: "Refresh token no válido",
@@ -238,6 +249,8 @@ class AuthController {
       // Enviar nuevas cookies
       AuthController.setTokenCookies(res, accessToken, newRefreshToken);
 
+      console.log("✅ [REFRESH] Tokens renovados exitosamente para:", user.email);
+
       res.status(200).json({
         success: true,
         message: "Token renovado exitosamente",
@@ -246,6 +259,7 @@ class AuthController {
         },
       });
     } catch (error) {
+      console.error("❌ [REFRESH] Error:", error.message);
       res.status(500).json({
         success: false,
         message: error.message,
@@ -277,25 +291,55 @@ class AuthController {
     }
   }
 
-  // Verificar si hay sesión activa (simple check, NO renueva tokens)
+  // ✅ MEJORADO: Verificar si hay sesión activa
   static async verify(req, res) {
     try {
-      const accessToken = req.cookies.accessToken;
+      // 🔍 Debug: Ver qué cookies llegan
+      console.log("🔍 [VERIFY] Headers recibidos:");
+      console.log("  - Origin:", req.headers.origin);
+      console.log("  - Cookie header:", req.headers.cookie ? "✅ Presente" : "❌ Ausente");
+      console.log("🔍 [VERIFY] Cookies parseadas por cookieParser:", Object.keys(req.cookies));
+      console.log("🔍 [VERIFY] Valores:", {
+        hasAccessToken: !!req.cookies.accessToken,
+        hasRefreshToken: !!req.cookies.refreshToken,
+      });
 
+      const accessToken = req.cookies.accessToken;
+      const refreshToken = req.cookies.refreshToken;
+
+      // Si no hay accessToken
       if (!accessToken) {
+        console.log("❌ [VERIFY] No hay accessToken");
+        
+        // Verificar si hay refresh token para indicar si puede refrescar
+        if (refreshToken) {
+          console.log("⚠️  [VERIFY] Hay refreshToken, cliente debe refrescar");
+          return res.status(401).json({
+            success: false,
+            message: "Token de acceso expirado",
+            code: "TOKEN_EXPIRED",
+            needsRefresh: true,
+          });
+        }
+
+        console.log("🚫 [VERIFY] No hay tokens, sesión inválida");
         return res.status(401).json({
           success: false,
           message: "No hay token de acceso",
           code: "NO_TOKEN",
+          needsRefresh: false,
         });
       }
 
+      // Verificar el accessToken
       const decoded = verifyAccessToken(accessToken);
 
       if (!decoded) {
-        // ✅ Verificar si hay refresh token antes de indicar que debe refrescar
-        const hasRefreshToken = !!req.cookies.refreshToken;
-
+        console.log("❌ [VERIFY] AccessToken inválido o expirado");
+        
+        // Verificar si hay refresh token
+        const hasRefreshToken = !!refreshToken;
+        
         return res.status(401).json({
           success: false,
           message: "Token expirado",
@@ -307,12 +351,15 @@ class AuthController {
       // ✅ Verificar que el usuario aún existe en la BD
       const user = await UserModel.findById(decoded.id);
       if (!user) {
+        console.log("❌ [VERIFY] Usuario no encontrado en BD");
         return res.status(401).json({
           success: false,
           message: "Usuario no encontrado",
           code: "USER_NOT_FOUND",
         });
       }
+
+      console.log("✅ [VERIFY] Token válido para:", user.email);
 
       res.status(200).json({
         success: true,
@@ -326,7 +373,7 @@ class AuthController {
         },
       });
     } catch (error) {
-      console.error("💥 [VERIFY] Error:", error.message);
+      console.error("💥 [VERIFY] Error inesperado:", error.message);
       res.status(500).json({
         success: false,
         message: "Error interno del servidor",
@@ -357,6 +404,8 @@ class AuthController {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
+
+      console.log("👋 [LOGOUT] Sesión cerrada exitosamente");
 
       res.status(200).json({
         success: true,

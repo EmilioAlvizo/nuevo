@@ -6,7 +6,7 @@
       <p>Ingresa tus credenciales para continuar</p>
     </div>
 
-    <!-- Alerta de error usando signals -->
+    <!-- Alerta de error -->
     @if (error()) {
       <div class="alert alert-danger" role="alert">
         <i class="fas fa-exclamation-circle"></i> {{ error() }}
@@ -18,16 +18,15 @@
         <label for="email">
           <i class="fas fa-envelope"></i> Email
         </label>
-        <input 
-          type="email" 
-          id="email" 
+        <input
+          type="email"
+          id="email"
           class="form-control"
           formControlName="email"
           placeholder="correo@ejemplo.com"
           autocomplete="email"
-          [disabled]="loading()"
-          [class.is-invalid]="emailControl?.invalid && emailControl?.touched">
-        
+          [class.is-invalid]="emailControl?.invalid && emailControl?.touched" />
+
         @if (emailControl?.invalid && emailControl?.touched) {
           <div class="invalid-feedback">
             @if (emailControl?.errors?.['required']) {
@@ -44,16 +43,15 @@
         <label for="password">
           <i class="fas fa-key"></i> Contraseña
         </label>
-        <input 
-          type="password" 
-          id="password" 
+        <input
+          type="password"
+          id="password"
           class="form-control"
           formControlName="password"
           placeholder="••••••••"
           autocomplete="current-password"
-          [disabled]="loading()"
-          [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched">
-        
+          [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched" />
+
         @if (passwordControl?.invalid && passwordControl?.touched) {
           <div class="invalid-feedback">
             @if (passwordControl?.errors?.['required']) {
@@ -66,8 +64,8 @@
         }
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         class="btn btn-primary btn-block"
         [disabled]="loading() || loginForm.invalid">
         @if (loading()) {

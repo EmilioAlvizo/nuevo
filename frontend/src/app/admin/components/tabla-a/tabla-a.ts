@@ -70,7 +70,7 @@ export class TablaA {
       next: (datos) => {
         this.Archivos_municipio = datos.data;
         this.loading = false;
-        console.log('Archivos cargados:', this.Archivos_municipio);
+        //console.log('Archivos cargados:', this.Archivos_municipio);
       },
       error: (err) => {
         this.loading = false;

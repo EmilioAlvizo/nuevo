@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'tu_clave_access_token_super_secreta';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_clave_refresh_token_super_secreta';
 
-const ACCESS_TOKEN_EXPIRES_IN = '15m'; // 15 minutos
+const ACCESS_TOKEN_EXPIRES_IN = '30s'; // 15 minutos
 const REFRESH_TOKEN_EXPIRES_IN = '7d'; // 7 días
 
 // Generar Access Token

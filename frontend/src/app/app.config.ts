@@ -1,12 +1,18 @@
 // nuevo/frontend/src/app/app.config.ts
-import { ApplicationConfig, provideAppInitializer , provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideAppInitializer,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors  } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { routes } from './app.routes';
-import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
+import { provideClientHydration } from '@angular/platform-browser';
 
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
@@ -15,22 +21,24 @@ let authInitialized = false;
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideClientHydration(),
+    provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura
-      }
+        preset: Aura,
+      },
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([AuthInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAppInitializer(() => {
       if (authInitialized) {
         return Promise.resolve();
       }
       authInitialized = true;
-      
+
       const authService = inject(AuthService);
       return authService.initAuth();
-    })
-  ]
+    }),
+  ],
 };
