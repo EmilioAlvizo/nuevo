@@ -1,0 +1,222 @@
+<!-- //nuevo/frontend/src/app/admin/components/nuevo-archivo-form/nuevo-archivo-form.html -->
+<p-dialog
+  [header]="dialogTitle()"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '600px' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="handleDialogHide()"
+>
+  <div class="container-fluid">
+    <form [formGroup]="archivoForm">
+      <!-- Nombre del Archivo -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label for="nombre" class="form-label fw-semibold">
+            Nombre del Archivo <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            pInputText
+            id="nombre"
+            formControlName="nombre_archivo"
+            class="form-control"
+            placeholder="Ej: Encuesta Estatal de Juventud 2019"
+            [class.is-invalid]="isFieldInvalid('nombre_archivo')"
+          />
+          @if (isFieldInvalid('nombre_archivo')) {
+          <div class="invalid-feedback d-block">
+            @if (archivoForm.get('nombre_archivo')?.errors?.['required']) { Este campo es requerido
+            } @if (archivoForm.get('nombre_archivo')?.errors?.['minlength']) { Mínimo 3 caracteres }
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Municipio y Tipo -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="municipio" class="form-label fw-semibold">
+            Municipio <span class="text-danger">*</span>
+          </label>
+          <p-select
+            [options]="municipiosOptions()"
+            formControlName="id_municipio"
+            placeholder="Seleccionar municipio"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterPlaceholder="Buscar municipio..."
+            [showClear]="true"
+            class="w-100"
+            [class.ng-invalid]="isFieldInvalid('id_municipio')"
+          >
+            <ng-template let-municipio #item>
+              <div class="d-flex align-items-center">
+                <i class="pi pi-map-marker me-2 text-primary"></i>
+                <span>{{ municipio.label }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+          @if (isFieldInvalid('id_municipio')) {
+          <small class="text-danger d-block mt-1">Campo requerido</small>
+          } @if (archivoForm.get('id_municipio')?.value) {
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle"></i>
+            ID seleccionado: {{ archivoForm.get('id_municipio')?.value }}
+          </small>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="tipo" class="form-label fw-semibold">
+            Tipo de Archivo <span class="text-danger">*</span>
+          </label>
+          <p-select
+            [options]="tiposArchivo()"
+            formControlName="tipo_archivo"
+            placeholder="Seleccionar tipo"
+            class="w-100"
+            [class.ng-invalid]="isFieldInvalid('tipo_archivo')"
+          />
+          @if (isFieldInvalid('tipo_archivo')) {
+          <small class="text-danger d-block mt-1">Campo requerido</small>
+          }
+        </div>
+      </div>
+
+      <!-- Categoría y Subcategoría -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="categoria" class="form-label fw-semibold">
+            Categoría <span class="text-danger">*</span>
+          </label>
+          <p-select
+            [options]="categorias()"
+            formControlName="categoria_archivo"
+            placeholder="Seleccionar categoría"
+            class="w-100"
+            [class.ng-invalid]="isFieldInvalid('categoria_archivo')"
+          />
+          @if (isFieldInvalid('categoria_archivo')) {
+          <small class="text-danger d-block mt-1">Campo requerido</small>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="subcategoria" class="form-label fw-semibold">Subcategoría</label>
+          <input
+            type="text"
+            pInputText
+            id="subcategoria"
+            formControlName="subcategoria_archivo"
+            class="form-control"
+            placeholder="Ej: Encuestas"
+          />
+        </div>
+      </div>
+
+      <!-- Palabras Clave -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label for="palabras_clave" class="form-label fw-semibold">Palabras Clave</label>
+          <textarea
+            pInputTextarea
+            id="palabras_clave"
+            formControlName="palabras_clave"
+            rows="2"
+            class="form-control"
+            placeholder="Ej: Encuesta,Juventud,Estatal (separadas por coma)"
+          ></textarea>
+          <small class="text-muted">
+            <i class="pi pi-info-circle"></i>
+            Separe las palabras clave con comas
+          </small>
+        </div>
+      </div>
+
+      <!-- Estatus y Fecha -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="estatus" class="form-label fw-semibold">Estatus</label>
+          <p-select
+            [options]="estatusOptions()"
+            formControlName="estatus_archivo"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar estatus"
+            class="w-100"
+          >
+            <ng-template let-option #item>
+              <p-tag [value]="option.label" [severity]="getSeverity(option.value)" />
+            </ng-template>
+          </p-select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Fecha del Archivo</label>
+          <input type="text" pInputText [value]="fechaActual()" class="form-control" disabled />
+          <small class="text-muted">
+            <i class="pi pi-calendar"></i>
+            Fecha automática
+          </small>
+        </div>
+      </div>
+
+      <!-- Subir Archivo -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold"> Archivo <span class="text-danger">*</span> </label>
+          <p-fileUpload
+            #fileUploader
+            mode="basic"
+            name="archivo"
+            [maxFileSize]="10000000"
+            chooseLabel="Seleccionar archivo"
+            chooseIcon="pi pi-upload"
+            [auto]="false"
+            (onSelect)="onArchivoSelect($event)"
+            (onClear)="onArchivoRemove()"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            class="w-100"
+          />
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle"></i>
+            Formatos permitidos: PDF, Word, Excel, ZIP, RAR (máx. 10MB)
+          </small>
+          @if (archivoSeleccionado()) {
+          <div class="alert alert-success mt-2 py-2">
+            <i class="pi pi-check-circle me-2"></i>
+            <strong>{{ archivoSeleccionado()?.name }}</strong>
+            <small class="ms-2">({{ formatFileSize(archivoSeleccionado()?.size || 0) }})</small>
+          </div>
+          } @if (isFieldInvalid('archivo')) {
+          <small class="text-danger d-block mt-1">Debe seleccionar un archivo</small>
+          }
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="handleCancel()"
+      />
+      <p-button
+        label="Guardar Archivo"
+        icon="pi pi-check"
+        (onClick)="handleSubmit()"
+        [disabled]="isSaving()"
+        [loading]="isSaving()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
