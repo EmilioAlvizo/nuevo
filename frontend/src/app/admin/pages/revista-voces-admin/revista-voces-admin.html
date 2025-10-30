@@ -84,17 +84,40 @@
                         <!-- <div class="row mb-3">
                             <div class="col">
                                 <label class="col-form-label">Subir portada:</label>
-                                <input class="form-control" type="file" (change)="onFileSelected($event, 'portada')" required /><br />
-                                <span id="file-error-portada" style="color:red;"></span>
+                                <input type="file" class="form-control" (change)="onFileSelected($event, 'portada')" />
                             </div>
                             <div class="col">
                                 <label class="col-form-label">Subir archivo:</label>
-                                <input class="form-control" type="file" (change)="onFileSelected($event, 'archivo')" /><br />
-                                <span id="file-error-archivo" style="color:red;"></span>
+                                <input type="file" class="form-control" accept="application/pdf" (change)="onFileSelected($event, 'archivo')" /> /><br />
                             </div>
                         </div> -->
 
+
+
                         <div class="row mb-3">
+  <div class="col">
+    <label class="col-form-label">Subir portada (imagen):</label>
+    <input
+      type="file"
+      accept="image/*"
+      class="form-control"
+      (change)="onFileSelected($event, 'portada')"
+      required
+    />
+  </div>
+  <div class="col">
+    <label class="col-form-label">Subir archivo (PDF):</label>
+    <input
+      type="file"
+      accept="application/pdf"
+      class="form-control"
+      (change)="onFileSelected($event, 'archivo')"
+      required
+    />
+  </div>
+</div>
+
+                        <!-- <div class="row mb-3">
                             <div class="col-8">
                                 <label class="col-form-label">Subir portada:</label>
                                 <input type="text" class="form-control" maxlength="250" name="portada" [(ngModel)]="nuevaRevista.portada" required />
@@ -103,7 +126,7 @@
                                 <label class="col-form-label">Subir archivo:</label>
                                 <input type="text" class="form-control" name="archivo" [(ngModel)]="nuevaRevista.archivo" required />
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="row mb-3">
                             <div class="col-6">

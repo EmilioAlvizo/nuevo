@@ -2,12 +2,17 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+const angularPublicPath = path.join(__dirname, '../../frontend/public/revistas');
+
+
 // Función para generar nombre único
 function generarNombreArchivo(originalname) {
   const timestamp = Date.now();
   const ext = path.extname(originalname);
   return `${timestamp}_${Math.random().toString(36).substr(2, 10)}${ext}`;
 }
+
+// const angularPublicPath = path.join(__dirname, '../..frontend/public');
 
 // Configuración storage dinámico
 const storage = multer.diskStorage({
@@ -17,9 +22,11 @@ const storage = multer.diskStorage({
     let folder = '';
     
     if (file.fieldname === 'portada') {
-      folder = `public/revistas/${idRevista}/portadas`;
+      // folder = path.join(angularPublicPath, `${idRevista}/portadas`);
+      folder = `${angularPublicPath}/${idRevista}/portadas`;
     } else if (file.fieldname === 'archivo') {
-      folder = `public/revistas/${idRevista}/archivos`;
+      // folder = path.join(angularPublicPath, `${idRevista}/archivos`);
+      folder = `${angularPublicPath}/${idRevista}/archivos`;
     }
 
     fs.mkdirSync(folder, { recursive: true }); // crear carpeta si no existe

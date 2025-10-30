@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require('path')
 const bodyParser = require("body-parser");
 const municipioRoutes = require("./routes/municipioRoutes");
 const authRoutes = require("./routes/authRoutes");
@@ -7,14 +8,23 @@ const testimoniosRoutes = require("./routes/testimoniosRoutes");
 const archivos_municipioRoutes = require("./routes/archivos_municipioRoutes");
 const documentos_cendocRoutes = require("./routes/documentos_cendocRoutes");
 const revistasRoutes = require("./routes/revistasRoutes");
+const articulosRoutes = require("./routes/articulosRoutes");
+
 
 const app = express();
 const PORT = 3000;
 
 // Middlewares
 app.use(cors()); // Permitir peticiones desde el frontend
+app.use(express.json());
 app.use(bodyParser.json()); // Parsear JSON
 app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formularios
+
+//Carpeta public en proyecto Angular
+const angularPublicPath = path.join(__dirname, '../../frontend/public/revistas');
+
+
+app.use('/public', express.static(angularPublicPath));
 
 // Ruta de bienvenida
 app.get("/", (req, res) => {
@@ -46,6 +56,7 @@ app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", revistasRoutes);
+app.use("/api", articulosRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

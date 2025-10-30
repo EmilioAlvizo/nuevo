@@ -41,9 +41,6 @@ router.get("/revistas/:id", RevistasController.getById);
 // DELETE - Eliminar un registro
 router.delete("/revistas/:id", RevistasController.delete);
 
-
-
-
 // Crear revista con archivos
 router.post("/revistas", upload.fields([
   { name: "archivo", maxCount: 1 },

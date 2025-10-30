@@ -84,6 +84,26 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
     });
   }
 
+  onFileSelected(event: any, tipo: 'portada' | 'archivo'): void {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo según el campo
+    if (tipo === 'portada' && !file.type.startsWith('image/')) {
+      Swal.fire('Error', 'Solo se permiten imágenes para la portada.', 'error');
+      return;
+    }
+
+    if (tipo === 'archivo' && file.type !== 'application/pdf') {
+      Swal.fire('Error', 'Solo se permiten archivos PDF.', 'error');
+      return;
+    }
+
+    // Guardar el archivo en la propiedad nuevaRevista
+    this.nuevaRevista[tipo] = file;
+  }
+
+
   guardarRevista(form: any): void {
     if (!form.valid) return;
     if (this.editando) {
@@ -111,10 +131,22 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
       const nueva = { ...this.nuevaRevista };
       delete nueva.id_revista;
 
+      // const formData = new FormData();
+      // Object.entries(nueva).forEach(([key, value]) => {
+      //   if (value !== null && value !== undefined) formData.append(key, value as string);
+      // });
+
       const formData = new FormData();
-      Object.entries(nueva).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) formData.append(key, value as string);
-      });
+      for (const [key, value] of Object.entries(nueva)) {
+        if (value !== null && value !== undefined) {
+          if (value instanceof File) {
+            formData.append(key, value, value.name); // archivos
+          } else {
+            formData.append(key, value as string); // campos normales
+          }
+        }
+      }
+
 
       this.apiRevistas.crearRevista(formData).subscribe({
         next: (res) => {

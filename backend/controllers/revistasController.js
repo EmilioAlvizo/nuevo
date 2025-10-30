@@ -1,6 +1,7 @@
 const RevistasModel = require("../models/revistasModel");
 const upload = require("../config/upload");
 
+
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "revistas"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_revista"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
@@ -11,7 +12,7 @@ const path = require("path");
 const fs = require("fs");
 
 
-
+const angularPublicPath = path.join(__dirname, '../../frontend/public/revistas');
 
 
 class RevistasController {
@@ -121,43 +122,63 @@ class RevistasController {
     const { volumen, numero_year, descripcion, fecha, estatus } = req.body;
 
     // Guardar registro sin archivos primero
-    const nuevaRevista = await RevistasModel.create({
+    const nuevaRevista = await RevistasModel.create(TABLE_NAME, {
       volumen, numero_year, descripcion, fecha, estatus
     });
 
     const id = nuevaRevista.id_revista;
+    // const id =
+    //     nuevaRevista.id ||
+    //     nuevaRevista.id_revista ||
+    //     nuevaRevista[ID_COLUMN];
 
-    // Crear carpetas con ID
-    const baseFolder = `public/revistas/${id}`;
+    //   if (!id) {
+    //     throw new Error('No se pudo obtener el ID de la nueva revista.');
+    //   }
+
+    // const baseFolder = path.join(angularPublicPath, `${id}`);
+    const baseFolder = `${angularPublicPath}/${id}`;
+    // const archivosFolder = path.join(baseFolder, 'archivos');
+    // const portadasFolder = path.join(baseFolder, 'portadas');
     const archivosFolder = `${baseFolder}/archivos`;
     const portadasFolder = `${baseFolder}/portadas`;
     fs.mkdirSync(archivosFolder, { recursive: true });
     fs.mkdirSync(portadasFolder, { recursive: true });
 
-    // Mover archivos
     let archivoNombre = null;
     let portadaNombre = null;
 
-    if (req.files['archivo']) {
-      const archivo = req.files['archivo'][0];
-      archivoNombre = archivo.filename;
+    if (req.files?.archivo) {
+      archivoNombre = req.files.archivo[0].filename;
     }
 
-    if (req.files['portada']) {
-      const portada = req.files['portada'][0];
-      portadaNombre = portada.filename;
+    if (req.files?.portada) {
+      portadaNombre = req.files.portada[0].filename;
     }
 
-    // Actualizar registro con nombres de archivo
-    await RevistasModel.update(id, { archivo: archivoNombre, portada: portadaNombre });
+    await RevistasModel.update(TABLE_NAME, id, {
+      archivo: archivoNombre,
+      portada: portadaNombre,
+    }, 'id_revista');
 
-    res.json({ success: true, data: nuevaRevista });
 
+
+
+
+
+    res.json({
+      success: true,
+      data: { id, ...nuevaRevista },
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Error al crear revista', error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Error al crear revista',
+      error: err.message,
+    });
   }
-  }
+}
 
 // PUT - Actualizar un registro
   static async update(req, res) {
