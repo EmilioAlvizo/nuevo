@@ -1,5 +1,5 @@
 // nuevo/frontend/src/app/admin/components/tabla-a/tabla-a.ts
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -45,7 +45,7 @@ import { Table } from 'primeng/table';
     SelectModule,
     DialogModule,
     FileUploadModule,
-    MessageModule
+    MessageModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './tabla-a.html',
@@ -73,6 +73,8 @@ export class TablaA {
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
+
+  @ViewChild('fileUploader') fileUploader: any;
 
   ngOnInit(): void {
     this.cargarArchivos();
@@ -124,6 +126,9 @@ export class TablaA {
     this.nuevoArchivoDialog = false;
     this.submitted = false;
     this.archivoSeleccionado = null;
+    if (this.fileUploader) {
+      this.fileUploader.clear();
+    }
   }
 
   onArchivoSelect(event: any) {
@@ -131,9 +136,14 @@ export class TablaA {
     if (file) {
       this.archivoSeleccionado = file;
 
+      console.log('entro a guardar ');
+      this.nuevoArchivo.archivo = file.name;
+      console.log('entro a guardar ', file);      
+
       // Opcional: Auto-completar nombre del archivo si está vacío
       if (!this.nuevoArchivo.nombre_archivo) {
-        this.nuevoArchivo.nombre_archivo = file.name.split('.')[0];
+        console.log('entro a guardar ');
+        this.nuevoArchivo.archivo = file.name.split('.')[0];
       }
 
       this.messageService.add({
@@ -145,6 +155,7 @@ export class TablaA {
   }
 
   onArchivoRemove() {
+    console.log('entro a remover archivos ');
     this.archivoSeleccionado = null;
     this.messageService.add({
       severity: 'warn',
@@ -163,6 +174,7 @@ export class TablaA {
     categoria_archivo: '',
     palabras_clave: '',
     subcategoria_archivo: '',
+    archivo: '',
   };
 
   openNew() {
@@ -173,6 +185,7 @@ export class TablaA {
       categoria_archivo: '',
       palabras_clave: '',
       subcategoria_archivo: '',
+      archivo: '',
     };
     this.archivoSeleccionado = null;
     this.submitted = false;

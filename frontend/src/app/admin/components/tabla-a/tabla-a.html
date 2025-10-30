@@ -201,7 +201,7 @@
             <label class="form-label fw-semibold">
               Archivo <span class="text-danger">*</span>
             </label>
-            <p-fileUpload
+            <p-fileUpload #fileUploader 
               mode="basic"
               name="archivo"
               [maxFileSize]="10000000"
@@ -209,7 +209,7 @@
               chooseIcon="pi pi-upload"
               [auto]="false"
               (onSelect)="onArchivoSelect($event)"
-              (onRemove)="onArchivoRemove()"
+              (onClear)="onArchivoRemove()"
               accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
               [showUploadButton]="false"
               [showCancelButton]="false"
@@ -266,10 +266,11 @@
     [loading]="loading"
     (sortFunction)="customSort($event)"
     [customSort]="true"
+    
   >
     <ng-template #caption>
       <div class="d-flex align-items-center justify-content-between">
-        <h5 class="m-0">Gestión de Archivos Municipales</h5>
+        <h3 class="m-0">Gestión de Archivos Municipales</h3>
         <div class="d-flex gap-2">
           <p-button
             label="Limpiar Filtros"
@@ -297,7 +298,7 @@
         <!-- <th style="width: 3rem">
           <p-tableHeaderCheckbox />
         </th> -->
-        <th pSortableColumn="nombre_archivo" style="min-width: 16rem">
+        <th pFrozenColumn pSortableColumn="nombre_archivo" style="min-width: 16rem">
           <div class="d-flex align-items-center justify-content-between">
             Nombre Archivo
             <p-sortIcon field="nombre_archivo" />
@@ -398,7 +399,7 @@
         <!-- <td style="width: 3rem">
           <p-tableCheckbox [value]="archivo" />
         </td> -->
-        <td>
+        <td pFrozenColumn>
           <div class="d-flex align-items-center gap-2">
             <!-- <i class="pi pi-file fs-5" [ngClass]="getFileIcon(archivo.tipo_archivo)"></i> -->
             <span class="fw-medium">{{ archivo.nombre_archivo }}</span>
