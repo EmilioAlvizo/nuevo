@@ -2,7 +2,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const bodyParser = require("body-parser");
+const path = require("path");
 const municipioRoutes = require("./routes/municipioRoutes");
 const authRoutes = require("./routes/authRoutes");
 const testimoniosRoutes = require("./routes/testimoniosRoutes");
@@ -25,8 +25,8 @@ app.use(cors({
 app.use(cookieParser());
 
 // Body parsers
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Middleware de logging para debugging
 app.use((req, res, next) => {
@@ -72,6 +72,7 @@ app.use("/api", documentos_cendocRoutes);
 app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

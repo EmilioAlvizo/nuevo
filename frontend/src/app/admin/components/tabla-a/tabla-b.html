@@ -35,9 +35,13 @@
   <p-table
     #dt
     [value]="archivos_municipio()"
-    [rows]="10"
+    [lazy]="true"
+    (onLazyLoad)="loadArchivos($event)"
     [paginator]="true"
+    [rows]="rows()"
+    [totalRecords]="totalRecords()"
     [rowsPerPageOptions]="[10, 25, 50]"
+    [loading]="loading()"
     [globalFilterFields]="[
       'nombre_archivo',
       'nombre_municipio',
@@ -48,8 +52,8 @@
     ]"
     [tableStyle]="{ 'min-width': '50rem' }"
     [(selection)]="selectedArchivos"
-    [rowHover]="true"
     dataKey="id_archivo"
+    [rowHover]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
     [showCurrentPageReport]="true"
     (sortFunction)="customSort($event)"

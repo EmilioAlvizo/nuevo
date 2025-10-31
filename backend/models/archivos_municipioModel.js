@@ -224,6 +224,8 @@ class Archivos_municipioModel {
   // Crear un nuevo registro
   static async create(tableName, data) {
     try {
+      console.log("Datos recibidos para insertar:", data);
+
       const pool = await getConnection();
       const columns = Object.keys(data).join(", ");
       const values = Object.keys(data)

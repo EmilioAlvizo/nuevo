@@ -1,9 +1,15 @@
 //nuevo/backend/controllers/archivos_municipioController.js
+const path = require("path");
+const fs = require("fs");
 const Archivos_municipioModel = require("../models/archivos_municipioModel");
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "archivos_municipio"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_archivo"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
+const BASE_PATH = path.join(
+  __dirname,
+  "../../frontend/public/archivos_municipio"
+);
 
 class Archivos_municipioController {
   // GET - Obtener todos los registros
@@ -120,15 +126,23 @@ class Archivos_municipioController {
   }
 
   // POST - Crear un nuevo registro
-  static async create(req, res) {
+  /* static async create(req, res) {
     try {
       const data = req.body;
+      //const file = req.file;
+      console.log("📥 Datos recibidos:", data);
+      //console.log("📎 Archivo recibido:", file?.filename);
 
       if (!data || Object.keys(data).length === 0) {
         return res.status(400).json({
           success: false,
           message: "Datos inválidos o vacíos",
         });
+      }
+
+      // Si hay archivo, agregar el nombre al campo `archivo`
+      if (file) {
+        data.archivo = file.filename;
       }
 
       const newMunicipio = await Archivos_municipioModel.create(
@@ -145,6 +159,46 @@ class Archivos_municipioController {
         success: false,
         message: error.message,
       });
+    }
+  } */
+  static async create(req, res) {
+    try {
+      const data = req.body;
+      const file = req.file;
+
+      // Convertir id_municipio a número
+      if (data.id_municipio) {
+        data.id_municipio = parseInt(data.id_municipio, 10);
+      }
+
+      console.log("📥 Datos recibidos:", data);
+      console.log("📎 Archivo recibido:", file?.filename);
+
+      const newMunicipio = await Archivos_municipioModel.create(
+        TABLE_NAME,
+        data
+      );
+      console.log("nuevo muni   ", newMunicipio);
+
+      const id = newMunicipio[ID_COLUMN];
+
+      const baseFolder = path.join(BASE_PATH, id.toString());
+      console.log("baseFolder: ", baseFolder);
+      fs.mkdirSync(baseFolder, { recursive: true });
+
+      const archivo = files?.archivo?.[0]?.filename || null;
+
+      await Archivos_municipioModel.update(
+        TABLE_NAME,
+        id,
+        { archivo },
+        ID_COLUMN
+      );
+
+      res.status(201).json({ success: true, data: { id, archivo } });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: err.message });
     }
   }
 
@@ -181,7 +235,7 @@ class Archivos_municipioController {
   }
 
   // DELETE - Eliminar un registro
-  static async delete(req, res) {
+  /* static async delete(req, res) {
     try {
       const { id } = req.params;
       const result = await Archivos_municipioModel.delete(
@@ -200,6 +254,26 @@ class Archivos_municipioController {
         success: false,
         message: error.message,
       });
+    }
+  } */
+  static async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const deleted = await Archivos_municipioModel.delete(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
+
+      const dir = path.join(BASE_PATH, id.toString());
+      console.log("direc ", dir);
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+
+      res
+        .status(200)
+        .json({ success: true, message: "archivo_municipio eliminado" });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
   }
 }

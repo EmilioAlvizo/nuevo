@@ -170,6 +170,7 @@ export class NuevoArchivoForm {
     if (this.archivoForm.valid) {
       this.isSaving.set(true);
       const formData = this.archivoForm.getRawValue();
+      console.log('form ', formData)
       this.save.emit({
         data: formData,
         file: this.archivoSeleccionado(),

@@ -19,7 +19,7 @@ import { NuevoArchivoForm } from '../nuevo-archivo-form/nuevo-archivo-form';
 
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -34,6 +34,17 @@ import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
 import { Table } from 'primeng/table';
+
+interface LazyLoadParams {
+  municipios?: number[];
+  busqueda?: string;
+  categoria?: string;
+  palabra_clave?: string;
+  tipo?: string;
+  ordenar?: string;
+  limite?: number;
+  pagina?: number;
+}
 
 @Component({
   selector: 'app-tabla-a',
@@ -55,7 +66,7 @@ import { Table } from 'primeng/table';
     DialogModule,
     FileUploadModule,
     MessageModule,
-    NuevoArchivoForm
+    NuevoArchivoForm,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './tabla-b.html',
@@ -74,11 +85,16 @@ export class TablaA {
   readonly selectedArchivos = signal<Archivos_municipio[]>([]);
   readonly municipios = signal<Municipio[]>([]);
   readonly loading = signal(true);
+  totalRecords = signal<number>(0);
 
   // ⚙️ Estado UI
   readonly nuevoArchivoDialog = signal(false);
   readonly archivoSeleccionado = signal<File | null>(null);
   readonly submitted = signal(false);
+
+  // Paginación
+  first = signal<number>(0);
+  rows = signal<number>(10);
 
   // 🧾 Nuevo archivo en creación
   readonly nuevoArchivo = signal<Partial<Archivos_municipio>>({
@@ -157,6 +173,52 @@ export class TablaA {
     });
   }
 
+  loadArchivos(event: TableLazyLoadEvent): void {
+    this.loading.set(true);
+
+    const params: LazyLoadParams = {
+      limite: event.rows || 10,
+      pagina: (event.first || 0) / (event.rows || 10) + 1,
+      ordenar: this.getOrdenarParam(
+        event.sortField as string,
+        event.sortOrder || 1
+      ),
+      busqueda: (event.globalFilter as string) || undefined,
+    };
+
+    this.apiArchivos_municipio.getArchivosFiltrados(params).subscribe({
+      next: (response) => {
+        this.archivos_municipio.set(response.data);
+        this.totalRecords.set(response.total || 0);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar archivos:', err);
+        this.loading.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los archivos',
+          life: 3000,
+        });
+      },
+    });
+  }
+
+  getOrdenarParam(field: string, order: number): string {
+    if (!field) return 'masReciente';
+
+    const isAsc = order === 1;
+    if (field === 'nombre_archivo') {
+      return isAsc ? 'AZ' : 'ZA';
+    }
+    if (field === 'fecha_modificacion') {
+      return isAsc ? 'masAntiguo' : 'masReciente';
+    }
+    return 'masReciente';
+  }
+
+
   // 🗂️ Dialog handlers
   hideDialog(): void {
     this.nuevoArchivoDialog.set(false);
@@ -231,10 +293,7 @@ export class TablaA {
   }
 
   // ✅ Tipado correcto del evento
-  handleSave(event: {
-    data: Partial<Archivos_municipio>;
-    file: File | null;
-  }): void {
+  handleSave(event: { data: Partial<Archivos_municipio>; file: File | null }): void {
     const { data, file } = event;
 
     // Validaciones
@@ -283,9 +342,15 @@ export class TablaA {
       formData.append('subcategoria_archivo', data.subcategoria_archivo);
     }
 
+    // ✅ Para debugging: ver el contenido del FormData
+    console.log('=== CONTENIDO DEL FORMDATA ===');
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ':', pair[1]);
+    }
+
     // Descomentar cuando esté listo el backend
-    /*
-    this.apiArchivos.createArchivoConUpload(formData).subscribe({
+    
+    this.apiArchivos_municipio.createArchivoConUpload(formData).subscribe({
       next: (resp) => {
         console.log('Archivo creado:', resp.data);
         this.messageService.add({
@@ -308,7 +373,6 @@ export class TablaA {
         this.archivoForm?.cancelSave();
       },
     });
-    */
 
     // Temporal: simular éxito
     setTimeout(() => {

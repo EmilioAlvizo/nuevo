@@ -122,6 +122,11 @@ export class ApiArchivos_municipio {
     return this.http.post(`${this.apiUrl}/archivos_municipio`, data);
   }
 
+  // Crear nuevo archivo_municipio
+  createArchivoConUpload(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/archivos_municipio`, formData);
+  }
+
   // Eliminar archivo
   deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
     return this.http.delete<any>(`${this.apiUrl}/archivos_municipio/${id}`);
