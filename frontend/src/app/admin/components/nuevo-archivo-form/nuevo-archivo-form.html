@@ -4,8 +4,9 @@
   [(visible)]="visible"
   [modal]="true"
   [style]="{ width: '600px' }"
-  [draggable]="false"
-  [resizable]="false"
+  [draggable]="true"
+  [resizable]="true"
+  [dismissableMask]="true"
   (onHide)="handleDialogHide()"
 >
   <div class="container-fluid">

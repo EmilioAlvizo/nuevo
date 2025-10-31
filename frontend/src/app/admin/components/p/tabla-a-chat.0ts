@@ -60,7 +60,7 @@ interface LazyLoadParams {
     NuevoArchivoForm,
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './tabla-a.html',
+  templateUrl: './tabla-a.html 0',
   styleUrl: './tabla-a.css',
 })
 export class TablaA {
