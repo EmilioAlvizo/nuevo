@@ -58,63 +58,6 @@ class RevistasController {
     }
   }
 
-// // POST - Crear un nuevo registro
-//   static async create(req, res) {
-//     try {
-//       const data = req.body;
-
-//       if (!data || Object.keys(data).length === 0) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Datos inválidos o vacíos",
-//         });
-//       }
-
-//       const newRevista = await RevistasModel.create(TABLE_NAME, data);
-//       res.status(201).json({
-//         success: true,
-//         message: "Registro creado exitosamente",
-//         data: newRevista,
-//       });
-//     } catch (error) {
-//       res.status(500).json({
-//         success: false,
-//         message: error.message,
-//       });
-//     }
-//   }
-
-// // PUT - Actualizar un registro
-//   static async update(req, res) {
-//     try {
-//       const { id } = req.params;
-//       const data = req.body;
-
-//       if (!data || Object.keys(data).length === 0) {
-//         return res.status(400).json({
-//           success: false,
-//           message: "Datos inválidos o vacíos",
-//         });
-//       }
-
-//       const updated = await RevistasModel.update(TABLE_NAME, id, data, ID_COLUMN);
-
-//       if (!updated) {
-//         return res.status(404).json({
-//           success: false,
-//           message: "Registro no encontrado o no se pudo actualizar",
-//         });
-//       }
-
-//       res.status(200).json({
-//         success: true,
-//         message: "Registro actualizado exitosamente",
-//         data: updated,
-//       });
-//     } catch (error) {
-//       res.status(500).json({ success: false, message: error.message });
-//     }
-//   }
 
 // POST - Crear un nuevo registro
   static async create(req, res) {
@@ -126,44 +69,34 @@ class RevistasController {
       volumen, numero_year, descripcion, fecha, estatus
     });
 
-    const id = nuevaRevista.id_revista;
-    // const id =
-    //     nuevaRevista.id ||
-    //     nuevaRevista.id_revista ||
-    //     nuevaRevista[ID_COLUMN];
-
-    //   if (!id) {
-    //     throw new Error('No se pudo obtener el ID de la nueva revista.');
-    //   }
-
-    // const baseFolder = path.join(angularPublicPath, `${id}`);
+    const id = nuevaRevista.id;
+    const tempPath = `${angularPublicPath}/temp`;
     const baseFolder = `${angularPublicPath}/${id}`;
-    // const archivosFolder = path.join(baseFolder, 'archivos');
-    // const portadasFolder = path.join(baseFolder, 'portadas');
-    const archivosFolder = `${baseFolder}/archivos`;
-    const portadasFolder = `${baseFolder}/portadas`;
+    const archivosFolder = `${baseFolder}/archivo`;
+    const portadasFolder = `${baseFolder}/portada`;
     fs.mkdirSync(archivosFolder, { recursive: true });
     fs.mkdirSync(portadasFolder, { recursive: true });
 
-    let archivoNombre = null;
-    let portadaNombre = null;
 
     if (req.files?.archivo) {
-      archivoNombre = req.files.archivo[0].filename;
-    }
+  const archivo = req.files.archivo[0];
+  const oldPath = path.join(tempPath, archivo.filename);
+  const newPath = path.join(archivosFolder, archivo.filename);
+  fs.renameSync(oldPath, newPath);
+}
 
-    if (req.files?.portada) {
-      portadaNombre = req.files.portada[0].filename;
-    }
+if (req.files?.portada) {
+  const portada = req.files.portada[0];
+  const oldPath = path.join(tempPath, portada.filename);
+  const newPath = path.join(portadasFolder, portada.filename);
+  fs.renameSync(oldPath, newPath);
+}
+
 
     await RevistasModel.update(TABLE_NAME, id, {
-      archivo: archivoNombre,
-      portada: portadaNombre,
-    }, 'id_revista');
-
-
-
-
+  archivo: req.files?.archivo ? req.files.archivo[0].filename : null,
+  portada: req.files?.portada ? req.files.portada[0].filename : null,
+}, ID_COLUMN);
 
 
     res.json({
@@ -180,53 +113,135 @@ class RevistasController {
   }
 }
 
+
 // PUT - Actualizar un registro
-  static async update(req, res) {
-    try {
+static async update(req, res) {
+  try {
     const id = req.params.id;
-    const data = req.body;
+    const { volumen, numero_year, descripcion, fecha, estatus } = req.body;
+    
+    // IMPORTANTE: Obtener registro actual ANTES de actualizar
+    const registroActual = await RevistasModel.getById(TABLE_NAME, id, ID_COLUMN);
+    
+    // Actualizar campos de texto primero
+    await RevistasModel.update(TABLE_NAME, id, {
+      volumen, numero_year, descripcion, fecha, estatus
+    }, ID_COLUMN);
 
-    if (req.files['archivo']) {
-      data.archivo = req.files['archivo'][0].filename;
+    const tempPath = `${angularPublicPath}/temp`;
+    const baseFolder = `${angularPublicPath}/${id}`;
+    const archivosFolder = `${baseFolder}/archivo`;
+    const portadasFolder = `${baseFolder}/portada`;
+
+    // Asegurar que las carpetas existan
+    fs.mkdirSync(archivosFolder, { recursive: true });
+    fs.mkdirSync(portadasFolder, { recursive: true });
+
+    const updateData = {};
+
+    // Manejar archivo si viene uno nuevo
+    if (req.files?.archivo) {
+      const archivo = req.files.archivo[0];
+      const oldPath = path.join(tempPath, archivo.filename);
+      const newPath = path.join(archivosFolder, archivo.filename);
+      
+      // Eliminar archivo anterior si existe
+      if (registroActual.archivo) {
+        const archivoAnterior = path.join(archivosFolder, registroActual.archivo);
+        if (fs.existsSync(archivoAnterior)) {
+          fs.unlinkSync(archivoAnterior);
+        }
+      }
+      
+      fs.renameSync(oldPath, newPath);
+      updateData.archivo = archivo.filename;
     }
-    if (req.files['portada']) {
-      data.portada = req.files['portada'][0].filename;
+
+    // Manejar portada si viene una nueva
+    if (req.files?.portada) {
+      const portada = req.files.portada[0];
+      const oldPath = path.join(tempPath, portada.filename);
+      const newPath = path.join(portadasFolder, portada.filename);
+      
+      // Eliminar portada anterior si existe
+      if (registroActual.portada) {
+        const portadaAnterior = path.join(portadasFolder, registroActual.portada);
+        if (fs.existsSync(portadaAnterior)) {
+          fs.unlinkSync(portadaAnterior);
+        }
+      }
+      
+      fs.renameSync(oldPath, newPath);
+      updateData.portada = portada.filename;
     }
 
-    await revistasModel.actualizar(id, data);
+    // Actualizar nombres de archivos en BD si hubo cambios
+    if (Object.keys(updateData).length > 0) {
+      await RevistasModel.update(TABLE_NAME, id, updateData, ID_COLUMN);
+    }
 
-    res.json({ success: true, message: 'Revista actualizada' });
-
+    res.json({
+      success: true,
+      message: 'Revista actualizada',
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: 'Error al actualizar revista', error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar revista',
+      error: err.message,
+    });
   }
-  }
+}
 
-
-
-// DELETE - Eliminar un registro registro
-  static async delete(req, res) {
-    try {
-      const { id } = req.params;
-      const deleted = await RevistasModel.delete(TABLE_NAME, id, ID_COLUMN);
-
-      if (!deleted) {
-        return res.status(404).json({
-          success: false,
-          message: "Registro no encontrado o ya fue eliminado",
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        message: deleted.message,
-        id: deleted.id,
+// DELETE - Eliminar un registro y sus archivos
+static async delete(req, res) {
+  try {
+    const { id } = req.params;
+    
+    // Obtener el registro antes de eliminarlo para tener los datos
+    const registro = await RevistasModel.getById(TABLE_NAME, id, ID_COLUMN);
+    
+    if (!registro) {
+      return res.status(404).json({
+        success: false,
+        message: "Registro no encontrado",
       });
-    } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
     }
+
+    // Eliminar el registro de la base de datos
+    const deleted = await RevistasModel.delete(TABLE_NAME, id, ID_COLUMN);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Error al eliminar el registro",
+      });
+    }
+
+    // Eliminar carpeta completa del registro (con todos sus archivos)
+    const carpetaRevista = path.join(angularPublicPath, id.toString());
+    
+    if (fs.existsSync(carpetaRevista)) {
+      // Eliminar carpeta recursivamente (carpeta y todo su contenido)
+      fs.rmSync(carpetaRevista, { recursive: true, force: true });
+      console.log(`Carpeta eliminada: ${carpetaRevista}`);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Revista y archivos eliminados correctamente',
+      id: deleted.id,
+    });
+  } catch (error) {
+    console.error('Error al eliminar revista:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
+}
+
 }
 
 module.exports = RevistasController;

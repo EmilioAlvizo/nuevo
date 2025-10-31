@@ -67,13 +67,18 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
     });
   }
 
+
   abrirModal(): void {
     this.editando = false;
     this.nuevaRevista = this.vaciaRevista();
+    this.portadaPreview = null;
+    this.archivoNombre = null;
     this.modalInstance?.show();
   }
 
   cerrarModal(): void {
+    this.portadaPreview = null;
+    this.archivoNombre = null;
     this.modalInstance?.hide();
   }
 
@@ -84,6 +89,9 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
     });
   }
 
+  portadaPreview: string | null = null;
+  archivoNombre: string | null = null;
+
   onFileSelected(event: any, tipo: 'portada' | 'archivo'): void {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -91,27 +99,57 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
     // Validar tipo de archivo según el campo
     if (tipo === 'portada' && !file.type.startsWith('image/')) {
       Swal.fire('Error', 'Solo se permiten imágenes para la portada.', 'error');
+      event.target.value = ''; // Limpiar input
       return;
     }
 
     if (tipo === 'archivo' && file.type !== 'application/pdf') {
       Swal.fire('Error', 'Solo se permiten archivos PDF.', 'error');
+      event.target.value = ''; // Limpiar input
       return;
     }
 
-    // Guardar el archivo en la propiedad nuevaRevista
+    // Guardar el archivo
     this.nuevaRevista[tipo] = file;
-  }
 
+    // Crear preview para portada
+    if (tipo === 'portada') {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.portadaPreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Guardar nombre del archivo PDF
+    if (tipo === 'archivo') {
+      this.archivoNombre = file.name;
+    }
+  }
 
   guardarRevista(form: any): void {
     if (!form.valid) return;
+    
     if (this.editando) {
-      const payload = { ...this.nuevaRevista };
-      // Opcional: quitar id_revista del payload si ya está en la URL
-      delete payload.id_revista;
+      const formData = new FormData();
+      
+      // Agregar campos de texto
+      formData.append('volumen', this.nuevaRevista.volumen);
+      formData.append('numero_year', this.nuevaRevista.numero_year);
+      formData.append('descripcion', this.nuevaRevista.descripcion);
+      formData.append('fecha', this.nuevaRevista.fecha);
+      formData.append('estatus', this.nuevaRevista.estatus);
+      
+      // Solo agregar archivos si se seleccionaron nuevos
+      if (this.nuevaRevista.portada instanceof File) {
+        formData.append('portada', this.nuevaRevista.portada, this.nuevaRevista.portada.name);
+      }
+      
+      if (this.nuevaRevista.archivo instanceof File) {
+        formData.append('archivo', this.nuevaRevista.archivo, this.nuevaRevista.archivo.name);
+      }
 
-      this.apiRevistas.actualizarRevista(this.nuevaRevista.id_revista, payload).subscribe({
+      this.apiRevistas.actualizarRevista(this.nuevaRevista.id_revista, formData).subscribe({
         next: (res) => {
           if (res.success) {
             Swal.fire('Actualizado', 'La revista se actualizó correctamente.', 'success');
@@ -127,26 +165,20 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
         }
       });
     } else {
-      // Crear
+      // Crear (tu código actual está bien)
       const nueva = { ...this.nuevaRevista };
       delete nueva.id_revista;
-
-      // const formData = new FormData();
-      // Object.entries(nueva).forEach(([key, value]) => {
-      //   if (value !== null && value !== undefined) formData.append(key, value as string);
-      // });
 
       const formData = new FormData();
       for (const [key, value] of Object.entries(nueva)) {
         if (value !== null && value !== undefined) {
           if (value instanceof File) {
-            formData.append(key, value, value.name); // archivos
+            formData.append(key, value, value.name);
           } else {
-            formData.append(key, value as string); // campos normales
+            formData.append(key, value as string);
           }
         }
       }
-
 
       this.apiRevistas.crearRevista(formData).subscribe({
         next: (res) => {
@@ -167,56 +199,31 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
   }
 
   editarRevista(revista: any) {
-    this.editando = true;
+  this.editando = true;
 
-    // Formatear la fecha para que sea compatible con <input type="date">
-    const fechaFormateada = this.formatDateForInput(revista.fecha);
+  // Formatear la fecha
+  const fechaFormateada = this.formatDateForInput(revista.fecha);
 
-    this.nuevaRevista = {
-      ...revista,
-      fecha: fechaFormateada  // reemplaza la fecha ISO por yyyy-MM-dd
-    };
+  this.nuevaRevista = {
+    ...revista,
+    fecha: fechaFormateada
+  };
 
-    this.modalInstance?.show();
-  }
+  // Limpiar previews de archivos nuevos
+  this.portadaPreview = null;
+  this.archivoNombre = null;
+  this.modalInstance?.show();
+}
 
   formatDateForInput(fechaISO: string | Date): string {
-    const fecha = new Date(fechaISO);
-    const year = fecha.getFullYear();
-    const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
-    const day = fecha.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-
-  eliminarRevista(id: number): void {
-    Swal.fire({
-      title: '¿Eliminar revista?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#dc3545'
-    }).then(result => {
-      if (result.isConfirmed) {
-        this.apiRevistas.eliminarRevista(id).subscribe({
-          next: (res) => {
-            if (res.success) {
-              Swal.fire('Eliminada', 'La revista fue eliminada.', 'success');
-              this.cargarRevistas();
-            } else {
-              Swal.fire('Error', res.message || 'No se pudo eliminar.', 'error');
-            }
-          },
-          error: () => Swal.fire('Error', 'Error al eliminar la revista.', 'error')
-        });
-      }
-    });
+    return fechaISO.toString().substring(0, 10);
   }
 
   private resetFormulario(): void {
     this.nuevaRevista = this.vaciaRevista();
     this.editando = false;
+    this.portadaPreview = null;
+    this.archivoNombre = null;
   }
+
 }

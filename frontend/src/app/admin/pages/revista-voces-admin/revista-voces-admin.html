@@ -1,6 +1,7 @@
 <div class="container">
     <!-- <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarRevista">Agregar revista</button> -->
     <button class="btn btn-primary mt-2" (click)="abrirModal()">Agregar revista</button>
+     <br>
 
   <!-- Tabla de revistas -->
   <div class="table-responsive">
@@ -24,7 +25,7 @@
           <td>{{ revista.volumen }}</td>
           <td>{{ revista.numero_year }}</td>
           <td>{{ revista.descripcion }}</td>
-          <td>{{ revista.fecha | date:'yyyy-MM-dd' }}</td>
+          <td>{{ revista.fecha.substring(0, 10) }}</td>
           <td>
             <span class="badge" [class.bg-success]="revista.estatus === 'A'" [class.bg-secondary]="revista.estatus === 'B'">
               {{ revista.estatus === 'A' ? 'Activo' : 'Inactivo' }}
@@ -34,12 +35,12 @@
           <td>{{ revista.archivo }}</td>
           <td class="text-center">
             <button class="btn btn-sm btn-secondary me-2" (click)="editarRevista(revista)">Editar</button>
-            <button class="btn btn-sm btn-danger" (click)="eliminarRevista(revista.id_revista)">Eliminar</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
+ 
 
 <!-- Modar agregar revista -->
     <div
@@ -80,53 +81,77 @@
                                 <input type="date" class="form-control" name="fecha" [(ngModel)]="nuevaRevista.fecha" required />
                             </div>
                         </div>
-
-                        <!-- <div class="row mb-3">
-                            <div class="col">
-                                <label class="col-form-label">Subir portada:</label>
-                                <input type="file" class="form-control" (change)="onFileSelected($event, 'portada')" />
-                            </div>
-                            <div class="col">
-                                <label class="col-form-label">Subir archivo:</label>
-                                <input type="file" class="form-control" accept="application/pdf" (change)="onFileSelected($event, 'archivo')" /> /><br />
-                            </div>
-                        </div> -->
-
-
-
+                        
                         <div class="row mb-3">
-  <div class="col">
-    <label class="col-form-label">Subir portada (imagen):</label>
-    <input
-      type="file"
-      accept="image/*"
-      class="form-control"
-      (change)="onFileSelected($event, 'portada')"
-      required
-    />
-  </div>
-  <div class="col">
-    <label class="col-form-label">Subir archivo (PDF):</label>
-    <input
-      type="file"
-      accept="application/pdf"
-      class="form-control"
-      (change)="onFileSelected($event, 'archivo')"
-      required
-    />
-  </div>
-</div>
-
-                        <!-- <div class="row mb-3">
-                            <div class="col-8">
-                                <label class="col-form-label">Subir portada:</label>
-                                <input type="text" class="form-control" maxlength="250" name="portada" [(ngModel)]="nuevaRevista.portada" required />
+                          <div class="col">
+                            <label class="col-form-label">Subir portada (imagen):</label>
+                            
+                            <!-- Mostrar portada actual O preview del nuevo archivo -->
+                            <div *ngIf="(editando && nuevaRevista.portada && !portadaPreview) || portadaPreview" class="mb-2 p-2 bg-light rounded">
+                              <!-- Portada actual del servidor -->
+                              <div *ngIf="!portadaPreview && editando">
+                                <small class="text-muted d-block">Portada actual:</small>
+                                <img 
+                                  [src]="'/revistas/' + nuevaRevista.id_revista + '/portada/' + nuevaRevista.portada" 
+                                  alt="Portada actual" 
+                                  class="img-thumbnail mt-1" 
+                                  style="max-width: 150px;">
+                              </div>
+                              
+                              <!-- Preview de nueva portada -->
+                              <div *ngIf="portadaPreview">
+                                <small class="text-success d-block"><strong>Nueva portada seleccionada:</strong></small>
+                                <img 
+                                  [src]="portadaPreview" 
+                                  alt="Nueva portada" 
+                                  class="img-thumbnail mt-1" 
+                                  style="max-width: 150px;">
+                              </div>
                             </div>
-                            <div class="col-4">
-                                <label class="col-form-label">Subir archivo:</label>
-                                <input type="text" class="form-control" name="archivo" [(ngModel)]="nuevaRevista.archivo" required />
+                            
+                            <input
+                              type="file"
+                              accept="image/*"
+                              class="form-control"
+                              (change)="onFileSelected($event, 'portada')"
+                              [required]="!editando"
+                            />
+                            <small class="text-muted" *ngIf="editando">Deja vacío para mantener la portada actual</small>
+                          </div>
+                          
+                          <div class="col">
+                            <label class="col-form-label">Subir archivo (PDF):</label>
+                            
+                            <!-- Mostrar archivo actual O nombre del nuevo archivo -->
+                            <div *ngIf="(editando && nuevaRevista.archivo && !archivoNombre) || archivoNombre" class="mb-2 p-2 bg-light rounded">
+                              <!-- Archivo actual del servidor -->
+                              <div *ngIf="!archivoNombre && editando">
+                                <small class="text-muted d-block">Archivo actual: {{ nuevaRevista.archivo }}</small>
+                                <a 
+                                  [href]="'/revistas/' + nuevaRevista.id_revista + '/archivo/' + nuevaRevista.archivo" 
+                                  target="_blank" 
+                                  class="btn btn-sm btn-outline-primary mt-1">
+                                  📄 Ver PDF actual
+                                </a>
+                              </div>
+                              
+                              <!-- Nuevo archivo seleccionado -->
+                              <div *ngIf="archivoNombre">
+                                <small class="text-success d-block"><strong>Nuevo archivo seleccionado:</strong></small>
+                                <span class="badge bg-success mt-1">📄 {{ archivoNombre }}</span>
+                              </div>
                             </div>
-                        </div> -->
+                            
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              class="form-control"
+                              (change)="onFileSelected($event, 'archivo')"
+                              [required]="!editando"
+                            />
+                            <small class="text-muted" *ngIf="editando">Deja vacío para mantener el archivo actual</small>
+                          </div>
+                        </div>
 
                         <div class="row mb-3">
                             <div class="col-6">
@@ -141,8 +166,6 @@
                     </div>
                     
                     <div class="modal-footer">
-                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-success" [disabled]="revistaForm.invalid">Guardar</button> -->
                         <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
                         <button type="submit" class="btn btn-success" [disabled]="revistaForm.invalid">Guardar</button>
                     </div>
@@ -153,5 +176,6 @@
 <!--Termina modal agregar revista-->
 
 
-
 </div>
+
+

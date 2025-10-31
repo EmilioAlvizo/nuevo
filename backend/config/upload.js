@@ -12,30 +12,18 @@ function generarNombreArchivo(originalname) {
   return `${timestamp}_${Math.random().toString(36).substr(2, 10)}${ext}`;
 }
 
-// const angularPublicPath = path.join(__dirname, '../..frontend/public');
-
-// Configuración storage dinámico
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Debemos esperar a que la revista ya tenga un ID
-    const idRevista = req.params.id || 'temp';
-    let folder = '';
-    
-    if (file.fieldname === 'portada') {
-      // folder = path.join(angularPublicPath, `${idRevista}/portadas`);
-      folder = `${angularPublicPath}/${idRevista}/portadas`;
-    } else if (file.fieldname === 'archivo') {
-      // folder = path.join(angularPublicPath, `${idRevista}/archivos`);
-      folder = `${angularPublicPath}/${idRevista}/archivos`;
-    }
-
-    fs.mkdirSync(folder, { recursive: true }); // crear carpeta si no existe
-    cb(null, folder);
+    const tempFolder = `${angularPublicPath}/temp`;
+    // const tempFolder = path.join(angularPublicPath, 'temp');
+    fs.mkdirSync(tempFolder, { recursive: true });
+    cb(null, tempFolder);
   },
   filename: function (req, file, cb) {
     cb(null, generarNombreArchivo(file.originalname));
   }
 });
+
 
 const upload = multer({ 
   storage,

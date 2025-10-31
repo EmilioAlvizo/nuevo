@@ -33,19 +33,4 @@ router.put("/articulos/:id", ArticulosController.update);
 // DELETE - Eliminar un registro
 router.delete("/articulos/:id", ArticulosController.delete);
 
-
-
-
-// Crear revista con archivos
-// router.post("/revistas", upload.fields([
-//   { name: "archivo", maxCount: 1 },
-//   { name: "portada", maxCount: 1 }
-// ]), RevistasController.create);
-
-// // Editar revista con archivos opcionales
-// router.put("/revistas/:id", upload.fields([
-//   { name: "archivo", maxCount: 1 },
-//   { name: "portada", maxCount: 1 }
-// ]), RevistasController.update);
-
 module.exports = router;
