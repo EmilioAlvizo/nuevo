@@ -163,42 +163,71 @@ class Archivos_municipioController {
   } */
   static async create(req, res) {
     try {
-      const data = req.body;
-      const file = req.file;
+      const {
+        nombre_archivo,
+        id_municipio,
+        tipo_archivo,
+        categoria_archivo,
+        estatus_archivo,
+      } = req.body;
 
-      // Convertir id_municipio a número
-      if (data.id_municipio) {
-        data.id_municipio = parseInt(data.id_municipio, 10);
+      // 1️⃣ Crear el registro en DB
+      const nuevoArchivo = await Archivos_municipioModel.create(
+        "archivos_municipio",
+        {
+          nombre_archivo,
+          id_municipio: Number(id_municipio),
+          tipo_archivo,
+          categoria_archivo,
+          estatus_archivo: estatus_archivo || "A",
+        }
+      );
+
+      const id = nuevoArchivo.id_archivo;
+
+      // 2️⃣ Crear carpetas definitivas
+      const baseFolder = path.join(
+        __dirname,
+        "../../frontend/public/archivos_municipio",
+        id.toString()
+      );
+      const archivosFolder = path.join(baseFolder, "archivos");
+      fs.mkdirSync(archivosFolder, { recursive: true });
+
+      // 3️⃣ Mover archivos subidos desde "temp" a la carpeta con ID
+      let archivoNombre = null;
+      if (req.files?.archivo) {
+        archivoNombre = req.files.archivo[0].filename;
+        const tempPath = path.join(
+          __dirname,
+          "../../frontend/public/archivos_municipio/temp",
+          archivoNombre
+        );
+        const newPath = path.join(archivosFolder, archivoNombre);
+        fs.renameSync(tempPath, newPath);
       }
 
-      console.log("📥 Datos recibidos:", data);
-      console.log("📎 Archivo recibido:", file?.filename);
-
-      const newMunicipio = await Archivos_municipioModel.create(
-        TABLE_NAME,
-        data
-      );
-      console.log("nuevo muni   ", newMunicipio);
-
-      const id = newMunicipio[ID_COLUMN];
-
-      const baseFolder = path.join(BASE_PATH, id.toString());
-      console.log("baseFolder: ", baseFolder);
-      fs.mkdirSync(baseFolder, { recursive: true });
-
-      const archivo = files?.archivo?.[0]?.filename || null;
-
+      // 4️⃣ Actualizar el registro con el nombre del archivo
       await Archivos_municipioModel.update(
-        TABLE_NAME,
+        "archivos_municipio",
         id,
-        { archivo },
-        ID_COLUMN
+        { archivo: archivoNombre },
+        "id_archivo"
       );
 
-      res.status(201).json({ success: true, data: { id, archivo } });
+      res.json({
+        success: true,
+        data: { id, ...nuevoArchivo, archivo: archivoNombre },
+      });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ success: false, message: err.message });
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "Error al crear archivo",
+          error: err.message,
+        });
     }
   }
 

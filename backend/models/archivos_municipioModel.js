@@ -224,7 +224,7 @@ class Archivos_municipioModel {
   // Crear un nuevo registro
   static async create(tableName, data) {
     try {
-      console.log("Datos recibidos para insertar:", data);
+      //console.log("Datos recibidos para insertar:", data);
 
       const pool = await getConnection();
       const columns = Object.keys(data).join(", ");
@@ -242,7 +242,7 @@ class Archivos_municipioModel {
       const query = `INSERT INTO ${tableName} (${columns}) VALUES (${values}); SELECT SCOPE_IDENTITY() AS id;`;
       const result = await request.query(query);
 
-      return { id: result.recordset[0].id, ...data };
+      return { id_archivo: result.recordset[0].id, ...data };
     } catch (error) {
       throw new Error(`Error al crear registro: ${error.message}`);
     }
