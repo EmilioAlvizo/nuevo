@@ -9,7 +9,7 @@ import { BotonContactanos } from '../components/boton-contactanos/boton-contacta
 @Component({
   selector: 'public-layout',
   standalone: true,
-  imports: [RouterOutlet, /*Topbar, Navbar,*/ Footer, BotonContactanos, Navbar2],
+  imports: [RouterOutlet, /*Topbar, Navbar, BotonContactanos,*/ Footer, Navbar2],
   templateUrl: './public-layout.html',
   styleUrls: ['./public-layout.css'],
   encapsulation: ViewEncapsulation.None

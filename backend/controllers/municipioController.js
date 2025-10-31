@@ -104,7 +104,7 @@ class MunicipioController {
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const result = await Municipio.delete(TABLE_NAME, id, ID_COLUMN);
+      const result = await MunicipioModel.delete(TABLE_NAME, id, ID_COLUMN);
       
       res.status(200).json({
         success: true,

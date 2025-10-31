@@ -2,13 +2,17 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const path = require("path");
+const path = require('path')
+const bodyParser = require("body-parser");
 const municipioRoutes = require("./routes/municipioRoutes");
 const authRoutes = require("./routes/authRoutes");
 const testimoniosRoutes = require("./routes/testimoniosRoutes");
 const archivos_municipioRoutes = require("./routes/archivos_municipioRoutes");
 const documentos_cendocRoutes = require("./routes/documentos_cendocRoutes");
 const { startCleanupScheduler } = require("./scripts/cleanup");
+const revistasRoutes = require("./routes/revistasRoutes");
+const articulosRoutes = require("./routes/articulosRoutes");
+
 
 const app = express();
 const PORT = 3000;
@@ -38,6 +42,15 @@ app.use((req, res, next) => {
   });
   next();
 });
+// Middlewares
+app.use(bodyParser.json()); // Parsear JSON
+app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formularios
+
+//Carpeta public en proyecto Angular
+const angularPublicPath = path.join(__dirname, '../../frontend/public');
+
+
+app.use('/public', express.static(angularPublicPath));
 
 // Ruta de bienvenida
 app.get("/", (req, res) => {
@@ -73,6 +86,9 @@ app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+app.use("/api/auth", authRoutes);
+app.use("/api", revistasRoutes);
+app.use("/api", articulosRoutes);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

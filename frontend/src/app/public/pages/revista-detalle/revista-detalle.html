@@ -1,0 +1,27 @@
+<div class="contenedor">
+  <div class="row text-wrap text-break">
+    <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+      <p class="text-center texto-title-pages mb-4">Voces Emergentes</p>
+    </div>
+  </div>
+
+<div class="detalle-container" *ngIf="revista">
+    <h1>Volumen {{ revista.volumen }} — Año {{ revista.numero_year }}</h1>
+    <p class="fecha">{{ revista.fecha | date:'longDate' }}</p>
+    
+    <div class="flipbook-wrapper">
+        <app-flipbook [src]="'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo" [pageWidth]="900"></app-flipbook>
+
+
+        <div class="card-layer with-image" [style.background-image]="'url(/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
+
+
+        </div>
+    </div>
+
+    <p class="descripcion">{{ revista.descripcion }}</p>
+
+    <button class="btn-descargar" (click)="descargarPDF()">
+        Descargar PDF completo
+    </button>
+</div>
