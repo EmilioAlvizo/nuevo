@@ -2,17 +2,11 @@
 
 const express = require("express");
 const router = express.Router();
-
-const upload = require("../config/upload");
-
-
 const RevistasController = require("../controllers/revistasController");
-// const { getRevista, crearRevista, actualizarRevista, eliminarRevista } = require('../controllers/revistasController');
-
+const { crearUpload } = require('../middleware/uploadMiddleware');
 
 //autenticacion
 // const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
-
 
 
 // Rutas del API REST
@@ -23,16 +17,22 @@ router.get("/revistas", RevistasController.getAll);
 // GET - Obtener un registro por ID
 router.get("/revistas/:id", RevistasController.getById);
 
-// Crear revista con archivos
-router.post("/revistas", upload.fields([
-  { name: "archivo", maxCount: 1 },
-  { name: "portada", maxCount: 1 }
+// Crear middleware específico para revistas
+const uploadRevistas = crearUpload('revistas', {
+  portada: ['image/*'],
+  archivo: ['application/pdf']
+});
+
+//POST - Crear registro
+router.post('/revistas', uploadRevistas.fields([
+  { name: 'portada', maxCount: 1 },
+  { name: 'archivo', maxCount: 1 }
 ]), RevistasController.create);
 
-// Editar revista con archivos opcionales
-router.put("/revistas/:id", upload.fields([
-  { name: "archivo", maxCount: 1 },
-  { name: "portada", maxCount: 1 }
+//PUT - Actualizar registro
+router.put('/revistas/:id', uploadRevistas.fields([
+  { name: 'portada', maxCount: 1 },
+  { name: 'archivo', maxCount: 1 }
 ]), RevistasController.update);
 
 // DELETE - Eliminar un registro

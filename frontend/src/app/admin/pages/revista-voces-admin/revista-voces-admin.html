@@ -1,5 +1,4 @@
 <div class="container">
-    <!-- <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#agregarRevista">Agregar revista</button> -->
     <button class="btn btn-primary mt-2" (click)="abrirModal()">Agregar revista</button>
      <br>
 
@@ -52,7 +51,6 @@
     >
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <!-- <form #revistaForm="ngForm" enctype="multipart/form-data"> -->
                     <form #revistaForm="ngForm" (ngSubmit)="guardarRevista(revistaForm)" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="publicacionTitle">Agregar revista</h5>

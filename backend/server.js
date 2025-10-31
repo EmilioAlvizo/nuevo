@@ -21,7 +21,7 @@ app.use(bodyParser.json()); // Parsear JSON
 app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formularios
 
 //Carpeta public en proyecto Angular
-const angularPublicPath = path.join(__dirname, '../../frontend/public/revistas');
+const angularPublicPath = path.join(__dirname, '../../frontend/public');
 
 
 app.use('/public', express.static(angularPublicPath));

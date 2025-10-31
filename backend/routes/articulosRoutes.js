@@ -2,20 +2,11 @@
 
 const express = require("express");
 const router = express.Router();
-
-const upload = require("../config/upload");
-
-
 const ArticulosController = require("../controllers/articulosController");
-// const { getRevista, crearRevista, actualizarRevista, eliminarRevista } = require('../controllers/revistasController');
-
 
 //autenticacion
 // const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
-
-
-// Rutas del API REST
 
 // GET - Obtener todos los registros
 router.get("/articulos", ArticulosController.getAll);

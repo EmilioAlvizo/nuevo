@@ -45,9 +45,6 @@ export class ApiRevistas {
   return this.http.post<any>(`${this.apiUrl}/revistas`, formData);
   }
 
-  // actualizarRevista(id: number, formData: FormData){
-  //   return this.http.put<any>(`${this.apiUrl}/revistas/${id}`, formData);
-  // }
   actualizarRevista(id: number, data: any){
   return this.http.put<any>(`${this.apiUrl}/revistas/${id}`, data);
   }
@@ -56,7 +53,5 @@ export class ApiRevistas {
   eliminarRevista(id: number){
     return this.http.delete<any>(`${this.apiUrl}/revistas/${id}`);
   }
-
-
 
 }

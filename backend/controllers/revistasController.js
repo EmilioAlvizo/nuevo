@@ -1,18 +1,11 @@
 const RevistasModel = require("../models/revistasModel");
-const upload = require("../config/upload");
-
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "revistas"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_revista"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
-
-
-
 const path = require("path");
 const fs = require("fs");
-
-
-const angularPublicPath = path.join(__dirname, '../../frontend/public/revistas');
+const angularPublicPath = path.join(__dirname, '../../frontend/public');
 
 
 class RevistasController {
@@ -70,8 +63,8 @@ class RevistasController {
     });
 
     const id = nuevaRevista.id;
-    const tempPath = `${angularPublicPath}/temp`;
-    const baseFolder = `${angularPublicPath}/${id}`;
+    const tempPath = `${angularPublicPath}/revistas/temp`;
+    const baseFolder = `${angularPublicPath}/revistas/${id}`;
     const archivosFolder = `${baseFolder}/archivo`;
     const portadasFolder = `${baseFolder}/portada`;
     fs.mkdirSync(archivosFolder, { recursive: true });
@@ -128,8 +121,8 @@ static async update(req, res) {
       volumen, numero_year, descripcion, fecha, estatus
     }, ID_COLUMN);
 
-    const tempPath = `${angularPublicPath}/temp`;
-    const baseFolder = `${angularPublicPath}/${id}`;
+    const tempPath = `${angularPublicPath}/revistas/temp`;
+    const baseFolder = `${angularPublicPath}/revistas/${id}`;
     const archivosFolder = `${baseFolder}/archivo`;
     const portadasFolder = `${baseFolder}/portada`;
 
@@ -220,7 +213,7 @@ static async delete(req, res) {
     }
 
     // Eliminar carpeta completa del registro (con todos sus archivos)
-    const carpetaRevista = path.join(angularPublicPath, id.toString());
+    const carpetaRevista = path.join(angularPublicPath, 'revistas', id.toString());
     
     if (fs.existsSync(carpetaRevista)) {
       // Eliminar carpeta recursivamente (carpeta y todo su contenido)
