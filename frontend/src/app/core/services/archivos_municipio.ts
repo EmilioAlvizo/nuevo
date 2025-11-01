@@ -1,19 +1,19 @@
 // nuevo/frontend/src/app/core/services/archivos_municipio.ts
 
-import { Injectable } from '@angular/core';
-//esto es para comunicarse con el backend
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 // usar Observable<any> es una mala practica, por ello usamos interfaces (ejemplo para municipio)
 export interface Archivos_municipio {
   id_archivo: number;
   nombre_archivo: string;
-  fecha_archivo: string;
+  fecha_archivo: Date;
   id_municipio: number;
   archivo: string;
   estatus_archivo: string;
-  fecha_modificacion: string;
+  fecha_modificacion: Date;
   tipo_archivo: string;
   categoria_archivo: string;
   palabras_clave: string;
@@ -23,10 +23,30 @@ export interface Archivos_municipio {
 }
 
 // Agrega esta nueva interfaz para la respuesta de la API
-export interface ApiResponse {
+export interface ApiResponse<T> {
   success: boolean;
-  data: Archivos_municipio[];
+  data: T;
   total?: number;
+  message?: string;
+}
+
+export interface ApiResponsePaginated<T> {
+  success: boolean;
+  data: T[];
+  total: number;
+  pagina: number;
+  totalPaginas: number;
+}
+
+interface FiltrosArchivos {
+  municipios?: number[];
+  busqueda?: string;
+  categoria?: string;
+  palabra_clave?: string;
+  tipo?: string;
+  ordenar?: string;
+  limite?: number;
+  pagina?: number;
 }
 
 @Injectable({
@@ -36,99 +56,112 @@ export interface ApiResponse {
 //esto es para comunicarse con el backend real
 export class ApiArchivos_municipio {
   //url del backend
-  private apiUrl = 'http://localhost:3000/api';
-  //private apiUrl = 'https://mock.apidog.com/m1/1099917-1089948-default/api';
-  //inyecta el servicio HttpClient
-  constructor(private http: HttpClient) {}
-  getMessage(): Observable<ApiResponse> {
-    //realiza una solicitud GET a la URL del backend
-    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio`, {});
+  private apiUrl = `${environment.apiUrl}/archivos_municipio`;
+  private http = inject(HttpClient);
+
+  //realiza una solicitud GET a la URL del backend
+  getMessage(): Observable<ApiResponse<Archivos_municipio[]>> {
+    return this.http.get<ApiResponse<Archivos_municipio[]>>(this.apiUrl);
   }
 
-  get_archivos(): Observable<ApiResponse> {
-    //realiza una solicitud GET a la URL del backend
-    return this.http.get<ApiResponse>(`${this.apiUrl}/archivos_municipio/filtrados`, {});
+  //realiza una solicitud GET a la URL del backend
+  get_archivos(): Observable<ApiResponse<Archivos_municipio[]>> {
+    return this.http.get<ApiResponse<Archivos_municipio[]>>(this.apiUrl);
   }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
-  getArchivosFiltrados(params: {
-    municipios?: number[];
-    busqueda?: string;
-    categoria?: string;
-    palabras_clave?: string;
-    tipo?: string;
-    ordenar?: string;
-    limite?: number;
-    pagina?: number;
-  }): Observable<ApiResponse & { total?: number; pagina?: number; totalPaginas?: number }> {
-    let httpParams = new HttpParams();
+  getArchivosFiltrados(
+    filtros: FiltrosArchivos
+  ): Observable<ApiResponsePaginated<Archivos_municipio>> {
+    let params = new HttpParams();
 
     // Agregar municipios seleccionados
-    if (params.municipios && params.municipios.length > 0) {
-      httpParams = httpParams.set('municipios', params.municipios.join(','));
+    if (filtros.municipios && filtros.municipios.length > 0) {
+      params = params.set('municipios', filtros.municipios.join(','));
     }
 
     // Agregar búsqueda
-    if (params.busqueda) {
-      httpParams = httpParams.set('busqueda', params.busqueda);
+    if (filtros.busqueda) {
+      params = params.set('busqueda', filtros.busqueda);
     }
 
     // Agregar categoría
-    if (params.categoria) {
-      httpParams = httpParams.set('categoria', params.categoria);
+    if (filtros.categoria) {
+      params = params.set('categoria', filtros.categoria);
     }
 
     // Agregar palabras clave
-    if (params.palabras_clave) {
-      httpParams = httpParams.set('palabra_clave', params.palabras_clave);
+    if (filtros.palabra_clave) {
+      params = params.set('palabra_clave', filtros.palabra_clave);
     }
 
     // Agregar tipo
-    if (params.tipo) {
-      httpParams = httpParams.set('tipo', params.tipo);
+    if (filtros.tipo) {
+      params = params.set('tipo', filtros.tipo);
     }
 
     // Agregar ordenamiento
-    if (params.ordenar) {
-      httpParams = httpParams.set('ordenar', params.ordenar);
+    if (filtros.ordenar) {
+      params = params.set('ordenar', filtros.ordenar);
     }
 
     // Paginación
-    if (params.limite) {
-      httpParams = httpParams.set('limite', params.limite.toString());
+    if (filtros.limite) {
+      params = params.set('limite', filtros.limite.toString());
     }
 
-    if (params.pagina) {
-      httpParams = httpParams.set('pagina', params.pagina.toString());
+    if (filtros.pagina) {
+      params = params.set('pagina', filtros.pagina.toString());
     }
 
-    console.log('Llamando a API archivos_municipio con params:', httpParams.toString());
+    console.log('Llamando a API archivos_municipio con params:', params.toString());
 
-    return this.http.get<any>(`${this.apiUrl}/archivos_municipio/filtrados`, {
-      params: httpParams,
+    return this.http.get<ApiResponsePaginated<Archivos_municipio>>(`${this.apiUrl}/filtrados`, {
+      params,
     });
   }
 
   // Obtener conteo de archivos por municipio
-  getConteosPorMunicipio(): Observable<{
-    success: boolean;
-    data: { id_municipio: number; nombre: string; contador: number }[];
-  }> {
-    return this.http.get<any>(`${this.apiUrl}/archivos_municipio/conteos-municipio`);
+  getConteosPorMunicipio(): Observable<
+    ApiResponse<{ id_municipio: number; nombre: string; contador: number }[]>
+  > {
+    return this.http.get<ApiResponse<{ id_municipio: number; nombre: string; contador: number }[]>>(
+      `${this.apiUrl}/conteos`
+    );
   }
 
-  // Crear nuevo archivo_municipio
-  createArchivo(data: Partial<Archivos_municipio>): Observable<any> {
-    return this.http.post(`${this.apiUrl}/archivos_municipio`, data);
+  // Obtener un archivo por ID
+  getArchivoById(id: number): Observable<ApiResponse<Archivos_municipio>> {
+    return this.http.get<ApiResponse<Archivos_municipio>>(`${this.apiUrl}/${id}`);
   }
 
-  // Crear nuevo archivo_municipio
-  createArchivoConUpload(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/archivos_municipio`, formData);
+  // Crear archivo (sin upload de archivo físico)
+  createArchivo(data: Partial<Archivos_municipio>): Observable<ApiResponse<Archivos_municipio>> {
+    return this.http.post<ApiResponse<Archivos_municipio>>(this.apiUrl, data);
+  }
+
+  // ✅ Crear archivo con upload (FormData)
+  createArchivoConUpload(formData: FormData): Observable<ApiResponse<Archivos_municipio>> {
+    return this.http.post<ApiResponse<Archivos_municipio>>(this.apiUrl, formData);
+  }
+
+  // Actualizar archivo
+  updateArchivo(
+    id: number,
+    data: Partial<Archivos_municipio>
+  ): Observable<ApiResponse<Archivos_municipio>> {
+    return this.http.put<ApiResponse<Archivos_municipio>>(`${this.apiUrl}/${id}`, data);
   }
 
   // Eliminar archivo
-  deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
-    return this.http.delete<any>(`${this.apiUrl}/archivos_municipio/${id}`);
+  deleteArchivo(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${id}`);
+  }
+
+  // ✅ OPCIONAL: Descargar archivo
+  downloadArchivo(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/download`, {
+      responseType: 'blob',
+    });
   }
 }

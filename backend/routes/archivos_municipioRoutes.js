@@ -18,7 +18,7 @@ const uploadArchivos = createUploadMiddleware("archivos_municipio", [
 router.get("/archivos_municipio/filtrados", Archivos_municipioController.getFiltrados);
 
 // ✅ NUEVO - GET conteos por municipio
-router.get("/archivos_municipio/conteos-municipio", Archivos_municipioController.getConteosMunicipio);
+router.get("/archivos_municipio/conteos", Archivos_municipioController.getConteosMunicipio);
 
 // GET - Obtener todos los registros
 router.get("/archivos_municipio", Archivos_municipioController.getAll);

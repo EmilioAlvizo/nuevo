@@ -19,7 +19,7 @@ class Archivos_municipioController {
       res.status(200).json({
         success: true,
         data: municipio,
-        count: municipio.length,
+        total: municipio.length,
       });
     } catch (error) {
       res.status(500).json({
@@ -67,7 +67,6 @@ class Archivos_municipioController {
         total: resultado.total,
         pagina: resultado.pagina,
         totalPaginas: resultado.totalPaginas,
-        count: resultado.data.length,
       });
     } catch (error) {
       console.error("Error en getFiltrados:", error);
@@ -85,7 +84,7 @@ class Archivos_municipioController {
       res.status(200).json({
         success: true,
         data: conteos,
-        count: conteos.length,
+        total: conteos.length,
       });
     } catch (error) {
       console.error("Error en getConteosMunicipio:", error);
