@@ -33,28 +33,83 @@ class Archivos_municipioController {
   static async getFiltrados(req, res) {
     try {
       const {
-        municipios, // "1,2,3" - IDs separados por coma
-        busqueda, // Término de búsqueda
-        categoria, // Categoría del archivo
-        palabra_clave, // Palabra clave específica
-        tipo, // Tipo de archivo
-        ordenar, // "AZ", "ZA", "masReciente", "masAntiguo"
-        limite, // Límite de resultados
-        pagina, // Página actual
-      } = req.query;
+        // Paginación
+        limite,
+        pagina,
 
+        // Búsqueda global
+        busqueda,
+
+        // Filtros de columna con matchMode
+        nombre_archivo,
+        nombre_archivo_matchMode,
+
+        subcategoria,
+        subcategoria_matchMode,
+
+        palabras_clave,
+        palabras_clave_matchMode,
+
+        fecha_archivo,
+        fecha_archivo_matchMode,
+
+        fecha_modificacion,
+        fecha_modificacion_matchMode,
+
+        // Filtros multiselect (separados por coma)
+        municipios,
+        tipos,
+        categorias,
+        estatus,
+
+        // Ordenamiento
+        sortField,
+        sortOrder,
+      } = req.query;
+      
       // Procesar parámetros
       const params = {
-        municipios: municipios
-          ? municipios.split(",").map((id) => parseInt(id))
-          : [],
-        busqueda: busqueda || null,
-        categoria: categoria || null,
-        palabra_clave: palabra_clave || null,
-        tipo: tipo || null,
-        ordenar: ordenar || "masReciente",
+        // Paginación
         limite: parseInt(limite) || 50,
         pagina: parseInt(pagina) || 1,
+
+        // Búsqueda global
+        busqueda: busqueda || null,
+
+        // Filtros simples con matchMode
+        nombre_archivo: nombre_archivo || null,
+        nombre_archivo_matchMode: nombre_archivo_matchMode || "contains",
+
+        subcategoria: subcategoria || null,
+        subcategoria_matchMode: subcategoria_matchMode || "contains",
+
+        palabras_clave: palabras_clave || null,
+        palabras_clave_matchMode: palabras_clave_matchMode || "contains",
+
+        // Filtros de fecha con matchMode
+        fecha_archivo: fecha_archivo || null,
+        fecha_archivo_matchMode: fecha_archivo_matchMode || "dateIs",
+
+        fecha_modificacion: fecha_modificacion || null,
+        fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs",
+
+        // Filtros multiselect - convertir strings separadas por coma a arrays
+        municipios: municipios
+          ? Archivos_municipioController.parseArrayParam(municipios, "int")
+          : [],
+        tipos: tipos
+          ? Archivos_municipioController.parseArrayParam(tipos, "string")
+          : [],
+        categorias: categorias
+          ? Archivos_municipioController.parseArrayParam(categorias, "string")
+          : [],
+        estatus: estatus
+          ? Archivos_municipioController.parseArrayParam(estatus, "string")
+          : [],
+
+        // Ordenamiento
+        sortField: sortField || null,
+        sortOrder: sortOrder ? parseInt(sortOrder) : null,
       };
 
       const resultado = await Archivos_municipioModel.getArchivosFiltrados(
@@ -67,6 +122,7 @@ class Archivos_municipioController {
         total: resultado.total,
         pagina: resultado.pagina,
         totalPaginas: resultado.totalPaginas,
+        count: resultado.data.length,
       });
     } catch (error) {
       console.error("Error en getFiltrados:", error);
@@ -75,6 +131,25 @@ class Archivos_municipioController {
         message: error.message,
       });
     }
+  }
+
+  // 🛠️ Utilidad para parsear parámetros de array
+  static parseArrayParam(param, type = "string") {
+    console.log("func   ", param);
+    if (!param) return [];
+
+    // Si ya es un array, devolverlo
+    if (Array.isArray(param)) {
+      return type === "int" ? param.map(Number) : param;
+    }
+
+    // Si es un string, dividirlo por comas
+    const arr = param
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return type === "int" ? arr.map(Number) : arr;
   }
 
   // ✅ NUEVO - GET conteos por municipio
@@ -220,13 +295,11 @@ class Archivos_municipioController {
       });
     } catch (err) {
       console.error(err);
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Error al crear archivo",
-          error: err.message,
-        });
+      res.status(500).json({
+        success: false,
+        message: "Error al crear archivo",
+        error: err.message,
+      });
     }
   }
 

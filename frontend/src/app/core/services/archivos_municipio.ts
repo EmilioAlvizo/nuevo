@@ -71,49 +71,25 @@ export class ApiArchivos_municipio {
 
   // ✅ NUEVO - Método con filtros (más eficiente)
   getArchivosFiltrados(
-    filtros: FiltrosArchivos
+    filtros: any
   ): Observable<ApiResponsePaginated<Archivos_municipio>> {
     let params = new HttpParams();
 
-    // Agregar municipios seleccionados
-    if (filtros.municipios && filtros.municipios.length > 0) {
-      params = params.set('municipios', filtros.municipios.join(','));
-    }
+    // Agregar todos los parámetros dinámicamente
+    Object.keys(filtros).forEach((key) => {
+      const value = filtros[key];
 
-    // Agregar búsqueda
-    if (filtros.busqueda) {
-      params = params.set('busqueda', filtros.busqueda);
-    }
-
-    // Agregar categoría
-    if (filtros.categoria) {
-      params = params.set('categoria', filtros.categoria);
-    }
-
-    // Agregar palabras clave
-    if (filtros.palabra_clave) {
-      params = params.set('palabra_clave', filtros.palabra_clave);
-    }
-
-    // Agregar tipo
-    if (filtros.tipo) {
-      params = params.set('tipo', filtros.tipo);
-    }
-
-    // Agregar ordenamiento
-    if (filtros.ordenar) {
-      params = params.set('ordenar', filtros.ordenar);
-    }
-
-    // Paginación
-    if (filtros.limite) {
-      params = params.set('limite', filtros.limite.toString());
-    }
-
-    if (filtros.pagina) {
-      params = params.set('pagina', filtros.pagina.toString());
-    }
-
+      if (value !== null && value !== undefined) {
+        // Si es un array, convertir a string separado por comas
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            params = params.set(key, value.join(','));
+          }
+        } else {
+          params = params.set(key, value.toString());
+        }
+      }
+    });
     console.log('Llamando a API archivos_municipio con params:', params.toString());
 
     return this.http.get<ApiResponsePaginated<Archivos_municipio>>(`${this.apiUrl}/filtrados`, {

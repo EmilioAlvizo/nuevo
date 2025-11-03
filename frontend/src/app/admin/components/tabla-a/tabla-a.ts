@@ -33,7 +33,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageModule } from 'primeng/message';
-import { FilterMetadata } from 'primeng/api';
+import { FilterMetadata, SortEvent } from 'primeng/api';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { Table } from 'primeng/table';
 
 interface LazyLoadParams {
@@ -51,6 +52,7 @@ interface LazyLoadParams {
   selector: 'app-tabla-a',
   standalone: true,
   imports: [
+    MultiSelectModule,
     CommonModule,
     FormsModule,
     ButtonModule,
@@ -100,6 +102,10 @@ export class TablaA {
   // 🆕 Estado para filtros activos
   readonly filtrosActivos = signal<any>({});
   readonly ordenActual = signal<{ field: string; order: number } | null>(null);
+
+  // 🆕 propiedades para el sort removible:
+  isSorted: boolean | null = null;
+  lastSortField: string | null = null;
 
   // 🧾 Nuevo archivo en creación
   readonly nuevoArchivo = signal<Partial<Archivos_municipio>>({
@@ -165,6 +171,8 @@ export class TablaA {
   }
 
   private cargarMunicipios(): void {
+    // Solo carga si aún no hay municipios
+    if (this.municipios().length > 0) return;
     this.apiMunicipio.getMessage().subscribe({
       next: (res) => this.municipios.set(res.data),
       error: (err) => {
@@ -182,8 +190,10 @@ export class TablaA {
   loadArchivos(event: TableLazyLoadEvent): void {
     this.loading.set(true);
 
+    //console.log('📥 Evento completo de la tabla:', event);
+
     // Construir parámetros de la consulta
-    const params: LazyLoadParams = {
+    const params: any = {
       limite: event.rows || 10,
       pagina: Math.floor((event.first || 0) / (event.rows || 10)) + 1,
     };
@@ -193,80 +203,89 @@ export class TablaA {
       params.busqueda = event.globalFilter as string;
     }
 
-    // 🎯 Agregar filtros de columna
+    // 🎯 Procesar filtros de columna
     if (event.filters) {
-      // Helper para obtener el valor del filtro, manejando FilterMetadata | FilterMetadata[]
-      const getFilterValue = (filter: FilterMetadata | FilterMetadata[] | undefined): any => {
-        if (!filter) return null;
+      //console.log('🔍 Filtros recibidos:', event.filters);
 
-        // Si es un arreglo (ej. multiples filtros en una misma columna, rarely used), toma el primero
-        if (Array.isArray(filter)) {
-          return filter.length > 0 ? filter[0].value : null;
-        }
-
-        // Si es un solo objeto FilterMetadata
-        return filter.value;
-      };
-
-      // Filtro por municipio
-      const municipioFilterValue = getFilterValue(event.filters['nombre_municipio']);
-
-      if (municipioFilterValue) {
-        const municipioNombre = municipioFilterValue;
-        const municipio = this.municipios().find((m) => m.nombre === municipioNombre);
-        if (municipio) {
-          params.municipios = [municipio.id_municipio];
-        }
+      // Filtro por nombre de archivo
+      const nombreFiltro = this.getFilterValue(event.filters['nombre_archivo']);
+      if (nombreFiltro) {
+        params.nombre_archivo = nombreFiltro;
+        params.nombre_archivo_matchMode = this.getMatchMode(event.filters['nombre_archivo']);
       }
 
-      // Filtro por tipo de archivo
-      const tipo_archivoFilterValue = getFilterValue(event.filters['tipo_archivo']);
-      if (tipo_archivoFilterValue) {
-        params.tipo = tipo_archivoFilterValue;
+      // Filtro por municipio (multiselect)
+      const municipioFiltro = this.getFilterValue(event.filters['nombre_municipio']);
+      if (municipioFiltro && Array.isArray(municipioFiltro) && municipioFiltro.length > 0) {
+        params.municipios = municipioFiltro;
       }
 
-      // Filtro por categoría
-      const categoria_archivoFilterValue = getFilterValue(event.filters['categoria_archivo']);
-      if (categoria_archivoFilterValue) {
-        params.categoria = categoria_archivoFilterValue;
+      // Filtro por tipo (multiselect)
+      const tipoFiltro = this.getFilterValue(event.filters['tipo_archivo']);
+      if (tipoFiltro && Array.isArray(tipoFiltro) && tipoFiltro.length > 0) {
+        params.tipos = tipoFiltro;
       }
 
-      // Filtro por subcategoría (búsqueda de texto)
-      const subcategoria_archivoFilterValue = getFilterValue(event.filters['subcategoria_archivo']);
-      if (subcategoria_archivoFilterValue) {
-        // Como no hay endpoint específico para subcategoría, se puede incluir en búsqueda
-        if (!params.busqueda) {
-          params.busqueda = subcategoria_archivoFilterValue.value;
-        }
+      // Filtro por categoría (multiselect)
+      const categoriaFiltro = this.getFilterValue(event.filters['categoria_archivo']);
+      if (categoriaFiltro && Array.isArray(categoriaFiltro) && categoriaFiltro.length > 0) {
+        params.categorias = categoriaFiltro;
+      }
+
+      // Filtro por subcategoría
+      const subcategoriaFiltro = this.getFilterValue(event.filters['subcategoria_archivo']);
+      if (subcategoriaFiltro) {
+        params.subcategoria = subcategoriaFiltro;
+        params.subcategoria_matchMode = this.getMatchMode(event.filters['subcategoria_archivo']);
       }
 
       // Filtro por palabras clave
-      const palabras_claveFilterValue = getFilterValue(event.filters['palabras_clave']);
-      if (palabras_claveFilterValue) {
-        params.palabra_clave = palabras_claveFilterValue;
+      const palabrasFiltro = this.getFilterValue(event.filters['palabras_clave']);
+      if (palabrasFiltro) {
+        params.palabras_clave = palabrasFiltro;
+        params.palabras_clave_matchMode = this.getMatchMode(event.filters['palabras_clave']);
+      }
+
+      // Filtro por estatus (multiselect)
+      const estatusFiltro = this.getFilterValue(event.filters['estatus_archivo']);
+      if (estatusFiltro && Array.isArray(estatusFiltro) && estatusFiltro.length > 0) {
+        params.estatus = estatusFiltro;
+      }
+
+      // Filtros por fecha
+      const fechaArchivoFiltro = this.getFilterValue(event.filters['fecha_archivo']);
+      if (fechaArchivoFiltro) {
+        params.fecha_archivo = fechaArchivoFiltro;
+        params.fecha_archivo_matchMode = this.getMatchMode(event.filters['fecha_archivo']);
+      }
+
+      const fechaModFiltro = this.getFilterValue(event.filters['fecha_modificacion']);
+      if (fechaModFiltro) {
+        params.fecha_modificacion = fechaModFiltro;
+        params.fecha_modificacion_matchMode = this.getMatchMode(
+          event.filters['fecha_modificacion']
+        );
       }
     }
 
-    // 🔀 Agregar ordenamiento
-    if (event.sortField) {
-      params.ordenar = this.getOrdenarParam(event.sortField as string, event.sortOrder || 1);
-      this.ordenActual.set({ field: event.sortField as string, order: event.sortOrder || 1 });
-    } else {
-      params.ordenar = 'masReciente'; // Default
+    // 🔀 IMPORTANTE: Agregar ordenamiento con sortField y sortOrder
+    if (event.sortField && event.sortOrder) {
+      params.sortField = event.sortField as string;
+      params.sortOrder = event.sortOrder;
     }
 
-    // Guardar filtros activos
-    this.filtrosActivos.set(event.filters || {});
+    console.log('📤 Parámetros enviados al backend:', params);
 
     // 📡 Llamada al API
     this.apiArchivos_municipio.getArchivosFiltrados(params).subscribe({
       next: (response) => {
+        //console.log('✅ Respuesta del backend:', response);
         this.archivos_municipio.set(response.data);
         this.totalRecords.set(response.total || 0);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar archivos:', err);
+        console.error('❌ Error al cargar archivos:', err);
         this.loading.set(false);
         this.messageService.add({
           severity: 'error',
@@ -274,25 +293,42 @@ export class TablaA {
           detail: 'No se pudieron cargar los archivos',
           life: 3000,
         });
-        // En caso de error, mostrar array vacío
         this.archivos_municipio.set([]);
         this.totalRecords.set(0);
       },
     });
   }
 
-  getOrdenarParam(field: string, order: number): string {
-    const isAsc = order === 1;
-    
-    switch (field) {
-      case 'nombre_archivo':
-        return isAsc ? 'AZ' : 'ZA';
-      case 'fecha_modificacion':
-      case 'fecha_archivo':
-        return isAsc ? 'masAntiguo' : 'masReciente';
-      default:
-        return 'masReciente';
+  // 🛠️ Utilidad para extraer el valor del filtro
+  private getFilterValue(filter: any): any {
+    if (!filter) return null;
+
+    // Si es un array de FilterMetadata (cuando hay múltiples condiciones)
+    if (Array.isArray(filter)) {
+      return filter[0]?.value || null;
     }
+
+    // Si es un objeto FilterMetadata
+    if (filter && typeof filter === 'object' && 'value' in filter) {
+      return filter.value;
+    }
+
+    return null;
+  }
+
+  // 🛠️ Utilidad para extraer el matchMode del filtro
+  private getMatchMode(filter: any): string {
+    if (!filter) return 'contains';
+
+    if (Array.isArray(filter)) {
+      return filter[0]?.matchMode || 'contains';
+    }
+
+    if (filter && typeof filter === 'object' && 'matchMode' in filter) {
+      return filter.matchMode;
+    }
+
+    return 'contains';
   }
 
   // 🗂️ Dialog handlers
@@ -574,20 +610,6 @@ export class TablaA {
       ZIP: 'text-yellow-500',
     };
     return map[tipo] ?? 'text-gray-500';
-  }
-
-  customSort(event: any): void {
-    event.data.sort((a: any, b: any) => {
-      const v1 = a[event.field];
-      const v2 = b[event.field];
-      if (v1 == null && v2 != null) return -1 * event.order;
-      if (v1 != null && v2 == null) return 1 * event.order;
-      if (v1 == null && v2 == null) return 0;
-      if (typeof v1 === 'string' && typeof v2 === 'string') {
-        return event.order * v1.localeCompare(v2);
-      }
-      return event.order * (v1 < v2 ? -1 : v1 > v2 ? 1 : 0);
-    });
   }
 
   editArchivo(archivo: Archivos_municipio) {

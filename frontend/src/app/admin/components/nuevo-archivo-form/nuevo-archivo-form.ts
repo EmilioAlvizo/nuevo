@@ -28,6 +28,7 @@ import { SelectModule } from 'primeng/select';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 interface MunicipioOption {
   label: string;
@@ -46,6 +47,7 @@ interface MunicipioOption {
     SelectModule,
     FileUploadModule,
     TagModule,
+    AutoCompleteModule,
   ],
   templateUrl: './nuevo-archivo-form.html',
   styleUrl: './nuevo-archivo-form.css',
@@ -229,5 +231,25 @@ export class NuevoArchivoForm {
 
   public cancelSave(): void {
     this.isSaving.set(false);
+  }
+
+  palabrasSugeridas = signal<string[]>([
+    'Encuesta',
+    'Juventud',
+    'Estatal',
+    'Municipal',
+    'Educación',
+    'Demografía',
+    'Salud',
+    'Economía',
+  ]);
+  filteredPalabras: string[] = [];
+  
+  /** Método para autocompletar las palabras */
+  filterPalabras(event: any): void {
+    const query = event.query.toLowerCase();
+    this.filteredPalabras = this.palabrasSugeridas().filter(p =>
+      p.toLowerCase().includes(query)
+    );
   }
 }

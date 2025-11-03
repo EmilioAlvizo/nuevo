@@ -9,7 +9,7 @@ const MyPreset = definePreset(Lara, {
                 .p-datatable {
                     border: 1px solid #e5e7eb;
                     border-radius: 12px;
-                    overflow: hidden;
+                    /*overflow: hidden;*/
                 }
 
             `

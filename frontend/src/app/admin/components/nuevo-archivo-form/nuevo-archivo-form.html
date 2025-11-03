@@ -3,11 +3,12 @@
   [header]="dialogTitle()"
   [(visible)]="visible"
   [modal]="true"
-  [style]="{ width: '600px' }"
+  [style]="{ width: '50vw' }"
   [draggable]="true"
   [resizable]="true"
   [dismissableMask]="true"
   (onHide)="handleDialogHide()"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
 >
   <div class="container-fluid">
     <form [formGroup]="archivoForm">
@@ -31,6 +32,8 @@
             @if (archivoForm.get('nombre_archivo')?.errors?.['required']) { Este campo es requerido
             } @if (archivoForm.get('nombre_archivo')?.errors?.['minlength']) { Mínimo 3 caracteres }
           </div>
+          } @else {
+          <div class="invisible">00</div>
           }
         </div>
       </div>
@@ -62,6 +65,8 @@
           </p-select>
           @if (isFieldInvalid('id_municipio')) {
           <small class="text-danger d-block mt-1">Campo requerido</small>
+          } @else {
+          <div class="invisible">00</div>
           } @if (archivoForm.get('id_municipio')?.value) {
           <small class="text-muted d-block mt-1">
             <i class="pi pi-info-circle"></i>
@@ -83,6 +88,8 @@
           />
           @if (isFieldInvalid('tipo_archivo')) {
           <small class="text-danger d-block mt-1">Campo requerido</small>
+          } @else {
+          <div class="invisible">00</div>
           }
         </div>
       </div>
@@ -102,6 +109,8 @@
           />
           @if (isFieldInvalid('categoria_archivo')) {
           <small class="text-danger d-block mt-1">Campo requerido</small>
+          } @else {
+          <div class="invisible">00</div>
           }
         </div>
 
@@ -122,14 +131,17 @@
       <div class="row mb-3">
         <div class="col-12">
           <label for="palabras_clave" class="form-label fw-semibold">Palabras Clave</label>
-          <textarea
-            pInputTextarea
-            id="palabras_clave"
-            formControlName="palabras_clave"
-            rows="2"
-            class="form-control"
-            placeholder="Ej: Encuesta,Juventud,Estatal (separadas por coma)"
-          ></textarea>
+          <p-autoComplete
+            inputId="chips-combined"
+            name="palabras_clave"
+            multiple
+            fluid
+            [typeahead]="false"
+            [addOnBlur]="true"
+            [addOnTab]="true"
+            separator=","
+            placeholder="Ej: Encuesta, Juventud, Estatal (separadas por coma)"
+          ></p-autoComplete>
           <small class="text-muted">
             <i class="pi pi-info-circle"></i>
             Separe las palabras clave con comas

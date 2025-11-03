@@ -49,6 +49,7 @@ export const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('./admin/admin.routes').then(m => m.adminRoutes), // Corregí el nombre
+        data: { preload: false }
       }
     ],
     runGuardsAndResolvers: 'always',

@@ -35,3 +35,19 @@ main.content {
 app-footer, footer {
   margin-top: auto;
 }
+
+.p-datatable {
+  /* border: 1px solid #e5e7eb; */
+  border: 3px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.p-datatable-header {
+  /* border: 1px solid #e5e7eb; */
+  border-radius: 12px 12px 0 0;
+}
+
+.p-paginator {
+  /* border: 1px solid #e5e7eb; */
+  border-radius: 0 0 12px 12px !important;
+}

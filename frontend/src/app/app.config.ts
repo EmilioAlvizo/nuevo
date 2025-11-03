@@ -14,7 +14,8 @@ import { provideClientHydration } from '@angular/platform-browser';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import MyPreset from './shared/mypreset';
+//import MyPreset from './shared/mypreset';
+import Lara from '@primeuix/themes/lara';
 
 // ✅ Variable global para asegurar una sola ejecución
 let authInitialized = false;
@@ -25,7 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: MyPreset,
+        preset: Lara,
       },
       translation: {
         matchAll: 'Coincide con todos',
