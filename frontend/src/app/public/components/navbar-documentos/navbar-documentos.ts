@@ -29,14 +29,3 @@ export class NavbarDocumentos {
     this.tipoCambio.emit(opcion.id);
   }
 }
-
-/*export class NavbarDocumentos {
-  @Output() tipoCambio = new EventEmitter<boolean>();
-
-  mostrarFisicos = true;
-
-  cambiarTipo(esFisico: boolean) {
-    this.mostrarFisicos = esFisico;
-    this.tipoCambio.emit(esFisico);
-  }
-}*/

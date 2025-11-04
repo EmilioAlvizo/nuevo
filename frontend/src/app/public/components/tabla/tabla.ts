@@ -1,8 +1,8 @@
 // nuevo/frontend/src/app/public/components/tabla/tabla.ts
 import { Component, OnInit, Input } from '@angular/core';
-import { ApiArchivos_municipio, Archivos_municipio } from '../../../services/archivos_municipio';
-import { ApiMunicipio, Municipio } from '../../../services/municipios';
-import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../services/documentos_cendoc';
+import { ApiArchivos_municipio, Archivos_municipio } from '../../../core/services/archivos_municipio';
+import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
+import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject } from 'rxjs';

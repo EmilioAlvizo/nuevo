@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/admin/admin.routes.ts
 import { Routes } from '@angular/router';
 import { HomeAdmin } from './pages/home-admin/home-admin';
 import { SistemaJuventudesAdmin } from '../admin/pages/sistema-juventudes-admin/sistema-juventudes-admin';
@@ -7,8 +8,8 @@ import { CentroDocumentalAdmin } from '../admin/pages/centro-documental-admin/ce
 import { InformacionInteresAdmin } from '../admin/pages/informacion-interes-admin/informacion-interes-admin';
 
 
-export const publicRoutes: Routes = [
-  { path: '', component: HomeAdmin },
+export const adminRoutes: Routes = [
+  { path: '', component: HomeAdmin},
   { path: 'sistema-juventudes', component: SistemaJuventudesAdmin },
   { path: 'estadisticas', component: EstadisticasAdmin },
   { path: 'revista', component: RevistaVocesAdmin },

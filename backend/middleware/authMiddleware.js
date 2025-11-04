@@ -1,65 +1,63 @@
-const { verifyToken } = require('../config/jwt');
+// nuevo/backend/middleware/authMiddleware.js
+const { verifyAccessToken } = require("../config/jwt");
 
-// Middleware para verificar token
-const authMiddleware = (req, res, next) => {
+// ✅ Middleware simple: SOLO verifica el token, NO lo renueva
+const authMiddleware = async (req, res, next) => {
   try {
-    // Obtener token del header
-    const authHeader = req.headers.authorization;
+    const accessToken = req.cookies.accessToken;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!accessToken) {
       return res.status(401).json({
         success: false,
-        message: 'Token no proporcionado'
+        message: "No autorizado - Token requerido",
       });
     }
-
-    // Extraer el token
-    const token = authHeader.split(' ')[1];
 
     // Verificar token
-    const decoded = verifyToken(token);
+    const decoded = verifyAccessToken(accessToken);
 
     if (!decoded) {
+      // Token expirado o inválido
       return res.status(401).json({
         success: false,
-        message: 'Token inválido o expirado'
+        message: "Token expirado o inválido",
       });
     }
 
-    // Adjuntar información del usuario al request
+    // Token válido - adjuntar usuario al request
     req.user = decoded;
     next();
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Error al verificar token',
-      error: error.message
+      message: "Error al verificar autenticación",
+      error: error.message,
     });
   }
 };
 
-// Middleware para verificar roles
-const checkRole = (...allowedRoles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Usuario no autenticado'
-      });
-    }
+// ✅ Middleware para verificar rol de administrador
+const adminMiddleware = (req, res, next) => {
+  // Primero verifica que el usuario esté autenticado
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: "No autorizado",
+    });
+  }
 
-    if (!allowedRoles.includes(req.user.rol)) {
-      return res.status(403).json({
-        success: false,
-        message: 'No tienes permisos para acceder a este recurso'
-      });
-    }
+  // Luego verifica el rol
+  if (req.user.rol !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: "Acceso denegado - Se requiere rol de administrador",
+    });
+  }
 
-    next();
-  };
+  next();
 };
 
 module.exports = {
   authMiddleware,
-  checkRole
+  adminMiddleware,
 };

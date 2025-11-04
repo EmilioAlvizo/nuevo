@@ -1,0 +1,416 @@
+// nuevo/frontend/src/app/admin/components/tabla-a/tabla-a.ts
+import { Component, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, Validators  } from '@angular/forms';
+import {
+  ApiArchivos_municipio,
+  Archivos_municipio,
+} from '../../../core/services/archivos_municipio';
+import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
+
+// PrimeNG Imports
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { ToolbarModule } from 'primeng/toolbar';
+import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { SelectModule } from 'primeng/select';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { MessageModule } from 'primeng/message';
+import { Table } from 'primeng/table';
+
+@Component({
+  selector: 'app-tabla-a',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    TableModule,
+    ToolbarModule,
+    InputTextModule,
+    IconFieldModule,
+    InputIconModule,
+    TagModule,
+    TooltipModule,
+    ConfirmDialogModule,
+    ToastModule,
+    SelectModule,
+    DialogModule,
+    FileUploadModule,
+    MessageModule,
+  ],
+  providers: [ConfirmationService, MessageService],
+  templateUrl: './tabla-b.html',
+  styleUrl: './tabla-a.css',
+})
+export class TablaA {
+  Archivos_municipio: Archivos_municipio[] = [];
+  selectedArchivos: Archivos_municipio[] = [];
+  loading: boolean = true;
+  // Municipios
+  municipios: Municipio[] = [];
+  municipiosOptions: Array<{ label: string; value: number }> = [];
+
+  // Opciones para filtros
+  tiposArchivo: string[] = ['Resultados', 'Informe', 'Reporte', 'Documento', 'Otro'];
+  categorias: string[] = ['Población', 'Económica', 'Social', 'Ambiental', 'Otro'];
+  estatusOptions: Array<{ label: string; value: 'A' | 'I' }> = [
+    { label: 'Activo', value: 'A' },
+    { label: 'Inactivo', value: 'I' },
+  ];
+
+  constructor(
+    private apiArchivos_municipio: ApiArchivos_municipio,
+    private apiMunicipio: ApiMunicipio,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
+  ) {}
+
+  @ViewChild('fileUploader') fileUploader: any;
+
+  ngOnInit(): void {
+    this.cargarArchivos();
+    this.cargarMunicipios();
+  }
+
+  cargarArchivos(): void {
+    this.loading = true;
+    this.apiArchivos_municipio.getMessage().subscribe({
+      next: (datos) => {
+        this.Archivos_municipio = datos.data;
+        this.loading = false;
+        //console.log('Archivos cargados:', this.Archivos_municipio);
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('Error al cargar archivos:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los archivos',
+        });
+      },
+    });
+  }
+
+  cargarMunicipios(): void {
+    this.apiMunicipio.getMessage().subscribe({
+      next: (datos) => {
+        this.municipios = datos.data;
+        // ✅ Transformar los municipios al formato que necesita p-select
+        this.municipiosOptions = this.municipios.map((m) => ({
+          label: m.nombre,
+          value: m.id_municipio,
+        }));
+      },
+      error: (err) => {
+        console.error('Error al cargar municipios:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los municipios',
+        });
+      },
+    });
+  }
+
+  hideDialog() {
+    this.nuevoArchivoDialog = false;
+    this.submitted = false;
+    this.archivoSeleccionado = null;
+    if (this.fileUploader) {
+      this.fileUploader.clear();
+    }
+  }
+
+  onArchivoSelect(event: any) {
+    const file = event.files[0];
+    if (file) {
+      this.archivoSeleccionado = file;
+
+      console.log('entro a guardar ');
+      this.nuevoArchivo.archivo = file.name;
+      console.log('entro a guardar ', file);      
+
+      // Opcional: Auto-completar nombre del archivo si está vacío
+      if (!this.nuevoArchivo.nombre_archivo) {
+        console.log('entro a guardar ');
+        this.nuevoArchivo.archivo = file.name.split('.')[0];
+      }
+
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Archivo seleccionado',
+        detail: file.name,
+      });
+    }
+  }
+
+  onArchivoRemove() {
+    console.log('entro a remover archivos ');
+    this.archivoSeleccionado = null;
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Archivo removido',
+      detail: 'Debe seleccionar un archivo',
+    });
+  }
+
+  nuevoArchivoDialog: boolean = false;
+  archivoSeleccionado: File | null = null;
+  submitted: boolean = false;
+
+  nuevoArchivo: Partial<Archivos_municipio> = {
+    estatus_archivo: 'A',
+    tipo_archivo: '',
+    categoria_archivo: '',
+    palabras_clave: '',
+    subcategoria_archivo: '',
+    archivo: '',
+  };
+
+  openNew() {
+    this.nuevoArchivo = {
+      estatus_archivo: 'A',
+      fecha_archivo: new Date().toISOString().split('T')[0],
+      tipo_archivo: '',
+      categoria_archivo: '',
+      palabras_clave: '',
+      subcategoria_archivo: '',
+      archivo: '',
+    };
+    this.archivoSeleccionado = null;
+    this.submitted = false;
+    this.nuevoArchivoDialog = true;
+  }
+
+  guardarNuevoArchivo() {
+    if (!this.nuevoArchivo.nombre_archivo || !this.nuevoArchivo.id_municipio) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos obligatorios',
+        detail: 'Debe ingresar nombre y municipio',
+      });
+      return;
+    }
+    console.log('aaaa ', this.nuevoArchivo);
+
+    this.apiArchivos_municipio.createArchivo(this.nuevoArchivo).subscribe({
+      next: (resp) => {
+        this.Archivos_municipio.push(resp.data);
+        this.cargarArchivos();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Archivo creado correctamente',
+        });
+        this.nuevoArchivoDialog = false;
+      },
+      error: (err) => {
+        console.error('Error al crear archivo:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo crear el archivo',
+        });
+      },
+    });
+  }
+
+  editArchivo(archivo: Archivos_municipio) {
+    // Editar archivo seleccionado
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Editar',
+      detail: `Editando: ${archivo.nombre_archivo}`,
+    });
+    // Aquí implementarías la lógica para editar
+    // Por ejemplo: abrir un diálogo con los datos del archivo
+  }
+
+  deleteArchivo(archivo: Archivos_municipio) {
+    this.confirmationService.confirm({
+      message: `¿Está seguro de eliminar el archivo "${archivo.nombre_archivo}"?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => {
+        // ✅ Una sola eliminación
+        this.apiArchivos_municipio.deleteArchivo(archivo.id_archivo).subscribe({
+          next: () => {
+            this.Archivos_municipio = this.Archivos_municipio.filter(
+              (a) => a.id_archivo !== archivo.id_archivo
+            );
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: 'Archivo eliminado correctamente',
+              life: 3000,
+            });
+          },
+          error: (err) => {
+            console.error('Error al eliminar:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.message || 'No se pudo eliminar el archivo',
+              life: 5000,
+            });
+          },
+        });
+      },
+      reject: () => {
+        // ✅ Feedback al cancelar
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'No se eliminó el archivo',
+          life: 2000,
+        });
+      },
+    });
+  }
+
+  downloadArchivo(archivo: Archivos_municipio) {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Descargando',
+      detail: `Descargando: ${archivo.nombre_archivo}`,
+    });
+
+    // El campo 'archivo' contiene el nombre del archivo, no base64
+    // Asumiendo que tienes una ruta base para los archivos
+    if (archivo.archivo) {
+      // Opción 1: Si tienes una URL base para descargar archivos
+      const baseUrl = 'tu-url-base/archivos/'; // Ajusta según tu API
+      window.open(baseUrl + archivo.archivo, '_blank');
+
+      // Opción 2: Si necesitas hacer una petición HTTP para obtener el archivo
+      // this.apiArchivos_municipio.downloadFile(archivo.id_archivo).subscribe({
+      //   next: (blob) => {
+      //     const url = window.URL.createObjectURL(blob);
+      //     const link = document.createElement('a');
+      //     link.href = url;
+      //     link.download = archivo.nombre_archivo;
+      //     link.click();
+      //     window.URL.revokeObjectURL(url);
+      //   },
+      //   error: (err) => {
+      //     console.error('Error al descargar:', err);
+      //     this.messageService.add({
+      //       severity: 'error',
+      //       summary: 'Error',
+      //       detail: 'No se pudo descargar el archivo'
+      //     });
+      //   }
+      // });
+    }
+  }
+
+  deleteSelectedArchivos() {
+    this.confirmationService.confirm({
+      message: `¿Está seguro de eliminar ${this.selectedArchivos.length} archivo(s) seleccionado(s)?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
+      accept: () => {
+        const idsToDelete = this.selectedArchivos.map((a) => a.id_archivo);
+        this.Archivos_municipio = this.Archivos_municipio.filter(
+          (a) => !idsToDelete.includes(a.id_archivo)
+        );
+        this.selectedArchivos = [];
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Eliminados',
+          detail: 'Archivos eliminados correctamente',
+        });
+      },
+    });
+  }
+
+  exportCSV(event: any) {
+    // La tabla exportará automáticamente
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Exportando',
+      detail: 'Generando archivo CSV...',
+    });
+  }
+
+  clear(table: Table) {
+    table.clear();
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Filtros Limpiados',
+      detail: 'Se han eliminado todos los filtros',
+    });
+  }
+
+  getSeverity(estatus: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' {
+    switch (estatus) {
+      case 'A':
+      case 'Activo':
+        return 'success';
+      case 'I':
+      case 'Inactivo':
+        return 'danger';
+      case 'Pendiente':
+        return 'warn';
+      case 'Archivado':
+        return 'info';
+      default:
+        return 'secondary';
+    }
+  }
+
+  getFileIcon(tipo: string): string {
+    switch (tipo) {
+      case 'PDF':
+        return 'text-red-500';
+      case 'Excel':
+        return 'text-green-500';
+      case 'Word':
+        return 'text-blue-500';
+      case 'Imagen':
+        return 'text-purple-500';
+      case 'ZIP':
+        return 'text-yellow-500';
+      default:
+        return 'text-gray-500';
+    }
+  }
+
+  customSort(event: any) {
+    event.data.sort((data1: any, data2: any) => {
+      const value1 = data1[event.field];
+      const value2 = data2[event.field];
+      let result = null;
+
+      if (value1 == null && value2 != null) {
+        result = -1;
+      } else if (value1 != null && value2 == null) {
+        result = 1;
+      } else if (value1 == null && value2 == null) {
+        result = 0;
+      } else if (typeof value1 === 'string' && typeof value2 === 'string') {
+        result = value1.localeCompare(value2);
+      } else {
+        result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+      }
+
+      return event.order * result;
+    });
+  }
+}

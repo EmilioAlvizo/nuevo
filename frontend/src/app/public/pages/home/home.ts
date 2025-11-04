@@ -1,8 +1,8 @@
 //nuevo/frontend/src/app/public/pages/home/home.ts
 
 import { Component, OnInit } from '@angular/core';
-import { ApiMunicipio, Municipio } from '../../../services/municipios';
-import { ApiTestimonios, Testimonios } from '../../../services/testimonios';
+import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
+import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
 import { CommonModule } from '@angular/common';
 
 @Component({

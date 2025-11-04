@@ -1,0 +1,83 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <i class="fas fa-lock"></i>
+      <h2>Iniciar Sesión</h2>
+      <p>Ingresa tus credenciales para continuar</p>
+    </div>
+
+    <!-- Alerta de error -->
+    @if (error()) {
+      <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle"></i> {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">
+          <i class="fas fa-envelope"></i> Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="correo@ejemplo.com"
+          autocomplete="email"
+          [class.is-invalid]="emailControl?.invalid && emailControl?.touched" />
+
+        @if (emailControl?.invalid && emailControl?.touched) {
+          <div class="invalid-feedback">
+            @if (emailControl?.errors?.['required']) {
+              El email es obligatorio
+            }
+            @if (emailControl?.errors?.['email']) {
+              Email inválido
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">
+          <i class="fas fa-key"></i> Contraseña
+        </label>
+        <input
+          type="password"
+          id="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched" />
+
+        @if (passwordControl?.invalid && passwordControl?.touched) {
+          <div class="invalid-feedback">
+            @if (passwordControl?.errors?.['required']) {
+              La contraseña es obligatoria
+            }
+            @if (passwordControl?.errors?.['minlength']) {
+              Mínimo 6 caracteres
+            }
+          </div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="loading() || loginForm.invalid">
+        @if (loading()) {
+          <i class="fas fa-spinner fa-spin"></i> Ingresando...
+        } @else {
+          <i class="fas fa-sign-in-alt"></i> Ingresar
+        }
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+    </div>
+  </div>
+</div>

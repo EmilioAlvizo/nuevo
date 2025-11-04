@@ -1,0 +1,359 @@
+<!-- nuevo/frontend/src/app/admin/components/tabla-a/tabla-a.html -->
+<div class="container-fluid py-4">
+  <div class="card shadow-sm border-0">
+    <!-- Toolbar -->
+    <p-toolbar class="mb-0 border-bottom">
+      <ng-template #start>
+        <div class="d-flex gap-2">
+          <p-button
+            label="Nuevo Archivo"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (onClick)="openNew()"
+          />
+          <p-button
+            severity="danger"
+            label="Eliminar"
+            icon="pi pi-trash"
+            [outlined]="true"
+            (onClick)="deleteSelectedArchivos()"
+            [disabled]="!hasSelectedArchivos()"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <p-button
+          label="Exportar CSV"
+          icon="pi pi-upload"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="exportCSV()"
+        />
+      </ng-template>
+    </p-toolbar>
+
+    <!-- Form Component -->
+    <app-nuevo-archivo-form
+      [(visible)]="showDialog"
+      [municipios]="municipios()"
+      [isEditMode]="isEditMode()"
+      [archivoToEdit]="archivoToEdit()"
+      (save)="handleSave($event)"
+    />
+
+    <!-- Tabla con LazyLoad -->
+    <div class="card-body p-0">
+      <p-table
+        #dt
+        [value]="archivos()"
+        [lazy]="true"
+        (onLazyLoad)="loadArchivos($event)"
+        [paginator]="true"
+        [rows]="rows()"
+        [totalRecords]="totalRecords()"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [loading]="loading()"
+        [globalFilterFields]="[
+          'nombre_archivo',
+          'nombre_municipio',
+          'tipo_archivo',
+          'categoria_archivo',
+          'palabras_clave'
+        ]"
+        [(selection)]="selectedArchivos"
+        dataKey="id_archivo"
+        [rowHover]="true"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+        [showCurrentPageReport]="true"
+        styleClass="p-datatable-sm p-datatable-striped"
+        [scrollable]="true"
+        scrollHeight="600px"
+      >
+        <ng-template #caption>
+          <div
+            class="d-flex align-items-center justify-content-between p-3 bg-light"
+          >
+            <h5 class="m-0 fw-bold">
+              <i class="pi pi-folder-open me-2 text-primary"></i>
+              Gestión de Archivos Municipales
+            </h5>
+            <div class="d-flex gap-2">
+              <p-button
+                label="Limpiar"
+                [outlined]="true"
+                icon="pi pi-filter-slash"
+                size="small"
+                (click)="clearFilters()"
+              />
+              <p-iconfield iconPosition="left">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input
+                  pInputText
+                  type="text"
+                  (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                  placeholder="Buscar en todos los campos..."
+                  class="form-control form-control-sm"
+                  style="min-width: 300px"
+                />
+              </p-iconfield>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #header>
+          <tr class="bg-primary text-white">
+            <!-- ✅ Checkbox fijo -->
+            <th pFrozenColumn [frozen]="true" style="width: 3rem">
+              <p-tableHeaderCheckbox />
+            </th>
+
+            <!-- ✅ Columna rozen -->
+            <th
+              pFrozenColumn
+              [frozen]="true"
+              pSortableColumn="nombre_archivo"
+              style="min-width: 18rem"
+            >
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Nombre del Archivo</span>
+                <div class="d-flex align-items-center gap-2">
+                  <p-sortIcon field="nombre_archivo" />
+                  <p-columnFilter
+                    type="text"
+                    field="nombre_archivo"
+                    display="menu"
+                  />
+                </div>
+              </div>
+            </th>
+
+            <th pSortableColumn="nombre_municipio" style="min-width: 12rem">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Municipio</span>
+                <div class="d-flex align-items-center gap-2">
+                  <p-sortIcon field="nombre_municipio" />
+                  <p-columnFilter
+                    type="text"
+                    field="nombre_municipio"
+                    display="menu"
+                  />
+                </div>
+              </div>
+            </th>
+
+            <th pSortableColumn="tipo_archivo" style="min-width: 10rem">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Tipo</span>
+                <div class="d-flex align-items-center gap-2">
+                  <p-sortIcon field="tipo_archivo" />
+                  <p-columnFilter
+                    field="tipo_archivo"
+                    matchMode="equals"
+                    display="menu"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <!-- ✅ Cambiado a modelo reactivo con signal -->
+                      <p-select
+                        [options]="tiposArchivo()"
+                        (onChange)="filter($event.value)"
+                        placeholder="Todos"
+                        class="w-100"
+                      />
+                    </ng-template>
+                  </p-columnFilter>
+                </div>
+              </div>
+            </th>
+
+            <th pSortableColumn="categoria_archivo" style="min-width: 11rem">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Categoría</span>
+                <div class="d-flex align-items-center gap-2">
+                  <p-sortIcon field="categoria_archivo" />
+                  <p-columnFilter
+                    field="categoria_archivo"
+                    matchMode="equals"
+                    display="menu"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <p-select
+                        [options]="categorias()"
+                        (onChange)="filter($event.value)"
+                        placeholder="Todas"
+                        class="w-100"
+                      />
+                    </ng-template>
+                  </p-columnFilter>
+                </div>
+              </div>
+            </th>
+
+            <th pSortableColumn="subcategoria_archivo" style="min-width: 11rem">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Subcategoría</span>
+                <p-sortIcon field="subcategoria_archivo" />
+              </div>
+            </th>
+
+            <th pSortableColumn="fecha_archivo" style="min-width: 10rem">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Fecha</span>
+                <p-sortIcon field="fecha_archivo" />
+              </div>
+            </th>
+
+            <th pSortableColumn="estatus_archivo" style="min-width: 9rem">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="fw-bold">Estatus</span>
+                <div class="d-flex align-items-center gap-2">
+                  <p-sortIcon field="estatus_archivo" />
+                  <p-columnFilter
+                    field="estatus_archivo"
+                    matchMode="equals"
+                    display="menu"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <p-select
+                        [options]="estatusOptions()"
+                        (onChange)="filter($event.value)"
+                        placeholder="Todos"
+                        optionLabel="label"
+                        optionValue="value"
+                        class="w-100"
+                      />
+                    </ng-template>
+                  </p-columnFilter>
+                </div>
+              </div>
+            </th>
+
+            <th style="min-width: 15rem" class="text-center">
+              <span class="fw-bold">Acciones</span>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-archivo>
+          <tr>
+            <td pFrozenColumn>
+              <p-tableCheckbox [value]="archivo" />
+            </td>
+
+            <!-- ✅ Columna rozen -->
+            <td pFrozenColumn [frozen]="true">
+              <div class="d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <i class="pi pi-file fs-5 text-secondary"></i>
+                  <span class="fw-semibold">{{ archivo.nombre_archivo }}</span>
+                </div>
+                @if (archivo.palabras_clave) {
+                  <small class="text-muted">
+                    <i class="pi pi-tags me-1"></i>
+                    {{ archivo.palabras_clave }}
+                  </small>
+                }
+              </div>
+            </td>
+
+            <td>
+              <span class="badge bg-secondary">{{
+                archivo.nombre_municipio
+              }}</span>
+            </td>
+
+            <td>
+              <p-tag [value]="archivo.tipo_archivo" severity="info" />
+            </td>
+
+            <td>
+              <span class="text-muted">{{ archivo.categoria_archivo }}</span>
+            </td>
+
+            <td>
+              <span class="text-muted fst-italic">{{
+                archivo.subcategoria_archivo || '-'
+              }}</span>
+            </td>
+
+            <td>
+              <span class="badge bg-light text-dark">{{
+                archivo.fecha_archivo | date : 'dd/MM/yyyy'
+              }}</span>
+            </td>
+
+            <td>
+              <p-tag
+                [value]="archivo.estatus_archivo === 'A' ? 'Activo' : 'Inactivo'"
+                [severity]="getSeverity(archivo.estatus_archivo)"
+              />
+            </td>
+
+            <td>
+              <div class="d-flex justify-content-center gap-1">
+                <p-button
+                  icon="pi pi-download"
+                  [rounded]="true"
+                  [outlined]="true"
+                  severity="success"
+                  size="small"
+                  pTooltip="Descargar archivo"
+                  tooltipPosition="top"
+                  (click)="downloadArchivo(archivo)"
+                />
+                <p-button
+                  icon="pi pi-pencil"
+                  [rounded]="true"
+                  [outlined]="true"
+                  severity="info"
+                  size="small"
+                  pTooltip="Editar archivo"
+                  tooltipPosition="top"
+                  (click)="openEdit(archivo)"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [rounded]="true"
+                  [outlined]="true"
+                  size="small"
+                  pTooltip="Eliminar archivo"
+                  tooltipPosition="top"
+                  (click)="deleteArchivo(archivo)"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="9" class="text-center py-5">
+              <div
+                class="d-flex flex-column align-items-center justify-content-center"
+              >
+                <i class="pi pi-inbox display-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No se encontraron archivos</h5>
+                <p class="text-muted">
+                  Intente cambiar los filtros o agregue un nuevo archivo
+                </p>
+                <p-button
+                  label="Agregar Archivo"
+                  icon="pi pi-plus"
+                  (onClick)="openNew()"
+                  class="mt-2"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Componentes globales -->
+<p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" />
+<p-toast position="top-right" [life]="3000" />

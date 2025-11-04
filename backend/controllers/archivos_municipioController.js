@@ -1,9 +1,15 @@
 //nuevo/backend/controllers/archivos_municipioController.js
+const path = require("path");
+const fs = require("fs");
 const Archivos_municipioModel = require("../models/archivos_municipioModel");
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "archivos_municipio"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_archivo"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
+const BASE_PATH = path.join(
+  __dirname,
+  "../../frontend/public/archivos_municipio"
+);
 
 class Archivos_municipioController {
   // GET - Obtener todos los registros
@@ -13,7 +19,7 @@ class Archivos_municipioController {
       res.status(200).json({
         success: true,
         data: municipio,
-        count: municipio.length,
+        total: municipio.length,
       });
     } catch (error) {
       res.status(500).json({
@@ -27,28 +33,83 @@ class Archivos_municipioController {
   static async getFiltrados(req, res) {
     try {
       const {
-        municipios, // "1,2,3" - IDs separados por coma
-        busqueda, // Término de búsqueda
-        categoria, // Categoría del archivo
-        palabra_clave, // Palabra clave específica
-        tipo, // Tipo de archivo
-        ordenar, // "AZ", "ZA", "masReciente", "masAntiguo"
-        limite, // Límite de resultados
-        pagina, // Página actual
-      } = req.query;
+        // Paginación
+        limite,
+        pagina,
 
+        // Búsqueda global
+        busqueda,
+
+        // Filtros de columna con matchMode
+        nombre_archivo,
+        nombre_archivo_matchMode,
+
+        subcategoria,
+        subcategoria_matchMode,
+
+        palabras_clave,
+        palabras_clave_matchMode,
+
+        fecha_archivo,
+        fecha_archivo_matchMode,
+
+        fecha_modificacion,
+        fecha_modificacion_matchMode,
+
+        // Filtros multiselect (separados por coma)
+        municipios,
+        tipos,
+        categorias,
+        estatus,
+
+        // Ordenamiento
+        sortField,
+        sortOrder,
+      } = req.query;
+      
       // Procesar parámetros
       const params = {
-        municipios: municipios
-          ? municipios.split(",").map((id) => parseInt(id))
-          : [],
-        busqueda: busqueda || null,
-        categoria: categoria || null,
-        palabra_clave: palabra_clave || null,
-        tipo: tipo || null,
-        ordenar: ordenar || "masReciente",
+        // Paginación
         limite: parseInt(limite) || 50,
         pagina: parseInt(pagina) || 1,
+
+        // Búsqueda global
+        busqueda: busqueda || null,
+
+        // Filtros simples con matchMode
+        nombre_archivo: nombre_archivo || null,
+        nombre_archivo_matchMode: nombre_archivo_matchMode || "contains",
+
+        subcategoria: subcategoria || null,
+        subcategoria_matchMode: subcategoria_matchMode || "contains",
+
+        palabras_clave: palabras_clave || null,
+        palabras_clave_matchMode: palabras_clave_matchMode || "contains",
+
+        // Filtros de fecha con matchMode
+        fecha_archivo: fecha_archivo || null,
+        fecha_archivo_matchMode: fecha_archivo_matchMode || "dateIs",
+
+        fecha_modificacion: fecha_modificacion || null,
+        fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs",
+
+        // Filtros multiselect - convertir strings separadas por coma a arrays
+        municipios: municipios
+          ? Archivos_municipioController.parseArrayParam(municipios, "int")
+          : [],
+        tipos: tipos
+          ? Archivos_municipioController.parseArrayParam(tipos, "string")
+          : [],
+        categorias: categorias
+          ? Archivos_municipioController.parseArrayParam(categorias, "string")
+          : [],
+        estatus: estatus
+          ? Archivos_municipioController.parseArrayParam(estatus, "string")
+          : [],
+
+        // Ordenamiento
+        sortField: sortField || null,
+        sortOrder: sortOrder ? parseInt(sortOrder) : null,
       };
 
       const resultado = await Archivos_municipioModel.getArchivosFiltrados(
@@ -72,6 +133,25 @@ class Archivos_municipioController {
     }
   }
 
+  // 🛠️ Utilidad para parsear parámetros de array
+  static parseArrayParam(param, type = "string") {
+    console.log("func   ", param);
+    if (!param) return [];
+
+    // Si ya es un array, devolverlo
+    if (Array.isArray(param)) {
+      return type === "int" ? param.map(Number) : param;
+    }
+
+    // Si es un string, dividirlo por comas
+    const arr = param
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return type === "int" ? arr.map(Number) : arr;
+  }
+
   // ✅ NUEVO - GET conteos por municipio
   static async getConteosMunicipio(req, res) {
     try {
@@ -79,7 +159,7 @@ class Archivos_municipioController {
       res.status(200).json({
         success: true,
         data: conteos,
-        count: conteos.length,
+        total: conteos.length,
       });
     } catch (error) {
       console.error("Error en getConteosMunicipio:", error);
@@ -120,15 +200,23 @@ class Archivos_municipioController {
   }
 
   // POST - Crear un nuevo registro
-  static async create(req, res) {
+  /* static async create(req, res) {
     try {
       const data = req.body;
+      //const file = req.file;
+      console.log("📥 Datos recibidos:", data);
+      //console.log("📎 Archivo recibido:", file?.filename);
 
       if (!data || Object.keys(data).length === 0) {
         return res.status(400).json({
           success: false,
           message: "Datos inválidos o vacíos",
         });
+      }
+
+      // Si hay archivo, agregar el nombre al campo `archivo`
+      if (file) {
+        data.archivo = file.filename;
       }
 
       const newMunicipio = await Archivos_municipioModel.create(
@@ -144,6 +232,73 @@ class Archivos_municipioController {
       res.status(500).json({
         success: false,
         message: error.message,
+      });
+    }
+  } */
+  static async create(req, res) {
+    try {
+      const {
+        nombre_archivo,
+        id_municipio,
+        tipo_archivo,
+        categoria_archivo,
+        estatus_archivo,
+      } = req.body;
+
+      // 1️⃣ Crear el registro en DB
+      const nuevoArchivo = await Archivos_municipioModel.create(
+        "archivos_municipio",
+        {
+          nombre_archivo,
+          id_municipio: Number(id_municipio),
+          tipo_archivo,
+          categoria_archivo,
+          estatus_archivo: estatus_archivo || "A",
+        }
+      );
+
+      const id = nuevoArchivo.id_archivo;
+
+      // 2️⃣ Crear carpetas definitivas
+      const baseFolder = path.join(
+        __dirname,
+        "../../frontend/public/archivos_municipio",
+        id.toString()
+      );
+      const archivosFolder = path.join(baseFolder, "archivos");
+      fs.mkdirSync(archivosFolder, { recursive: true });
+
+      // 3️⃣ Mover archivos subidos desde "temp" a la carpeta con ID
+      let archivoNombre = null;
+      if (req.files?.archivo) {
+        archivoNombre = req.files.archivo[0].filename;
+        const tempPath = path.join(
+          __dirname,
+          "../../frontend/public/archivos_municipio/temp",
+          archivoNombre
+        );
+        const newPath = path.join(archivosFolder, archivoNombre);
+        fs.renameSync(tempPath, newPath);
+      }
+
+      // 4️⃣ Actualizar el registro con el nombre del archivo
+      await Archivos_municipioModel.update(
+        "archivos_municipio",
+        id,
+        { archivo: archivoNombre },
+        "id_archivo"
+      );
+
+      res.json({
+        success: true,
+        data: { id, ...nuevoArchivo, archivo: archivoNombre },
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        success: false,
+        message: "Error al crear archivo",
+        error: err.message,
       });
     }
   }
@@ -181,7 +336,7 @@ class Archivos_municipioController {
   }
 
   // DELETE - Eliminar un registro
-  static async delete(req, res) {
+  /* static async delete(req, res) {
     try {
       const { id } = req.params;
       const result = await Archivos_municipioModel.delete(
@@ -200,6 +355,26 @@ class Archivos_municipioController {
         success: false,
         message: error.message,
       });
+    }
+  } */
+  static async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const deleted = await Archivos_municipioModel.delete(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
+
+      const dir = path.join(BASE_PATH, id.toString());
+      console.log("direc ", dir);
+      if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+
+      res
+        .status(200)
+        .json({ success: true, message: "archivo_municipio eliminado" });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
     }
   }
 }

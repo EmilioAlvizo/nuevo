@@ -1,12 +1,15 @@
-// esto es para autenticación y autorización con registro y login
+// nuevo/backend/config/jwt.js
 const jwt = require('jsonwebtoken');
 
-// Clave secreta (en producción usa variables de entorno)
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_clave_super_secreta_cambiala_en_produccion';
-const JWT_EXPIRES_IN = '15m'; // Token expira en 24 horas
+// Claves secretas (en producción usa variables de entorno diferentes)
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'tu_clave_access_token_super_secreta';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_clave_refresh_token_super_secreta';
 
-// Generar token
-const generateToken = (user) => {
+const ACCESS_TOKEN_EXPIRES_IN = '30s'; // 15 minutos
+const REFRESH_TOKEN_EXPIRES_IN = '7d'; // 7 días
+
+// Generar Access Token
+const generateAccessToken = (user) => {
   const payload = {
     id: user.id,
     email: user.email,
@@ -14,21 +17,53 @@ const generateToken = (user) => {
     rol: user.rol
   };
 
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
 };
 
-// Verificar token
-const verifyToken = (token) => {
+// Generar Refresh Token
+const generateRefreshToken = (user) => {
+  const payload = {
+    id: user.id,
+    email: user.email
+  };
+
+  return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
+};
+
+// Verificar Access Token
+const verifyAccessToken = (token) => {
   try {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, JWT_ACCESS_SECRET);
   } catch (error) {
     return null;
   }
 };
 
+// Verificar Refresh Token
+const verifyRefreshToken = (token) => {
+  try {
+    return jwt.verify(token, JWT_REFRESH_SECRET);
+  } catch (error) {
+    return null;
+  }
+};
+
+// Generar ambos tokens
+const generateTokens = (user) => {
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+  
+  return { accessToken, refreshToken };
+};
+
 module.exports = {
-  JWT_SECRET,
-  JWT_EXPIRES_IN,
-  generateToken,
-  verifyToken
+  JWT_ACCESS_SECRET,
+  JWT_REFRESH_SECRET,
+  ACCESS_TOKEN_EXPIRES_IN,
+  REFRESH_TOKEN_EXPIRES_IN,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+  generateTokens
 };

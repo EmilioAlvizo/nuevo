@@ -10,5 +10,5 @@
   },
   "include": [
     "src/**/*.ts"
-  ]
+, "src/app/admin/components/p/tabla-a2.0ts", "src/app/admin/components/p/tabla-a-chat.0ts", "src/app/admin/components/p/original.0ts"  ]
 }
