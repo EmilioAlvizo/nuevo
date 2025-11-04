@@ -1,5 +1,7 @@
+// nuevo/frontend/src/app/admin/pages/revista-voces-admin/revista-voces-admin.ts
 import { Component, OnInit, ViewChild, ElementRef, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
-import { ApiRevistas, Revistas } from '../../../services/revistas';
+import { ApiRevistas, Revistas } from '../../../core/services/revistas';
+import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -7,12 +9,53 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-revista-voces-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TablaGenerica],
   templateUrl: './revista-voces-admin.html',
   styleUrls: ['./revista-voces-admin.css']
 })
-export class RevistaVocesAdmin implements OnInit, AfterViewInit {
-  @ViewChild('modalRevista') modalElement!: ElementRef;
+export class RevistaVocesAdmin {
+//-------------------------------------------------
+  
+  revistasService: ApiRevistas;
+  columns: ColumnConfig[] = [
+    { field: 'id_revista', header: 'Id', sortable: true, filterable: true, tooltip: false},
+    {
+    field: 'portada',
+    header: 'Portada',
+    width: '120px',
+    template: (row) => {
+      const imagePath = `/revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
+      return `<img src="${imagePath}" alt="Portada" width="60" height="80" class="w-24 rounded">`;
+    }, tooltip: false
+  },
+    { field: 'volumen', header: 'Volumen', sortable: true, filterable: true, tooltip: false},
+    { field: 'numero_year', header: 'Número de año', sortable: true, filterable: true, filterType: 'date',tooltip: false },
+    { field: 'descripcion', header: 'Descripción', sortable: true, filterable: true, filterType: 'select', width: '500px', tooltip: true, options: [
+      { label: 'Ciencia', value: 'Ciencia' },
+      { label: 'Historia', value: 'Historia' },
+    ] },
+  ];
+
+  constructor(private apiRevistas: ApiRevistas) {
+    this.revistasService = apiRevistas;
+  }
+
+  editar(revista: any) {
+    console.log('Editar revista:', revista);
+  }
+
+  eliminar(revista: any) {
+    console.log('Eliminar revista:', revista);
+  }
+
+  ver(revista: any) {
+    console.log('Ver revista:', revista);
+  }
+  //---------------------------------------------------
+
+  
+  //export class RevistaVocesAdmin implements OnInit, AfterViewInit {
+  /* @ViewChild('modalRevista') modalElement!: ElementRef;
 
   revistas: Revistas[] = [];
   nuevaRevista: any = this.vaciaRevista();
@@ -224,6 +267,10 @@ export class RevistaVocesAdmin implements OnInit, AfterViewInit {
     this.editando = false;
     this.portadaPreview = null;
     this.archivoNombre = null;
-  }
+  } */
+
+
+
+  
 
 }

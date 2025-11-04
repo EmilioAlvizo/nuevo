@@ -1,7 +1,7 @@
 import { Component, LOCALE_ID, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, registerLocaleData } from '@angular/common';
-import { ApiRevistas, Revistas } from '../../../services/revistas';
+import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { Flipbook } from '../../components/flipbook/flipbook';
 import localeEs from '@angular/common/locales/es';
 

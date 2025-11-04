@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiRevistas, Revistas } from '../../../services/revistas';
+import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Flipbook } from '../../components/flipbook/flipbook';

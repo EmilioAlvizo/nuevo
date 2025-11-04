@@ -41,6 +41,10 @@ export class ApiRevistas {
     return this.http.get<ApiResponse>(`${this.apiUrl}/revistas`,{});
   }
 
+  getFiltrados():Observable<ApiResponse> {
+    return this.http.get<ApiResponse>(`${this.apiUrl}/revistas`,{});
+  }
+
   crearRevista(formData: FormData) {
   return this.http.post<any>(`${this.apiUrl}/revistas`, formData);
   }

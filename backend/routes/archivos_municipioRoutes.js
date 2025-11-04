@@ -8,9 +8,9 @@ const Archivos_municipioController = require("../controllers/archivos_municipioC
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 const { createUploadMiddleware } = require("../middleware/uploadMiddleware");
 
-const uploadArchivos = createUploadMiddleware("archivos_municipio", [
+/* const uploadArchivos = createUploadMiddleware("archivos_municipio", [
   { name: "archivo", maxCount: 1 },
-])
+]) */
 
 // Rutas del API REST
 
@@ -27,7 +27,7 @@ router.get("/archivos_municipio", Archivos_municipioController.getAll);
 router.get("/archivos_municipio/:id", Archivos_municipioController.getById);
 
 // POST - Crear un nuevo registro
-router.post("/archivos_municipio", uploadArchivos, Archivos_municipioController.create);
+//router.post("/archivos_municipio", uploadArchivos, Archivos_municipioController.create);
 
 // PUT - Actualizar un registro
 router.put("/archivos_municipio/:id", Archivos_municipioController.update);
