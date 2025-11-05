@@ -1,150 +1,295 @@
-<!-- /nuevo/frontend/src/app/admin/components/fprm-revistas/form-revistas.html -->
+<!-- /nuevo/frontend/src/app/admin/components/form-revistas/form-revistas.html -->
 <p-dialog
-  header="{{ editando() ? 'Editar Revista' : 'Agregar Revista' }}"
-  [visible]="visible()"
-  (visibleChange)="visibleChange.emit($event)"
+  [header]="dialogTitle()"
+  [(visible)]="visible"
   [modal]="true"
-  [style]="{ width: '700px' }"
-  [draggable]="false"
-  [resizable]="false"
+  [style]="{ width: '800px' }"
+  [draggable]="true"
+  [resizable]="true"
+  [dismissableMask]="true"
+  (onHide)="handleDialogHide()"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
 >
-  <form [formGroup]="revistaForm" (ngSubmit)="guardar()" enctype="multipart/form-data">
-    <div class="p-fluid formgrid grid">
-      <!-- Volumen -->
-      <div class="field col-6">
-        <label for="volumen">Volumen</label>
-        <input
-          pInputText
-          id="volumen"
-          type="number"
-          formControlName="volumen"
-          placeholder="Ej. 12"
-        />
-        @if (f['volumen'].touched && f['volumen'].errors) {
-        <small class="p-error">
-          {{ f['volumen'].errors['required'] ? 'Campo requerido' : '' }}
-          {{ f['volumen'].errors['min'] ? 'Debe ser mayor a 0' : '' }} </small
-        >}
+  <div class="container-fluid">
+    <form [formGroup]="revistaForm">
+      <!-- Volumen y Número de año -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="volumen" class="form-label fw-semibold">
+            Volumen <span class="text-danger">*</span>
+          </label>
+          <input
+            type="number"
+            pInputText
+            id="volumen"
+            formControlName="volumen"
+            class="form-control"
+            placeholder="Ej: 12"
+            min="1"
+            [class.is-invalid]="isFieldInvalid('volumen')"
+          />
+          @if (isFieldInvalid('volumen')) {
+          <div class="invalid-feedback d-block">
+            @if (f['volumen'].errors?.['required']) { Campo requerido } @if
+            (f['volumen'].errors?.['min']) { Debe ser mayor a 0 }
+          </div>
+          } @else {
+          <div class="invisible">00</div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <label for="numero_year" class="form-label fw-semibold">
+            Número de año <span class="text-danger">*</span>
+          </label>
+          <input
+            type="number"
+            pInputText
+            id="numero_year"
+            formControlName="numero_year"
+            class="form-control"
+            placeholder="Ej: 2"
+            min="1"
+            [class.is-invalid]="isFieldInvalid('numero_year')"
+          />
+          @if (isFieldInvalid('numero_year')) {
+          <div class="invalid-feedback d-block">
+            @if (f['numero_year'].errors?.['required']) { Campo requerido } @if
+            (f['numero_year'].errors?.['min']) { Debe ser mayor a 0 }
+          </div>
+          } @else {
+          <div class="invisible">00</div>
+          }
+        </div>
       </div>
 
-      <!-- Número de año -->
-      <div class="field col-6">
-        <label for="numero_year">Número de año</label>
-        <input
-          pInputText
-          id="numero_year"
-          type="number"
-          formControlName="numero_year"
-          placeholder="Ej. 2"
-        />
-        @if (f['numero_year'].touched && f['numero_year'].errors) {
-        <small class="p-error">
-          {{ f['numero_year']?.errors?.['required'] ? 'Campo requerido' : '' }}
-          {{ f['numero_year']?.errors?.['min'] ? 'Debe ser mayor a 0' : '' }} </small
-        >}
-      </div>
+      <!-- Descripción y Fecha -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="estatus" class="form-label fw-semibold">
+            Estatus <span class="text-danger">*</span>
+          </label>
+          <p-select
+            [options]="estatusOptions()"
+            formControlName="estatus"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar estatus"
+            class="w-100"
+            [class.ng-invalid]="isFieldInvalid('estatus')"
+          >
+            <ng-template let-option #item>
+              <p-tag [value]="option.label" [severity]="getSeverity(option.value)" />
+            </ng-template>
+          </p-select>
+          @if (isFieldInvalid('estatus')) {
+          <small class="text-danger d-block mt-1">Campo requerido</small>
+          } @else {
+          <div class="invisible">00</div>
+          }
+        </div>
 
-      <!-- Descripción -->
-      <div class="field col-8">
-        <label for="descripcion">Descripción</label>
-        <textarea
-          pInputTextarea
-          id="descripcion"
-          formControlName="descripcion"
-          rows="3"
-          maxlength="250"
-          placeholder="Breve descripción..."
-        ></textarea>
-        @if (f['descripcion']?.touched && f['descripcion']?.errors) {
-        <small class="p-error">
-          {{ f['descripcion']?.errors?.['required'] ? 'Campo requerido' : '' }} </small
-        >}
-      </div>
-
-      <!-- Fecha -->
-      <div class="field col-4">
-        <label for="fecha">Fecha de publicación</label>
-        <input type="date" pInputText id="fecha" formControlName="fecha" />
-        @if (f['fecha'].touched && f['fecha'].errors) {
-        <small class="p-error"> Campo requerido </small>
-        }
-
-        
+        <div class="col-md-6">
+          <label for="fecha" class="form-label fw-semibold">
+            Fecha de publicación <span class="text-danger">*</span>
+          </label>
+          <p-datepicker
+            inputId="fecha"
+            formControlName="fecha"
+            dateFormat="yy-mm-dd"
+            placeholder="Seleccionar fecha"
+            [showIcon]="true"
+            iconDisplay="input"
+            fluid 
+            [class.ng-invalid]="isFieldInvalid('fecha')"
+            [invalid]="isFieldInvalid('fecha')"
+            [appendTo]="'body'"
+          />
+          @if (isFieldInvalid('fecha')) {
+          <small class="text-danger d-block mt-1">Campo requerido</small>
+          } @else {
+          <div class="invisible">00</div>
+          }
+        </div>
       </div>
 
       <!-- Portada -->
-      <div class="field col-6">
-        <label>Portada (imagen)</label>
-        <div class="p-mb-2">
-          <ng-container *ngIf="(editando && revista.portada && !portadaPreview) || portadaPreview">
-            <div *ngIf="!portadaPreview && editando">
-              <small class="text-muted">Actual:</small>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">
+            Portada (imagen) @if (!isEditMode()) { <span class="text-danger">*</span> }
+          </label>
+
+          <!-- Preview de portada actual (solo en edición) -->
+          @if (isEditMode() && revistaToEdit()?.portada && !portadaPreview()) {
+          <div class="alert alert-info py-2 mb-2">
+            <small class="text-muted">Portada actual:</small>
+            <div class="mt-2">
               <img
-                [src]="'/revistas/' + revista().id_revista + '/portada/' + revista().portada"
+                [src]="
+                  '/revistas/' + revistaToEdit().id_revista + '/portada/' + revistaToEdit().portada
+                "
                 alt="Portada actual"
-                class="preview-img"
+                class="img-thumbnail"
+                style="max-width: 200px; max-height: 200px; object-fit: cover"
               />
             </div>
-            <div *ngIf="portadaPreview">
-              <small class="text-success">Nueva seleccionada:</small>
-              <img [src]="portadaPreview" alt="Nueva portada" class="preview-img" />
+          </div>
+          }
+
+          <!-- Preview de nueva portada seleccionada -->
+          @if (portadaPreview()) {
+          <div class="alert alert-success py-2 mb-2">
+            <small class="text-success fw-semibold">
+              <i class="pi pi-check-circle me-1"></i>
+              Nueva portada seleccionada:
+            </small>
+            <div class="mt-2">
+              <img
+                [src]="portadaPreview()"
+                alt="Nueva portada"
+                class="img-thumbnail"
+                style="max-width: 200px; max-height: 200px; object-fit: cover"
+              />
             </div>
-          </ng-container>
+          </div>
+          }
+
+          <p-fileUpload
+            #portadaUploader
+            mode="basic"
+            name="portada"
+            [maxFileSize]="5000000"
+            chooseLabel="Seleccionar portada"
+            chooseIcon="pi pi-image"
+            [auto]="false"
+            (onSelect)="onPortadaSelect($event)"
+            (onClear)="onPortadaRemove()"
+            accept="image/*"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            class="w-100"
+          />
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle"></i>
+            Formatos: JPG, PNG, GIF (máx. 5MB)
+          </small>
+          @if (isFieldInvalid('portadaFile')) {
+          <small class="text-danger d-block mt-1">Debe seleccionar una portada</small>
+          }
         </div>
-        <input type="file" accept="image/*" (change)="onFileSelected($event, 'portada')" />
+
+        <div class="col-md-6">
+          <label for="descripcion" class="form-label fw-semibold">
+            Descripción <span class="text-danger">*</span>
+          </label>
+          <textarea
+            pInputTextarea
+            id="descripcion"
+            formControlName="descripcion"
+            class="form-control"
+            rows="3"
+            maxlength="250"
+            placeholder="Breve descripción de la revista..."
+            [class.is-invalid]="isFieldInvalid('descripcion')"
+          ></textarea>
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle"></i>
+            Máximo 250 caracteres
+          </small>
+          @if (isFieldInvalid('descripcion')) {
+          <small class="text-danger d-block mt-1">
+            @if (f['descripcion'].errors?.['required']) { Campo requerido } @if
+            (f['descripcion'].errors?.['maxlength']) { Excede el límite de 250 caracteres }
+          </small>
+          }
+        </div>
       </div>
 
-      <!-- Archivo -->
-      <div class="field col-6">
-        <label>Archivo (PDF)</label>
-        <div class="p-mb-2">
-          <ng-container *ngIf="(editando && revista.archivo && !archivoNombre) || archivoNombre">
-            <div *ngIf="!archivoNombre && editando">
-              <small class="text-muted">Archivo actual:</small>
+      <!-- Archivo PDF -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">
+            Archivo (PDF) @if (!isEditMode()) { <span class="text-danger">*</span> }
+          </label>
+
+          <!-- Archivo actual (solo en edición) -->
+          @if (isEditMode() && revistaToEdit()?.archivo && !archivoNombre()) {
+          <div class="alert alert-info py-2 mb-2">
+            <small class="text-muted">Archivo actual:</small>
+            <div class="mt-2">
               <a
-                [href]="'/revistas/' + revista().id_revista + '/archivo/' + revista().archivo"
+                [href]="
+                  '/revistas/' + revistaToEdit().id_revista + '/archivo/' + revistaToEdit().archivo
+                "
                 target="_blank"
-                class="p-button p-button-text p-button-sm"
-                >Ver PDF</a
+                class="btn btn-outline-primary btn-sm"
               >
+                <i class="pi pi-file-pdf me-2"></i>
+                Ver PDF actual
+              </a>
             </div>
-            <div *ngIf="archivoNombre">
-              <small class="text-success">Nuevo:</small>
-              <p-tag [value]="archivoNombre" severity="success"></p-tag>
-            </div>
-          </ng-container>
+          </div>
+          }
+
+          <!-- Nuevo archivo seleccionado -->
+          @if (archivoNombre()) {
+          <div class="alert alert-success py-2 mb-2">
+            <i class="pi pi-check-circle me-2"></i>
+            <strong>{{ archivoNombre() }}</strong>
+            @if (archivoSeleccionado()) {
+            <small class="ms-2">({{ formatFileSize(archivoSeleccionado()!.size) }})</small>
+            }
+          </div>
+          }
+
+          <p-fileUpload
+            #archivoUploader
+            mode="basic"
+            name="archivo"
+            [maxFileSize]="20000000"
+            chooseLabel="Seleccionar PDF"
+            chooseIcon="pi pi-file-pdf"
+            [auto]="false"
+            (onSelect)="onArchivoSelect($event)"
+            (onClear)="onArchivoRemove()"
+            accept="application/pdf"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            class="w-100"
+          />
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle"></i>
+            Solo archivos PDF (máx. 20MB)
+          </small>
+          @if (isFieldInvalid('archivoFile')) {
+          <small class="text-danger d-block mt-1">Debe seleccionar un archivo PDF</small>
+          }
         </div>
-        <input type="file" accept="application/pdf" (change)="onFileSelected($event, 'archivo')" />
       </div>
 
       <!-- Estatus -->
-      <div class="field col-6">
-        <label for="estatus">Estatus</label>
-        <p-autoComplete
-          inputId="estatus"
-          formControlName="estatus"
-          [suggestions]="estatuses"
-          (completeMethod)="filterEstatus($event)"
-          field="label"
-          dropdown
-          placeholder="Seleccione un estatus"
-          [forceSelection]="true"
-        />
-        <small class="p-error" *ngIf="f.estatus.touched && f.estatus.errors">
-          Campo requerido
-        </small>
-      </div>
-    </div>
+      <div class="row mb-3"></div>
+    </form>
+  </div>
 
-    <p-footer class="flex justify-end gap-2 mt-3">
-      <p-button label="Cerrar" icon="pi pi-times" severity="secondary" (onClick)="cerrarModal()" />
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
       <p-button
-        label="Guardar"
+        label="Cancelar"
+        icon="pi pi-times"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="handleCancel()"
+      />
+      <p-button
+        label="Guardar Revista"
         icon="pi pi-check"
         severity="success"
-        type="submit"
-        [disabled]="revistaForm.invalid"
+        (onClick)="handleSubmit()"
+        [disabled]="isSaving()"
+        [loading]="isSaving()"
       />
-    </p-footer>
-  </form>
+    </div>
+  </ng-template>
 </p-dialog>

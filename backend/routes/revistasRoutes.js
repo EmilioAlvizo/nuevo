@@ -11,11 +11,18 @@ const { crearUpload } = require('../middleware/uploadMiddleware');
 
 // Rutas del API REST
 
+// ✅ NUEVO - GET con filtros (DEBE IR ANTES de /:id)
+router.get("/revistas/filtrados", RevistasController.getFiltrados);
+
+// ✅ NUEVO - GET conteos por municipio
+//router.get("/revistas/conteos", RevistasController.getConteosMunicipio);
+
 // GET - Obtener todos los registros
 router.get("/revistas", RevistasController.getAll);
 
 // GET - Obtener un registro por ID
 router.get("/revistas/:id", RevistasController.getById);
+
 
 // Crear middleware específico para revistas
 const uploadRevistas = crearUpload('revistas', {

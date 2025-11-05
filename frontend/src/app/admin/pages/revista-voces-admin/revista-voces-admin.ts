@@ -3,6 +3,7 @@ import {
   Component,
   signal,
   WritableSignal,
+  inject,
   OnInit,
   ViewChild,
   ElementRef,
@@ -11,8 +12,11 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
 import { FormRevistas } from '../../components/form-revistas/form-revistas';
@@ -21,14 +25,20 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-revista-voces-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablaGenerica, DialogModule, FormRevistas],
+  imports: [CommonModule, FormsModule, TablaGenerica, DialogModule, FormRevistas, ToastModule, ConfirmDialogModule ],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './revista-voces-admin.html',
-  styleUrls: ['./revista-voces-admin.css'],
+  styleUrl: './revista-voces-admin.css',
 })
 export class RevistaVocesAdmin {
+
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+
   //-------------------------------------------------
   showDialog: WritableSignal<boolean> = signal(false);
   revistaToEdit: Revistas | null = null;
+  refrescarTabla = signal(0);
 
   revistasService: ApiRevistas;
   columns: ColumnConfig[] = [
@@ -81,14 +91,42 @@ export class RevistaVocesAdmin {
   }
 
   eliminar(revista: Revistas) {
-    console.log('Eliminar revista:', revista, '  ', revista.id_revista);
-    this.apiRevistas.eliminarRevista(revista.id_revista).subscribe({
-      next: (resp) => {
-        //console.error(resp);
+    this.confirmationService.confirm({
+      message: `¿Está seguro de eliminar el archivo "${revista.id_revista}"?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => {
+        this.apiRevistas.eliminarRevista(revista.id_revista).subscribe({
+          next: (resp) => {
+            //console.error(resp);
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: 'Elemento eliminado correctamente',
+              life: 3000,
+            });
+            this.refrescarTabla.update((v) => v + 1);
+          },
+          error: (err) => {
+            console.error(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.message || 'No se pudo eliminar el archivo',
+            });
+          },
+        });
       },
-      error: (err) => {
-        console.error(err);
-      },
+      reject: () =>
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'No se eliminó el archivo',
+        }),
     });
   }
 
@@ -146,12 +184,22 @@ export class RevistaVocesAdmin {
 
     request.subscribe({
       next: () => {
-        Swal.fire('Éxito', isEdit ? 'Revista actualizada' : 'Revista creada', 'success');
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: isEdit ? 'Revista actualizada' : 'Revista creada',
+          life: 3000,
+        });
         this.showDialog.set(false);
+        this.refrescarTabla.update((v) => v + 1);
       },
       error: (err) => {
         console.error(err);
-        Swal.fire('Error', 'No se pudo guardar la revista', 'error');
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo guardar la revista',
+        });
       },
     });
   }

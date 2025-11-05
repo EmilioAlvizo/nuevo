@@ -8,13 +8,19 @@
   (edit)="editar($event)"
   (remove)="eliminar($event)"
   (view)="ver($event)"
+  [refreshSignal]="refrescarTabla"
+  
 />
 
 <!-- Formulario de creación/edición -->
 <app-form-revistas
   [visible]="showDialog()"
-  [revista]="revistaToEdit || {}"
-  [editando]="!!revistaToEdit"
+  [revistaToEdit]="revistaToEdit"
+  [isEditMode]="!!revistaToEdit"
   (save)="guardarRevista($event)"
   (visibleChange)="showDialog.set($event)"
 ></app-form-revistas>
+
+<!-- mensajes -->
+<p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" />
+<p-toast />

@@ -37,25 +37,27 @@ export class ApiRevistas {
   private http = inject(HttpClient);
 
   //PETICIÓN GET
-  getRevistas():Observable<ApiResponse<Revistas>> {
+  getRevistas(): Observable<ApiResponse<Revistas>> {
     return this.http.get<ApiResponse<Revistas>>(this.apiUrl);
   }
 
-  getFiltrados():Observable<ApiResponse<Revistas>> {
+  getFiltrados(): Observable<ApiResponse<Revistas>> {
     return this.http.get<ApiResponse<Revistas>>(this.apiUrl);
   }
 
   crearRevista(formData: FormData) {
-  return this.http.post<any>(this.apiUrl, formData);
+    console.log('apiUrl: ', this.apiUrl);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+    return this.http.post<any>(this.apiUrl, formData);
   }
 
-  actualizarRevista(id: number, data: any){
-  return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+  actualizarRevista(id: number, data: any) {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, data);
   }
 
-
-  eliminarRevista(id: number): Observable<ApiResponse<Revistas>>{
+  eliminarRevista(id: number): Observable<ApiResponse<Revistas>> {
     return this.http.delete<ApiResponse<Revistas>>(`${this.apiUrl}/${id}`);
   }
-
 }

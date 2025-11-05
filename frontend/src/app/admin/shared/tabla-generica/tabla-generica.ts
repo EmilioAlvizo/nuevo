@@ -8,6 +8,9 @@ import {
   ViewChild,
   computed,
   inject,
+  WritableSignal,
+  effect,
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Table, TableLazyLoadEvent } from 'primeng/table';
@@ -65,6 +68,7 @@ export class TablaGenerica {
   title = input<string>('Tabla General');
   entityName = input<string>('registro');
   selectable = input<boolean>(true);
+  refreshSignal = input<WritableSignal<number> | null>(null);
 
   // Outputs
   add = output<void>();
@@ -81,6 +85,25 @@ export class TablaGenerica {
 
   @ViewChild('dt') dt!: Table;
 
+  constructor() {
+    // effect que escucha el valor de la señal del padre
+    effect(() => {
+      const sig = this.refreshSignal(); // obtengo la referencia a la signal pasada por input
+      if (!sig) return; // si no fue provista, salir
+
+      // leo el valor de la signal fuera de untracked => registra la dependencia
+      const current = sig(); // <- cuando el padre haga .update(), esto dispara el effect
+
+      // ahora hago la recarga dentro de untracked para evitar que los cambios internos (data/loading)
+      // vuelvan a disparar este mismo effect.
+      untracked(() => {
+        console.log('🔄 Recargando tabla por refreshSignal, valor:', current);
+        // puedes usar rows() para tamaño de página si lo deseas:
+        this.loadData({ first: 0, rows: this.rows() } as TableLazyLoadEvent);
+      });
+    });
+  }
+
   // Carga inicial
   loadData(event: TableLazyLoadEvent) {
     this.loading.set(true);
@@ -91,7 +114,7 @@ export class TablaGenerica {
       .subscribe({
         next: (resp: any) => {
           this.data.set(resp.data);
-          console.log(this.data());
+          //console.log(this.data());
           this.totalRecords.set(resp.total || 0);
           this.loading.set(false);
         },
@@ -105,8 +128,8 @@ export class TablaGenerica {
           });
         },
       });
-    console.log('datos ', this.data());
-    console.log('columnas ', this.columns());
+    //console.log('datos ', this.data());
+    //console.log('columnas ', this.columns());
   }
 
   private buildQueryParams(event: TableLazyLoadEvent) {

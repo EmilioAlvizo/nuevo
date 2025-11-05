@@ -81,7 +81,6 @@ app.use("/api", documentos_cendocRoutes);
 app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
-app.use("/api/auth", authRoutes);
 app.use("/api", revistasRoutes);
 app.use("/api", articulosRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
@@ -97,6 +96,7 @@ app.use((req, res) => {
 // Manejo global de errores
 app.use((err, req, res, next) => {
   console.error('💥 Error en el servidor:', err.stack);
+  console.error('req:', req.stack);
   res.status(500).json({
     success: false,
     message: "Error interno del servidor",
