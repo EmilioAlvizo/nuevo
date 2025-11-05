@@ -7,24 +7,12 @@
 
   <div class="card-stack-container">
     <div *ngFor="let revista of revistas" class="card-stack" [style.--cards]="4" (click)="abrirRevista(revista)">
-   
-
-
-<div class="card-layer with-image" [style.background-image]="'url(/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
+      <div class="card-layer with-image" [style.background-image]="'url(http://localhost:3000/public/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
         <h2>Volumen {{ revista.volumen }}</h2>
         <p>{{ revista.fecha | date: 'MMMM y' }} - 4 artículos</p>
       </div>
-
       <div class="card-layer" *ngFor="let i of [].constructor(3)"></div>
     </div>
   </div>
 </div>
-
-
-
-<!-- <app-flipbook [src]="'flipbook/revista.pdf'" [pageWidth]="900"></app-flipbook>
-
-<p> @for (r of revistas; track r.id_revista) {
-  {{ r.volumen }}
-} </p> -->
 

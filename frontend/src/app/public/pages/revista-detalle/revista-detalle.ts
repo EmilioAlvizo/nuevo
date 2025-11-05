@@ -16,6 +16,7 @@ registerLocaleData(localeEs);
   styleUrls: ['./revista-detalle.css'],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }] 
 })
+
 export class RevistaDetalle implements OnInit {
 
   revista?: Revistas;
@@ -41,13 +42,12 @@ export class RevistaDetalle implements OnInit {
   }
 
   descargarPDF(): void {
-  if (this.revista?.archivo && this.revista?.id_revista) {
-    const ruta = `/revistas_archivos/${this.revista.id_revista}/${this.revista.archivo}`;
-    window.open(ruta, '_blank');
-  } else {
-    console.error('Archivo o ID de revista no definidos');
+    if (this.revista?.archivo && this.revista?.id_revista) {
+      const ruta = `http://localhost:3000/public/revistas/${this.revista.id_revista}/archivo/${this.revista.archivo}`;
+      window.open(ruta, '_blank');
+    } else {
+      console.error('Archivo o ID de revista no definidos');
+    }
   }
-}
-
 
 }

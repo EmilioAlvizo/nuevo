@@ -47,10 +47,8 @@ app.use(bodyParser.json()); // Parsear JSON
 app.use(bodyParser.urlencoded({ extended: true })); // Parsear datos de formularios
 
 //Carpeta public en proyecto Angular
-const angularPublicPath = path.join(__dirname, '../../frontend/public');
-
-
-app.use('/public', express.static(angularPublicPath));
+const backendPublicPath = path.join(__dirname, 'public');
+app.use('/public', express.static(backendPublicPath));
 
 // Ruta de bienvenida
 app.get("/", (req, res) => {
@@ -85,7 +83,6 @@ app.use("/api", documentos_cendocRoutes);
 app.use("/api", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", testimoniosRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api", revistasRoutes);
 app.use("/api", articulosRoutes);
