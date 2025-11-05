@@ -7,7 +7,7 @@ import { Flipbook } from '../../components/flipbook/flipbook';
 @Component({
   selector: 'app-revista-voces',
   standalone: true,
-  imports: [CommonModule, Flipbook ],
+  imports: [CommonModule],
   templateUrl: './revista-voces.html',
   styleUrl: './revista-voces.css'
 })

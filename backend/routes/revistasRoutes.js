@@ -4,10 +4,13 @@ const express = require("express");
 const router = express.Router();
 const RevistasController = require("../controllers/revistasController");
 const { crearUpload } = require('../middleware/uploadMiddleware');
+const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
-//autenticacion
-// const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
-
+// Crear middleware específico para revistas
+const uploadRevistas = crearUpload('revistas', {
+  portada: ['image/*'],
+  archivo: ['application/pdf']
+});
 
 // Rutas del API REST
 
@@ -16,12 +19,6 @@ router.get("/revistas", RevistasController.getAll);
 
 // GET - Obtener un registro por ID
 router.get("/revistas/:id", RevistasController.getById);
-
-// Crear middleware específico para revistas
-const uploadRevistas = crearUpload('revistas', {
-  portada: ['image/*'],
-  archivo: ['application/pdf']
-});
 
 //POST - Crear registro
 router.post('/revistas', uploadRevistas.fields([
