@@ -1,0 +1,150 @@
+<!-- /nuevo/frontend/src/app/admin/components/fprm-revistas/form-revistas.html -->
+<p-dialog
+  header="{{ editando() ? 'Editar Revista' : 'Agregar Revista' }}"
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [style]="{ width: '700px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <form [formGroup]="revistaForm" (ngSubmit)="guardar()" enctype="multipart/form-data">
+    <div class="p-fluid formgrid grid">
+      <!-- Volumen -->
+      <div class="field col-6">
+        <label for="volumen">Volumen</label>
+        <input
+          pInputText
+          id="volumen"
+          type="number"
+          formControlName="volumen"
+          placeholder="Ej. 12"
+        />
+        @if (f['volumen'].touched && f['volumen'].errors) {
+        <small class="p-error">
+          {{ f['volumen'].errors['required'] ? 'Campo requerido' : '' }}
+          {{ f['volumen'].errors['min'] ? 'Debe ser mayor a 0' : '' }} </small
+        >}
+      </div>
+
+      <!-- Número de año -->
+      <div class="field col-6">
+        <label for="numero_year">Número de año</label>
+        <input
+          pInputText
+          id="numero_year"
+          type="number"
+          formControlName="numero_year"
+          placeholder="Ej. 2"
+        />
+        @if (f['numero_year'].touched && f['numero_year'].errors) {
+        <small class="p-error">
+          {{ f['numero_year']?.errors?.['required'] ? 'Campo requerido' : '' }}
+          {{ f['numero_year']?.errors?.['min'] ? 'Debe ser mayor a 0' : '' }} </small
+        >}
+      </div>
+
+      <!-- Descripción -->
+      <div class="field col-8">
+        <label for="descripcion">Descripción</label>
+        <textarea
+          pInputTextarea
+          id="descripcion"
+          formControlName="descripcion"
+          rows="3"
+          maxlength="250"
+          placeholder="Breve descripción..."
+        ></textarea>
+        @if (f['descripcion']?.touched && f['descripcion']?.errors) {
+        <small class="p-error">
+          {{ f['descripcion']?.errors?.['required'] ? 'Campo requerido' : '' }} </small
+        >}
+      </div>
+
+      <!-- Fecha -->
+      <div class="field col-4">
+        <label for="fecha">Fecha de publicación</label>
+        <input type="date" pInputText id="fecha" formControlName="fecha" />
+        @if (f['fecha'].touched && f['fecha'].errors) {
+        <small class="p-error"> Campo requerido </small>
+        }
+
+        
+      </div>
+
+      <!-- Portada -->
+      <div class="field col-6">
+        <label>Portada (imagen)</label>
+        <div class="p-mb-2">
+          <ng-container *ngIf="(editando && revista.portada && !portadaPreview) || portadaPreview">
+            <div *ngIf="!portadaPreview && editando">
+              <small class="text-muted">Actual:</small>
+              <img
+                [src]="'/revistas/' + revista().id_revista + '/portada/' + revista().portada"
+                alt="Portada actual"
+                class="preview-img"
+              />
+            </div>
+            <div *ngIf="portadaPreview">
+              <small class="text-success">Nueva seleccionada:</small>
+              <img [src]="portadaPreview" alt="Nueva portada" class="preview-img" />
+            </div>
+          </ng-container>
+        </div>
+        <input type="file" accept="image/*" (change)="onFileSelected($event, 'portada')" />
+      </div>
+
+      <!-- Archivo -->
+      <div class="field col-6">
+        <label>Archivo (PDF)</label>
+        <div class="p-mb-2">
+          <ng-container *ngIf="(editando && revista.archivo && !archivoNombre) || archivoNombre">
+            <div *ngIf="!archivoNombre && editando">
+              <small class="text-muted">Archivo actual:</small>
+              <a
+                [href]="'/revistas/' + revista().id_revista + '/archivo/' + revista().archivo"
+                target="_blank"
+                class="p-button p-button-text p-button-sm"
+                >Ver PDF</a
+              >
+            </div>
+            <div *ngIf="archivoNombre">
+              <small class="text-success">Nuevo:</small>
+              <p-tag [value]="archivoNombre" severity="success"></p-tag>
+            </div>
+          </ng-container>
+        </div>
+        <input type="file" accept="application/pdf" (change)="onFileSelected($event, 'archivo')" />
+      </div>
+
+      <!-- Estatus -->
+      <div class="field col-6">
+        <label for="estatus">Estatus</label>
+        <p-autoComplete
+          inputId="estatus"
+          formControlName="estatus"
+          [suggestions]="estatuses"
+          (completeMethod)="filterEstatus($event)"
+          field="label"
+          dropdown
+          placeholder="Seleccione un estatus"
+          [forceSelection]="true"
+        />
+        <small class="p-error" *ngIf="f.estatus.touched && f.estatus.errors">
+          Campo requerido
+        </small>
+      </div>
+    </div>
+
+    <p-footer class="flex justify-end gap-2 mt-3">
+      <p-button label="Cerrar" icon="pi pi-times" severity="secondary" (onClick)="cerrarModal()" />
+      <p-button
+        label="Guardar"
+        icon="pi pi-check"
+        severity="success"
+        type="submit"
+        [disabled]="revistaForm.invalid"
+      />
+    </p-footer>
+  </form>
+</p-dialog>

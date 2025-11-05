@@ -1,17 +1,20 @@
-
-
-
-
-
-
-
+<!-- /nuevo/frontend/src/app/admin/pages/revista-voces-admin/revista-voces-admin.html -->
 <app-tabla-generica
-      [title]="'Gestión de Revistas'"
-      [entityName]="'revista'"
-      [columns]="columns"
-      [dataService]="revistasService"
-      (formulario)="abrirFormulario()"
-      (edit)="editar($event)"
-      (remove)="eliminar($event)"
-      (view)="ver($event)"
-    />
+  [title]="'Gestión de Revistas'"
+  [entityName]="'revista'"
+  [columns]="columns"
+  [dataService]="revistasService"
+  (add)="agregar()"
+  (edit)="editar($event)"
+  (remove)="eliminar($event)"
+  (view)="ver($event)"
+/>
+
+<!-- Formulario de creación/edición -->
+<app-form-revistas
+  [visible]="showDialog()"
+  [revista]="revistaToEdit || {}"
+  [editando]="!!revistaToEdit"
+  (save)="guardarRevista($event)"
+  (visibleChange)="showDialog.set($event)"
+></app-form-revistas>

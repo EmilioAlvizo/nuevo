@@ -67,7 +67,7 @@ export class TablaGenerica {
   selectable = input<boolean>(true);
 
   // Outputs
-  formulario = output<void>();
+  add = output<void>();
   edit = output<any>();
   remove = output<any>();
   view = output<any>();
@@ -91,6 +91,7 @@ export class TablaGenerica {
       .subscribe({
         next: (resp: any) => {
           this.data.set(resp.data);
+          console.log(this.data());
           this.totalRecords.set(resp.total || 0);
           this.loading.set(false);
         },

@@ -1,59 +1,162 @@
 // nuevo/frontend/src/app/admin/pages/revista-voces-admin/revista-voces-admin.ts
-import { Component, OnInit, ViewChild, ElementRef, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
-import { ApiRevistas, Revistas } from '../../../core/services/revistas';
-import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
+import {
+  Component,
+  signal,
+  WritableSignal,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  Inject,
+  PLATFORM_ID,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DialogModule } from 'primeng/dialog';
+import { ApiRevistas, Revistas } from '../../../core/services/revistas';
+import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
+import { FormRevistas } from '../../components/form-revistas/form-revistas';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-revista-voces-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablaGenerica],
+  imports: [CommonModule, FormsModule, TablaGenerica, DialogModule, FormRevistas],
   templateUrl: './revista-voces-admin.html',
-  styleUrls: ['./revista-voces-admin.css']
+  styleUrls: ['./revista-voces-admin.css'],
 })
 export class RevistaVocesAdmin {
-//-------------------------------------------------
-  
+  //-------------------------------------------------
+  showDialog: WritableSignal<boolean> = signal(false);
+  revistaToEdit: Revistas | null = null;
+
   revistasService: ApiRevistas;
   columns: ColumnConfig[] = [
-    { field: 'id_revista', header: 'Id', sortable: true, filterable: true, tooltip: false},
+    { field: 'id_revista', header: 'Id', sortable: true, filterable: true, tooltip: false },
     {
-    field: 'portada',
-    header: 'Portada',
-    width: '120px',
-    template: (row) => {
-      const imagePath = `/revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
-      return `<img src="${imagePath}" alt="Portada" width="60" height="80" class="w-24 rounded">`;
-    }, tooltip: false
-  },
-    { field: 'volumen', header: 'Volumen', sortable: true, filterable: true, tooltip: false},
-    { field: 'numero_year', header: 'Número de año', sortable: true, filterable: true, filterType: 'date',tooltip: false },
-    { field: 'descripcion', header: 'Descripción', sortable: true, filterable: true, filterType: 'select', width: '500px', tooltip: true, options: [
-      { label: 'Ciencia', value: 'Ciencia' },
-      { label: 'Historia', value: 'Historia' },
-    ] },
+      field: 'portada',
+      header: 'Portada',
+      width: '120px',
+      template: (row) => {
+        const imagePath = `/revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
+        return `<img src="${imagePath}" alt="Portada" width="60" height="80" class="w-24 rounded">`;
+      },
+      tooltip: false,
+    },
+    { field: 'volumen', header: 'Volumen', sortable: true, filterable: true, tooltip: false },
+    {
+      field: 'numero_year',
+      header: 'Número de año',
+      sortable: true,
+      filterable: true,
+      filterType: 'date',
+      tooltip: false,
+    },
+    {
+      field: 'descripcion',
+      header: 'Descripción',
+      sortable: true,
+      filterable: true,
+      filterType: 'select',
+      width: '500px',
+      tooltip: true,
+      options: [
+        { label: 'Ciencia', value: 'Ciencia' },
+        { label: 'Historia', value: 'Historia' },
+      ],
+    },
   ];
 
   constructor(private apiRevistas: ApiRevistas) {
     this.revistasService = apiRevistas;
   }
 
+  agregar() {
+    this.revistaToEdit = null;
+    this.showDialog.set(true);
+  }
+
   editar(revista: any) {
     console.log('Editar revista:', revista);
   }
 
-  eliminar(revista: any) {
-    console.log('Eliminar revista:', revista);
+  eliminar(revista: Revistas) {
+    console.log('Eliminar revista:', revista, '  ', revista.id_revista);
+    this.apiRevistas.eliminarRevista(revista.id_revista).subscribe({
+      next: (resp) => {
+        //console.error(resp);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
   }
+
+  /* eliminar2(archivo: Revistas): void {
+    this.confirmationService.confirm({
+      message: `¿Está seguro de eliminar el archivo "${archivo.nombre_archivo}"?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => {
+        this.apiRevistas.eliminarRevista(archivo.id_revista).subscribe({
+          next: () => {
+            this.archivos_municipio.update((a) =>
+              a.filter((x) => x.id_archivo !== archivo.id_archivo)
+            );
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: 'Archivo eliminado correctamente',
+              life: 3000,
+            });
+          },
+          error: (err) => {
+            console.error(err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.error?.message || 'No se pudo eliminar el archivo',
+            });
+          },
+        });
+      },
+      reject: () =>
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Cancelado',
+          detail: 'No se eliminó el archivo',
+        }),
+    });
+  } */
 
   ver(revista: any) {
     console.log('Ver revista:', revista);
   }
+
+  guardarRevista(formData: FormData) {
+    const isEdit = !!this.revistaToEdit;
+
+    const request = isEdit
+      ? this.revistasService.actualizarRevista(this.revistaToEdit!.id_revista, formData)
+      : this.revistasService.crearRevista(formData);
+
+    request.subscribe({
+      next: () => {
+        Swal.fire('Éxito', isEdit ? 'Revista actualizada' : 'Revista creada', 'success');
+        this.showDialog.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire('Error', 'No se pudo guardar la revista', 'error');
+      },
+    });
+  }
   //---------------------------------------------------
 
-  
   //export class RevistaVocesAdmin implements OnInit, AfterViewInit {
   /* @ViewChild('modalRevista') modalElement!: ElementRef;
 
@@ -268,9 +371,4 @@ export class RevistaVocesAdmin {
     this.portadaPreview = null;
     this.archivoNombre = null;
   } */
-
-
-
-  
-
 }

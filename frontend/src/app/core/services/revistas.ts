@@ -1,9 +1,10 @@
 // nuevo/frontend/src/app/services/revistas.ts
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 //esto es para comunicarse con el backend
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 // usar Observable<any> es una mala practica, por ello usamos interfaces (ejemplo para municipio)
 export interface Revistas {
@@ -19,9 +20,9 @@ export interface Revistas {
 }
 
 // Agrega esta nueva interfaz para la respuesta de la API
-export interface ApiResponse {
+export interface ApiResponse<T> {
   success: boolean;
-  data: Revistas[];
+  data: T[];
   total?: number;
 }
 
@@ -32,30 +33,29 @@ export interface ApiResponse {
 //esto es para comunicarse con el backend real
 export class ApiRevistas {
   //url del backend
-  private apiUrl = 'http://localhost:3000/api';
-  //inyecta el servicio HttpClient
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/revistas`;
+  private http = inject(HttpClient);
 
   //PETICIÓN GET
-  getRevistas():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/revistas`,{});
+  getRevistas():Observable<ApiResponse<Revistas>> {
+    return this.http.get<ApiResponse<Revistas>>(this.apiUrl);
   }
 
-  getFiltrados():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/revistas`,{});
+  getFiltrados():Observable<ApiResponse<Revistas>> {
+    return this.http.get<ApiResponse<Revistas>>(this.apiUrl);
   }
 
   crearRevista(formData: FormData) {
-  return this.http.post<any>(`${this.apiUrl}/revistas`, formData);
+  return this.http.post<any>(this.apiUrl, formData);
   }
 
   actualizarRevista(id: number, data: any){
-  return this.http.put<any>(`${this.apiUrl}/revistas/${id}`, data);
+  return this.http.put<any>(`${this.apiUrl}/${id}`, data);
   }
 
 
-  eliminarRevista(id: number){
-    return this.http.delete<any>(`${this.apiUrl}/revistas/${id}`);
+  eliminarRevista(id: number): Observable<ApiResponse<Revistas>>{
+    return this.http.delete<ApiResponse<Revistas>>(`${this.apiUrl}/${id}`);
   }
 
 }
