@@ -28,6 +28,10 @@ function buildFilterCondition(
       condition = `${field} LIKE @${paramName}`;
       paramValue = `%${value}%`;
       break;
+    case "notContains":
+      condition = `${field} NOT LIKE @${paramName}`;
+      paramValue = `%${value}%`;
+      break;
     case "equals":
       condition = `${field} = @${paramName}`;
       break;

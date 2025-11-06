@@ -1,6 +1,7 @@
 <!-- nuevo/frontend/src/app/admin/shared/tabla-generica/tabla-generica.html -->
 <div class="contenedor border-round border-1 surface-border shadow-2">
   <!-- 🔹 Toolbar principal -->
+  @if (platform.isBrowser) {
   <p-toolbar class="mb-4">
     <ng-template #start>
       <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />
@@ -83,14 +84,32 @@
             <p-sortIcon [field]="col.field" />} @if (col.filterable) {
             <p-columnFilter
               [field]="col.field"
-              [type]="col.filterType || 'text'"
+              [type]="col.filterType === 'multiselect' ? 'in' : col.filterType || 'text'"
               display="menu"
-              [showMatchModes]="true"
+              [showMatchModes]="
+                col.filterType === 'select' || col.filterType === 'multiselect' ? false : true
+              "
               [showOperator]="false"
               [showAddButton]="false"
             >
-            </p-columnFilter
-            >}
+              <!-- 🔹 Si es filtro tipo multiselect -->
+              @if (col.filterType === 'multiselect') {
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-multiSelect
+                  [ngModel]="value"
+                  [options]="col.options"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Seleccionar"
+                  [maxSelectedLabels]="1"
+                  display="chip"
+                  class="w-100"
+                  (onChange)="filter($event.value)"
+                />
+              </ng-template>
+              }
+            </p-columnFilter>
+            }
           </div>
         </th>
         } @if (showViewButton() || showEditButton() || showDeleteButton()) {
@@ -127,8 +146,27 @@
             overflow: 'hidden',
             'text-overflow': col.template ? 'clip' : 'ellipsis'
           }"
-          [innerHTML]="getCellValue(row, col)"
-        ></td>
+        >
+          @switch (col.renderAs) { @case ('tag') {
+          <p-tag
+            [value]="col.getLabel ? col.getLabel(row, col.field) : row[col.field]"
+            [severity]="col.getSeverity ? col.getSeverity(row, col.field) : 'info'"
+          ></p-tag>
+          } @case ('badge') {
+          <p-badge
+            [value]="col.getLabel ? col.getLabel(row, col.field) : row[col.field]"
+            [severity]="col.getSeverity ? col.getSeverity(row, col.field) : 'info'"
+          ></p-badge>
+          } @case ('custom') {
+          <!-- Renderizado completamente personalizado -->
+          <ng-container *ngIf="col.customTemplate">
+            {{ col.customTemplate(row) }}
+          </ng-container>
+          } @default {
+          <!-- Por defecto: texto o HTML -->
+          <span [innerHTML]="getCellValue(row, col)"></span>
+          } }
+        </td>
         } } @if (showViewButton() || showEditButton() || showDeleteButton()) {
         <td style="width: 50px">
           <div class="d-flex gap-2">
@@ -165,6 +203,6 @@
           <p>No se encontraron {{ entityName() }}s</p>
         </td>
       </tr>
-    </ng-template>
-  </p-table>
+    </ng-template> </p-table
+  >}
 </div>

@@ -48,6 +48,7 @@ class revistasModel {
         { name: "fecha", dbField: "fecha", type: "date" },
         { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" },
         { name: "estatus", dbField: "estatus", isMulti: true },
+        { name: "descripcion", dbField: "descripcion", type: "string" },
       ];
   
       // 🔧 construir condiciones

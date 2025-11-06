@@ -25,7 +25,10 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { PlatformService } from '../../../core/services/platform.service';
+import { FormsModule } from '@angular/forms';
 
 export interface ColumnConfig {
   field: string;
@@ -34,13 +37,21 @@ export interface ColumnConfig {
   filterable?: boolean;
   filterType?: 'text' | 'date' | 'select' | 'multiselect' | 'numeric';
   options?: { label: string; value: any }[];
-  template?: (row: any) => string;
+  template?: (row: any) => string; //para html crudo
   width?: string;
   tooltip?: boolean; // 👈 NUEVO: permite activar/desactivar el tooltip
   // 👇 NUEVAS PROPIEDADES PARA FORMATEO
   dateFormat?: 'short' | 'medium' | 'long' | 'full' | 'custom'; // Formato de fecha
   customDateFormat?: Intl.DateTimeFormatOptions; // Formato personalizado
   pipe?: 'date' | 'currency' | 'number'; // Tipo de pipe a aplicar
+  // 👇 NUEVO: soporte visual para PrimeNG Tag / Badge
+  renderAs?: 'tag' | 'badge' | 'custom';
+  getLabel?: (row: any, field: string) => string;
+  getSeverity?: (
+    row: any,
+    field: string
+  ) => 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | null | undefined;
+  customTemplate?: (row: any) => any; // por si quieres algo totalmente personalizado
 }
 
 // Ejemplo de configuración de columnas con diferentes formatos de fecha
@@ -96,12 +107,15 @@ export interface ColumnConfig {
     ConfirmDialogModule,
     ToastModule,
     TooltipModule,
+    BadgeModule,
+    FormsModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './tabla-generica.html',
   styleUrl: './tabla-generica.css',
 })
 export class TablaGenerica {
+  protected platform = inject(PlatformService);
   private messageService = inject(MessageService);
 
   // Inputs

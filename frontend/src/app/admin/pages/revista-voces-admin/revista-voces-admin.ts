@@ -1,5 +1,16 @@
 // nuevo/frontend/src/app/admin/pages/revista-voces-admin/revista-voces-admin.ts
-import { Component, signal, WritableSignal, inject,  OnInit, ViewChild, ElementRef, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  signal,
+  WritableSignal,
+  inject,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  Inject,
+  PLATFORM_ID,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -66,17 +77,29 @@ export class RevistaVocesAdmin {
       tooltip: false,
     },
     {
+      field: 'estatus',
+      header: 'Estatus',
+      sortable: true,
+      filterable: true,
+      filterType: 'multiselect',
+      tooltip: false,
+      renderAs: 'tag',
+      getLabel: (row, field) => (row[field] === 'A' ? 'Activo' : 'Inactivo'),
+      getSeverity: (row, field) => (row[field] === 'A' ? 'success' : 'secondary'),
+      // ✅ agrega opciones aquí
+      options: [
+        { label: 'Activo', value: 'A' },
+        { label: 'Inactivo', value: 'I' },
+      ],
+    },
+    {
       field: 'descripcion',
       header: 'Descripción',
       sortable: true,
       filterable: true,
-      filterType: 'select',
+      filterType: 'text',
       width: '500px',
       tooltip: true,
-      options: [
-        { label: 'Ciencia', value: 'Ciencia' },
-        { label: 'Historia', value: 'Historia' },
-      ],
     },
   ];
 
