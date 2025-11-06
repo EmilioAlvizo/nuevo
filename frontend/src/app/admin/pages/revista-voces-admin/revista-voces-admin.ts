@@ -42,7 +42,7 @@ export class RevistaVocesAdmin {
 
   revistasService: ApiRevistas;
   columns: ColumnConfig[] = [
-    { field: 'id_revista', header: 'Id', sortable: true, filterable: true, tooltip: false },
+    { field: 'id_revista', header: 'Id', sortable: true, filterable: true, filterType:'numeric', tooltip: false },
     {
       field: 'portada',
       header: 'Portada',
@@ -55,8 +55,8 @@ export class RevistaVocesAdmin {
     },
     { field: 'volumen', header: 'Volumen', sortable: true, filterable: true, tooltip: false },
     {
-      field: 'numero_year',
-      header: 'Número de año',
+      field: 'fecha',
+      header: 'Fecha',
       sortable: true,
       filterable: true,
       filterType: 'date',

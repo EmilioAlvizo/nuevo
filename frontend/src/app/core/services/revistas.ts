@@ -26,6 +26,14 @@ export interface ApiResponse<T> {
   total?: number;
 }
 
+export interface ApiResponsePaginated<T> {
+  success: boolean;
+  data: T[];
+  total: number;
+  pagina: number;
+  totalPaginas: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -41,8 +49,36 @@ export class ApiRevistas {
     return this.http.get<ApiResponse<Revistas>>(this.apiUrl);
   }
 
-  getFiltrados(): Observable<ApiResponse<Revistas>> {
+  getFiltrados2(): Observable<ApiResponse<Revistas>> {
     return this.http.get<ApiResponse<Revistas>>(this.apiUrl);
+  }
+
+  // ✅ NUEVO - Método con filtros (más eficiente)
+  getFiltrados(
+    filtros: any
+  ): Observable<ApiResponse<Revistas>> {
+    let params = new HttpParams();
+
+    // Agregar todos los parámetros dinámicamente
+    Object.keys(filtros).forEach((key) => {
+      const value = filtros[key];
+
+      if (value !== null && value !== undefined) {
+        // Si es un array, convertir a string separado por comas
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            params = params.set(key, value.join(','));
+          }
+        } else {
+          params = params.set(key, value.toString());
+        }
+      }
+    });
+    console.log('Llamando a API REVISTAS con params:', params.toString());
+
+    return this.http.get<ApiResponsePaginated<Revistas>>(`${this.apiUrl}/filtrados`, {
+      params,
+    });
   }
 
   crearRevista(formData: FormData) {

@@ -3,12 +3,7 @@
   <!-- 🔹 Toolbar principal -->
   <p-toolbar class="mb-4">
     <ng-template #start>
-      <p-button 
-        label="Nuevo" 
-        icon="pi pi-plus" 
-        class="me-2"
-        (onClick)="add.emit()"
-      />
+      <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />
       <p-button
         label="Eliminar seleccionados"
         icon="pi pi-trash"
@@ -35,12 +30,16 @@
     [resizableColumns]="true"
     [rowsPerPageOptions]="[10, 25, 50, 100]"
     [selection]="selectedItems()"
-    dataKey="id"
+    dataKey="id_revista"
     [style]="{ 'min-width': '100%', width: '100%' }"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+    [showCurrentPageReport]="true"
+    filterDelay="300"
+    [globalFilterFields]="globalFilterFields()"
   >
-  <ng-template #caption>
-      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3" >
-        <h3 class="m-0">{{title()}}</h3>
+    <ng-template #caption>
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <h3 class="m-0">{{ title() }}</h3>
         <div class="d-flex gap-2 align-items-center">
           <!-- Búsqueda Global -->
           <p-iconfield iconPosition="left">
@@ -66,7 +65,7 @@
         </div>
       </div>
     </ng-template>
-    
+
     <ng-template #header>
       <tr>
         @if (selectable()) {
@@ -80,7 +79,14 @@
             <span>{{ col.header }}</span>
             @if (col.sortable) {
             <p-sortIcon [field]="col.field" />} @if (col.filterable) {
-            <p-columnFilter [field]="col.field" [type]="col.filterType || 'text'" display="menu">
+            <p-columnFilter
+              [field]="col.field"
+              [type]="col.filterType || 'text'"
+              display="menu"
+              [showMatchModes]="true"
+              [showOperator]="false"
+              [showAddButton]="false"
+            >
             </p-columnFilter
             >}
           </div>

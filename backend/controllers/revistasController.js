@@ -1,3 +1,4 @@
+// nuevo/backend/controllers/revistasController.js
 const RevistasModel = require("../models/revistasModel");
 
 // Nombre de la tabla (cámbialo según tu tabla)
@@ -130,6 +131,8 @@ class RevistasController {
       const resultado = await RevistasModel.getArchivosFiltrados(
         params
       );
+
+      //console.log("resultados ", resultado)
 
       res.status(200).json({
         success: true,

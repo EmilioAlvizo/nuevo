@@ -32,7 +32,7 @@ export interface ColumnConfig {
   header: string;
   sortable?: boolean;
   filterable?: boolean;
-  filterType?: 'text' | 'date' | 'select' | 'multiselect';
+  filterType?: 'text' | 'date' | 'select' | 'multiselect' | 'numeric';
   options?: { label: string; value: any }[];
   template?: (row: any) => string;
   width?: string;
@@ -84,6 +84,12 @@ export class TablaGenerica {
   readonly rows = signal(10);
 
   @ViewChild('dt') dt!: Table;
+
+  readonly globalFilterFields = computed(() =>
+    this.columns()
+      .filter((c) => c.filterable) // Solo columnas filtrables
+      .map((c) => c.field)         // Tomamos el nombre del campo
+  );
 
   constructor() {
     // effect que escucha el valor de la señal del padre
@@ -137,18 +143,67 @@ export class TablaGenerica {
       limite: event.rows ?? 10,
       pagina: Math.floor((event.first ?? 0) / (event.rows ?? 10)) + 1,
     };
-    if (event.globalFilter) params.busqueda = event.globalFilter;
+  
+    // 🔍 Búsqueda global
+    if (event.globalFilter) {
+      params.busqueda = event.globalFilter;
+    }
+  
+    // 🔀 Ordenamiento
     if (event.sortField) {
       params.sortField = event.sortField;
       params.sortOrder = event.sortOrder;
     }
-    // Filtros específicos
-    for (const [field, meta] of Object.entries(event.filters ?? {})) {
-      const value = (meta as any)?.value;
-      if (value != null && value !== '') params[field] = value;
+  
+    // 🎯 Filtros por columna
+    if (event.filters) {
+      for (const [field, filter] of Object.entries(event.filters)) {
+        const value = this.getFilterValue(filter);
+        if (value == null || value === '' || (Array.isArray(value) && value.length === 0))
+          continue;
+  
+        const matchMode = this.getMatchMode(filter);
+  
+        // Guardamos valor y matchMode en los params
+        params[field] = value;
+        params[`${field}_matchMode`] = matchMode;
+      }
     }
+  
     return params;
   }
+  
+
+  private getFilterValue(filter: any): any {
+    if (!filter) return null;
+  
+    // Si es un array de FilterMetadata (varios filtros)
+    if (Array.isArray(filter)) {
+      return filter[0]?.value ?? null;
+    }
+  
+    // Si es un solo FilterMetadata
+    if (typeof filter === 'object' && 'value' in filter) {
+      return filter.value;
+    }
+  
+    return null;
+  }
+  
+  private getMatchMode(filter: any): string {
+    if (!filter) return 'contains';
+  
+    if (Array.isArray(filter)) {
+      return filter[0]?.matchMode ?? 'contains';
+    }
+  
+    if (typeof filter === 'object' && 'matchMode' in filter) {
+      return filter.matchMode ?? 'contains';
+    }
+  
+    return 'contains';
+  }
+  
 
   clearFilters() {
     this.dt.clear();

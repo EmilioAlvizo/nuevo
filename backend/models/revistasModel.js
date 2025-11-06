@@ -1,4 +1,5 @@
 //nuevo/backend/models/revistasModel.js
+const { buildFilterCondition, buildConditions } = require("../utils/filters");
 const { getConnection, mssql } = require("../config/database");
 
 // Modelo para operaciones CRUD
@@ -28,8 +29,84 @@ class revistasModel {
     }
   }
 
-  // ✅ Obtener archivos con filtros avanzados estilo PrimeNG
+
   static async getArchivosFiltrados(params) {
+    try {
+      const pool = await getConnection();
+      const request = pool.request();
+  
+      let query = `
+        SELECT * FROM revistas
+        WHERE 1=1
+      `;
+  
+      // Configuración reutilizable
+      const filterConfig = [
+        { name: "volumen", dbField: "volumen", type: "int" },
+        { name: "id_revista", dbField: "id_revista", type: "int" },
+        { name: "numero_year", dbField: "numero_year", type: "int" },
+        { name: "fecha", dbField: "fecha", type: "date" },
+        { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" },
+        { name: "estatus", dbField: "estatus", isMulti: true },
+      ];
+  
+      // 🔧 construir condiciones
+      const conditions = buildConditions(params, request, filterConfig);
+  
+      // 🔍 búsqueda global
+      if (params.busqueda) {
+        conditions.push(`(
+          descripcion LIKE @busqueda OR 
+          archivo LIKE @busqueda
+        )`);
+        request.input("busqueda", mssql.NVarChar, `%${params.busqueda}%`);
+      }
+  
+      if (conditions.length > 0) query += " AND " + conditions.join(" AND ");
+  
+      // 🔽 Ordenamiento
+      if (params.sortField) {
+        const direction = params.sortOrder === -1 ? "DESC" : "ASC";
+        query += ` ORDER BY ${params.sortField} ${direction}`;
+      } else {
+        query += " ORDER BY id_revista DESC";
+      }
+  
+      // 📄 Paginación
+      const offset = (params.pagina - 1) * params.limite;
+      query += ` OFFSET ${offset} ROWS FETCH NEXT ${params.limite} ROWS ONLY`;
+
+      //console.log("query ", query)
+  
+      // 🧮 Contar total
+      const countQuery = `
+        SELECT COUNT(*) AS total FROM revistas WHERE 1=1
+        ${conditions.length > 0 ? " AND " + conditions.join(" AND ") : ""}
+      `;
+
+      //console.log("countQuery ", countQuery)
+  
+      const result = await request.query(query);
+      const totalResult = await request.query(countQuery);
+  
+      const total = totalResult.recordset[0].total;
+      const totalPaginas = Math.ceil(total / params.limite);
+  
+      // ✅ Retornar datos en formato consistente
+      return {
+        data: result.recordset,
+        total,
+        pagina: params.pagina,
+        totalPaginas,
+      };
+  
+    } catch (error) {
+      throw new Error(`Error en getArchivosFiltrados: ${error.message}`);
+    }
+  }
+
+  // ✅ Obtener archivos con filtros avanzados estilo PrimeNG
+  static async getArchivosFiltrados2(params) {
     try {
       const pool = await getConnection();
       const request = pool.request();
@@ -55,7 +132,7 @@ class revistasModel {
       if (params.descripcion) {
         const matchMode = params.descripcion_matchMode || "contains";
         conditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "descripcion",
             params.descripcion,
             matchMode,
@@ -69,7 +146,7 @@ class revistasModel {
       if (params.volumen) {
         const matchMode = params.volumen_matchMode || "contains";
         conditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "volumen",
             params.volumen,
             matchMode,
@@ -83,7 +160,7 @@ class revistasModel {
       if (params.id_revista) {
         const matchMode = params.id_revista_matchMode || "contains";
         conditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "id_revista",
             params.id_revista,
             matchMode,
@@ -97,7 +174,7 @@ class revistasModel {
       if (params.numero_year) {
         const matchMode = params.numero_year_matchMode || "contains";
         conditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "numero_year",
             params.numero_year,
             matchMode,
@@ -186,13 +263,7 @@ class revistasModel {
       request.input("offset", mssql.Int, offset);
       request.input("limite", mssql.Int, limite);
 
-      console.log(
-        `📊 Query SQL generada (primeros 300 caracteres):`,
-        query.substring(0, 300) + "..."
-      );
-
-      console.log('query ',query)
-      console.log('request ',request)
+      //console.log('query ',query)
 
       // Ejecutar consulta principal
       const result = await request.query(query);
@@ -201,7 +272,7 @@ class revistasModel {
       const countRequest = pool.request();
       let countQuery = `
         SELECT COUNT(*) as total
-        FROM revistas 
+        FROM revistas WHERE 1=1
       `;
 
       // Aplicar las mismas condiciones al contador
@@ -218,7 +289,7 @@ class revistasModel {
       if (params.descripcion) {
         const matchMode = params.descripcion_matchMode || "contains";
         countConditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "descripcion",
             params.descripcion,
             matchMode,
@@ -241,7 +312,7 @@ class revistasModel {
       if (params.volumen) {
         const matchMode = params.volumen_matchMode || "contains";
         countConditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "volumen",
             params.volumen,
             matchMode,
@@ -254,7 +325,7 @@ class revistasModel {
       if (params.id_revista) {
         const matchMode = params.id_revista_matchMode || "contains";
         countConditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "id_revista",
             params.id_revista,
             matchMode,
@@ -267,7 +338,7 @@ class revistasModel {
       if (params.numero_year) {
         const matchMode = params.numero_year_matchMode || "contains";
         countConditions.push(
-          this.buildFilterCondition(
+          buildFilterCondition(
             "numero_year",
             params.numero_year,
             matchMode,
@@ -359,66 +430,6 @@ class revistasModel {
       );
     }
   } */
-
-  // 🛠️ Construir condición de filtro según matchMode de PrimeNG
-  static buildFilterCondition(field, value, matchMode, request, paramName) {
-    switch (matchMode) {
-      case 'startsWith':
-        request.input(paramName, mssql.NVarChar, `${value}%`);
-        return `${field} LIKE @${paramName}`;
-      
-      case 'endsWith':
-        request.input(paramName, mssql.NVarChar, `%${value}`);
-        return `${field} LIKE @${paramName}`;
-      
-      case 'contains':
-        request.input(paramName, mssql.NVarChar, `%${value}%`);
-        return `${field} LIKE @${paramName}`;
-      
-      case 'notContains':
-        request.input(paramName, mssql.NVarChar, `%${value}%`);
-        return `${field} NOT LIKE @${paramName}`;
-      
-      case 'equals':
-        request.input(paramName, mssql.NVarChar, value);
-        return `${field} = @${paramName}`;
-      
-      case 'notEquals':
-        request.input(paramName, mssql.NVarChar, value);
-        return `${field} != @${paramName}`;
-      
-      default:
-        request.input(paramName, mssql.NVarChar, `%${value}%`);
-        return `${field} LIKE @${paramName}`;
-    }
-  }
-
-  // 🛠️ Construir condición de filtro para fechas
-  static buildDateFilterCondition(field, value, matchMode, request, paramName) {
-    const date = new Date(value);
-    
-    switch (matchMode) {
-      case 'dateIs':
-        request.input(paramName, mssql.Date, date);
-        return `CAST(${field} AS DATE) = @${paramName}`;
-      
-      case 'dateIsNot':
-        request.input(paramName, mssql.Date, date);
-        return `CAST(${field} AS DATE) != @${paramName}`;
-      
-      case 'dateBefore':
-        request.input(paramName, mssql.Date, date);
-        return `CAST(${field} AS DATE) < @${paramName}`;
-      
-      case 'dateAfter':
-        request.input(paramName, mssql.Date, date);
-        return `CAST(${field} AS DATE) > @${paramName}`;
-      
-      default:
-        request.input(paramName, mssql.Date, date);
-        return `CAST(${field} AS DATE) = @${paramName}`;
-    }
-  }
 
   // Crear un nuevo registro
   static async create(tableName, data) {
