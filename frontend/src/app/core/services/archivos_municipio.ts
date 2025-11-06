@@ -116,19 +116,45 @@ export class ApiArchivos_municipio {
   }> {
     return this.http.get<any>(`${this.apiUrl}/archivos_municipio/conteos-municipio`);
   }
-
+  
   // Crear nuevo archivo_municipio
-  createArchivo(data: Partial<Archivos_municipio>): Observable<any> {
-    return this.http.post(`${this.apiUrl}/archivos_municipio`, data);
-  }
+  // createArchivo(data: Partial<Archivos_municipio>): Observable<any> {
+  //   return this.http.post(`${this.apiUrl}/archivos_municipio`, data);
+  // }
 
-  // Crear nuevo archivo_municipio
-  createArchivoConUpload(formData: FormData): Observable<any> {
+  // // Crear nuevo archivo_municipio
+  // createArchivoConUpload(formData: FormData): Observable<any> {
+  //   return this.http.post(`${this.apiUrl}/archivos_municipio`, formData);
+  // }
+  createArchivo(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/archivos_municipio`, formData);
   }
+
 
   // Eliminar archivo
   deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
     return this.http.delete<any>(`${this.apiUrl}/archivos_municipio/${id}`);
   }
+
+  
+updateArchivo(id: number, formData: FormData) {
+  return this.http.put<{ success: boolean; message: string; data: any }>(
+    `${this.apiUrl}/archivos_municipio/${id}`,
+    formData
+  );
+}
+
+// createArchivo(formData: FormData) {
+//   return this.http.post<{ success: boolean; message: string; data: any }>(
+//     `${this.baseUrl}/archivos_municipio`,
+//     formData
+//   );
+// }
+
+// deleteArchivo(id: number) {
+//   return this.http.delete<{ success: boolean; message: string }>(
+//     `${this.baseUrl}/archivos_municipio/${id}`
+//   );
+// }
+
 }

@@ -155,13 +155,17 @@
           </p-select>
         </div>
 
-        <div class="col-md-6">
+       <!-- <div class="col-md-6">
           <label class="form-label fw-semibold">Fecha del Archivo</label>
           <input type="text" pInputText [value]="fechaActual()" class="form-control" disabled />
           <small class="text-muted">
             <i class="pi pi-calendar"></i>
             Fecha automática
           </small>
+        </div> -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Fecha del archivo:</label>
+          <input type="date" class="form-control" formControlName="fecha_archivo" required />
         </div>
       </div>
 

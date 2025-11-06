@@ -103,7 +103,7 @@ export class NuevoArchivoForm {
     this.isEditMode() ? 'Editar Archivo' : 'Nuevo Archivo Municipal'
   );
 
-  fechaActual = computed(() => new Date().toISOString().split('T')[0]);
+  // fechaActual = computed(() => new Date().toISOString().split('T')[0]);
 
   // Form
   archivoForm: FormGroup;
@@ -118,7 +118,14 @@ export class NuevoArchivoForm {
       palabras_clave: [''],
       estatus_archivo: ['A', [Validators.required]],
       archivo: [null as File | null],
+     
+      //  fecha_archivo: [new Date().toISOString().split('T')[0], [Validators.required]],
+       fecha_archivo: [null, [Validators.required]],
+       
+
     });
+
+
 
     // Effect para cargar datos en modo edición
     effect(() => {
@@ -209,6 +216,12 @@ export class NuevoArchivoForm {
       subcategoria_archivo: archivo.subcategoria_archivo || '',
       palabras_clave: archivo.palabras_clave || '',
       estatus_archivo: archivo.estatus_archivo,
+
+      fecha_archivo: archivo.fecha_archivo ? archivo.fecha_archivo.split('T')[0] : null
+
+      // fecha_archivo: archivo.fecha_archivo
+      // ? archivo.fecha_archivo.split('T')[0]
+      // : '',
     });
   }
 
@@ -229,5 +242,5 @@ export class NuevoArchivoForm {
 
   public cancelSave(): void {
     this.isSaving.set(false);
-  }
+  } 
 }
