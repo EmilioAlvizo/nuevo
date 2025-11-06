@@ -1,10 +1,17 @@
-// 📁 /utils/primengFilters.js
+// 📁 nuevo/backend/utils/primengFilters.js
 const { mssql } = require("../config/database");
 
 /**
  * 🧱 Genera una condición SQL según el matchMode de PrimeNG
  */
-function buildFilterCondition(field, value, matchMode, request, paramName, type = "string") {
+function buildFilterCondition(
+  field,
+  value,
+  matchMode,
+  request,
+  paramName,
+  type = "string"
+) {
   let condition = "";
   let paramValue = value;
 
@@ -63,7 +70,12 @@ function buildDateFilterCondition(field, value, matchMode, request, paramName) {
 
   switch (matchMode) {
     case "dateIs":
-      condition = `CAST(${field} AS DATE) = @${paramName}`;
+      //condition = `CAST(${field} AS DATE) = @${paramName}`;
+      condition = `CONVERT(date, ${field}) = CONVERT(date, @${paramName})`;
+      break;
+    case "dateIsNot":
+      // Día diferente (sin importar hora)
+      condition = `CONVERT(date, ${field}) <> CONVERT(date, @${paramName})`;
       break;
     case "dateBefore":
       condition = `CAST(${field} AS DATE) < @${paramName}`;
@@ -82,7 +94,7 @@ function buildDateFilterCondition(field, value, matchMode, request, paramName) {
 
 /**
  * ⚙️ Construye condiciones dinámicamente según configuración
- * 
+ *
  * @param {object} params - filtros recibidos del frontend
  * @param {object} request - request de MSSQL
  * @param {Array} fields - configuración de campos [{name, dbField, type, alias, isMulti}]
@@ -94,7 +106,11 @@ function buildConditions(params, request, config) {
     const value = params[name];
     const matchMode = params[`${name}_matchMode`] || "contains";
 
-    if (value == null || value === "" || (Array.isArray(value) && value.length === 0)) {
+    if (
+      value == null ||
+      value === "" ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
       return; // sin filtro
     }
 
@@ -117,7 +133,14 @@ function buildConditions(params, request, config) {
     }
 
     // 🔤 Texto o número
-    const condition = buildFilterCondition(dbField, value, matchMode, request, name, type);
+    const condition = buildFilterCondition(
+      dbField,
+      value,
+      matchMode,
+      request,
+      name,
+      type
+    );
     if (condition) conditions.push(condition);
   });
 

@@ -1,3 +1,4 @@
+// nuevo/backend/controllers/articulosController.js
 const ArticulosModel = require("../models/articulosModel");
 // const upload = require("../config/upload");
 
@@ -5,12 +6,8 @@ const ArticulosModel = require("../models/articulosModel");
 const TABLE_NAME = "articulos_revista"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_articulo"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
 
-
-
 // const path = require("path");
 // const fs = require("fs");
-
-
 
 class ArticulosController {
   // GET - Obtener todos los registros

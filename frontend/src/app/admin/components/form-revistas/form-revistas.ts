@@ -1,5 +1,14 @@
 // nuevo/frontend/src/app/admin/components/form-revistas/form-revistas.ts
-import { Component, signal, input, output, ViewChild, computed, effect, model } from '@angular/core';
+import {
+  Component,
+  signal,
+  input,
+  output,
+  ViewChild,
+  computed,
+  effect,
+  model,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 
@@ -7,7 +16,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule  } from 'primeng/textarea';
+import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
@@ -17,7 +26,6 @@ interface EstatusOption {
   label: string;
   value: string;
 }
-
 
 @Component({
   selector: 'app-form-revistas',
@@ -59,9 +67,7 @@ export class FormRevistas {
   isSaving = signal<boolean>(false);
 
   // Computed signals
-  dialogTitle = computed(() =>
-    this.isEditMode() ? 'Editar Revista' : 'Agregar Revista'
-  );
+  dialogTitle = computed(() => (this.isEditMode() ? 'Editar Revista' : 'Agregar Revista'));
 
   estatusOptions = signal<EstatusOption[]>([
     { label: 'Activo', value: 'A' },
@@ -168,10 +174,23 @@ export class FormRevistas {
     if (formValue.numero_year) formData.append('numero_year', String(formValue.numero_year));
     if (formValue.descripcion) formData.append('descripcion', formValue.descripcion);
     if (formValue.fecha) {
-      const fecha = formValue.fecha instanceof Date 
-        ? formValue.fecha.toISOString().split('T')[0]
-        : formValue.fecha;
-      formData.append('fecha', fecha);
+      const fechaLocal =
+        formValue.fecha instanceof Date ? formValue.fecha : new Date(formValue.fecha);
+
+      // 📅 Convertir a formato local con hora (sin pasar por UTC)
+      const año = fechaLocal.getFullYear();
+      const mes = String(fechaLocal.getMonth() + 1).padStart(2, '0');
+      const dia = String(fechaLocal.getDate()).padStart(2, '0');
+      const horas = String(fechaLocal.getHours()).padStart(2, '0');
+      const minutos = String(fechaLocal.getMinutes()).padStart(2, '0');
+      const segundos = String(fechaLocal.getSeconds()).padStart(2, '0');
+
+      // 🕓 Formato completo local
+      const fechaHoraLocal = `${año}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+      console.log('📅 Fecha local enviada:', fechaHoraLocal);
+
+      formData.append('fecha', fechaHoraLocal);
     }
     if (formValue.estatus) formData.append('estatus', formValue.estatus);
 
@@ -244,7 +263,7 @@ export class FormRevistas {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   // Métodos públicos para ser llamados desde el padre

@@ -4,6 +4,7 @@
   <p-toolbar class="mb-4">
     <ng-template #start>
       <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />
+      @if (showSelection()) {
       <p-button
         label="Eliminar seleccionados"
         icon="pi pi-trash"
@@ -12,6 +13,7 @@
         (onClick)="removeSelected()"
         [disabled]="!hasSelectedItems()"
       />
+      }
     </ng-template>
   </p-toolbar>
 
@@ -68,7 +70,7 @@
 
     <ng-template #header>
       <tr>
-        @if (selectable()) {
+        @if (showSelection()) {
         <th><p-tableHeaderCheckbox /></th>
         } @for (col of columns(); track col.field) {
         <th
@@ -91,16 +93,17 @@
             >}
           </div>
         </th>
-        }
+        } @if (showViewButton() || showEditButton() || showDeleteButton()) {
         <th style="width: 50px">Acciones</th>
+        }
       </tr>
     </ng-template>
 
     <ng-template #body let-row>
       <tr>
-        @if (selectable()) {
+        @if (showSelection()) {
         <td style="width: 20px"><p-tableCheckbox [value]="row" /></td>
-        } @for (col of columns(); track col.field) {
+        } @for (col of columns(); track col.field) { @if (col.tooltip !== false) {
         <td
           [style]="{
             width: col.width,
@@ -110,15 +113,30 @@
             overflow: 'hidden',
             'text-overflow': col.template ? 'clip' : 'ellipsis'
           }"
-          [innerHTML]="col.template ? col.template(row) : row[col.field]"
-          [pTooltip]="col.tooltip !== false ? (!col.template ? row[col.field] : null) : null"
+          [innerHTML]="getCellValue(row, col)"
+          [pTooltip]="getTooltipValue(row, col)"
           tooltipPosition="top"
         ></td>
-        }
+        } @else {
+        <td
+          [style]="{
+            width: col.width,
+            'max-width': col.width,
+            'min-width': col.width,
+            'white-space': col.template ? 'normal' : 'nowrap',
+            overflow: 'hidden',
+            'text-overflow': col.template ? 'clip' : 'ellipsis'
+          }"
+          [innerHTML]="getCellValue(row, col)"
+        ></td>
+        } } @if (showViewButton() || showEditButton() || showDeleteButton()) {
         <td style="width: 50px">
           <div class="d-flex gap-2">
+            @if (showViewButton()) {
             <p-button icon="pi pi-eye" (click)="view.emit(row)" outlined pTooltip="Ver" />
+            } @if (showEditButton()) {
             <p-button icon="pi pi-pencil" (click)="edit.emit(row)" outlined pTooltip="Modificar" />
+            } @if (showDeleteButton()) {
             <p-button
               icon="pi pi-trash"
               (click)="remove.emit(row)"
@@ -126,14 +144,23 @@
               severity="danger"
               pTooltip="Eliminar"
             />
+            }
           </div>
         </td>
+        }
       </tr>
     </ng-template>
 
     <ng-template #emptymessage>
       <tr>
-        <td [attr.colspan]="columns().length + 1" class="text-center py-5">
+        <td
+          [attr.colspan]="
+            columns().length +
+            (showSelection() ? 1 : 0) +
+            (showViewButton() || showEditButton() || showDeleteButton() ? 1 : 0)
+          "
+          class="text-center py-5"
+        >
           <i class="pi pi-inbox text-muted display-2"></i>
           <p>No se encontraron {{ entityName() }}s</p>
         </td>

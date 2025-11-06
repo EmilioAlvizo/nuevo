@@ -1,5 +1,6 @@
 // nuevo/backend/controllers/revistasController.js
 const RevistasModel = require("../models/revistasModel");
+const moment = require("moment-timezone");
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "revistas"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
@@ -88,7 +89,7 @@ class RevistasController {
         sortField,
         sortOrder,
       } = req.query;
-      
+
       // Procesar parámetros
       const params = {
         // Paginación
@@ -128,9 +129,7 @@ class RevistasController {
         sortOrder: sortOrder ? parseInt(sortOrder) : null,
       };
 
-      const resultado = await RevistasModel.getArchivosFiltrados(
-        params
-      );
+      const resultado = await RevistasModel.getArchivosFiltrados(params);
 
       //console.log("resultados ", resultado)
 
@@ -199,12 +198,18 @@ class RevistasController {
       console.log("fecha ", fecha);
       console.log("fecha ", estatus);
 
+      // 🕓 Convertir la fecha al horario local de Ciudad de México
+      const moment = require("moment-timezone");
+      const fechaLocal = moment
+        .tz(fecha, "America/Mexico_City")
+        .format("YYYY-MM-DDTHH:mm:ss");
+
       // Guardar registro sin archivos primero
       const nuevaRevista = await RevistasModel.create(TABLE_NAME, {
         volumen,
         numero_year,
         descripcion,
-        fecha,
+        fecha: fechaLocal,
         estatus,
       });
 
@@ -260,6 +265,11 @@ class RevistasController {
       const id = req.params.id;
       const { volumen, numero_year, descripcion, fecha, estatus } = req.body;
 
+      const moment = require("moment-timezone");
+      const fechaLocal = moment
+        .tz(fecha, "America/Mexico_City")
+        .format("YYYY-MM-DDTHH:mm:ss");
+
       // IMPORTANTE: Obtener registro actual ANTES de actualizar
       const registroActual = await RevistasModel.getById(
         TABLE_NAME,
@@ -275,7 +285,7 @@ class RevistasController {
           volumen,
           numero_year,
           descripcion,
-          fecha,
+          fecha: fechaLocal,
           estatus,
         },
         ID_COLUMN

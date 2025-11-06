@@ -1,15 +1,17 @@
 <!-- /nuevo/frontend/src/app/admin/pages/revista-voces-admin/revista-voces-admin.html -->
 <app-tabla-generica
+  [dataService]="revistasService"
+  [columns]="columns"
   [title]="'Gestión de Revistas'"
   [entityName]="'revista'"
-  [columns]="columns"
-  [dataService]="revistasService"
+  [showSelection]="false"
+  [showViewButton]="true"
+  [showEditButton]="true"
+  [showDeleteButton]="true"
   (add)="agregar()"
   (edit)="editar($event)"
   (remove)="eliminar($event)"
-  (view)="ver($event)"
   [refreshSignal]="refrescarTabla"
-  
 />
 
 <!-- Formulario de creación/edición -->

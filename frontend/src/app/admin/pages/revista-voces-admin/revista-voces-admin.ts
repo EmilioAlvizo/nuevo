@@ -25,13 +25,20 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-revista-voces-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablaGenerica, DialogModule, FormRevistas, ToastModule, ConfirmDialogModule ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TablaGenerica,
+    DialogModule,
+    FormRevistas,
+    ToastModule,
+    ConfirmDialogModule,
+  ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './revista-voces-admin.html',
   styleUrl: './revista-voces-admin.css',
 })
 export class RevistaVocesAdmin {
-
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
@@ -42,7 +49,14 @@ export class RevistaVocesAdmin {
 
   revistasService: ApiRevistas;
   columns: ColumnConfig[] = [
-    { field: 'id_revista', header: 'Id', sortable: true, filterable: true, filterType:'numeric', tooltip: false },
+    {
+      field: 'id_revista',
+      header: 'Id',
+      sortable: true,
+      filterable: true,
+      filterType: 'numeric',
+      tooltip: false,
+    },
     {
       field: 'portada',
       header: 'Portada',
@@ -88,6 +102,8 @@ export class RevistaVocesAdmin {
 
   editar(revista: any) {
     console.log('Editar revista:', revista);
+    this.revistaToEdit = revista; // 📌 Guarda la revista seleccionada
+    this.showDialog.set(true); // 📌 Abre el diálogo
   }
 
   eliminar(revista: Revistas) {

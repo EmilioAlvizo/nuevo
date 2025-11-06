@@ -12,6 +12,7 @@ const config = {
     trustedConnection: true,
     encrypt: false,
     enableArithAbort: true,
+    timezone: 'America/Mexico_City',
   },
   pool: {
     max: 10,

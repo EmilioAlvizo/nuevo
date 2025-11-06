@@ -97,6 +97,9 @@
             inputId="fecha"
             formControlName="fecha"
             dateFormat="yy-mm-dd"
+            [hourFormat]="'12'"
+            [showTime]="true"
+            
             placeholder="Seleccionar fecha"
             [showIcon]="true"
             iconDisplay="input"
