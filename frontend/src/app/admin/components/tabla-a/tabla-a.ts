@@ -17,6 +17,10 @@ import {
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { NuevoArchivoForm } from '../nuevo-archivo-form/nuevo-archivo-form';
 
+
+import { PlatformService } from '../../../core/services/platform.service';
+
+
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
 import { TableModule, TableLazyLoadEvent } from 'primeng/table';
@@ -77,6 +81,7 @@ interface LazyLoadParams {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TablaA {
+  protected platform = inject(PlatformService);
   // 🧩 Servicios inyectados (sin constructor)
   private apiArchivos_municipio = inject(ApiArchivos_municipio);
   private apiMunicipio = inject(ApiMunicipio);

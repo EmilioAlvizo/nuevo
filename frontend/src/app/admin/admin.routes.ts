@@ -9,7 +9,7 @@ import { InformacionInteresAdmin } from '../admin/pages/informacion-interes-admi
 
 
 export const adminRoutes: Routes = [
-  { path: '', component: HomeAdmin},
+  { path: '', component: HomeAdmin },
   { path: 'sistema-juventudes', component: SistemaJuventudesAdmin },
   { path: 'estadisticas', component: EstadisticasAdmin },
   { path: 'revista', component: RevistaVocesAdmin },

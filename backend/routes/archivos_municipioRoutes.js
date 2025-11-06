@@ -6,7 +6,7 @@ const Archivos_municipioController = require("../controllers/archivos_municipioC
 //autenticacion
 
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
-const { createUploadMiddleware } = require("../middleware/uploadMiddleware");
+// const { createUploadMiddleware } = require("../middleware/uploadMiddleware");
 
 /* const uploadArchivos = createUploadMiddleware("archivos_municipio", [
   { name: "archivo", maxCount: 1 },

@@ -1,16 +1,5 @@
 // nuevo/frontend/src/app/admin/pages/revista-voces-admin/revista-voces-admin.ts
-import {
-  Component,
-  signal,
-  WritableSignal,
-  inject,
-  OnInit,
-  ViewChild,
-  ElementRef,
-  Inject,
-  PLATFORM_ID,
-  AfterViewInit,
-} from '@angular/core';
+import { Component, signal, WritableSignal, inject,  OnInit, ViewChild, ElementRef, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
