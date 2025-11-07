@@ -75,6 +75,7 @@ export class RevistaVocesAdmin {
       filterable: true,
       filterType: 'date',
       tooltip: false,
+      dateFormat: 'long',
     },
     {
       field: 'estatus',

@@ -1,5 +1,6 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-navbar2',
@@ -8,6 +9,8 @@ import { RouterModule } from '@angular/router';
   styleUrl: './navbar2.css'
 })
 export class Navbar2 implements OnInit, OnDestroy{
+
+  publicUrl = environment.publicUrl;
   // Estados reactivos (Angular 20)
   showTopBar = true;
   mobileMenuOpen = false;

@@ -99,7 +99,8 @@
             dateFormat="yy-mm-dd"
             [hourFormat]="'12'"
             [showTime]="true"
-            
+            [showButtonBar]="true"
+            (onTodayClick)="setToday()"
             placeholder="Seleccionar fecha"
             [showIcon]="true"
             iconDisplay="input"

@@ -317,34 +317,48 @@ export class TablaGenerica {
   }
 
   private formatDate(
-    value: any,
-    format: 'short' | 'medium' | 'long' | 'full' | 'custom' = 'medium',
-    customFormat?: Intl.DateTimeFormatOptions
-  ): string {
-    if (!value) return '';
+  value: any,
+  format: 'short' | 'medium' | 'long' | 'full' | 'custom' = 'medium',
+  customFormat?: Intl.DateTimeFormatOptions
+): string {
+  if (!value) return '';
 
-    const date = new Date(value);
+  let date = new Date(value);
 
-    // Verificar si la fecha es válida
-    if (isNaN(date.getTime())) return value.toString();
+  // ⚙️ Ajuste para compensar zona horaria (mantiene la hora "como está en BD")
+  date = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
 
-    const locale = 'es-MX';
+  // Si no es una fecha válida, devolver texto original
+  if (isNaN(date.getTime())) return value.toString();
 
-    // Formatos predefinidos
-    const formats: Record<string, Intl.DateTimeFormatOptions> = {
-      short: { year: 'numeric', month: '2-digit', day: '2-digit' },
-      medium: { year: 'numeric', month: 'short', day: 'numeric' },
-      long: { year: 'numeric', month: 'long', day: 'numeric' },
-      full: {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      },
-    };
+  const locale = 'es-MX';
 
-    const options = format === 'custom' && customFormat ? customFormat : formats[format];
+  // Formatos predefinidos
+  const formats: Record<string, Intl.DateTimeFormatOptions> = {
+    short: { year: 'numeric', month: '2-digit', day: '2-digit' },
+    medium: { year: 'numeric', month: 'short', day: 'numeric' },
+    long: {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true, // 👈 muestra AM/PM
+    },
+    full: {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    },
+  };
 
-    return date.toLocaleDateString(locale, options);
-  }
+  const options = format === 'custom' && customFormat ? customFormat : formats[format];
+
+  return date.toLocaleString(locale, options); // 👈 usamos toLocaleString, no toLocaleDateString
+}
+
 }

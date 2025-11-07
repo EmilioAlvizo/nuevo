@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,7 @@ import { CommonModule } from '@angular/common';
 export class Home implements OnInit {
   municipios: Municipio[] = [];
   testimonios: Testimonios[] = [];
+  publicUrl = environment.publicUrl;
 
   constructor(private api: ApiMunicipio, private datasetService: ApiTestimonios) {}
 

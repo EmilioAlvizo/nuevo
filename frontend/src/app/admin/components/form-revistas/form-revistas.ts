@@ -11,7 +11,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { AutoCompleteModule } from 'primeng/autocomplete';
+import { toZonedTime } from 'date-fns-tz';
 
 // PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
@@ -22,6 +22,7 @@ import { SelectModule } from 'primeng/select';
 import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
 import { DatePickerModule } from 'primeng/datepicker';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 interface EstatusOption {
   label: string;
@@ -98,7 +99,7 @@ export class FormRevistas {
       const revista = this.revistaToEdit();
       const isVisible = this.visible();
       const isEdit = this.isEditMode();
-      
+
       // Solo cargar si:
       // 1. El diálogo está visible
       // 2. Es modo edición
@@ -176,7 +177,7 @@ export class FormRevistas {
   handleSubmit(): void {
     // 👇 Marcar que el formulario fue enviado
     this.formSubmitted.set(true);
-    
+
     // Marcar todos los campos como touched para mostrar errores
     Object.keys(this.revistaForm.controls).forEach((key) => {
       this.revistaForm.get(key)?.markAsTouched();
@@ -276,19 +277,19 @@ export class FormRevistas {
 
   loadRevistaData(revista: any): void {
     console.log('📋 Cargando revista:', revista.id_revista);
-    
+
     // 👇 Cargar los valores directamente sin timeout
     this.revistaForm.patchValue({
       volumen: revista.volumen,
       numero_year: revista.numero_year,
       descripcion: revista.descripcion,
-      fecha: revista.fecha ? new Date(revista.fecha) : null,
+      fecha: revista.fecha ? this.parseLocalDateTime(revista.fecha) : null,
       estatus: revista.estatus,
     });
-    
+
     console.log('✅ Formulario después de cargar:', this.revistaForm.value);
     console.log('✅ Estatus cargado:', this.revistaForm.get('estatus')?.value);
-    
+
     // Marcar como pristine después de cargar
     this.revistaForm.markAsPristine();
     this.revistaForm.markAsUntouched();
@@ -299,6 +300,40 @@ export class FormRevistas {
     this.archivoSeleccionado.set(null);
     this.archivoNombre.set(null);
     this.formSubmitted.set(false);
+  }
+
+  private parseLocalDateTime(value: string): Date {
+    if (value.endsWith('Z')) {
+      value = value.slice(0, -1);
+    }
+
+    const normalized = value.includes(' ') ? value.replace(' ', 'T') : value;
+    const date = new Date(normalized);
+
+    if (isNaN(date.getTime())) {
+      return new Date();
+    }
+
+    // ❌ elimina esta línea:
+    // return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+
+    // ✅ usa directamente:
+    return date;
+  }
+
+  setToday(): void {
+    const now = new Date();
+
+    // Zona horaria de Ciudad de México
+    const timeZone = 'America/Mexico_City';
+
+    // Convierte la fecha actual del sistema a la hora local de México
+    const mexicoNow = toZonedTime(now, timeZone);
+
+    // Asigna la fecha/hora actual de México al formulario
+    this.revistaForm.patchValue({
+      fecha: mexicoNow,
+    });
   }
 
   getSeverity(estatus: string): 'success' | 'danger' {
