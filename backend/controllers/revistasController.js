@@ -7,7 +7,7 @@ const TABLE_NAME = "revistas"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_revista"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
 const path = require("path");
 const fs = require("fs");
-const angularPublicPath = path.join(__dirname, "../../frontend/public");
+const angularPublicPath = path.join(__dirname, "../public");
 
 class RevistasController {
   // GET - Obtener todos los registros

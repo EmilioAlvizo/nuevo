@@ -76,7 +76,7 @@
             optionValue="value"
             placeholder="Seleccionar estatus"
             class="w-100"
-            [class.ng-invalid]="isFieldInvalid('estatus')"
+            [invalid]="isFieldInvalid('estatus')"
           >
             <ng-template let-option #item>
               <p-tag [value]="option.label" [severity]="getSeverity(option.value)" />
@@ -130,7 +130,7 @@
             <div class="mt-2">
               <img
                 [src]="
-                  '/revistas/' + revistaToEdit().id_revista + '/portada/' + revistaToEdit().portada
+                  'http://localhost:3000/public/revistas/' + revistaToEdit().id_revista + '/portada/' + revistaToEdit().portada
                 "
                 alt="Portada actual"
                 class="img-thumbnail"
@@ -223,7 +223,7 @@
             <div class="mt-2">
               <a
                 [href]="
-                  '/revistas/' + revistaToEdit().id_revista + '/archivo/' + revistaToEdit().archivo
+                  'http://localhost:3000/public/revistas/' + revistaToEdit().id_revista + '/archivo/' + revistaToEdit().archivo
                 "
                 target="_blank"
                 class="btn btn-outline-primary btn-sm"

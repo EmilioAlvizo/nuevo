@@ -43,10 +43,8 @@ app.use((req, res, next) => {
 });
 
 //Carpeta public en proyecto Angular
-const angularPublicPath = path.join(__dirname, '../../frontend/public');
-
-
-app.use('/public', express.static(angularPublicPath));
+const backendPublicPath = path.join(__dirname, 'public');
+app.use('/public', express.static(backendPublicPath));
 
 // Ruta de bienvenida
 app.get("/", (req, res) => {

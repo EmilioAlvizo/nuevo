@@ -8,6 +8,7 @@ import {
   computed,
   effect,
   model,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -65,6 +66,7 @@ export class FormRevistas {
   archivoSeleccionado = signal<File | null>(null);
   archivoNombre = signal<string | null>(null);
   isSaving = signal<boolean>(false);
+  formSubmitted = signal<boolean>(false);
 
   // Computed signals
   dialogTitle = computed(() => (this.isEditMode() ? 'Editar Revista' : 'Agregar Revista'));
@@ -77,7 +79,10 @@ export class FormRevistas {
   // Form
   revistaForm: FormGroup;
 
-  constructor() {
+  // 🔥 Variable para evitar recargas múltiples
+  private lastLoadedRevistaId: number | null = null;
+
+  constructor(private cdr: ChangeDetectorRef) {
     this.revistaForm = this.fb.group({
       volumen: [null as number | null, [Validators.required, Validators.min(1)]],
       numero_year: [null as number | null, [Validators.required, Validators.min(1)]],
@@ -88,18 +93,44 @@ export class FormRevistas {
       archivoFile: [null as File | null],
     });
 
-    // Effect para cargar datos en modo edición
+    // 🔥 Effect optimizado: solo se ejecuta cuando cambia la revista Y el diálogo se abre
     effect(() => {
       const revista = this.revistaToEdit();
-      if (revista && this.isEditMode()) {
+      const isVisible = this.visible();
+      const isEdit = this.isEditMode();
+      
+      // Solo cargar si:
+      // 1. El diálogo está visible
+      // 2. Es modo edición
+      // 3. Hay una revista
+      // 4. Es una revista diferente a la última cargada
+      if (isVisible && isEdit && revista && revista.id_revista !== this.lastLoadedRevistaId) {
+        console.log('🔄 Effect: Cargando revista', revista.id_revista);
+        this.lastLoadedRevistaId = revista.id_revista;
         this.loadRevistaData(revista);
+      } else if (isVisible && !isEdit) {
+        // Si se abre en modo crear, limpiar el ID
+        this.lastLoadedRevistaId = null;
+      } else if (!isVisible) {
+        // Si se cierra el diálogo, resetear el ID
+        this.lastLoadedRevistaId = null;
       }
     });
   }
 
+  // 👇 MÉTODO ACTUALIZADO siguiendo el patrón de PrimeNG
   isFieldInvalid(fieldName: string): boolean {
     const field = this.revistaForm.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    return !!(field && field.invalid && (field.touched || this.formSubmitted()));
+  }
+
+  // 🔥 NUEVO: Método para manejar cambios en el estatus
+  onEstatusChange(event: any): void {
+    console.log('🔄 Estatus cambiado a:', event.value);
+    // Actualizar el formulario explícitamente
+    this.revistaForm.patchValue({ estatus: event.value });
+    this.revistaForm.get('estatus')?.markAsTouched();
+    this.revistaForm.get('estatus')?.markAsDirty();
   }
 
   onPortadaSelect(event: any): void {
@@ -143,6 +174,9 @@ export class FormRevistas {
   }
 
   handleSubmit(): void {
+    // 👇 Marcar que el formulario fue enviado
+    this.formSubmitted.set(true);
+    
     // Marcar todos los campos como touched para mostrar errores
     Object.keys(this.revistaForm.controls).forEach((key) => {
       this.revistaForm.get(key)?.markAsTouched();
@@ -229,6 +263,8 @@ export class FormRevistas {
     this.archivoSeleccionado.set(null);
     this.archivoNombre.set(null);
     this.isSaving.set(false);
+    this.formSubmitted.set(false);
+    this.lastLoadedRevistaId = null; // 👈 RESETEAR el ID
 
     if (this.portadaUploader) {
       this.portadaUploader.clear();
@@ -239,6 +275,9 @@ export class FormRevistas {
   }
 
   loadRevistaData(revista: any): void {
+    console.log('📋 Cargando revista:', revista.id_revista);
+    
+    // 👇 Cargar los valores directamente sin timeout
     this.revistaForm.patchValue({
       volumen: revista.volumen,
       numero_year: revista.numero_year,
@@ -246,12 +285,20 @@ export class FormRevistas {
       fecha: revista.fecha ? new Date(revista.fecha) : null,
       estatus: revista.estatus,
     });
+    
+    console.log('✅ Formulario después de cargar:', this.revistaForm.value);
+    console.log('✅ Estatus cargado:', this.revistaForm.get('estatus')?.value);
+    
+    // Marcar como pristine después de cargar
+    this.revistaForm.markAsPristine();
+    this.revistaForm.markAsUntouched();
 
     // Limpiar archivos seleccionados al cargar datos
     this.portadaSeleccionada.set(null);
     this.portadaPreview.set(null);
     this.archivoSeleccionado.set(null);
     this.archivoNombre.set(null);
+    this.formSubmitted.set(false);
   }
 
   getSeverity(estatus: string): 'success' | 'danger' {

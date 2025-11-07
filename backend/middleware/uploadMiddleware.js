@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const angularPublicPath = path.join(__dirname, '../../frontend/public');
+const backendPublicPath = path.join(__dirname, '../public');
 
 // Función para generar nombre único
 function generarNombreArchivo(originalname) {
@@ -20,7 +20,7 @@ function generarNombreArchivo(originalname) {
 function crearUpload(carpetaBase, validaciones = {}) {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      const tempFolder = path.join(angularPublicPath, carpetaBase, 'temp');
+      const tempFolder = path.join(backendPublicPath, carpetaBase, 'temp');
       fs.mkdirSync(tempFolder, { recursive: true });
       cb(null, tempFolder);
     },
@@ -63,4 +63,4 @@ function crearUpload(carpetaBase, validaciones = {}) {
   return multer({ storage, fileFilter });
 }
 
-module.exports = { crearUpload, angularPublicPath };
+module.exports = { crearUpload, backendPublicPath };
