@@ -1,4 +1,3 @@
-// nuevo/frontend/src/app/admin/components/archivo-form/archivo-form.component.ts
 import {
   Component,
   output,
@@ -8,6 +7,7 @@ import {
   computed,
   effect,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,   // ✅ Importamos ChangeDetectorRef
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -35,7 +35,7 @@ interface MunicipioOption {
 }
 
 @Component({
-  selector: 'app-nuevo-archivo-form', // ✅ Cambiado de 'app-nuevo-archivo-form'
+  selector: 'app-nuevo-archivo-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
@@ -54,6 +54,8 @@ export class NuevoArchivoForm {
   private fb = new FormBuilder().nonNullable;
   private messageService = MessageService;
 
+  constructor(private cdr: ChangeDetectorRef) {}  // ✅ Inyectamos ChangeDetectorRef
+
   @ViewChild('fileUploader') fileUploader: any;
 
   // Inputs
@@ -62,7 +64,7 @@ export class NuevoArchivoForm {
   isEditMode = input<boolean>(false);
   archivoToEdit = input<Archivos_municipio | null>(null);
 
-  // Outputs - ✅ Tipos corregidos
+  // Outputs
   visibleChange = output<boolean>();
   save = output<{ data: Partial<Archivos_municipio>; file: File | null }>();
 
@@ -70,7 +72,6 @@ export class NuevoArchivoForm {
   archivoSeleccionado = signal<File | null>(null);
   isSaving = signal<boolean>(false);
 
-  // Computed signals
   municipiosOptions = computed<MunicipioOption[]>(() =>
     this.municipios().map((m) => ({
       label: m.nombre,
@@ -103,31 +104,20 @@ export class NuevoArchivoForm {
     this.isEditMode() ? 'Editar Archivo' : 'Nuevo Archivo Municipal'
   );
 
-  // fechaActual = computed(() => new Date().toISOString().split('T')[0]);
+  archivoForm: FormGroup = this.fb.group({
+    nombre_archivo: ['', [Validators.required, Validators.minLength(3)]],
+    id_municipio: [null as number | null, [Validators.required]],
+    tipo_archivo: ['', [Validators.required]],
+    categoria_archivo: ['', [Validators.required]],
+    subcategoria_archivo: [''],
+    palabras_clave: [''],
+    estatus_archivo: ['A', [Validators.required]],
+    archivo: [null as File | null],
+    fecha_archivo: [null, [Validators.required]],
+  });
 
-  // Form
-  archivoForm: FormGroup;
-
-  constructor() {
-    this.archivoForm = this.fb.group({
-      nombre_archivo: ['', [Validators.required, Validators.minLength(3)]],
-      id_municipio: [null as number | null, [Validators.required]],
-      tipo_archivo: ['', [Validators.required]],
-      categoria_archivo: ['', [Validators.required]],
-      subcategoria_archivo: [''],
-      palabras_clave: [''],
-      estatus_archivo: ['A', [Validators.required]],
-      archivo: [null as File | null],
-     
-      //  fecha_archivo: [new Date().toISOString().split('T')[0], [Validators.required]],
-       fecha_archivo: [null, [Validators.required]],
-       
-
-    });
-
-
-
-    // Effect para cargar datos en modo edición
+  // 🔄 Effect para cargar datos en modo edición
+  ngOnInit(): void {
     effect(() => {
       const archivo = this.archivoToEdit();
       if (archivo && this.isEditMode()) {
@@ -148,7 +138,6 @@ export class NuevoArchivoForm {
       this.archivoForm.patchValue({ archivo: file });
       this.archivoForm.get('archivo')?.markAsTouched();
 
-      // Auto-completar nombre si está vacío
       if (!this.archivoForm.get('nombre_archivo')?.value) {
         const nombreSinExtension = file.name.split('.').slice(0, -1).join('.');
         this.archivoForm.patchValue({ nombre_archivo: nombreSinExtension });
@@ -163,12 +152,10 @@ export class NuevoArchivoForm {
   }
 
   handleSubmit(): void {
-    // Marcar todos los campos como touched para mostrar errores
     Object.keys(this.archivoForm.controls).forEach((key) => {
       this.archivoForm.get(key)?.markAsTouched();
     });
 
-    // Validar que se haya seleccionado un archivo (solo en crear)
     if (!this.isEditMode() && !this.archivoSeleccionado()) {
       this.archivoForm.get('archivo')?.setErrors({ required: true });
       return;
@@ -177,7 +164,6 @@ export class NuevoArchivoForm {
     if (this.archivoForm.valid) {
       this.isSaving.set(true);
       const formData = this.archivoForm.getRawValue();
-      console.log('form ', formData)
       this.save.emit({
         data: formData,
         file: this.archivoSeleccionado(),
@@ -205,8 +191,12 @@ export class NuevoArchivoForm {
     if (this.fileUploader) {
       this.fileUploader.clear();
     }
+
+    // 👇 Forzar detección tras reset
+    this.cdr.detectChanges();
   }
 
+  /** ✅ Cargar datos de archivo y refrescar selects */
   loadArchivoData(archivo: Archivos_municipio): void {
     this.archivoForm.patchValue({
       nombre_archivo: archivo.nombre_archivo,
@@ -216,13 +206,11 @@ export class NuevoArchivoForm {
       subcategoria_archivo: archivo.subcategoria_archivo || '',
       palabras_clave: archivo.palabras_clave || '',
       estatus_archivo: archivo.estatus_archivo,
-
-      fecha_archivo: archivo.fecha_archivo ? archivo.fecha_archivo.split('T')[0] : null
-
-      // fecha_archivo: archivo.fecha_archivo
-      // ? archivo.fecha_archivo.split('T')[0]
-      // : '',
+      fecha_archivo: archivo.fecha_archivo ? archivo.fecha_archivo.split('T')[0] : null,
     });
+
+    // 👇 Esperar un ciclo y refrescar los selects manualmente
+    Promise.resolve().then(() => this.cdr.detectChanges());
   }
 
   getSeverity(estatus: string): 'success' | 'danger' {
@@ -233,7 +221,6 @@ export class NuevoArchivoForm {
     return (bytes / 1024).toFixed(2) + ' KB';
   }
 
-  // Métodos públicos para ser llamados desde el padre
   public completeSave(): void {
     this.isSaving.set(false);
     this.resetForm();
@@ -242,5 +229,5 @@ export class NuevoArchivoForm {
 
   public cancelSave(): void {
     this.isSaving.set(false);
-  } 
+  }
 }
