@@ -1,24 +1,20 @@
-// nuevo/frontend/src/app/services/documentos_cendoc.ts
-
 import { Injectable, inject } from '@angular/core';
+//esto es para comunicarse con el backend
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
-export interface Documentos_cendoc {
+// usar Observable<any> es una mala practica, por ello usamos interfaces (ejemplo para municipio)
+export interface DocumentoFisico {
   id_documento: number;
-  nombre_documento: string;
-  autor_documento: string;
-  descripcion_documento: string;
-  fecha_documento: string;
-  id_categoria_cendoc: number;
-  archivo_documento: string;
-  estatus_documento: string;
+  titulo: string;
+  editorial: string;
+  tipo: string;
+  clave: string;
+  ejemplares: string;
+  estatus: string;
   fecha_modificacion: string;
-  palabra_clave: string;
-  // Datos del municipio (JOIN)
-  nombre_categoria?: string;
 }
 
 @Injectable({
@@ -26,18 +22,20 @@ export interface Documentos_cendoc {
 })
 
 //esto es para comunicarse con el backend real
-export class ApiDocumentos_cendoc {
+export class ApiDocumentosFisicos {
   //url del backend
-  private apiUrl = `${environment.apiUrl}/documentos_cendoc`;
+  private apiUrl = `${environment.apiUrl}/documentos_fisicos`;
   private http = inject(HttpClient);
 
-  getMessage(): Observable<ApiResponse<Documentos_cendoc>> {
-    //realiza una solicitud GET a la URL del backend
-    return this.http.get<ApiResponse<Documentos_cendoc>>(this.apiUrl);
+  //PETICIÓN GET
+  getAll(): Observable<ApiResponse<DocumentoFisico>> {
+    return this.http.get<ApiResponse<DocumentoFisico>>(this.apiUrl);
   }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
-  getFiltrados(filtros: any): Observable<ApiResponsePaginated<Documentos_cendoc>> {
+  getFiltrados(
+    filtros: any
+  ): Observable<ApiResponse<DocumentoFisico>> {
     let params = new HttpParams();
 
     // Agregar todos los parámetros dinámicamente
@@ -57,16 +55,24 @@ export class ApiDocumentos_cendoc {
     });
     console.log('Llamando a API DocumentoFisico con params:', params.toString());
 
-    return this.http.get<ApiResponsePaginated<Documentos_cendoc>>(`${this.apiUrl}/filtrados`, {
+    return this.http.get<ApiResponsePaginated<DocumentoFisico>>(`${this.apiUrl}/filtrados`, {
       params,
     });
   }
 
-  // Obtener conteo de archivos por municipio
-  getConteosPorDocumentos_cendoc(): Observable<{
-    success: boolean;
-    data: { id_categoria_cendoc: number; nombre_categoria_cendoc: string; contador: number }[];
-  }> {
-    return this.http.get<any>(`${this.apiUrl}/conteos-documentos_cendoc`);
+  crear(formData: FormData) {
+    console.log('apiUrl: ', this.apiUrl);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+    return this.http.post<any>(this.apiUrl, formData);
+  }
+
+  actualizar(id: number, data: any) {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+  }
+
+  eliminar(id: number): Observable<ApiResponse<DocumentoFisico>> {
+    return this.http.delete<ApiResponse<DocumentoFisico>>(`${this.apiUrl}/${id}`);
   }
 }

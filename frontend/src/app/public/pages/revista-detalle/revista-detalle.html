@@ -10,10 +10,10 @@
     <p class="fecha">{{ revista.fecha | date:'longDate' }}</p>
     
     <div class="flipbook-wrapper">
-        <app-flipbook [src]="'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo" [pageWidth]="900"></app-flipbook>
+        <app-flipbook [src]="publicUrl+'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo" [pageWidth]="900"></app-flipbook>
 
 
-        <div class="card-layer with-image" [style.background-image]="'url(/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
+        <div class="card-layer with-image" [style.background-image]="'url('+publicUrl+'/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
 
 
         </div>

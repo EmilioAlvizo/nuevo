@@ -20,6 +20,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
 import { FormRevistas } from '../../components/form-revistas/form-revistas';
+import { environment } from '../../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -39,6 +40,7 @@ import Swal from 'sweetalert2';
   styleUrl: './revista-voces-admin.css',
 })
 export class RevistaVocesAdmin {
+  publicUrl = environment.publicUrl;
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
@@ -62,7 +64,7 @@ export class RevistaVocesAdmin {
       header: 'Portada',
       width: '120px',
       template: (row) => {
-        const imagePath = `http://localhost:3000/public/revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
+        const imagePath = `${this.publicUrl}revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
         return `<img src="${imagePath}" alt="Portada" width="60" height="80" class="w-24 rounded">`;
       },
       tooltip: false,
@@ -160,9 +162,25 @@ export class RevistaVocesAdmin {
   }
 
   ver(revista: any) {
-    console.log('Ver revista:', revista);
-  }
+    if (!revista || !revista.id_revista) {
+      console.warn('No se encontró la revista seleccionada.');
+      return;
+    }
 
+    // 📁 Ruta al archivo de la revista (ajusta el nombre del archivo si cambia)
+    const fileUrl = `${this.publicUrl}revistas/${revista.id_revista}/archivo/${revista.archivo}`;
+
+    // 🔍 Opción 1: Abrir el archivo en una nueva pestaña
+    window.open(fileUrl, '_blank');
+
+    // 🔽 Opción 2: Descargar automáticamente
+    // const link = document.createElement('a');
+    // link.href = fileUrl;
+    // link.download = `${revista.volumen || 'revista'}.pdf`;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+  }
   guardarRevista(formData: FormData) {
     const isEdit = !!this.revistaToEdit;
 

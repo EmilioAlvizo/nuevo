@@ -153,8 +153,28 @@ function buildConditions(params, request, config) {
   return conditions;
 }
 
+// 🛠️ Utilidad para parsear parámetros de array
+  function parseArrayParam(param, type = "string") {
+    console.log("func   ", param);
+    if (!param) return [];
+
+    // Si ya es un array, devolverlo
+    if (Array.isArray(param)) {
+      return type === "int" ? param.map(Number) : param;
+    }
+
+    // Si es un string, dividirlo por comas
+    const arr = param
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return type === "int" ? arr.map(Number) : arr;
+  }
+
 module.exports = {
   buildFilterCondition,
   buildDateFilterCondition,
   buildConditions,
+  parseArrayParam,
 };

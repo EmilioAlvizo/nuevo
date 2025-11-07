@@ -11,6 +11,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 import { toZonedTime } from 'date-fns-tz';
 
 // PrimeNG Imports
@@ -47,6 +48,7 @@ interface EstatusOption {
   styleUrl: './form-revistas.css',
 })
 export class FormRevistas {
+  publicUrl = environment.publicUrl;
   private fb = new FormBuilder().nonNullable;
 
   @ViewChild('portadaUploader') portadaUploader: any;

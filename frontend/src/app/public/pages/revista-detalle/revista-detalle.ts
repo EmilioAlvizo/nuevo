@@ -4,6 +4,7 @@ import { CommonModule, registerLocaleData } from '@angular/common';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { Flipbook } from '../../components/flipbook/flipbook';
 import localeEs from '@angular/common/locales/es';
+import { environment } from '../../../../environments/environment';
 
 registerLocaleData(localeEs);
 
@@ -17,6 +18,7 @@ registerLocaleData(localeEs);
   providers: [{ provide: LOCALE_ID, useValue: 'es' }] 
 })
 export class RevistaDetalle implements OnInit {
+  publicUrl = environment.publicUrl;
 
   revista?: Revistas;
 

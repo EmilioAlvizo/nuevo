@@ -1,1 +1,20 @@
-<p>centro-documental-admin works!</p>
+<!-- nuevo/frontend/src/app/admin/pages/centro-documental-admin/centro-documental-admin.html -->
+<app-tabla-generica
+  [dataService]="Service"
+  [columns]="columns"
+  [title]="'Documentos fisicos'"
+  [entityName]="'revista'"
+  [showSelection]="false"
+  [showViewButton]="false"
+  [showEditButton]="true"
+  [showDeleteButton]="false"
+  (add)="agregar()"
+  (edit)="editar($event)"
+  (remove)="eliminar($event)"
+  (view)="ver($event)"
+  [refreshSignal]="refrescarTabla"
+/>
+
+<!-- mensajes -->
+<p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" />
+<p-toast />

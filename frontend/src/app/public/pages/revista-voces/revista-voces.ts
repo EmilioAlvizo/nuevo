@@ -3,17 +3,19 @@ import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Flipbook } from '../../components/flipbook/flipbook';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-revista-voces',
   standalone: true,
-  imports: [CommonModule, Flipbook ],
+  imports: [CommonModule, Flipbook],
   templateUrl: './revista-voces.html',
-  styleUrl: './revista-voces.css'
+  styleUrl: './revista-voces.css',
 })
 export class RevistaVoces implements OnInit {
+  publicUrl = environment.publicUrl;
 
-revistas: Revistas[] = [];
+  revistas: Revistas[] = [];
 
   constructor(private apiRevistas: ApiRevistas, private router: Router) {}
 
@@ -26,12 +28,12 @@ revistas: Revistas[] = [];
       next: (response) => {
         if (response.success && response.data) {
           // Filtrar solo las revistas activas
-          this.revistas = response.data.filter(r => r.estatus === 'A');
+          this.revistas = response.data.filter((r) => r.estatus === 'A');
         }
       },
       error: (error) => {
         console.error('Error al obtener revistas:', error);
-      }
+      },
     });
   }
 
@@ -39,7 +41,4 @@ revistas: Revistas[] = [];
     // Redirige a una vista detalle pasando el id de la revista
     this.router.navigate(['/revista', revista.id_revista]);
   }
-
-
-
 }

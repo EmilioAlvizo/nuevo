@@ -171,7 +171,7 @@ export class Tabla implements OnInit {
       pagina: this.paginaActual,
     };
 
-    this.documentos_cendocService.getArchivosFiltrados(params).subscribe({
+    this.documentos_cendocService.getFiltrados(params).subscribe({
       next: (response) => {
         this.filteredDocumentos_cendoc = response.data;
         this.totalResultados = response.total || 0;
