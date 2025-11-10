@@ -10,23 +10,25 @@ import {
   OnDestroy,
   effect,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { NavbarAdmin2 } from '../../../admin/shared/navbar-admin2/navbar-admin2'
+import { TopBar } from '../../../admin/shared/top-bar/top-bar'
 
 @Component({
   selector: 'app-navbar3',
-  imports: [CommonModule, RouterModule, NavbarAdmin2],
+  imports: [CommonModule, NgOptimizedImage, RouterModule, TopBar],
   templateUrl: './navbar3.html',
   styleUrl: './navbar3.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.scrolled]': 'isScrolled()',
+    '[class.menu-open]': 'mobileMenuOpen()', // 🆕 Clase en el host
   },
 })
 export class Navbar3 implements OnInit, OnDestroy {
   publicUrl = environment.publicUrl;
+  
   // Inputs configurables
   brandLink = input('/');
   scrollThreshold = input(50);
@@ -59,12 +61,20 @@ export class Navbar3 implements OnInit, OnDestroy {
         this.handleScroll();
       });
     }
+
+    // 🆕 Prevenir scroll cuando el menú móvil está abierto
+    this.preventBodyScroll();
   }
 
   ngOnDestroy(): void {
     this.clickOutsideHandler?.();
     this.scrollHandler?.();
     clearTimeout(this.debounceTimer);
+    
+    // 🆕 Limpiar la clase del body al destruir
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('movile-menu-open');
+    }
   }
 
   private handleScroll(): void {
@@ -74,10 +84,8 @@ export class Navbar3 implements OnInit, OnDestroy {
     requestAnimationFrame(() => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const threshold = this.scrollThreshold();
-      const tolerance = 60; // Histeresis: evita parpadeos cerca del umbral
-      console.log('scroll ',scrollTop)
+      const tolerance = 60;
 
-      // Actualizar estado con debounce
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => {
         const shouldShowTopBar = scrollTop < threshold - tolerance;
@@ -92,24 +100,57 @@ export class Navbar3 implements OnInit, OnDestroy {
         }
 
         this.lastScrollTop = scrollTop;
-      }, 80); // 80ms debounce
+      }, 80);
 
       this.ticking = false;
     });
   }
 
+  // 🆕 Prevenir scroll del body cuando el menú está abierto
+  private preventBodyScroll(): void {
+    if (typeof document === 'undefined') return;
+
+    const body = document.body;
+    
+    // Observar cambios en mobileMenuOpen
+    const checkMenuState = () => {
+      if (this.mobileMenuOpen()) {
+        body.classList.add('mobile-menu-open');
+      } else {
+        body.classList.remove('movile-menu-open');
+      }
+    };
+
+    // Ejecutar cada vez que cambie el signal
+    setInterval(checkMenuState, 50);
+  }
+
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
-    if (!this.mobileMenuOpen()) this.dropdownOpen.set(false);
+    
+    // 🆕 Cerrar dropdown al cerrar menú móvil
+    if (!this.mobileMenuOpen()) {
+      this.dropdownOpen.set(false);
+    }
+    
+    console.log('📱 [NAVBAR] Menú móvil:', this.mobileMenuOpen() ? 'Abierto' : 'Cerrado');
   }
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();
     this.dropdownOpen.update((open) => !open);
+    console.log('📋 [NAVBAR] Dropdown:', this.dropdownOpen() ? 'Abierto' : 'Cerrado');
   }
 
   closeMenu(): void {
+    console.log('🔒 [NAVBAR] Cerrando todo');
     this.mobileMenuOpen.set(false);
     this.dropdownOpen.set(false);
+  }
+
+  // 🆕 Cerrar menú al navegar
+  onLinkClick(): void {
+    console.log('🔗 [NAVBAR] Navegando, cerrando menú');
+    this.closeMenu();
   }
 }

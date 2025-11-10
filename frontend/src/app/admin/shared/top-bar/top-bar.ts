@@ -1,17 +1,26 @@
-// nuevo/frontend/src/app/admin/shared/navbar-admin2/navbar-admin2.ts
-import { Component, inject, input, Renderer2, signal, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  Renderer2,
+  signal,
+  OnInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService, User } from '../../../core/services/auth.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-navbar-admin2',
+  selector: 'app-top-bar',
   imports: [CommonModule, RouterModule],
-  templateUrl: './navbar-admin2.html',
-  styleUrl: './navbar-admin2.css',
+  templateUrl: './top-bar.html',
+  styleUrl: './top-bar.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NavbarAdmin2 {
+export class TopBar {
   // Services
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -28,21 +37,19 @@ export class NavbarAdmin2 {
   // Handlers
   private clickOutsideHandler?: () => void;
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     // Suscribirse a cambios de autenticación
-    this.authService.currentUser$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(user => {
-        this.currentUser.set(user);
-        console.log('👤 [TOP-BAR] Usuario actualizado:', user?.email || 'No autenticado');
-      });
+    this.authService.currentUser$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
+      this.currentUser.set(user);
+      console.log('👤 [TOP-BAR] Usuario actualizado:', user?.email || 'No autenticado');
+    });
 
     // ✅ Detectar clic fuera del menú admin para cerrarlo
     this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
       // Verificar si el clic fue dentro del botón admin o del menú desplegable
       const insideAdminBtn = (event.target as HTMLElement).closest('.admin-btn');
       const insideAdminMenu = (event.target as HTMLElement).closest('.admin-menu');
-      
+
       // Si el clic fue fuera de ambos, cerrar el menú
       if (!insideAdminBtn && !insideAdminMenu) {
         if (this.showAdminMenu()) {
@@ -60,7 +67,7 @@ export class NavbarAdmin2 {
   }
 
   // ==================== GETTERS ====================
-  
+
   get isLoggedIn(): boolean {
     return !!this.currentUser();
   }
@@ -73,7 +80,7 @@ export class NavbarAdmin2 {
 
   toggleAdminMenu(event: Event): void {
     event.stopPropagation();
-    this.showAdminMenu.update(open => !open);
+    this.showAdminMenu.update((open) => !open);
   }
 
   closeAdminMenu(): void {
@@ -93,7 +100,7 @@ export class NavbarAdmin2 {
       },
       error: (error) => {
         console.error('❌ Error al cerrar sesión:', error);
-      }
+      },
     });
   }
 }
