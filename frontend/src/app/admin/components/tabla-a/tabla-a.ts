@@ -115,7 +115,7 @@ export class TablaA {
   readonly categorias = ['Población', 'Económica', 'Social', 'Ambiental', 'Otro'];
   readonly estatusOptions = [
     { label: 'Activo', value: 'A' as const },
-    { label: 'Inactivo', value: 'I' as const },
+    { label: 'Inactivo', value: 'B' as const },
   ];
 
   @ViewChild('fileUploader') fileUploader?: any;

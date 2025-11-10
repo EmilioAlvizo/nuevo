@@ -95,9 +95,9 @@ export class NuevoArchivoForm {
     'Otro',
   ]);
 
-  estatusOptions = signal<Array<{ label: string; value: 'A' | 'I' }>>([
+  estatusOptions = signal<Array<{ label: string; value: 'A' | 'B' }>>([
     { label: 'Activo', value: 'A' },
-    { label: 'Inactivo', value: 'I' },
+    { label: 'Inactivo', value: 'B' },
   ]);
 
   dialogTitle = computed(() =>
