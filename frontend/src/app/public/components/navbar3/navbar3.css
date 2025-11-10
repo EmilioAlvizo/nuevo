@@ -51,7 +51,7 @@
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   width: calc(100% - 0.5rem);
   padding-left: 1.25rem;
   position: relative;
