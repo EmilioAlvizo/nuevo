@@ -200,7 +200,7 @@
         </td>
         <td>{{ archivo.categoria_archivo }}</td>
         <td>{{ archivo.subcategoria_archivo }}</td>
-        <td>{{ archivo.fecha_archivo | date : 'dd/MM/yyyy' }}</td>
+        <td>{{ archivo.fecha_archivo | date : 'dd/MM/yyyy' : 'UTC' }}</td>
         <td>{{ archivo.fecha_modificacion | date : 'dd/MM/yyyy HH:mm' }}</td>
         <td>
           <p-tag

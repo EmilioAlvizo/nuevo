@@ -420,7 +420,7 @@ static async create(req, res) {
       categoria_archivo: data.categoria_archivo,
       palabras_clave: data.palabras_clave,
       subcategoria_archivo: data.subcategoria_archivo,
-      fecha_archivo: new Date().toISOString().split('T')[0],
+      fecha_archivo: data.fecha_archivo,
     };
 
     // 📂 Si se envía un nuevo archivo, reemplazar el anterior
