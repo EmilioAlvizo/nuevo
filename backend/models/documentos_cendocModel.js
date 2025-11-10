@@ -90,7 +90,7 @@ class Documentos_cendocModel {
   
       // 🧮 Contar total
       const countQuery = `
-        SELECT COUNT(*) AS total FROM documentos_fisicos WHERE 1=1
+        SELECT COUNT(*) AS total FROM documentos_cendoc WHERE 1=1
         ${conditions.length > 0 ? " AND " + conditions.join(" AND ") : ""}
       `;
 

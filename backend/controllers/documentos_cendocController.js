@@ -150,7 +150,7 @@ class Documentos_cendocController {
         sortOrder: sortOrder ? parseInt(sortOrder) : null,
       };
 
-      const resultado = await Documentos_fisicosModel.getArchivosFiltrados(params);
+      const resultado = await Documentos_cendocModel.getArchivosFiltrados(params);
 
       //console.log("resultados ", resultado)
 
