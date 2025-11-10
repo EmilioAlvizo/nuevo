@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/public/components/navbar2/navbar2.ts
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
@@ -51,7 +52,7 @@ export class Navbar2 implements OnInit, OnDestroy{
   @HostListener('window:scroll')
   onScroll(): void {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    /* console.log('Scroll position:', scrollTop); */
-    this.showTopBar = scrollTop < 50;
+     console.log('Scroll position:', scrollTop); 
+    this.showTopBar = scrollTop <= 50;
   }
 }

@@ -1,0 +1,48 @@
+<!-- nuevo/frontend/src/app/public/components/navbar3/navbar3.html -->
+<!-- 📍 Barra superior -->
+<div class="top-bar" *ngIf="showTopBar()" [class.hidden]="!showTopBar()">
+  <div class="top-bar-content">
+    <div class="top-bar-left">
+      <span class="top-item">
+        <i class="pi pi-phone"></i>
+        <a href="tel:4777103400">477 710 34 00</a>
+      </span>
+      <span class="separator">|</span>
+      <a routerLink="/directorio" class="top-item">Directorio</a>
+    </div>
+
+    <div class="top-bar-right">
+      <a href="#" aria-label="Instagram"><i class="pi pi-instagram"></i></a>
+      <a href="#" aria-label="TikTok"><i class="pi pi-youtube"></i></a>
+      <a href="#" aria-label="Facebook"><i class="pi pi-facebook"></i></a>
+    </div>
+  </div>
+</div>
+
+<!-- 📍 Barra de navegación inferior -->
+<nav class="navbar" [class.scrolled]="isScrolled()">
+  <div class="navbar-content">
+    <!-- Logo -->
+    <a class="navbar-brand" [routerLink]="brandLink()">Sistema Juventudes</a>
+
+    <!-- Menú de navegación -->
+    <ul class="nav-links" [class.open]="mobileMenuOpen()">
+      <li><a routerLink="/">Inicio</a></li>
+      <li><a routerLink="/revista-voces">Revista Voces</a></li>
+      <li><a routerLink="/proyectos">Proyectos</a></li>
+      <li><a routerLink="/contacto">Contacto</a></li>
+
+      <!-- Botón Login -->
+      <li class="login-btn-item">
+        <button class="login-btn">Login</button>
+      </li>
+    </ul>
+
+    <!-- Botón móvil -->
+    <button class="menu-toggle" (click)="toggleMobileMenu()">
+      <i class="pi" [ngClass]="mobileMenuOpen() ? 'pi-times' : 'pi-bars'"></i>
+    </button>
+  </div>
+</nav>
+
+

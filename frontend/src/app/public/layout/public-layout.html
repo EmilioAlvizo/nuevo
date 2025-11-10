@@ -1,29 +1,20 @@
-<!-- <app-topbar></app-topbar>
-
-<div class="app-layout">
-  <app-navbar></app-navbar>
-  <main class="content">
-    <router-outlet></router-outlet>
-  </main>
-</div>
-
-<app-boton-contactanos></app-boton-contactanos>
-
-<app-footer></app-footer> -->
-
+<!-- nuevo/frontend/src/app/public/layout/public-layout/public-layout.html -->
+<!-- <app-topbar></app-topbar> <div class="app-layout"> <app-navbar></app-navbar> <main class="content"> <router-outlet></router-outlet> </main> </div> <app-boton-contactanos></app-boton-contactanos> <app-footer></app-footer> -->
 <!-- <app-topbar></app-topbar> -->
-
+ 
 <div class="app-layout">
   <!-- <app-navbar></app-navbar> -->
-  
   <main class="content">
-    <app-navbar2></app-navbar2>
+    <!-- <app-navbar2 style="position: sticky; top: 0; z-index: 1000;"></app-navbar2> -->
+    <app-navbar3
+      [brandLink]="'/'"
+      [scrollThreshold]="100" style="position: sticky; top: 0; z-index: 1000"
+    >
+    </app-navbar3>
     <router-outlet></router-outlet>
   </main>
-
   <!-- Si este botón es flotante, puede quedarse fuera -->
   <!-- <app-boton-contactanos></app-boton-contactanos> -->
-
   <!-- Footer debe estar dentro del layout -->
   <app-footer></app-footer>
 </div>

@@ -22,7 +22,6 @@
 // ];
 
 // nuevo/frontend/src/app/app.routes.ts
-// nuevo/frontend/src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { PublicLayoutComponent } from './public/layout/public-layout';
 import { AdminLayoutComponent } from './admin/layout/admin-layout';

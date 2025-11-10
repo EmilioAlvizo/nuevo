@@ -1,4 +1,9 @@
 /* Barra informativa superior (se oculta al hacer scroll) */
+app-navbar2 {
+    position: sticky;
+    top: 0;
+}
+
 .top-bar {
     background-color: #000000;
     border-bottom: 1px solid #333;

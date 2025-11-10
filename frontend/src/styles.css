@@ -7,6 +7,7 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
+  background-color: #ecf0f0;
 }
 
 /* El app-root debe crecer para llenar toda la ventana */

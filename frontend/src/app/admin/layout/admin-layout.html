@@ -9,9 +9,15 @@
 
 <app-footer></app-footer> -->
 
-<app-topbar></app-topbar>
+<!-- <app-topbar></app-topbar>
 
-<app-navbar-admin></app-navbar-admin>
+<app-navbar-admin></app-navbar-admin> -->
+
+<app-navbar3
+      [brandLink]="'/'"
+      [scrollThreshold]="100" style="position: sticky; top: 0; z-index: 1000"
+    >
+    </app-navbar3>
 <main class="content">
   <router-outlet></router-outlet>
 </main>

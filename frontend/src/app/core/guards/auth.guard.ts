@@ -1,52 +1,50 @@
 // nuevo/frontend/src/app/core/guards/auth.guard.ts
-import { inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { map, take, timeout, catchError, switchMap } from 'rxjs/operators';
-import { Observable, of, from } from 'rxjs';
-import { TimeoutError } from 'rxjs';
+import { PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { of, from, Observable } from 'rxjs';
+import { catchError, map, switchMap, take, timeout } from 'rxjs/operators';
 
-export const AuthGuard: CanActivateFn = (route, state): Observable<boolean | UrlTree> => {
+/**
+ * ✅ AuthGuard simple:
+ * - Espera a que AuthService termine de inicializarse
+ * - Si hay sesión → permite acceso
+ * - Si no hay sesión → redirige a /login
+ */
+export const AuthGuard: CanActivateFn = (
+  route,
+  state
+): Observable<boolean | UrlTree> => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
   console.log('🛡️ [GUARD] Verificando acceso a:', state.url);
 
-  // SSR siempre permite acceso, validará en el cliente
+  // SSR (server-side rendering): permitir acceso
   if (!isPlatformBrowser(platformId)) {
     return of(true);
   }
 
   // Esperar inicialización del AuthService
   return authService.waitForInitialization().pipe(
-    timeout(1),
+    timeout(3000),
     take(1),
     switchMap(() => {
-      // Si ya hay usuario en memoria, seguimos con ese
+      // ✅ Si ya hay usuario cargado en memoria, permitir acceso
       if (authService.currentUser) {
-        const requiredRole = route.data['role'];
-        if (requiredRole && authService.currentUser.rol !== requiredRole) {
-          console.warn('🚫 [GUARD] Rol insuficiente');
-          return of(router.createUrlTree(['/unauthorized']));
-        }
-        console.log('✅ [GUARD] Usuario ya autenticado');
+        console.log('✅ [GUARD] Usuario autenticado en memoria:', authService.currentUser.email);
         return of(true);
       }
 
-      // 🚀 Si no hay usuario cargado, verificar con el backend
-      console.log('🔍 [GUARD] Sin usuario local, verificando sesión...');
+      // 🚀 Si no hay usuario en memoria, intentar verificar sesión con el backend
+      console.log('🔍 [GUARD] Verificando sesión en backend...');
       return from(authService.verifySession()).pipe(
         map(user => {
           if (user) {
             console.log('✅ [GUARD] Sesión válida:', user.email);
-
-            const requiredRole = route.data['role'];
-            if (requiredRole && user.rol !== requiredRole) {
-              console.warn('🚫 [GUARD] Rol insuficiente');
-              return router.createUrlTree(['/unauthorized']);
-            }
             return true;
           }
 
@@ -55,108 +53,23 @@ export const AuthGuard: CanActivateFn = (route, state): Observable<boolean | Url
             queryParams: { returnUrl: state.url },
           });
         }),
-        catchError((error) => {
-          console.error('❌ [GUARD] Error verificando sesión:', error);
-          return of(router.createUrlTree(['/login'], {
-            queryParams: { returnUrl: state.url },
-          }));
+        catchError(err => {
+          console.error('❌ [GUARD] Error verificando sesión:', err);
+          return of(
+            router.createUrlTree(['/login'], {
+              queryParams: { returnUrl: state.url },
+            })
+          );
         })
       );
     }),
-    catchError((error) => {
-      console.error('❌ [GUARD] Error general en autenticación:', error);
-      return of(router.createUrlTree(['/login'], {
-        queryParams: { returnUrl: state.url },
-      }));
-    })
-  );
-};
-
-// ==================== GUARD PARA ROLES ====================
-
-export const RoleGuard: CanActivateFn = (route, state): Observable<boolean | UrlTree> => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-  const platformId = inject(PLATFORM_ID);
-
-  const requiredRole = route.data['role'] as string;
-
-  // En SSR, permitir acceso
-  if (!isPlatformBrowser(platformId)) {
-    return of(true);
-  }
-
-  return authService.waitForInitialization().pipe(
-    timeout(5000),
-    take(1),
-    map(() => {
-      const user = authService.currentUser;
-
-      if (!user) {
-        console.warn('❌ [ROLE-GUARD] No autenticado');
-        return router.createUrlTree(['/login'], {
-          queryParams: { returnUrl: state.url }
-        });
-      }
-
-      if (user.rol !== requiredRole) {
-        console.warn('🚫 [ROLE-GUARD] Rol insuficiente:', user.rol, 'vs', requiredRole);
-        return router.createUrlTree(['/unauthorized']);
-      }
-
-      console.log('✅ [ROLE-GUARD] Acceso permitido');
-      return true;
-    }),
-    catchError(() => {
-      return of(router.createUrlTree(['/login'], {
-        queryParams: { returnUrl: state.url }
-      }));
-    })
-  );
-};
-
-// ==================== GUARD PARA ADMIN ====================
-
-export const AdminGuard: CanActivateFn = (route, state): Observable<boolean | UrlTree> => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-  const platformId = inject(PLATFORM_ID);
-
-  console.log('🛡️ [ADMIN-GUARD] Verificando acceso admin a:', state.url);
-
-  // En SSR, permitir acceso
-  if (!isPlatformBrowser(platformId)) {
-    console.log('✅ [ADMIN-GUARD] SSR - Permitiendo acceso');
-    return of(true);
-  }
-
-  return authService.waitForInitialization().pipe(
-    timeout(5000),
-    take(1),
-    map(() => {
-      const user = authService.currentUser;
-
-      console.log('🛡️ [ADMIN-GUARD] Usuario actual:', user);
-
-      if (!user) {
-        console.warn('❌ [ADMIN-GUARD] No autenticado');
-        return router.createUrlTree(['/login'], {
-          queryParams: { returnUrl: state.url }
-        });
-      }
-
-      if (user.rol !== 'admin') {
-        console.warn('🚫 [ADMIN-GUARD] Se requiere rol admin, tiene:', user.rol);
-        return router.createUrlTree(['/unauthorized']);
-      }
-
-      console.log('✅ [ADMIN-GUARD] Acceso permitido');
-      return true;
-    }),
-    catchError(() => {
-      return of(router.createUrlTree(['/login'], {
-        queryParams: { returnUrl: state.url }
-      }));
+    catchError(err => {
+      console.error('❌ [GUARD] Error general:', err);
+      return of(
+        router.createUrlTree(['/login'], {
+          queryParams: { returnUrl: state.url },
+        })
+      );
     })
   );
 };

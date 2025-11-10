@@ -1,0 +1,135 @@
+<div class="top-bar" [class.hidden]="!show()">
+  <div class="top-bar-content" [class.expanded]="showAdminMenu() && isLoggedIn">
+    <!-- Contenido superior principal -->
+    <div class="top-bar-main">
+      <div class="top-bar-info">
+        <a>477 710 34 00</a>
+        <a href="http://directorio.juventudesgto.com/directoriojegto/">DIRECTORIO</a>
+      </div>
+      
+      <div class="top-bar-right">
+        <!-- Redes sociales -->
+        <div class="social">
+          <a href="https://www.instagram.com/juventudesgente/" target="_blank" aria-label="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="https://www.facebook.com/Juventudesgente/" target="_blank" aria-label="Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+          </a>
+          <a href="https://x.com/juventudesgente" target="_blank" aria-label="X (Twitter)">
+            <i class="fa-brands fa-x-twitter"></i>
+          </a>
+          <a href="https://www.youtube.com/@juventudesgto" target="_blank" aria-label="YouTube">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+          <a href="https://www.tiktok.com/@juventudesgente" target="_blank" aria-label="TikTok">
+            <i class="fa-brands fa-tiktok"></i>
+          </a>
+        </div>
+
+        <!-- Sección de autenticación -->
+        <div class="auth-section">
+          <!-- Botón Login (usuario no autenticado) -->
+          @if (!isLoggedIn) {
+            <button class="login-btn" (click)="goToLogin()" aria-label="Iniciar sesión">
+              <i class="fa-solid fa-user"></i>
+              <span>Login</span>
+            </button>
+          }
+
+          <!-- Botón Admin (usuario autenticado) -->
+          @if (isLoggedIn) {
+            <button 
+              class="admin-btn"
+              (click)="toggleAdminMenu($event)"
+              [class.active]="showAdminMenu()"
+              [attr.aria-expanded]="showAdminMenu()"
+              aria-label="Menú de administración">
+              <i class="fa-solid fa-user-shield"></i>
+              <span>{{ currentUser()?.nombre || 'Admin' }}</span>
+              <i class="fa-solid" [class.fa-chevron-down]="!showAdminMenu()" [class.fa-chevron-up]="showAdminMenu()"></i>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Menú desplegable de admin -->
+    @if (showAdminMenu() && isLoggedIn) {
+      <div class="admin-menu">
+        <!-- Información del usuario -->
+        <div class="admin-info">
+          <div class="user-avatar">
+            <i class="fa-solid fa-user-circle"></i>
+          </div>
+          <div class="user-details">
+            <h3>{{ currentUser()?.nombre }}</h3>
+            <p>{{ currentUser()?.email }}</p>
+            <span class="user-role">{{ currentUser()?.rol }}</span>
+          </div>
+        </div>
+
+        <!-- Rutas administrativas -->
+        <nav class="admin-nav" aria-label="Navegación administrativa">
+          <div class="admin-nav-section">
+            <h4><i class="fa-solid fa-house"></i> Inicio</h4>
+            <ul>
+              <li><a routerLink="/" (click)="closeAdminMenu()">Propuestas</a></li>
+              <li><a routerLink="/" (click)="closeAdminMenu()">Testimonios</a></li>
+              <li><a routerLink="/" (click)="closeAdminMenu()">Encuestas</a></li>
+              <li><a routerLink="/" (click)="closeAdminMenu()">Gráficas</a></li>
+              <li><a routerLink="/" (click)="closeAdminMenu()">Temas de interés</a></li>
+            </ul>
+          </div>
+
+          <div class="admin-nav-section">
+            <h4><i class="fa-solid fa-users"></i> Sistema Juventudes</h4>
+            <ul>
+              <li><a routerLink="/admin/sistema-juventudes" (click)="closeAdminMenu()">Panel Principal</a></li>
+              <li><a routerLink="/admin/sistema-juventudes/investigadores" (click)="closeAdminMenu()">Red de investigadores</a></li>
+            </ul>
+          </div>
+
+          <div class="admin-nav-section">
+            <h4><i class="fa-solid fa-chart-line"></i> Estadísticas</h4>
+            <ul>
+              <li><a routerLink="/admin/estadisticas" (click)="closeAdminMenu()">Ver Estadísticas</a></li>
+            </ul>
+          </div>
+
+          <div class="admin-nav-section">
+            <h4><i class="fa-solid fa-book"></i> Revista Voces Emergentes</h4>
+            <ul>
+              <li><a routerLink="/admin/revista" (click)="closeAdminMenu()">Gestionar Revista</a></li>
+            </ul>
+          </div>
+
+          <div class="admin-nav-section">
+            <h4><i class="fa-solid fa-file-lines"></i> Centro Documental</h4>
+            <ul>
+              <li><a routerLink="/admin/centro-documental" (click)="closeAdminMenu()">Centro Documental</a></li>
+              <li><a routerLink="/admin/centro-documental/banco-datos" (click)="closeAdminMenu()">Banco de datos</a></li>
+            </ul>
+          </div>
+
+          <div class="admin-nav-section">
+            <h4><i class="fa-solid fa-info-circle"></i> Información de Interés</h4>
+            <ul>
+              <li><a routerLink="/admin/informacion-interes" (click)="closeAdminMenu()">Información Principal</a></li>
+              <li><a routerLink="/admin/informacion-interes/apoyos" (click)="closeAdminMenu()">Apoyos y servicios</a></li>
+              <li><a routerLink="/admin/informacion-interes/directorios" (click)="closeAdminMenu()">Directorios</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Botón de cerrar sesión -->
+        <div class="admin-footer">
+          <button class="logout-btn" (click)="logout()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

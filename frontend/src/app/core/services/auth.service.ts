@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse, HttpContext } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, EMPTY, lastValueFrom } from 'rxjs';
 import { catchError, map, tap, filter, take, finalize } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 //import { SKIP_AUTH_REDIRECT } from '../interceptors/auth.interceptor';
 
 export interface User {
@@ -24,9 +25,9 @@ interface AuthResponse {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
-  private readonly apiUrl = 'http://localhost:3000/api/auth';
 
   // Estado de autenticación
   private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -61,7 +62,6 @@ export class AuthService {
     console.log('🔄 [AUTH] Inicializando autenticación...');
     console.log('🔄 [AUTH] Platform:', this.isBrowser ? 'Browser' : 'Server');
 
-    // SSR: omitir
     if (!this.isBrowser) {
       console.log('✅ [AUTH] SSR - Omitiendo verificación de sesión');
       this.currentUserSubject.next(null);
@@ -69,11 +69,12 @@ export class AuthService {
       return;
     }
 
-    /* try {
+    // ✅ Intentar restaurar sesión directamente al iniciar
+    try {
       const user = await this.verifySession();
 
       if (user) {
-        console.log('✅ [AUTH] Sesión válida:', user.email);
+        console.log('✅ [AUTH] Sesión restaurada:', user.email);
         this.currentUserSubject.next(user);
       } else {
         console.log('🚫 [AUTH] No hay sesión activa');
@@ -85,12 +86,7 @@ export class AuthService {
     } finally {
       console.log('✅ [AUTH] Inicialización completada');
       this.initializationComplete.next(true);
-    } */
-
-    // 🚫 Ya no verificamos sesión aquí
-    console.log('ℹ️ [AUTH] Inicialización sin verificación de sesión');
-    this.currentUserSubject.next(null);
-    this.initializationComplete.next(true);
+    }
   }
 
   waitForInitialization(): Observable<boolean> {
@@ -103,12 +99,8 @@ export class AuthService {
   // ==================== VERIFICACIÓN DE SESIÓN ====================
 
   async verifySession(): Promise<User | null> {
-    if (!this.isBrowser) {
-      return null;
-    }
+    if (!this.isBrowser) return null;
 
-    // ✅ Siempre intentar verificar - las cookies HttpOnly no son accesibles desde JS
-    // Si no hay cookies, el backend responderá 401 rápidamente
     console.log('🔍 [AUTH] Verificando sesión...');
 
     try {
@@ -117,34 +109,37 @@ export class AuthService {
       );
 
       if (response?.success && response.data?.user) {
-        return response.data.user;
+        const user = response.data.user;
+        this.currentUserSubject.next(user); // ✅ Actualiza BehaviorSubject
+        return user;
       }
 
-      // ✅ Si el token expiró pero hay refresh token, intentar renovar
       if (response?.needsRefresh) {
         console.log('🔄 [AUTH] Token expirado en verify, intentando renovar...');
         return await this.refreshTokens();
       }
 
+      this.currentUserSubject.next(null);
       return null;
     } catch (error: any) {
-      // Si es 401 sin needsRefresh, simplemente no hay sesión (esto es normal)
       if (error?.status === 401 && !error?.error?.needsRefresh) {
         console.log('ℹ️  [AUTH] No hay sesión activa (sin cookies)');
+        this.currentUserSubject.next(null);
         return null;
       }
 
-      // ✅ Si el error tiene needsRefresh, intentar renovar
       if (error?.error?.needsRefresh) {
         console.log('🔄 [AUTH] Token expirado (error), intentando renovar...');
         try {
           return await this.refreshTokens();
         } catch {
+          this.currentUserSubject.next(null);
           return null;
         }
       }
 
       console.error('❌ [AUTH] Error verificando sesión:', error);
+      this.currentUserSubject.next(null);
       return null;
     }
   }
@@ -205,9 +200,7 @@ export class AuthService {
   // ==================== REFRESH TOKEN ====================
 
   async refreshTokens(): Promise<User | null> {
-    if (!this.isBrowser) {
-      return null;
-    }
+    if (!this.isBrowser) return null;
 
     if (this.refreshInProgress && this.refreshTokenPromise) {
       console.log('⏳ [AUTH] Refresh ya en progreso, esperando...');
@@ -222,10 +215,12 @@ export class AuthService {
       .pipe(
         map((response) => {
           if (response.success && response.data?.user) {
+            const user = response.data.user;
             console.log('✅ [AUTH] Tokens renovados exitosamente');
-            this.currentUserSubject.next(response.data.user);
-            return response.data.user;
+            this.currentUserSubject.next(user); // ✅ Actualiza también aquí
+            return user;
           }
+          this.currentUserSubject.next(null);
           return null;
         }),
         catchError((error) => {
@@ -256,10 +251,12 @@ export class AuthService {
       .pipe(
         map((response) => {
           if (response.success && response.data?.user) {
+            const user = response.data.user;
             console.log('✅ [AUTH] Tokens renovados exitosamente');
-            this.currentUserSubject.next(response.data.user);
-            return response.data.user;
+            this.currentUserSubject.next(user); // ✅
+            return user;
           }
+          this.currentUserSubject.next(null);
           return null;
         }),
         catchError((error) => {

@@ -83,6 +83,7 @@ export class LoginComponent implements OnInit {
   private navigateAfterLogin(user: any): void {
     // Redirigir según el rol
     if (user.rol === 'usuario') {
+      console.log('redirigiendo ')
       this.router.navigate(['/admin']);
     } else {
       this.router.navigate([this.returnUrl()]);
