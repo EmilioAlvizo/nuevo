@@ -1,24 +1,17 @@
 <!-- nuevo/frontend/src/app/admin/components/tabla-a/tabla-a.html -->
+<!-- nuevo/frontend/src/app/admin/components/tabla-a/tabla-a.html -->
 <div class="contenedor border-round border-1 surface-border shadow-2">
    @if (platform.isBrowser) {
   <p-toolbar class="mb-4">
     <ng-template #start>
       <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="openNew()" />
-      <p-button
-        severity="danger"
-        label="Eliminar Seleccionados"
-        icon="pi pi-trash"
-        outlined
-        (onClick)="deleteSelectedArchivos()"
-        [disabled]="!hasSelectedArchivos()"
-      />
     </ng-template>
     <ng-template #end>
       <p-button
         label="Exportar"
         icon="pi pi-upload"
         severity="secondary"
-        (onClick)="exportCSV()"
+        
       />
     </ng-template>
   </p-toolbar>
@@ -207,7 +200,7 @@
         </td>
         <td>{{ archivo.categoria_archivo }}</td>
         <td>{{ archivo.subcategoria_archivo }}</td>
-        <td>{{ archivo.fecha_archivo | date : 'dd/MM/yyyy' }}</td>
+        <td>{{ archivo.fecha_archivo | date : 'dd/MM/yyyy' : 'UTC' }}</td>
         <td>{{ archivo.fecha_modificacion | date : 'dd/MM/yyyy HH:mm' }}</td>
         <td>
           <p-tag
@@ -235,15 +228,6 @@
               (click)="editArchivo(archivo)"
             />
 
-            <p-button
-              icon="pi pi-trash"
-              severity="danger"
-              [rounded]="true"
-              [outlined]="true"
-              pTooltip="Eliminar"
-              tooltipPosition="top"
-              (click)="deleteArchivo(archivo)"
-            />
           </div>
         </td>
       </tr>

@@ -64,7 +64,7 @@ export class RevistaVocesAdmin {
       header: 'Portada',
       width: '120px',
       template: (row) => {
-        const imagePath = `${this.publicUrl}revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
+        const imagePath = `${this.publicUrl}/revistas/${row.id_revista}/portada/${row.portada}`; // o portada.jpg si es necesario
         return `<img src="${imagePath}" alt="Portada" width="60" height="80" class="w-24 rounded">`;
       },
       tooltip: false,
