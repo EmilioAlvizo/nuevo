@@ -28,19 +28,19 @@ router.get("/revistas/:id", RevistasController.getById);
 
 
 //POST - Crear registro
-router.post('/revistas', uploadRevistas.fields([
+router.post('/revistas', authMiddleware, uploadRevistas.fields([
   { name: 'portada', maxCount: 1 },
   { name: 'archivo', maxCount: 1 }
 ]), RevistasController.create);
 
 //PUT - Actualizar registro
-router.put('/revistas/:id', uploadRevistas.fields([
+router.put('/revistas/:id', authMiddleware, uploadRevistas.fields([
   { name: 'portada', maxCount: 1 },
   { name: 'archivo', maxCount: 1 }
 ]), RevistasController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/revistas/:id", RevistasController.delete);
+router.delete("/revistas/:id", authMiddleware, RevistasController.delete);
 
 
 module.exports = router;

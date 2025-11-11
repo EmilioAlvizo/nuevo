@@ -5,6 +5,7 @@ const { verifyAccessToken } = require("../config/jwt");
 const authMiddleware = async (req, res, next) => {
   try {
     const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!accessToken) {
       return res.status(401).json({
@@ -21,6 +22,7 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Token expirado o inválido",
+        needsRefresh: !!refreshToken,
       });
     }
 
