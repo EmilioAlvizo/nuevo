@@ -11,6 +11,7 @@ const documentos_cendocRoutes = require("./routes/documentos_cendocRoutes");
 const revistasRoutes = require("./routes/revistasRoutes");
 const articulosRoutes = require("./routes/articulosRoutes");
 const documentos_fisicosRoutes = require("./routes/documentos_fisicosRoutes");
+const temas_interesRoutes = require("./routes/temas_interesRoutes");
 
 const { startCleanupScheduler } = require("./scripts/cleanup");
 
@@ -83,6 +84,7 @@ app.use("/api", testimoniosRoutes);
 app.use("/api", revistasRoutes);
 app.use("/api", articulosRoutes);
 app.use("/api", documentos_fisicosRoutes);
+app.use("/api", temas_interesRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 // Manejo de rutas no encontradas

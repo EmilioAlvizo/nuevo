@@ -1,0 +1,207 @@
+
+const Temas_interesModel = require("../models/temas_interesModel");
+
+// Nombre de la tabla (cámbialo según tu tabla)
+const TABLE_NAME = "tema"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
+const ID_COLUMN = "id_tema"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
+
+const path = require("path");
+const fs = require("fs");
+const backendPublicPath = path.join(__dirname, '../public');
+
+class Temas_interesController {
+  // GET - Obtener todos los registros
+  static async getAll(req, res) {
+    try {
+      const temas = await Temas_interesModel.getAll(TABLE_NAME);
+      res.status(200).json({
+        success: true,
+        data: temas,
+        count: temas.length,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  // GET - Obtener un registro por ID
+  static async getById(req, res) {
+    try {
+      const { id } = req.params;
+      const temas = await Temas_interesModel.getById(TABLE_NAME, id, ID_COLUMN);
+
+      if (!temas) {
+        return res.status(404).json({
+          success: false,
+          message: "Registro no encontrado",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: temas,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+
+// POST - Crear un nuevo registro
+  static async create(req, res) {
+  try {
+    const { descripcionTema, estatusTema, link, descripcionMas } = req.body;
+
+    // Guardar registro sin archivos primero
+    const nuevoTema = await Temas_interesModel.create(TABLE_NAME, {
+      descripcionTema, estatusTema, link, descripcionMas
+    });
+
+    const id = nuevoTema.id;
+    const tempPath = `${backendPublicPath}/temas/temp`;
+    const imagenFolder = `${backendPublicPath}/temas/${id}`;
+    fs.mkdirSync(imagenFolder, { recursive: true });
+
+
+    if (req.files?.imagen) {
+  const imagen = req.files.imagen[0];
+  const oldPath = path.join(tempPath, imagen.filename);
+  const newPath = path.join(imagenFolder, imagen.filename);
+  fs.renameSync(oldPath, newPath);
+}
+
+    await Temas_interesModel.update(TABLE_NAME, id, {
+  imagen: req.files?.imagen ? req.files.imagen[0].filename : null,
+}, ID_COLUMN);
+
+
+    res.json({
+      success: true,
+      data: { id, ...nuevoTema },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: 'Error al crear tema de interés',
+      error: err.message,
+    });
+  }
+}
+
+
+// PUT - Actualizar un registro
+static async update(req, res) {
+  try {
+    const id = req.params.id;
+    const { descripcionTema, estatusTema, link, descripcionMas } = req.body;
+    
+    // IMPORTANTE: Obtener registro actual ANTES de actualizar
+    const registroActual = await Temas_interesModel.getById(TABLE_NAME, id, ID_COLUMN);
+    
+    // Actualizar campos de texto primero
+    await TemasInteresModel.update(TABLE_NAME, id, {
+      descripcionTema, estatusTema, link, descripcionMas
+    }, ID_COLUMN);
+
+    const tempPath = `${backendPublicPath}/temas/temp`;
+    const imagenFolder = `${backendPublicPath}/temas/${id}`;
+
+    // Asegurar que las carpetas existan
+    fs.mkdirSync(imagenFolder, { recursive: true });
+
+    const updateData = {};
+
+    // Manejar imagen si viene uno nuevo
+    if (req.files?.imagen) {
+      const imagen = req.files.imagen[0];
+      const oldPath = path.join(tempPath, imagen.filename);
+      const newPath = path.join(imagenFolder, imagen.filename);
+      
+      // Eliminar imagen anterior si existe
+      if (registroActual.imagen) {
+        const imagenAnterior = path.join(imagenFolder, registroActual.imagen);
+        if (fs.existsSync(imagenAnterior)) {
+          fs.unlinkSync(imagenAnterior);
+        }
+      }
+      
+      fs.renameSync(oldPath, newPath);
+      updateData.imagen = imagen.filename;
+    }
+
+    // Actualizar nombres de archivos en BD si hubo cambios
+    if (Object.keys(updateData).length > 0) {
+      await Temas_interesModel.update(TABLE_NAME, id, updateData, ID_COLUMN);
+    }
+    res.json({
+      success: true,
+      message: 'Tema actualizado correctamente',
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar tema de interés',
+      error: err.message,
+    });
+  }
+}
+
+// DELETE - Eliminar un registro y sus archivos
+static async delete(req, res) {
+  try {
+    const { id } = req.params;
+    
+    // Obtener el registro antes de eliminarlo para tener los datos
+    const registro = await Temas_interesModel.getById(TABLE_NAME, id, ID_COLUMN);
+    
+    if (!registro) {
+      return res.status(404).json({
+        success: false,
+        message: "Registro no encontrado",
+      });
+    }
+
+    // Eliminar el registro de la base de datos
+    const deleted = await Temas_interesModel.delete(TABLE_NAME, id, ID_COLUMN);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Error al eliminar el registro",
+      });
+    }
+
+    // Eliminar carpeta completa del registro (con todos sus archivos)
+    const carpetaTema = path.join(backendPublicPath, 'temas', id.toString());
+    
+    if (fs.existsSync(carpetaTema)) {
+      // Eliminar carpeta recursivamente (carpeta y todo su contenido)
+      fs.rmSync(carpetaTema, { recursive: true, force: true });
+      console.log(`Carpeta eliminada: ${carpetaTema}`);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Tema e imagen eliminados correctamente',
+      id: deleted.id,
+    });
+  } catch (error) {
+    console.error('Error al eliminar tema:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+}
+
+}
+
+module.exports = Temas_interesController;
