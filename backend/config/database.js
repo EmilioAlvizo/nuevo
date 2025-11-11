@@ -4,7 +4,11 @@ const mssql = require("mssql");
 // Configuración de la base de datos
 const config = {
   server: "172.31.27.44",
+<<<<<<< HEAD
   //server: "HP\\SQLEXPRESS",
+=======
+  // server: "HP\\SQLEXPRESS",
+>>>>>>> 98bc8f5038bfca7284977d20f829cddb23ba8fe4
   user: "sajg",
   password: "Sajg!.25",
   database: "sajg_20252001",

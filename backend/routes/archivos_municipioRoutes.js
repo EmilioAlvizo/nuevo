@@ -2,15 +2,16 @@
 const express = require("express");
 const router = express.Router();
 const Archivos_municipioController = require("../controllers/archivos_municipioController");
-
-//autenticacion
-
+const { crearUpload } = require('../middleware/uploadMiddleware');
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
-// const { createUploadMiddleware } = require("../middleware/uploadMiddleware");
 
 /* const uploadArchivos = createUploadMiddleware("archivos_municipio", [
   { name: "archivo", maxCount: 1 },
 ]) */
+
+const uploadArchivosMunicipio = crearUpload('archivos_municipio', {
+  archivo: ['application/pdf']
+});
 
 // Rutas del API REST
 
@@ -27,10 +28,16 @@ router.get("/archivos_municipio", Archivos_municipioController.getAll);
 router.get("/archivos_municipio/:id", Archivos_municipioController.getById);
 
 // POST - Crear un nuevo registro
-//router.post("/archivos_municipio", uploadArchivos, Archivos_municipioController.create);
+// router.post("/archivos_municipio", Archivos_municipioController.create);
+router.post('/archivos_municipio', uploadArchivosMunicipio.fields([
+    { name: 'archivo', maxCount: 1 }
+]), Archivos_municipioController.create);
 
 // PUT - Actualizar un registro
-router.put("/archivos_municipio/:id", Archivos_municipioController.update);
+// router.put("/archivos_municipio/:id", Archivos_municipioController.update);
+router.put("/archivos_municipio/:id", uploadArchivosMunicipio.fields([
+    { name: 'archivo', maxCount: 1 }
+]), Archivos_municipioController.update);
 
 // DELETE - Eliminar un registro
 router.delete("/archivos_municipio/:id", Archivos_municipioController.delete);

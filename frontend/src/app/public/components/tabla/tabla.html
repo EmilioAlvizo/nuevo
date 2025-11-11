@@ -523,7 +523,11 @@
             <div class="descripcion">
               <p><strong>Municipio:</strong> {{ obtenerNombreMunicipio(archivo.id_municipio) }}</p>
               <p>
+<<<<<<< HEAD
                 <strong>Fecha de modificación :</strong> {{ formatDate(archivo.fecha_modificacion.toISOString()) }}
+=======
+                <strong>Fecha de modificación:</strong> {{ formatDate(archivo.fecha_modificacion) }}
+>>>>>>> 98bc8f5038bfca7284977d20f829cddb23ba8fe4
               </p>
               @if (archivo.subcategoria_archivo) {
               <p><strong>Subcategoría:</strong> {{ archivo.subcategoria_archivo }}</p>
