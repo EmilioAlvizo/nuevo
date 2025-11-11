@@ -229,6 +229,27 @@
     </div>
   </section>
 
+
+
+
+
+  <div *ngIf="temas && temas.length > 0; else sinTemas">
+  <ul>
+    <li *ngFor="let tema of temas">
+      {{ tema.id_tema }} - {{ tema.descripcionTema }}
+    </li>
+  </ul>
+</div>
+
+<ng-template #sinTemas>
+  <p>No hay temas disponibles.</p>
+</ng-template>
+
+
+
+
+
+
   <!-- Modal propuesta de acción -->
   <div
     class="modal fade"
