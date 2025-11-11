@@ -9,6 +9,14 @@ export interface ApiResponse<T> {
     total?: number;
   }
 
+export interface ApiResponsePaginated<T> {
+  success: boolean;
+  data: T[];
+  total: number;
+  pagina: number;
+  totalPaginas: number;
+}
+
 // Interfaz genérica para el servicio de datos
 export interface DataService<T> {
     // Métodos de consulta
