@@ -6,7 +6,7 @@ const Temas_interesController = require("../controllers/temas_interesController"
 const { crearUpload } = require('../middleware/uploadMiddleware');
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
-const uploadTema = crearUpload('temas', {
+const uploadTema = crearUpload('temas_interes', {
   imagen: ['image/*']
 });
 

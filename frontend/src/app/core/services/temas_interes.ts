@@ -31,8 +31,21 @@ export class ApiTemas {
     private apiUrl = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
+
   getTemas():Observable<ApiResponse> {
     return this.http.get<ApiResponse>(`${this.apiUrl}/temas`,{});
+  }
+
+  createTema(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/temas`, formData);
+  }
+
+  updateTema(id: number, formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/temas/${id}`, formData);
+  }
+
+  deleteTema(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/temas/${id}`);
   }
  
 }

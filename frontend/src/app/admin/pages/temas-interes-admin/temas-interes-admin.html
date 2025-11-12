@@ -1,0 +1,64 @@
+<div class="admin-temas-container">
+  <h2>Temas de interés</h2>
+
+  <!-- Botón para abrir modal -->
+  <button class="btn-nuevo" (click)="openModal()">Nuevo tema</button>
+
+  <!-- TABLA -->
+  <table class="tabla-temas">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Descripción</th>
+        <th>Estatus</th>
+        <th>Link</th>
+        <th>Descripción adicional</th>
+        <th>Imagen</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tema of temas">
+        <td>{{ tema.id_tema }}</td>
+        <td>{{ tema.descripcionTema }}</td>
+        <td>{{ tema.estatusTema }}</td>
+        <td>{{ tema.link }}</td>
+        <td>{{ tema.descripcionMas }}</td>
+        <td>
+          <img *ngIf="tema.imagen" [src]="'http://localhost:3000/public/temas_interes/' + tema.id_tema + '/' + tema.imagen" width="80">
+        </td>
+        <td>
+          <button class="btn-editar" (click)="editTema(tema)">Editar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- MODAL -->
+<div class="modal" [class.show]="modalOpen">
+  <div class="modal-content">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <h3>{{ editMode ? 'Editar Tema' : 'Nuevo tema' }}</h3>
+
+    <form [formGroup]="formTema" (ngSubmit)="submitForm()" enctype="multipart/form-data">
+      <label>Descripción:</label>
+      <input formControlName="descripcionTema" required>
+
+      <label>Estatus:</label>
+      <input formControlName="estatusTema" required>
+
+      <label>Link:</label>
+      <input formControlName="link">
+
+      <label>Descripción Adicional:</label>
+      <textarea formControlName="descripcionMas"></textarea>
+
+      <label>Imagen:</label>
+      <input type="file" (change)="onFileSelected($event)">
+
+      <button type="submit" class="btn-guardar">{{ editMode ? 'Actualizar' : 'Crear' }}</button>
+      <button type="button" class="btn-cancelar" (click)="closeModal()">Cancelar</button>
+    </form>
+  </div>
+</div>

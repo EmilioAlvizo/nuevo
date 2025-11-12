@@ -33,8 +33,41 @@
 
 .carousel-inner {
   min-height: 400px;
-  /*display: contents;*/
+  display: flex;
+  align-items: center;
 }
+
+
+
+/* Contenedor de la tarjeta del tema */
+.tema-item {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ajustes de la fila dentro del carrusel */
+.tema-item .row {
+  height: 100%;
+}
+
+/* Contenedor de la imagen */
+.tema-img-container {
+  height: 50%; /* ✅ la imagen ocupa el 50% del alto del contenedor */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* ✅ recorta sin deformar */
+}
+
+/* Imagen */
+.tema-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ✅ llena el espacio sin deformarse */
+  border-radius: 8px;
+}
+
 
 @media (max-width: 991px) {
   .espacio-25 {

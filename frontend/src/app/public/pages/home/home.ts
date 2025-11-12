@@ -55,10 +55,10 @@ export class Home implements OnInit {
     });
   }
 
-    cargarTemas(): void {
+  cargarTemas(): void {
     this.apiTemas.getTemas().subscribe({
       next: (datos) => {
-        this.temas = datos.data;
+        this.temas = datos.data.filter((tema) => tema.estatusTema === 'A');
       },
       error: (err) => {
         console.error('Error al obtener temas', err);

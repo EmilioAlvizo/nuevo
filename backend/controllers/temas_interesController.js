@@ -64,8 +64,8 @@ class Temas_interesController {
     });
 
     const id = nuevoTema.id;
-    const tempPath = `${backendPublicPath}/temas/temp`;
-    const imagenFolder = `${backendPublicPath}/temas/${id}`;
+    const tempPath = `${backendPublicPath}/temas_interes/temp`;
+    const imagenFolder = `${backendPublicPath}/temas_interes/${id}`;
     fs.mkdirSync(imagenFolder, { recursive: true });
 
 
@@ -106,12 +106,12 @@ static async update(req, res) {
     const registroActual = await Temas_interesModel.getById(TABLE_NAME, id, ID_COLUMN);
     
     // Actualizar campos de texto primero
-    await TemasInteresModel.update(TABLE_NAME, id, {
+    await Temas_interesModel.update(TABLE_NAME, id, {
       descripcionTema, estatusTema, link, descripcionMas
     }, ID_COLUMN);
 
-    const tempPath = `${backendPublicPath}/temas/temp`;
-    const imagenFolder = `${backendPublicPath}/temas/${id}`;
+    const tempPath = `${backendPublicPath}/temas_interes/temp`;
+    const imagenFolder = `${backendPublicPath}/temas_interes/${id}`;
 
     // Asegurar que las carpetas existan
     fs.mkdirSync(imagenFolder, { recursive: true });
@@ -180,7 +180,7 @@ static async delete(req, res) {
     }
 
     // Eliminar carpeta completa del registro (con todos sus archivos)
-    const carpetaTema = path.join(backendPublicPath, 'temas', id.toString());
+    const carpetaTema = path.join(backendPublicPath, 'temas_interes', id.toString());
     
     if (fs.existsSync(carpetaTema)) {
       // Eliminar carpeta recursivamente (carpeta y todo su contenido)
