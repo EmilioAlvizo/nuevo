@@ -1,0 +1,162 @@
+<p-dialog
+  [header]="isEditMode() ? 'Editar Documento' : 'Agregar Documento'"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '700px' }"
+  (onHide)="handleDialogHide()"
+>
+  <form [formGroup]="docForm">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Nombre *</label>
+        <input pInputText formControlName="nombre_documento" class="form-control" />
+        @if (isFieldInvalid('nombre_documento')) {
+        <small class="text-danger">Campo requerido</small>
+        }@else {
+          <div class="invisible">00</div>
+          }
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Autor *</label>
+        <input pInputText formControlName="autor_documento" class="form-control" />
+        @if (isFieldInvalid('autor_documento')) {
+        <small class="text-danger">Campo requerido</small>
+        }@else {
+          <div class="invisible">00</div>
+          }
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Descripción *</label>
+      <textarea pInputTextarea formControlName="descripcion_documento" rows="3" class="form-control"></textarea>
+      @if (isFieldInvalid('descripcion_documento')) {
+      <small class="text-danger">Campo requerido</small>
+      }@else {
+          <div class="invisible">00</div>
+          }
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Categoría *</label>
+        <p-select
+          [options]="categoriasOptions()"
+          formControlName="nombre_categoria"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccionar categoría"
+          class="w-100"
+        ></p-select>
+        @if (isFieldInvalid('nombre_categoria')) {
+        <small class="text-danger">Campo requerido</small>
+        } @else {
+          <div class="invisible">00</div>
+          }
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Palabras clave</label>
+        <input pInputText formControlName="palabras_clave" class="form-control" placeholder="Ej: derechos, igualdad" />
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Fecha *</label>
+        <p-datepicker
+          formControlName="fecha_documento"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          iconDisplay="input"
+          placeholder="Seleccionar fecha"
+          [appendTo]="'body'"
+          fluid
+        ></p-datepicker>
+        @if (isFieldInvalid('fecha_documento')) {
+        <small class="text-danger">Campo requerido</small>
+        } @else {
+          <div class="invisible">00</div>
+          }
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Estatus *</label>
+        <p-select
+          [options]="estatusOptions()"
+          formControlName="estatus_documento"
+          optionLabel="label"
+          optionValue="value"
+          class="w-100"
+        >
+          <ng-template let-option #item>
+            <p-tag [value]="option.label" [severity]="getSeverity(option.value)" />
+          </ng-template>
+        </p-select>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        Archivo PDF @if (!isEditMode()) { <span class="text-danger">*</span> }
+      </label>
+
+      @if (isEditMode() && docToEdit()?.archivo && !archivoNombre()) {
+      <div class="alert alert-info py-2 mb-2">
+        <small>Archivo actual:</small>
+        <div class="mt-2">
+          <a
+            [href]="publicUrl + 'documentos/' + docToEdit().id_documento + '/archivo/' + docToEdit().archivo"
+            target="_blank"
+            class="btn btn-outline-primary btn-sm"
+          >
+            <i class="pi pi-file-pdf me-2"></i> Ver PDF actual
+          </a>
+        </div>
+      </div>
+      }
+
+      @if (archivoNombre()) {
+      <div class="alert alert-success py-2 mb-2">
+        <i class="pi pi-check-circle me-2"></i> {{ archivoNombre() }}
+        <small *ngIf="archivoSeleccionado()">({{ formatFileSize(archivoSeleccionado()!.size) }})</small>
+      </div>
+      }
+
+      <p-fileUpload
+        mode="basic"
+        name="archivo"
+        [maxFileSize]="20000000"
+        chooseLabel="Seleccionar PDF"
+        chooseIcon="pi pi-file-pdf"
+        (onSelect)="onArchivoSelect($event)"
+        (onClear)="onArchivoRemove()"
+        accept="application/pdf"
+        [auto]="false"
+        [showUploadButton]="false"
+        [showCancelButton]="false"
+        class="w-100"
+      />
+      <small class="text-muted d-block mt-1">
+        <i class="pi pi-info-circle"></i> Solo PDF (máx. 20MB)
+      </small>
+      @if (isFieldInvalid('archivoFile')) {
+      <small class="text-danger">Debe seleccionar un archivo PDF</small>
+      } @else {
+          <div class="invisible">00</div>
+          }
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+      <p-button label="Cancelar" icon="pi pi-times" [outlined]="true" (onClick)="handleCancel()" />
+      <p-button
+        label="Guardar Documento"
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="handleSubmit()"
+        [disabled]="isSaving()"
+        [loading]="isSaving()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

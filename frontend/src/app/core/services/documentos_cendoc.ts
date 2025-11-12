@@ -69,4 +69,20 @@ export class ApiDocumentos_cendoc {
   }> {
     return this.http.get<any>(`${this.apiUrl}/conteos-documentos_cendoc`);
   }
+
+  crear(formData: FormData) {
+    console.log('apiUrl: ', this.apiUrl);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+    return this.http.post<any>(this.apiUrl, formData);
+  }
+
+  actualizar(id: number, data: any) {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, data);
+  }
+
+  eliminar(id: number): Observable<ApiResponse<Documentos_cendoc>> {
+    return this.http.delete<ApiResponse<Documentos_cendoc>>(`${this.apiUrl}/${id}`);
+  }
 }

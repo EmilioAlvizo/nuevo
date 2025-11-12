@@ -1,0 +1,27 @@
+<app-tabla-generica
+  [dataService]="documentosCendocService"
+  [columns]="columns"
+  [title]="'Gestión de Documentos Cendoc'"
+  [entityName]="'documentos'"
+  [showSelection]="false"
+  [showViewButton]="true"
+  [showEditButton]="true"
+  [showDeleteButton]="true"
+  (add)="agregar()"
+  (edit)="editar($event)"
+  (remove)="eliminar($event)"
+  (view)="ver($event)"
+  [refreshSignal]="refrescarTabla"
+/>
+
+<app-form-doc-cendoc
+  [visible]="showDialog()"
+  [isEditMode]="!!revistaToEdit"
+  [docToEdit]="revistaToEdit"
+  (save)="guardar($event)"
+  (visibleChange)="showDialog.set($event)"
+/>
+
+<!-- mensajes -->
+<p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" />
+<p-toast />

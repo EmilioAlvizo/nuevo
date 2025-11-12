@@ -82,9 +82,6 @@ class Documentos_cendocController {
         palabras_clave,
         palabras_clave_matchMode,
 
-        nombre_categoria,
-        nombre_categoria_matchMode,
-
         fecha_documento,
         fecha_documento_matchMode,
 
@@ -93,6 +90,7 @@ class Documentos_cendocController {
 
         // Filtros multiselect (separados por coma)
         estatus_documento,
+        nombre_categoria,
 
         // Ordenamiento
         sortField,
@@ -130,8 +128,8 @@ class Documentos_cendocController {
         palabras_clave: palabras_clave || null,
         palabras_clave_matchMode: palabras_clave_matchMode || "contains",
         
-        nombre_categoria: nombre_categoria || null,
-        nombre_categoria_matchMode: nombre_categoria_matchMode || "contains",
+        /* nombre_categoria: nombre_categoria || null,
+        nombre_categoria_matchMode: nombre_categoria_matchMode || "contains", */
 
         // Filtros de fecha con matchMode
         fecha_documento: fecha_documento || null,
@@ -143,6 +141,9 @@ class Documentos_cendocController {
         // Filtros multiselect - convertir strings separadas por coma a arrays
         estatus_documento: estatus_documento
           ? parseArrayParam(estatus_documento, "string")
+          : [],
+        nombre_categoria: nombre_categoria
+          ? parseArrayParam(nombre_categoria, "string")
           : [],
 
         // Ordenamiento

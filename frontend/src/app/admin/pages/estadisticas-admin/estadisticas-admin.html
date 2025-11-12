@@ -1,1 +1,10 @@
-<app-tabla-a></app-tabla-a>
+<!-- nuevo/frontend/src/app/admin/pages/estadisticas-admin/estadisticas-admin.html -->
+<div class="card">
+  <p-menubar [model]="items" ></p-menubar>
+</div>
+
+<div class="mt-4">
+  @if (selectedTable() === 'a') {
+  <app-tabla-a></app-tabla-a>} @else if (selectedTable() === 'docCendoc') {
+  <app-tabla-doc-cendoc></app-tabla-doc-cendoc>}
+</div>

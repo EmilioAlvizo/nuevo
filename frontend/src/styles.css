@@ -52,3 +52,11 @@ app-footer, footer {
   /* border: 1px solid #e5e7eb; */
   border-radius: 0 0 12px 12px !important;
 }
+
+@media (min-width: 1800px) {
+  .container-xxl {
+    max-width: 1720px; /* tú decides el ancho */
+  }
+
+  /* O cualquier otro ajuste que necesites */
+}
