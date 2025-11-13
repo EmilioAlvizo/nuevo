@@ -54,48 +54,6 @@ class Temas_interesController {
 
 
 // POST - Crear un nuevo registro
-//   static async create(req, res) {
-//   try {
-//     const { descripcionTema, estatusTema, link, descripcionMas } = req.body;
-
-//     // Guardar registro sin archivos primero
-//     const nuevoTema = await Temas_interesModel.create(TABLE_NAME, {
-//       descripcionTema, estatusTema, link, descripcionMas
-//     });
-
-//     const id = nuevoTema.id;
-//     const tempPath = `${backendPublicPath}/temas_interes/temp`;
-//     const imagenFolder = `${backendPublicPath}/temas_interes/${id}`;
-//     fs.mkdirSync(imagenFolder, { recursive: true });
-
-
-//     if (req.files?.imagen) {
-//   const imagen = req.files.imagen[0];
-//   const oldPath = path.join(tempPath, imagen.filename);
-//   const newPath = path.join(imagenFolder, imagen.filename);
-//   fs.renameSync(oldPath, newPath);
-// }
-
-//     await Temas_interesModel.update(TABLE_NAME, id, {
-//   imagen: req.files?.imagen ? req.files.imagen[0].filename : null,
-// }, ID_COLUMN);
-
-
-//     res.json({
-//       success: true,
-//       data: { id, ...nuevoTema },
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Error al crear tema de interés',
-//       error: err.message,
-//     });
-//   }
-// }
-
-// POST - Crear un nuevo registro
 static async create(req, res) {
   try {
     const { descripcionTema, estatusTema, link, descripcionMas } = req.body;
@@ -159,64 +117,6 @@ static async create(req, res) {
   }
 }
 
-
-// PUT - Actualizar un registro
-// static async update(req, res) {
-//   try {
-//     const id = req.params.id;
-//     const { descripcionTema, estatusTema, link, descripcionMas } = req.body;
-    
-//     // IMPORTANTE: Obtener registro actual ANTES de actualizar
-//     const registroActual = await Temas_interesModel.getById(TABLE_NAME, id, ID_COLUMN);
-    
-//     // Actualizar campos de texto primero
-//     await Temas_interesModel.update(TABLE_NAME, id, {
-//       descripcionTema, estatusTema, link, descripcionMas
-//     }, ID_COLUMN);
-
-//     const tempPath = `${backendPublicPath}/temas_interes/temp`;
-//     const imagenFolder = `${backendPublicPath}/temas_interes/${id}`;
-
-//     // Asegurar que las carpetas existan
-//     fs.mkdirSync(imagenFolder, { recursive: true });
-
-//     const updateData = {};
-
-//     // Manejar imagen si viene uno nuevo
-//     if (req.files?.imagen) {
-//       const imagen = req.files.imagen[0];
-//       const oldPath = path.join(tempPath, imagen.filename);
-//       const newPath = path.join(imagenFolder, imagen.filename);
-      
-//       // Eliminar imagen anterior si existe
-//       if (registroActual.imagen) {
-//         const imagenAnterior = path.join(imagenFolder, registroActual.imagen);
-//         if (fs.existsSync(imagenAnterior)) {
-//           fs.unlinkSync(imagenAnterior);
-//         }
-//       }
-      
-//       fs.renameSync(oldPath, newPath);
-//       updateData.imagen = imagen.filename;
-//     }
-
-//     // Actualizar nombres de archivos en BD si hubo cambios
-//     if (Object.keys(updateData).length > 0) {
-//       await Temas_interesModel.update(TABLE_NAME, id, updateData, ID_COLUMN);
-//     }
-//     res.json({
-//       success: true,
-//       message: 'Tema actualizado correctamente',
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Error al actualizar tema de interés',
-//       error: err.message,
-//     });
-//   }
-// }
 // PUT - Actualizar un registro
 static async update(req, res) {
   try {

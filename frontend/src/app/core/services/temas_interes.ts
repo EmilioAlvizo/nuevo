@@ -1,11 +1,9 @@
 // nuevo/frontend/src/app/services/temas_interes.ts
 
 import { Injectable, inject } from '@angular/core';
-//esto es para comunicarse con el backend
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// usar Observable<any> es una mala practica, por ello usamos interfaces (ejemplo para municipio)
 export interface Temas {
   id_tema: number;
   descripcionTema: string;
