@@ -1,64 +1,241 @@
-<div class="admin-temas-container">
-  <h2>Temas de interés</h2>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
-  <!-- Botón para abrir modal -->
-  <button class="btn-nuevo" (click)="openModal()">Nuevo tema</button>
+<div class="temas-admin-container">
+  <!-- Header con Toolbar -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Temas de Interés</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button 
+        label="Nuevo Tema" 
+        icon="pi pi-plus" 
+        (onClick)="abrirModal()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
 
-  <!-- TABLA -->
-  <table class="tabla-temas">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Descripción</th>
-        <th>Estatus</th>
-        <th>Link</th>
-        <th>Descripción adicional</th>
-        <th>Imagen</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let tema of temas">
-        <td>{{ tema.id_tema }}</td>
-        <td>{{ tema.descripcionTema }}</td>
-        <td>{{ tema.estatusTema }}</td>
-        <td>{{ tema.link }}</td>
-        <td>{{ tema.descripcionMas }}</td>
-        <td>
-          <img *ngIf="tema.imagen" [src]="'http://localhost:3000/public/temas_interes/' + tema.id_tema + '/' + tema.imagen" width="80">
-        </td>
-        <td>
-          <button class="btn-editar" (click)="editTema(tema)">Editar</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Tabla de Temas -->
+  <p-card>
+    <p-table 
+      [value]="temas" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} temas"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 20%">Descripción</th>
+          <th style="width: 10%">Estatus</th>
+          <th style="width: 15%">Link</th>
+          <th style="width: 25%">Descripción Adicional</th>
+          <th style="width: 15%">Imagen</th>
+          <th style="width: 10%">Acciones</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-tema>
+        <tr>
+          <td>{{ tema.id_tema }}</td>
+          <td>
+            <span pTooltip="{{ tema.descripcionTema }}" tooltipPosition="top">
+              {{ tema.descripcionTema | slice:0:50 }}{{ tema.descripcionTema?.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <span 
+              [class]="tema.estatusTema === 'A' ? 'status-badge status-active' : 'status-badge status-inactive'">
+              {{ getEstatusLabel(tema.estatusTema) }}
+            </span>
+          </td>
+          <td>
+            <a *ngIf="tema.link" [href]="tema.link" target="_blank" class="link-text">
+              {{ tema.link | slice:0:30 }}{{ tema.link?.length > 30 ? '...' : '' }}
+            </a>
+            <span *ngIf="!tema.link" class="text-muted">Sin link</span>
+          </td>
+          <td>
+            <span pTooltip="{{ tema.descripcionMas }}" tooltipPosition="top">
+              {{ tema.descripcionMas | slice:0:60 }}{{ tema.descripcionMas?.length > 60 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <img 
+              *ngIf="tema.imagen" 
+              [src]="getImageUrl(tema)" 
+              [alt]="tema.descripcionTema"
+              class="tema-imagen"
+              pTooltip="Click para ampliar"
+              tooltipPosition="top">
+            <span *ngIf="!tema.imagen" class="text-muted">Sin imagen</span>
+          </td>
+          <td>
+            <p-button 
+              icon="pi pi-pencil" 
+              [rounded]="true" 
+              [text]="true" 
+              severity="info"
+              pTooltip="Editar tema" 
+              tooltipPosition="top"
+              (onClick)="abrirModal(tema)">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay temas registrados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 </div>
 
-<!-- MODAL -->
-<div class="modal" [class.show]="modalOpen">
-  <div class="modal-content">
-    <span class="close" (click)="closeModal()">&times;</span>
-    <h3>{{ editMode ? 'Editar Tema' : 'Nuevo tema' }}</h3>
+<!-- Modal de Crear/Editar -->
+<p-dialog 
+  [(visible)]="modalVisible" 
+  [header]="editMode ? 'Editar Tema' : 'Nuevo Tema'"
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '600px' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+  (onHide)="vaciarFormulario()">
+  
+  <form [formGroup]="formTema" (ngSubmit)="submitForm()">
+    <!-- Descripción del Tema -->
+    <div class="form-field">
+      <label for="descripcionTema" class="form-label">
+        Descripción <span class="required">*</span>
+      </label>
+      <input 
+        id="descripcionTema"
+        type="text" 
+        pInputText 
+        formControlName="descripcionTema"
+        placeholder="Ingrese la descripción del tema"
+        class="w-full"
+        [class.ng-invalid]="hasError('descripcionTema')"
+        [class.ng-dirty]="hasError('descripcionTema')">
+      <small *ngIf="hasError('descripcionTema')" class="p-error">
+        {{ getErrorMessage('descripcionTema') }}
+      </small>
+    </div>
 
-    <form [formGroup]="formTema" (ngSubmit)="submitForm()" enctype="multipart/form-data">
-      <label>Descripción:</label>
-      <input formControlName="descripcionTema" required>
+    <!-- Estatus -->
+    <div class="form-field">
+      <label for="estatusTema" class="form-label">
+        Estatus <span class="required">*</span>
+      </label>
+      <p-select 
+        id="estatusTema"
+        [options]="estatusOptions" 
+        formControlName="estatusTema"
+        optionLabel="label" 
+        optionValue="value"
+        placeholder="Seleccione el estatus"
+        [style]="{ width: '100%' }"
+        [class.ng-invalid]="hasError('estatusTema')"
+        [class.ng-dirty]="hasError('estatusTema')">
+      </p-select>
+      <small *ngIf="hasError('estatusTema')" class="p-error">
+        {{ getErrorMessage('estatusTema') }}
+      </small>
+    </div>
 
-      <label>Estatus:</label>
-      <input formControlName="estatusTema" required>
 
-      <label>Link:</label>
-      <input formControlName="link">
 
-      <label>Descripción Adicional:</label>
-      <textarea formControlName="descripcionMas"></textarea>
 
-      <label>Imagen:</label>
-      <input type="file" (change)="onFileSelected($event)">
 
-      <button type="submit" class="btn-guardar">{{ editMode ? 'Actualizar' : 'Crear' }}</button>
-      <button type="button" class="btn-cancelar" (click)="closeModal()">Cancelar</button>
-    </form>
-  </div>
-</div>
+    <!-- Link -->
+    <div class="form-field">
+      <label for="link" class="form-label">Link</label>
+      <input 
+        id="link"
+        type="url" 
+        pInputText 
+        formControlName="link"
+        placeholder="https://ejemplo.com"
+        class="w-full"
+        [class.ng-invalid]="hasError('link')"
+        [class.ng-dirty]="hasError('link')">
+      <small *ngIf="hasError('link')" class="p-error">
+        {{ getErrorMessage('link') }}
+      </small>
+    </div>
+
+    <!-- Descripción Adicional -->
+    <div class="form-field">
+      <label for="descripcionMas" class="form-label">Descripción Adicional</label>
+      <textarea 
+        id="descripcionMas"
+        pInputTextarea 
+        formControlName="descripcionMas"
+        [rows]="4"
+        placeholder="Ingrese información adicional..."
+        class="w-full"
+        [class.ng-invalid]="hasError('descripcionMas')"
+        [class.ng-dirty]="hasError('descripcionMas')">
+      </textarea>
+      <small *ngIf="hasError('descripcionMas')" class="p-error">
+        {{ getErrorMessage('descripcionMas') }}
+      </small>
+    </div>
+
+    <!-- Imagen -->
+    <div class="form-field">
+      <label for="imagen" class="form-label">
+        Imagen <span *ngIf="!editMode" class="required">*</span>
+      </label>
+      <input 
+        #fileInput
+        id="imagen"
+        type="file" 
+        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+        (change)="onFileSelected($event)"
+        class="w-full file-input">
+      <small class="help-text">
+        Formatos permitidos: JPG, PNG, GIF, WEBP. Tamaño máximo: 5MB
+      </small>
+      <small *ngIf="selectedImage" class="selected-file">
+        <i class="pi pi-check-circle"></i> {{ selectedImage.name }}
+      </small>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (onClick)="cerrarModal()"
+        [disabled]="submitting">
+      </p-button>
+      <p-button 
+        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        icon="pi pi-check"
+        type="submit"
+        [loading]="submitting"
+        [disabled]="formTema.invalid || submitting">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>
