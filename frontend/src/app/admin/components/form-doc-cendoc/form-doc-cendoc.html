@@ -47,14 +47,14 @@
       <div class="col-md-6">
         <label class="form-label fw-semibold">Categoría *</label>
         <p-select
-          [options]="categorias()"
-          formControlName="nombre_categoria"
+          [options]="categoriasOptions()"
+          formControlName="id_categoria_cendoc"
           optionLabel="label"
           optionValue="value"
           placeholder="Seleccionar categoría"
           class="w-100"
         ></p-select>
-        @if (isFieldInvalid('nombre_categoria')) {
+        @if (isFieldInvalid('id_categoria_cendoc')) {
         <small class="text-danger">Campo requerido</small>
         } @else {
         <div class="invisible">00</div>
@@ -122,10 +122,9 @@
           <a
             [href]="
               publicUrl +
-              'documentos/' +
-              docToEdit().id_documento +
-              '/archivo/' +
-              docToEdit().archivo
+              'documentos_cendoc/' +
+              docToEdit().id_documento +'/'+
+              docToEdit().archivo_documento
             "
             target="_blank"
             class="btn btn-outline-primary btn-sm"

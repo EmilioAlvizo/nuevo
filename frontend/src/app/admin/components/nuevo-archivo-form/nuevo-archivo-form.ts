@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/admin/components/nuevo-archivo-form/nuevo-archivo-form.ts
 import {
   Component,
   output,

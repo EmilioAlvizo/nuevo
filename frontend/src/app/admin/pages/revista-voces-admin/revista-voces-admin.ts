@@ -168,7 +168,7 @@ export class RevistaVocesAdmin {
     }
 
     // 📁 Ruta al archivo de la revista (ajusta el nombre del archivo si cambia)
-    const fileUrl = `${this.publicUrl}revistas/${revista.id_revista}/archivo/${revista.archivo}`;
+    const fileUrl = `${this.publicUrl}/revistas/${revista.id_revista}/archivo/${revista.archivo}`;
 
     // 🔍 Opción 1: Abrir el archivo en una nueva pestaña
     window.open(fileUrl, '_blank');

@@ -154,27 +154,47 @@ function buildConditions(params, request, config) {
 }
 
 // 🛠️ Utilidad para parsear parámetros de array
-  function parseArrayParam(param, type = "string") {
-    console.log("func   ", param);
-    if (!param) return [];
+function parseArrayParam(param, type = "string") {
+  console.log("func   ", param);
+  if (!param) return [];
 
-    // Si ya es un array, devolverlo
-    if (Array.isArray(param)) {
-      return type === "int" ? param.map(Number) : param;
-    }
-
-    // Si es un string, dividirlo por comas
-    const arr = param
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    return type === "int" ? arr.map(Number) : arr;
+  // Si ya es un array, devolverlo
+  if (Array.isArray(param)) {
+    return type === "int" ? param.map(Number) : param;
   }
+
+  // Si es un string, dividirlo por comas
+  const arr = param
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return type === "int" ? arr.map(Number) : arr;
+}
+
+/**
+ * Valida que los campos requeridos no estén vacíos o indefinidos.
+ * @param {Object} data - Objeto con los datos (por ejemplo req.body)
+ * @param {string[]} requiredFields - Lista de campos requeridos
+ * @throws {Error} Si algún campo está vacío o no definido
+ */
+function validarCamposRequeridos(data, requiredFields) {
+  const camposInvalidos = requiredFields.filter((campo) => {
+    const valor = data[campo];
+    if (valor === undefined || valor === null) return true;
+    if (typeof valor === "string" && valor.trim() === "") return true;
+    return false;
+  });
+
+  if (camposInvalidos.length > 0) {
+    throw new Error(`Campos inválidos o vacíos: ${camposInvalidos.join(", ")}`);
+  }
+}
 
 module.exports = {
   buildFilterCondition,
   buildDateFilterCondition,
   buildConditions,
   parseArrayParam,
+  validarCamposRequeridos,
 };

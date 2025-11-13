@@ -1,9 +1,9 @@
 // nuevo/frontend/src/app/admin/components/tabla-doc-cendoc/tabla-doc-cendoc.ts
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Component, inject, signal, WritableSignal, computed } from '@angular/core';
+import { Component, inject, signal, WritableSignal, computed, effect } from '@angular/core';
 import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
-import { Categoria_cendoc } from '../../../core/services/categorias_cendoc';
+import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
 import { FormDocCendoc } from '../../../admin/components/form-doc-cendoc/form-doc-cendoc';
 import { environment } from '../../../../environments/environment';
@@ -23,6 +23,9 @@ export class TablaDocCendoc {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
   documentosCendocService: ApiDocumentos_cendoc = inject(ApiDocumentos_cendoc);
+  
+  // ✅ INYECTAR el servicio de categorías
+  private apiCategoriaCendoc = inject(ApiCategoriaCendoc);
 
   readonly categorias = signal<Categoria_cendoc[]>([]);
 
@@ -125,6 +128,39 @@ export class TablaDocCendoc {
     },
   ];
 
+  // ✅ Constructor para cargar las categorías
+  constructor() {
+    effect(() => this.cargarCategorias());
+  }
+
+  // ✅ Método para cargar las categorías
+  private cargarCategorias(): void {
+    this.apiCategoriaCendoc.get().subscribe({
+      next: (res) => {
+        this.categorias.set(res.data);
+        
+        // ✅ Actualizar las opciones del filtro de categorías dinámicamente
+        const categoriaColumn = this.columns.find(c => c.field === 'nombre_categoria');
+        if (categoriaColumn) {
+          categoriaColumn.options = res.data.map(cat => ({
+            label: cat.nombre_categoria_cendoc,
+            value: cat.nombre_categoria_cendoc
+          }));
+        }
+        
+        console.log('✅ Categorías cargadas:', res.data);
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar categorías:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar las categorías',
+        });
+      },
+    });
+  }
+
   agregar() {
     this.revistaToEdit = null;
     this.showDialog.set(true);
@@ -177,13 +213,13 @@ export class TablaDocCendoc {
   }
 
   ver(doc: any) {
-    if (!doc || !doc.id_revista) {
+    if (!doc || !doc.id_documento) {
       console.warn('No se encontró la doc seleccionada.');
       return;
     }
 
     // 📁 Ruta al archivo de la doc (ajusta el nombre del archivo si cambia)
-    const fileUrl = `${this.publicUrl}revistas/${doc.id_revista}/archivo/${doc.archivo}`;
+    const fileUrl = `${this.publicUrl}/documentos_cendoc/${doc.id_documento}/${doc.archivo_documento}`;
 
     // 🔍 Opción 1: Abrir el archivo en una nueva pestaña
     window.open(fileUrl, '_blank');
@@ -196,6 +232,7 @@ export class TablaDocCendoc {
     // link.click();
     // document.body.removeChild(link);
   }
+
   guardar(formData: FormData) {
     const isEdit = !!this.revistaToEdit;
 

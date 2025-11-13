@@ -1,10 +1,17 @@
 //nuevo/backend/controllers/documentos_cendocController.js
 const Documentos_cendocModel = require("../models/documentos_cendocModel");
-const { parseArrayParam } = require("../utils/filters");
+const {
+  parseArrayParam,
+  validarCamposRequeridos,
+} = require("../utils/filters");
 
 // Nombre de la tabla (cámbialo según tu tabla)
 const TABLE_NAME = "documentos_cendoc"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
 const ID_COLUMN = "id_documento"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
+
+const path = require("path");
+const fs = require("fs");
+const backendPublicPath = path.join(__dirname, "../public");
 
 class Documentos_cendocController {
   // GET - Obtener todos los registros
@@ -206,68 +213,72 @@ class Documentos_cendocController {
         nombre_documento,
         autor_documento,
         descripcion_documento,
-        nombre_categoria,
+        id_categoria_cendoc,
         palabras_clave,
         fecha_documento,
         estatus_documento,
       } = req.body;
 
-      // Validar datos mínimos
-      if (
-        !nombre_documento ||
-        !autor_documento ||
-        !descripcion_documento ||
-        !nombre_categoria ||
-        !fecha_documento
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Datos inválidos o vacíos",
-        });
-      }
+      // ✅ Validar campos requeridos
+      validarCamposRequeridos(req.body, [
+        "nombre_documento",
+        "autor_documento",
+        "descripcion_documento",
+        "id_categoria_cendoc",
+        "fecha_documento",
+        //"palabras_clave",
+        "estatus_documento",
+      ]);
 
       // 🕓 Convertir fecha a horario local (CDMX)
-      
 
       // Crear registro en BD
       const nuevoDoc = await Documentos_cendocModel.create(TABLE_NAME, {
         nombre_documento,
         autor_documento,
         descripcion_documento,
-        id_categoria,
+        id_categoria_cendoc,
         palabras_clave,
         fecha_documento,
         estatus_documento,
       });
 
-      const id = nuevoDoc.id_documento;
-      const tempPath = `${angularPublicPath}/documentos/temp`;
-      const baseFolder = `${angularPublicPath}/documentos/${id}`;
-      const archivoFolder = `${baseFolder}/archivo`;
+      const id = nuevoDoc.id;
 
-      // Crear carpetas necesarias
-      fs.mkdirSync(archivoFolder, { recursive: true });
+      // 2️⃣ Definir carpetas
+      const tempPath = `${backendPublicPath}/documentos_cendoc/temp`;
+      const baseFolder = `${backendPublicPath}/documentos_cendoc/${id}`;
 
-      // Mover archivo desde temp a carpeta final
-      if (req.files?.archivo) {
+      // const archivoFolder = path.join(baseFolder, 'archivo');
+      fs.mkdirSync(baseFolder, { recursive: true });
+
+      // 3️⃣ Mover archivo
+      let archivoFinal = null;
+      if (req.files && req.files.archivo && req.files.archivo[0]) {
         const archivo = req.files.archivo[0];
         const oldPath = path.join(tempPath, archivo.filename);
-        const newPath = path.join(archivoFolder, archivo.filename);
+        const newPath = path.join(baseFolder, archivo.filename);
         fs.renameSync(oldPath, newPath);
+        archivoFinal = archivo.filename;
+        console.log("📂 Archivo movido a:", newPath);
+      } else {
+        console.warn("⚠️ No se recibió archivo en req.files.archivo");
+      }
 
-        // Actualizar nombre del archivo en BD
+      // 4️⃣ Actualizar registro
+      if (archivoFinal) {
         await Documentos_cendocModel.update(
           TABLE_NAME,
           id,
-          { archivo: archivo.filename },
+          { archivo_documento: archivoFinal },
           ID_COLUMN
         );
       }
 
-      res.json({
+      res.status(201).json({
         success: true,
         message: "Documento creado correctamente",
-        data: { id, ...nuevoDoc },
+        data: { id, archivo_documento: archivoFinal },
       });
     } catch (err) {
       console.error(err);
@@ -283,15 +294,7 @@ class Documentos_cendocController {
   static async update(req, res) {
     try {
       const id = req.params.id;
-      const {
-        nombre_documento,
-        autor_documento,
-        descripcion_documento,
-        id_categoria,
-        palabras_clave,
-        fecha_documento,
-        estatus_documento,
-      } = req.body;
+      const data = req.body;
 
       const registroActual = await Documentos_cendocModel.getById(
         TABLE_NAME,
@@ -306,38 +309,40 @@ class Documentos_cendocController {
         });
       }
 
+      // 🧾 Campos actualizables
+      const camposActualizados = {
+        nombre_documento: data.nombre_documento,
+        id_categoria_cendoc: data.id_categoria_cendoc,
+        autor_documento: data.autor_documento,
+        estatus_documento: data.estatus_documento,
+        palabras_clave: data.palabras_clave,
+        fecha_documento: data.fecha_documento,
+        descripcion_documento: data.descripcion_documento,
+      };
+
       // Actualizar campos de texto
       await Documentos_cendocModel.update(
         TABLE_NAME,
         id,
-        {
-          nombre_documento,
-          autor_documento,
-          descripcion_documento,
-          id_categoria,
-          palabras_clave,
-          fecha_documento,
-          estatus_documento,
-        },
+        camposActualizados,
         ID_COLUMN
       );
 
-      // Manejar archivo nuevo
-      const tempPath = `${angularPublicPath}/documentos/temp`;
-      const baseFolder = `${angularPublicPath}/documentos/${id}`;
-      const archivoFolder = `${baseFolder}/archivo`;
-      fs.mkdirSync(archivoFolder, { recursive: true });
-
+      // 🗃️ Manejar archivo nuevo solo si se subió
       if (req.files?.archivo) {
+        const tempPath = `${backendPublicPath}/documentos_cendoc/temp`;
+        const baseFolder = `${backendPublicPath}/documentos_cendoc/${id}`;
+        fs.mkdirSync(baseFolder, { recursive: true });
+
         const archivo = req.files.archivo[0];
         const oldPath = path.join(tempPath, archivo.filename);
-        const newPath = path.join(archivoFolder, archivo.filename);
+        const newPath = path.join(baseFolder, archivo.filename);
 
-        // Eliminar archivo anterior si existe
-        if (registroActual.archivo) {
+        // 🧹 Eliminar archivo anterior si existía
+        if (registroActual.archivo_documento) {
           const archivoAnterior = path.join(
-            archivoFolder,
-            registroActual.archivo
+            baseFolder,
+            registroActual.archivo_documento
           );
           if (fs.existsSync(archivoAnterior)) fs.unlinkSync(archivoAnterior);
         }
@@ -346,7 +351,9 @@ class Documentos_cendocController {
         await Documentos_cendocModel.update(
           TABLE_NAME,
           id,
-          { archivo: archivo.filename },
+          {
+            archivo_documento: archivo.filename,
+          },
           ID_COLUMN
         );
       }
@@ -396,7 +403,11 @@ class Documentos_cendocController {
         });
       }
 
-      const carpeta = path.join(angularPublicPath, "documentos", id.toString());
+      const carpeta = path.join(
+        backendPublicPath,
+        "documentos_cendoc",
+        id.toString()
+      );
       if (fs.existsSync(carpeta)) {
         fs.rmSync(carpeta, { recursive: true, force: true });
         console.log(`🗑️ Carpeta eliminada: ${carpeta}`);

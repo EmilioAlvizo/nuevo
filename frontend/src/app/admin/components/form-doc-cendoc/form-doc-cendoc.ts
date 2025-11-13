@@ -167,9 +167,10 @@ export class FormDocCendoc {
     fd.append('estatus_documento', formValue.estatus_documento);
 
     if (formValue.fecha_documento) {
-      const fecha = formValue.fecha_documento instanceof Date
-        ? formValue.fecha_documento
-        : new Date(formValue.fecha_documento);
+      const fecha =
+        formValue.fecha_documento instanceof Date
+          ? formValue.fecha_documento
+          : new Date(formValue.fecha_documento);
       fd.append('fecha_documento', fecha.toISOString().slice(0, 19).replace('T', ' '));
     }
 
@@ -209,7 +210,10 @@ export class FormDocCendoc {
       autor_documento: doc.autor_documento,
       descripcion_documento: doc.descripcion_documento,
       id_categoria_cendoc: doc.id_categoria_cendoc,
-      palabras_clave: doc.palabras_clave,
+      palabras_clave:
+        typeof doc.palabras_clave === 'string'
+          ? doc.palabras_clave.split(',').map((p: string) => p.trim())
+          : doc.palabras_clave,
       fecha_documento: doc.fecha_documento ? new Date(doc.fecha_documento) : null,
       estatus_documento: doc.estatus_documento,
     });
@@ -226,5 +230,4 @@ export class FormDocCendoc {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
-
 }
