@@ -1,3 +1,4 @@
+<!-- // nuevo/frontend/src/app/admin/components/form-doc-cendoc/form-doc-cendoc.ts -->
 <p-dialog
   [header]="isEditMode() ? 'Editar Documento' : 'Agregar Documento'"
   [(visible)]="visible"
@@ -13,8 +14,8 @@
         @if (isFieldInvalid('nombre_documento')) {
         <small class="text-danger">Campo requerido</small>
         }@else {
-          <div class="invisible">00</div>
-          }
+        <div class="invisible">00</div>
+        }
       </div>
       <div class="col-md-6">
         <label class="form-label fw-semibold">Autor *</label>
@@ -22,26 +23,31 @@
         @if (isFieldInvalid('autor_documento')) {
         <small class="text-danger">Campo requerido</small>
         }@else {
-          <div class="invisible">00</div>
-          }
+        <div class="invisible">00</div>
+        }
       </div>
     </div>
 
     <div class="mb-3">
       <label class="form-label fw-semibold">Descripción *</label>
-      <textarea pInputTextarea formControlName="descripcion_documento" rows="3" class="form-control"></textarea>
+      <textarea
+        pInputTextarea
+        formControlName="descripcion_documento"
+        rows="3"
+        class="form-control"
+      ></textarea>
       @if (isFieldInvalid('descripcion_documento')) {
       <small class="text-danger">Campo requerido</small>
       }@else {
-          <div class="invisible">00</div>
-          }
+      <div class="invisible">00</div>
+      }
     </div>
 
     <div class="row mb-3">
       <div class="col-md-6">
         <label class="form-label fw-semibold">Categoría *</label>
         <p-select
-          [options]="categoriasOptions()"
+          [options]="categorias()"
           formControlName="nombre_categoria"
           optionLabel="label"
           optionValue="value"
@@ -51,12 +57,22 @@
         @if (isFieldInvalid('nombre_categoria')) {
         <small class="text-danger">Campo requerido</small>
         } @else {
-          <div class="invisible">00</div>
-          }
+        <div class="invisible">00</div>
+        }
       </div>
       <div class="col-md-6">
         <label class="form-label fw-semibold">Palabras clave</label>
-        <input pInputText formControlName="palabras_clave" class="form-control" placeholder="Ej: derechos, igualdad" />
+        <p-autocomplete
+          formControlName="palabras_clave"
+          multiple
+          [addOnBlur]="true"
+          [addOnTab]="true"
+          separator=","
+          [typeahead]="false"
+          placeholder="Escribe y presiona Tab, Enter o Coma"
+          fluid
+        ></p-autocomplete>
+        <!-- <input pInputText formControlName="palabras_clave" class="form-control" placeholder="Ej: derechos, igualdad" /> -->
       </div>
     </div>
 
@@ -75,8 +91,8 @@
         @if (isFieldInvalid('fecha_documento')) {
         <small class="text-danger">Campo requerido</small>
         } @else {
-          <div class="invisible">00</div>
-          }
+        <div class="invisible">00</div>
+        }
       </div>
       <div class="col-md-6">
         <label class="form-label fw-semibold">Estatus *</label>
@@ -104,7 +120,13 @@
         <small>Archivo actual:</small>
         <div class="mt-2">
           <a
-            [href]="publicUrl + 'documentos/' + docToEdit().id_documento + '/archivo/' + docToEdit().archivo"
+            [href]="
+              publicUrl +
+              'documentos/' +
+              docToEdit().id_documento +
+              '/archivo/' +
+              docToEdit().archivo
+            "
             target="_blank"
             class="btn btn-outline-primary btn-sm"
           >
@@ -112,12 +134,11 @@
           </a>
         </div>
       </div>
-      }
-
-      @if (archivoNombre()) {
+      } @if (archivoNombre()) {
       <div class="alert alert-success py-2 mb-2">
         <i class="pi pi-check-circle me-2"></i> {{ archivoNombre() }}
-        <small *ngIf="archivoSeleccionado()">({{ formatFileSize(archivoSeleccionado()!.size) }})</small>
+        @if (archivoSeleccionado()) {
+        <small>({{ formatFileSize(archivoSeleccionado()!.size) }})</small>}
       </div>
       }
 
@@ -141,8 +162,8 @@
       @if (isFieldInvalid('archivoFile')) {
       <small class="text-danger">Debe seleccionar un archivo PDF</small>
       } @else {
-          <div class="invisible">00</div>
-          }
+      <div class="invisible">00</div>
+      }
     </div>
   </form>
 

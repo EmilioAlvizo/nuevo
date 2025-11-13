@@ -28,7 +28,11 @@ class Documentos_cendocController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const revistas = await Documentos_cendocModel.getById(TABLE_NAME, id, ID_COLUMN);
+      const revistas = await Documentos_cendocModel.getById(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
 
       if (!revistas) {
         return res.status(404).json({
@@ -117,17 +121,19 @@ class Documentos_cendocController {
         autor_documento_matchMode: autor_documento_matchMode || "contains",
 
         descripcion_documento: descripcion_documento || null,
-        descripcion_documento_matchMode: descripcion_documento_matchMode || "contains",
+        descripcion_documento_matchMode:
+          descripcion_documento_matchMode || "contains",
 
         id_categoria_cendoc: id_categoria_cendoc || null,
-        id_categoria_cendoc_matchMode: id_categoria_cendoc_matchMode || "contains",
+        id_categoria_cendoc_matchMode:
+          id_categoria_cendoc_matchMode || "contains",
 
         archivo_documento: archivo_documento || null,
         archivo_documento_matchMode: archivo_documento_matchMode || "contains",
 
         palabras_clave: palabras_clave || null,
         palabras_clave_matchMode: palabras_clave_matchMode || "contains",
-        
+
         /* nombre_categoria: nombre_categoria || null,
         nombre_categoria_matchMode: nombre_categoria_matchMode || "contains", */
 
@@ -151,7 +157,9 @@ class Documentos_cendocController {
         sortOrder: sortOrder ? parseInt(sortOrder) : null,
       };
 
-      const resultado = await Documentos_cendocModel.getArchivosFiltrados(params);
+      const resultado = await Documentos_cendocModel.getArchivosFiltrados(
+        params
+      );
 
       //console.log("resultados ", resultado)
 
@@ -175,7 +183,8 @@ class Documentos_cendocController {
   /// ✅ NUEVO - GET conteos por municipio
   static async getConteosDocumentos_cendoc(req, res) {
     try {
-      const conteos = await Documentos_cendocModel.getConteosPorDocumentos_cendoc();
+      const conteos =
+        await Documentos_cendocModel.getConteosPorDocumentos_cendoc();
       res.status(200).json({
         success: true,
         data: conteos,
@@ -193,71 +202,216 @@ class Documentos_cendocController {
   // POST - Crear un nuevo registro
   static async create(req, res) {
     try {
-      const data = req.body;
+      const {
+        nombre_documento,
+        autor_documento,
+        descripcion_documento,
+        nombre_categoria,
+        palabras_clave,
+        fecha_documento,
+        estatus_documento,
+      } = req.body;
 
-      if (!data || Object.keys(data).length === 0) {
+      // Validar datos mínimos
+      if (
+        !nombre_documento ||
+        !autor_documento ||
+        !descripcion_documento ||
+        !nombre_categoria ||
+        !fecha_documento
+      ) {
         return res.status(400).json({
           success: false,
           message: "Datos inválidos o vacíos",
         });
       }
 
-      const newMunicipio = await Documentos_cendocModel.create(TABLE_NAME, data);
-      res.status(201).json({
-        success: true,
-        message: "Registro creado exitosamente",
-        data: newMunicipio,
+      // 🕓 Convertir fecha a horario local (CDMX)
+      
+
+      // Crear registro en BD
+      const nuevoDoc = await Documentos_cendocModel.create(TABLE_NAME, {
+        nombre_documento,
+        autor_documento,
+        descripcion_documento,
+        id_categoria,
+        palabras_clave,
+        fecha_documento,
+        estatus_documento,
       });
-    } catch (error) {
+
+      const id = nuevoDoc.id_documento;
+      const tempPath = `${angularPublicPath}/documentos/temp`;
+      const baseFolder = `${angularPublicPath}/documentos/${id}`;
+      const archivoFolder = `${baseFolder}/archivo`;
+
+      // Crear carpetas necesarias
+      fs.mkdirSync(archivoFolder, { recursive: true });
+
+      // Mover archivo desde temp a carpeta final
+      if (req.files?.archivo) {
+        const archivo = req.files.archivo[0];
+        const oldPath = path.join(tempPath, archivo.filename);
+        const newPath = path.join(archivoFolder, archivo.filename);
+        fs.renameSync(oldPath, newPath);
+
+        // Actualizar nombre del archivo en BD
+        await Documentos_cendocModel.update(
+          TABLE_NAME,
+          id,
+          { archivo: archivo.filename },
+          ID_COLUMN
+        );
+      }
+
+      res.json({
+        success: true,
+        message: "Documento creado correctamente",
+        data: { id, ...nuevoDoc },
+      });
+    } catch (err) {
+      console.error(err);
       res.status(500).json({
         success: false,
-        message: error.message,
+        message: "Error al crear documento",
+        error: err.message,
       });
     }
   }
 
-  // PUT - Actualizar un registro
+  // 📌 PUT - Actualizar documento existente
   static async update(req, res) {
     try {
-      const { id } = req.params;
-      const data = req.body;
+      const id = req.params.id;
+      const {
+        nombre_documento,
+        autor_documento,
+        descripcion_documento,
+        id_categoria,
+        palabras_clave,
+        fecha_documento,
+        estatus_documento,
+      } = req.body;
 
-      if (!data || Object.keys(data).length === 0) {
-        return res.status(400).json({
+      const registroActual = await Documentos_cendocModel.getById(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
+
+      if (!registroActual) {
+        return res.status(404).json({
           success: false,
-          message: "Datos inválidos o vacíos",
+          message: "Registro no encontrado",
         });
       }
 
-      const updatedMunicipio = await Documentos_cendocModel.update(TABLE_NAME, id, data, ID_COLUMN);
-      res.status(200).json({
+      // Actualizar campos de texto
+      await Documentos_cendocModel.update(
+        TABLE_NAME,
+        id,
+        {
+          nombre_documento,
+          autor_documento,
+          descripcion_documento,
+          id_categoria,
+          palabras_clave,
+          fecha_documento,
+          estatus_documento,
+        },
+        ID_COLUMN
+      );
+
+      // Manejar archivo nuevo
+      const tempPath = `${angularPublicPath}/documentos/temp`;
+      const baseFolder = `${angularPublicPath}/documentos/${id}`;
+      const archivoFolder = `${baseFolder}/archivo`;
+      fs.mkdirSync(archivoFolder, { recursive: true });
+
+      if (req.files?.archivo) {
+        const archivo = req.files.archivo[0];
+        const oldPath = path.join(tempPath, archivo.filename);
+        const newPath = path.join(archivoFolder, archivo.filename);
+
+        // Eliminar archivo anterior si existe
+        if (registroActual.archivo) {
+          const archivoAnterior = path.join(
+            archivoFolder,
+            registroActual.archivo
+          );
+          if (fs.existsSync(archivoAnterior)) fs.unlinkSync(archivoAnterior);
+        }
+
+        fs.renameSync(oldPath, newPath);
+        await Documentos_cendocModel.update(
+          TABLE_NAME,
+          id,
+          { archivo: archivo.filename },
+          ID_COLUMN
+        );
+      }
+
+      res.json({
         success: true,
-        message: "Registro actualizado exitosamente",
-        data: updatedMunicpio,
+        message: "Documento actualizado correctamente",
       });
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       res.status(500).json({
         success: false,
-        message: error.message,
+        message: "Error al actualizar documento",
+        error: err.message,
       });
     }
   }
 
-  // DELETE - Eliminar un registro
+  // 📌 DELETE - Eliminar documento y archivo
   static async delete(req, res) {
     try {
       const { id } = req.params;
-      const result = await Documentos_cendocModel.delete(TABLE_NAME, id, ID_COLUMN);
-      
-      res.status(200).json({
+
+      const registro = await Documentos_cendocModel.getById(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
+
+      if (!registro) {
+        return res.status(404).json({
+          success: false,
+          message: "Registro no encontrado",
+        });
+      }
+
+      const deleted = await Documentos_cendocModel.delete(
+        TABLE_NAME,
+        id,
+        ID_COLUMN
+      );
+
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: "Error al eliminar registro",
+        });
+      }
+
+      const carpeta = path.join(angularPublicPath, "documentos", id.toString());
+      if (fs.existsSync(carpeta)) {
+        fs.rmSync(carpeta, { recursive: true, force: true });
+        console.log(`🗑️ Carpeta eliminada: ${carpeta}`);
+      }
+
+      res.json({
         success: true,
-        message: result.message,
-        id: result.id,
+        message: "Documento y archivo eliminados correctamente",
+        id,
       });
-    } catch (error) {
+    } catch (err) {
+      console.error("Error al eliminar documento:", err);
       res.status(500).json({
         success: false,
-        message: error.message,
+        message: err.message,
       });
     }
   }

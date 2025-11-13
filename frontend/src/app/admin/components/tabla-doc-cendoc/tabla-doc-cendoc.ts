@@ -1,8 +1,9 @@
 // nuevo/frontend/src/app/admin/components/tabla-doc-cendoc/tabla-doc-cendoc.ts
 import { ConfirmationService, MessageService } from 'primeng/api';
 
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal, computed } from '@angular/core';
 import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
+import { Categoria_cendoc } from '../../../core/services/categorias_cendoc';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
 import { FormDocCendoc } from '../../../admin/components/form-doc-cendoc/form-doc-cendoc';
 import { environment } from '../../../../environments/environment';
@@ -23,9 +24,19 @@ export class TablaDocCendoc {
   private messageService = inject(MessageService);
   documentosCendocService: ApiDocumentos_cendoc = inject(ApiDocumentos_cendoc);
 
+  readonly categorias = signal<Categoria_cendoc[]>([]);
+
   showDialog: WritableSignal<boolean> = signal(false);
   revistaToEdit: Documentos_cendoc | null = null;
   refrescarTabla = signal(0);
+
+  // 🧠 Computed: opciones de municipios
+  readonly categoriasOptions = computed(() =>
+    this.categorias().map((m) => ({
+      label: m.nombre_categoria_cendoc,
+      value: m.id_categoria_cendoc,
+    }))
+  );
 
   columns: ColumnConfig[] = [
     {

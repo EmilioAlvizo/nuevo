@@ -1,8 +1,10 @@
+// nuevo/frontend/src/app/admin/components/form-doc-cendoc/form-doc-cendoc.ts
 import {
   Component,
   signal,
   input,
   output,
+  inject,
   ViewChild,
   computed,
   effect,
@@ -11,7 +13,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
-import { toZonedTime } from 'date-fns-tz';
+import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
 
 // PrimeNG
 import { DialogModule } from 'primeng/dialog';
@@ -22,8 +24,14 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 
 interface Option {
+  label: string;
+  value: number;
+}
+
+interface Estatus {
   label: string;
   value: string;
 }
@@ -40,15 +48,18 @@ interface Option {
     ReactiveFormsModule,
     DatePickerModule,
     TagModule,
+    AutoCompleteModule,
   ],
   templateUrl: './form-doc-cendoc.html',
   styleUrl: './form-doc-cendoc.css',
 })
 export class FormDocCendoc {
   publicUrl = environment.publicUrl;
+  apiCategoriaCendoc = inject(ApiCategoriaCendoc);
   private fb = new FormBuilder().nonNullable;
 
   // Inputs/Outputs
+  categorias = input.required<Categoria_cendoc[]>();
   visible = model.required<boolean>();
   isEditMode = input<boolean>(false);
   docToEdit = input<any>(null);
@@ -62,15 +73,17 @@ export class FormDocCendoc {
   isSaving = signal(false);
   formSubmitted = signal(false);
 
-  categoriasOptions = signal<Option[]>([
-    { label: 'Discriminación y DH', value: 'Discriminación y DH' },
-    { label: 'Economía', value: 'Economía' },
-  ]);
-
-  estatusOptions = signal<Option[]>([
+  estatusOptions = signal<Estatus[]>([
     { label: 'Activo', value: 'A' },
     { label: 'Inactivo', value: 'I' },
   ]);
+
+  categoriasOptions = computed(() =>
+    this.categorias().map((m) => ({
+      label: m.nombre_categoria_cendoc,
+      value: m.id_categoria_cendoc,
+    }))
+  );
 
   // Formulario
   docForm: FormGroup;
@@ -81,8 +94,8 @@ export class FormDocCendoc {
       nombre_documento: ['', [Validators.required, Validators.maxLength(150)]],
       autor_documento: ['', [Validators.required, Validators.maxLength(150)]],
       descripcion_documento: ['', [Validators.required, Validators.maxLength(500)]],
-      nombre_categoria: [null as string | null, Validators.required],
-      palabras_clave: ['', [Validators.maxLength(150)]],
+      id_categoria_cendoc: [null as string | null, Validators.required],
+      palabras_clave: [[], [Validators.maxLength(150)]],
       fecha_documento: [null as Date | null, Validators.required],
       estatus_documento: ['A', Validators.required],
       archivoFile: [null as File | null],
@@ -144,8 +157,13 @@ export class FormDocCendoc {
     fd.append('nombre_documento', formValue.nombre_documento);
     fd.append('autor_documento', formValue.autor_documento);
     fd.append('descripcion_documento', formValue.descripcion_documento);
-    fd.append('nombre_categoria', formValue.nombre_categoria);
-    fd.append('palabras_clave', formValue.palabras_clave || '');
+    fd.append('id_categoria_cendoc', formValue.id_categoria_cendoc);
+    fd.append(
+      'palabras_clave',
+      Array.isArray(formValue.palabras_clave)
+        ? formValue.palabras_clave.join(', ')
+        : formValue.palabras_clave || ''
+    );
     fd.append('estatus_documento', formValue.estatus_documento);
 
     if (formValue.fecha_documento) {
@@ -190,7 +208,7 @@ export class FormDocCendoc {
       nombre_documento: doc.nombre_documento,
       autor_documento: doc.autor_documento,
       descripcion_documento: doc.descripcion_documento,
-      nombre_categoria: doc.nombre_categoria,
+      id_categoria_cendoc: doc.id_categoria_cendoc,
       palabras_clave: doc.palabras_clave,
       fecha_documento: doc.fecha_documento ? new Date(doc.fecha_documento) : null,
       estatus_documento: doc.estatus_documento,

@@ -3,8 +3,14 @@
 const express = require("express");
 const router = express.Router();
 const Documentos_cendocController = require("../controllers/documentos_cendocController");
+const { crearUpload } = require("../middleware/uploadMiddleware");
 //autenticacion
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
+
+// Crear middleware específico para revistas
+const upload = crearUpload('documentos_cendoc', {
+    archivo: ['application/pdf']
+  });
 
 // Rutas del API REST
 
@@ -21,10 +27,10 @@ router.get("/documentos_cendoc", Documentos_cendocController.getAll);
 router.get("/documentos_cendoc/:id", Documentos_cendocController.getById);
 
 // POST - Crear un nuevo registro
-router.post("/documentos_cendoc", Documentos_cendocController.create);
+router.post("/documentos_cendoc", upload.fields([{ name: "archivo", maxCount: 1 }]), Documentos_cendocController.create);
 
 // PUT - Actualizar un registro
-router.put("/documentos_cendoc/:id", Documentos_cendocController.update);
+router.put("/documentos_cendoc/:id", upload.fields([{ name: "archivo", maxCount: 1 }]), Documentos_cendocController.update);
 
 // DELETE - Eliminar un registro
 router.delete("/documentos_cendoc/:id", Documentos_cendocController.delete);
