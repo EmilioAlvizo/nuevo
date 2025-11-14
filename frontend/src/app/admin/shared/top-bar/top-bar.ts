@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/admin/shared/top-bar/top-bar.ts
 import {
   Component,
   inject,
@@ -7,6 +8,7 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectionStrategy,
+  output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -29,6 +31,10 @@ export class TopBar {
 
   // Inputs configurables
   show = input(true); // Control externo de visibilidad
+
+  //output
+  expandedChange = output<boolean>();
+  isExpanded = false;
 
   // Signals
   currentUser = signal<User | null>(null);
@@ -79,12 +85,16 @@ export class TopBar {
   // ==================== METHODS ====================
 
   toggleAdminMenu(event: Event): void {
+    this.isExpanded = !this.isExpanded;
+    this.expandedChange.emit(this.isExpanded);
     event.stopPropagation();
     this.showAdminMenu.update((open) => !open);
   }
 
   closeAdminMenu(): void {
     this.showAdminMenu.set(false);
+    this.isExpanded = false
+    this.expandedChange.emit(this.isExpanded);
   }
 
   goToLogin(): void {

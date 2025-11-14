@@ -1,6 +1,6 @@
 <!-- nuevo/frontend/src/app/public/components/navbar3/navbar3.html -->
 <!-- Barra informativa superior -->
-<app-top-bar [show]="showTopBar()"></app-top-bar>
+<app-top-bar [show]="showTopBar()" (expandedChange)="onTopBarExpanded($event)"></app-top-bar>
 
 <!-- Header principal -->
 <header class="cmp-navbar" [class.scrolled]="isScrolled()">

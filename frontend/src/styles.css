@@ -10,6 +10,11 @@ body {
   background-color: #ecf0f0;
 }
 
+body.mobile-menu-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
 /* El app-root debe crecer para llenar toda la ventana */
 app-root {
   display: flex;

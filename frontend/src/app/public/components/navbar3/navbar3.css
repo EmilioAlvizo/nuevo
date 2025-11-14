@@ -682,6 +682,7 @@ body.menu-open {
   /* 🆕 Menú móvil mejorado */
   .nav-center {
     position: fixed;
+    display: none;
     top: 0;
     right: -100%;
     width: 85%;
@@ -699,6 +700,7 @@ body.menu-open {
 
   .nav-center.mobile-open {
     right: 0;
+    display: block;
   }
 
   /* 🆕 Header del menú móvil */

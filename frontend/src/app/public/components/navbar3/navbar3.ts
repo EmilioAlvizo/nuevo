@@ -13,7 +13,7 @@ import {
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { TopBar } from '../../../admin/shared/top-bar/top-bar'
+import { TopBar } from '../../../admin/shared/top-bar/top-bar';
 
 @Component({
   selector: 'app-navbar3',
@@ -28,7 +28,7 @@ import { TopBar } from '../../../admin/shared/top-bar/top-bar'
 })
 export class Navbar3 implements OnInit, OnDestroy {
   publicUrl = environment.publicUrl;
-  
+
   // Inputs configurables
   brandLink = input('/');
   scrollThreshold = input(50);
@@ -38,6 +38,7 @@ export class Navbar3 implements OnInit, OnDestroy {
   isScrolled = signal(false);
   mobileMenuOpen = signal(false);
   dropdownOpen = signal(false);
+  topBarExpanded = signal(false);
 
   // Internos
   private clickOutsideHandler?: () => void;
@@ -70,14 +71,21 @@ export class Navbar3 implements OnInit, OnDestroy {
     this.clickOutsideHandler?.();
     this.scrollHandler?.();
     clearTimeout(this.debounceTimer);
-    
+
     // 🆕 Limpiar la clase del body al destruir
     if (typeof document !== 'undefined') {
-      document.body.classList.remove('movile-menu-open');
+      document.body.classList.remove('mobile-menu-open');
     }
   }
 
   private handleScroll(): void {
+    // ⛔ No correr lógica de scroll si el menú móvil o el dropdown están abiertos
+    if (this.mobileMenuOpen() || this.dropdownOpen() || this.topBarExpanded()) {
+      this.isScrolled.set(false);
+      this.showTopBar.set(true);
+      return;
+    }
+
     if (this.ticking) return;
     this.ticking = true;
 
@@ -107,7 +115,7 @@ export class Navbar3 implements OnInit, OnDestroy {
   }
 
   // 🆕 Prevenir scroll del body cuando el menú está abierto
-  private preventBodyScroll(): void {
+  /*   private preventBodyScroll(): void {
     if (typeof document === 'undefined') return;
 
     const body = document.body;
@@ -117,22 +125,39 @@ export class Navbar3 implements OnInit, OnDestroy {
       if (this.mobileMenuOpen()) {
         body.classList.add('mobile-menu-open');
       } else {
-        body.classList.remove('movile-menu-open');
+        body.classList.remove('mobile-menu-open');
       }
     };
 
     // Ejecutar cada vez que cambie el signal
-    setInterval(checkMenuState, 50);
+    //setInterval(checkMenuState, 50);
+  } */
+
+  private preventBodyScroll(): void {
+    if (typeof document === 'undefined') return;
+
+    effect(() => {
+      const isOpen = this.mobileMenuOpen();
+      if (isOpen) {
+        document.body.classList.add('mobile-menu-open');
+      } else {
+        document.body.classList.remove('mobile-menu-open');
+      }
+    });
+  }
+
+  onTopBarExpanded(expanded: boolean) {
+    this.topBarExpanded.set(expanded);
   }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
-    
+
     // 🆕 Cerrar dropdown al cerrar menú móvil
     if (!this.mobileMenuOpen()) {
       this.dropdownOpen.set(false);
     }
-    
+
     console.log('📱 [NAVBAR] Menú móvil:', this.mobileMenuOpen() ? 'Abierto' : 'Cerrado');
   }
 

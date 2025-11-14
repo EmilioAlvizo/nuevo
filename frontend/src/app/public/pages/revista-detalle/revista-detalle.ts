@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/public/pages/revista-detalle/revista-detalle.ts
 import { Component, LOCALE_ID, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, registerLocaleData } from '@angular/common';
@@ -6,6 +7,7 @@ import { ApiArticulos, Articulos } from '../../../core/services/articulos';
 import { Flipbook } from '../../components/flipbook/flipbook';
 import localeEs from '@angular/common/locales/es';
 import { environment } from '../../../../environments/environment';
+import { RouterModule } from '@angular/router';
 
 registerLocaleData(localeEs);
 
@@ -13,7 +15,7 @@ registerLocaleData(localeEs);
 @Component({
   selector: 'app-revista-detalle',
   standalone: true,
-  imports: [CommonModule, Flipbook],
+  imports: [CommonModule, Flipbook, RouterModule],
   templateUrl: './revista-detalle.html',
   styleUrls: ['./revista-detalle.css'],
   providers: [{ provide: LOCALE_ID, useValue: 'es' }] 
