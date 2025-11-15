@@ -1,6 +1,7 @@
 // nuevo/frontend/src/app/public/public.routes.ts
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
+import { ARTICULOS_CHILD_ROUTES } from './pages/articulos/articulos.routes';
 import { SistemaJuventudes } from './pages/sistema-juventudes/sistema-juventudes';
 import { Estadisticas } from './pages/estadisticas/estadisticas';
 import { RevistaVoces } from './pages/revista-voces/revista-voces';
@@ -17,7 +18,7 @@ export const publicRoutes: Routes = [
   { path: 'estadisticas', component: Estadisticas },
   { path: 'revista', component: RevistaVoces },
   { path: 'revista/:id', component: RevistaDetalle },
-  { path: 'revista/:id/articulo/:idArticulo', component: Articulos },
+  { path: 'revista/:id/articulo', component: Articulos, children: ARTICULOS_CHILD_ROUTES },
   { path: 'centro-documental', component: CentroDocumental },
   { path: 'informacion-interes', component: InformacionInteres },
   { path: 'contactanos', component: Contactanos },

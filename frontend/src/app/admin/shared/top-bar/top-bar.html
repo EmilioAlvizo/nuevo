@@ -81,7 +81,8 @@
 
       <!-- Rutas administrativas -->
       <nav class="admin-nav" aria-label="Navegación administrativa">
-        <div class="admin-nav-section">
+        <div class="admin-nav-section"  (click)="toggleSection(0)" 
+        [class.open]="openSection() === 0">
           <h4><i class="fa-solid fa-house"></i> Inicio</h4>
           <ul>
             <li>
@@ -132,7 +133,8 @@
           </ul>
         </div>
 
-        <div class="admin-nav-section">
+        <div class="admin-nav-section"  (click)="toggleSection(1)" 
+        [class.open]="openSection() === 1">
           <h4><i class="fa-solid fa-users"></i> Sistema Juventudes</h4>
           <ul>
             <li>
@@ -154,7 +156,8 @@
           </ul>
         </div>
 
-        <div class="admin-nav-section">
+        <div class="admin-nav-section"  (click)="toggleSection(2)" 
+        [class.open]="openSection() === 2">
           <h4><i class="fa-solid fa-chart-line"></i> Estadísticas</h4>
           <ul>
             <li>
@@ -168,7 +171,8 @@
           </ul>
         </div>
 
-        <div class="admin-nav-section">
+        <div class="admin-nav-section"  (click)="toggleSection(3)" 
+        [class.open]="openSection() === 3">
           <h4><i class="fa-solid fa-book"></i> Revista Voces Emergentes</h4>
           <ul>
             <li>
@@ -179,7 +183,8 @@
           </ul>
         </div>
 
-        <div class="admin-nav-section">
+        <div class="admin-nav-section"  (click)="toggleSection(4)" 
+        [class.open]="openSection() === 4">
           <h4><i class="fa-solid fa-file-lines"></i> Centro Documental</h4>
           <ul>
             <li>
@@ -201,7 +206,8 @@
           </ul>
         </div>
 
-        <div class="admin-nav-section">
+        <div class="admin-nav-section"  (click)="toggleSection(5)" 
+        [class.open]="openSection() === 5">
           <h4><i class="fa-solid fa-info-circle"></i> Información de Interés</h4>
           <ul>
             <li>

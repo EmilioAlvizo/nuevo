@@ -176,7 +176,7 @@
 } */
 
 .nav-center .boton-rutas:nth-child(n) {
-  padding: 0 20px;
+  padding: 18px 20px;
 }
 
 .nav-center>a,
@@ -681,9 +681,9 @@ body.menu-open {
 @media (max-width: 743px) {
   /* 🆕 Menú móvil mejorado */
   .nav-center {
-    position: fixed;
+    position: absolute;
     display: none;
-    top: 0;
+    top: 110%;
     right: -100%;
     width: 85%;
     max-width: 400px;
@@ -695,7 +695,8 @@ body.menu-open {
     transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 3;
     overflow-y: auto;
-    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+    box-shadow: -5px 0 1px rgb(200, 200, 200);
+    border-radius: 25px;
   }
 
   .nav-center.mobile-open {

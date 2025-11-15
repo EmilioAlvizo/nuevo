@@ -80,7 +80,7 @@ export class Navbar3 implements OnInit, OnDestroy {
 
   private handleScroll(): void {
     // ⛔ No correr lógica de scroll si el menú móvil o el dropdown están abiertos
-    if (this.mobileMenuOpen() || this.dropdownOpen() || this.topBarExpanded()) {
+    if (this.topBarExpanded()) {
       this.isScrolled.set(false);
       this.showTopBar.set(true);
       return;

@@ -1,15 +1,9 @@
+<!-- // nuevo/frontend/src/app/public/pages/articulos/articulos.html -->
 <div class="container p-4">
-  
   <a [routerLink]="['/revista', idRevista]" class="btn btn-secondary mb-4">
     ← Regresar a la revista
   </a>
 
-  <!-- CSS del artículo -->
-  <link [href]="cssUrl" rel="stylesheet" />
-
-  <div *ngIf="cargando">Cargando artículo...</div>
-
-  <!-- Contenido HTML del artículo -->
-  <div [innerHTML]="html"></div>
-
+  <!-- Aquí se cargará el artículo -->
+  <router-outlet></router-outlet>
 </div>

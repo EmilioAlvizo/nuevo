@@ -306,6 +306,9 @@
   }
   
   @media (max-width: 743px) {
+    .admin-info{
+      display: none;
+    }
     .top-bar-main {
       flex-direction: column;
       gap: 15px;
@@ -344,6 +347,40 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+
+    /*esto es para los botones deplegables en mobil*/
+    .admin-nav-section ul {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+  
+    .admin-nav-section.open ul {
+      max-height: 500px; /* suficiente para 10 items */
+      opacity: 1;
+    }
+  
+    /* Estilo visual del título clickeable */
+    .admin-nav-section h4 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 10px 0;
+    }
+  
+    /* Flechita opcional */
+    .admin-nav-section h4::after {
+      content: "\f078"; /* chevron-down */
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      transition: transform 0.3s ease;
+    }
+  
+    .admin-nav-section.open h4::after {
+      transform: rotate(180deg);
     }
   }
   @media (min-width: 1920px) {

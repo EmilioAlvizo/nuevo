@@ -93,7 +93,7 @@ export class TopBar {
 
   closeAdminMenu(): void {
     this.showAdminMenu.set(false);
-    this.isExpanded = false
+    this.isExpanded = false;
     this.expandedChange.emit(this.isExpanded);
   }
 
@@ -112,5 +112,18 @@ export class TopBar {
         console.error('❌ Error al cerrar sesión:', error);
       },
     });
+  }
+
+  // Índice de la sección abierta actualmente (solo móvil)
+  openSection = signal<number | null>(null);
+
+  // Cambia la sección abierta
+  toggleSection(index: number) {
+    // Si ya está abierta, la cerramos
+    if (this.openSection() === index) {
+      this.openSection.set(null);
+    } else {
+      this.openSection.set(index);
+    }
   }
 }
