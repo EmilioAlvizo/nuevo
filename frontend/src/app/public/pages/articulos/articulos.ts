@@ -2,10 +2,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ScrollProgressBar } from '../../components/scroll-progress-bar/scroll-progress-bar';
 
 @Component({
   selector: 'app-articulos',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ScrollProgressBar],
   templateUrl: './articulos.html',
   styleUrl: './articulos.css',
 })
