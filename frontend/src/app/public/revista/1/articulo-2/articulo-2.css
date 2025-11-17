@@ -1,0 +1,290 @@
+.breakout-inline {
+  max-width: calc(100% + 240px); /* aumenta ancho total (ajusta 240px a tu gusto) */
+  margin-left: -120px; /* desplaza izquierdo (mitad del ancho extra) */
+  margin-right: -120px; /* desplaza derecho */
+}
+
+/* en pantallas pequeñas vuelve a normal */
+@media (max-width: 992px) {
+  .breakout-inline {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* ------------------------------ */
+/* BASE                          */
+/* ------------------------------ */
+.revista-article {
+  /* define las variables aquí para que solo afecten al artículo */
+  /* --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif; */
+
+  --color-text: #111827;
+  --color-primary: #2463eb;
+  --content-width: 720px;
+  --content-width-wide: 960px;
+
+  font-family: var(--font-body);
+  color: var(--color-text);
+  line-height: 1.7;
+  font-size: 1.02rem;
+}
+
+/* Contenedor principal del artículo */
+.article-container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* ------------------------------ */
+/* TITULOS                       */
+/* ------------------------------ */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 4vw, 3.3rem);
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  margin-top: 2.7rem;
+}
+
+h3 {
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  margin-top: 2rem;
+}
+
+p {
+  margin-bottom: 1.4rem;
+}
+
+/* Estilo base */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.16s ease, text-decoration-color 0.16s ease;
+  outline: none;
+}
+
+/* hover: color + subrayado suave */
+a:hover,
+a:focus {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* focus accesible (keyboard) */
+a:focus-visible {
+  box-shadow: 0 0 0 4px rgba(36, 99, 235, 0.12);
+  border-radius: 6px;
+}
+
+/* visited */
+a:visited {
+  color: #3b3b8d; /* tono distinto para visited si quieres */
+}
+
+/* botón / enlace primario (clase utilitaria) */
+a.btn-link {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid transparent;
+}
+a.btn-link:hover {
+  background: rgba(36, 99, 235, 0.06);
+}
+
+/* iconos dentro de un link (mejora vertical alignment) */
+a .icon {
+  vertical-align: middle;
+  margin-right: 0.45rem;
+}
+
+/* enlaces en captions o muted */
+.caption a {
+  color: var(--color-muted);
+  text-decoration: underline dotted;
+}
+
+/* util para enlaces destacados en el artículo */
+a.article-cta {
+  color: #fff;
+  background: var(--color-primary);
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-block;
+}
+a.article-cta:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Subtítulo estilo Medium (debajo del H1) */
+.subtitle {
+  font-size: 1.3rem;
+  color: var(--color-text-light);
+  margin-bottom: 2rem;
+}
+
+/* ------------------------------ */
+/* AUTOR / FECHA                 */
+/* ------------------------------ */
+
+.blog-meta {
+  margin-bottom: 2rem;
+}
+
+.blog-author {
+  font-weight: 600;
+}
+
+.blog-date {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+}
+
+/* ------------------------------ */
+/* LINKS                         */
+/* ------------------------------ */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* ------------------------------ */
+/* IMÁGENES                      */
+/* ------------------------------ */
+
+/* Imagen normal (centrada y limitada al ancho del artículo) */
+.article-img {
+  width: 100%;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+/* Imagen ancha tipo Medium (rompe el contenedor) */
+.article-img-wide {
+  width: 100%;
+  max-width: var(--content-width-wide);
+  margin: 2rem auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Caption */
+figcaption {
+  text-align: center;
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ------------------------------ */
+/* DROP CAPS                     */
+/* ------------------------------ */
+
+.dropcap:first-letter {
+  float: left;
+  font-size: 4.2rem;
+  line-height: 0.9;
+  padding-right: 0.2rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+/* ------------------------------ */
+/* PULL QUOTES (cita destacada)  */
+/* ------------------------------ */
+
+.pull-quote {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  margin: 3rem 0;
+  padding-left: 2rem;
+  border-left: 4px solid var(--color-primary);
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+/* Variante centrada */
+.pull-quote.center {
+  border-left: none;
+  text-align: center;
+  font-size: 1.9rem;
+}
+
+/* ------------------------------ */
+/* NOTAS DESTACADAS              */
+/* ------------------------------ */
+
+.note {
+  background: #f9f9f9;
+  border-left: 4px solid var(--color-primary);
+  padding: 1.2rem 1.5rem;
+  border-radius: 6px;
+  margin: 2rem 0;
+  color: var(--color-text-light);
+}
+
+/* ------------------------------ */
+/* SEPARADORES                   */
+/* ------------------------------ */
+
+.separator {
+  margin: 3rem auto;
+  width: 80px;
+  height: 2px;
+  background: var(--color-border);
+}
+
+/* ------------------------------ */
+/* TAGS                          */
+/* ------------------------------ */
+
+.blog-tags span {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: var(--color-muted);
+  border-radius: 20px;
+  margin-right: 0.4rem;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+/* ------------------------------ */
+/* LISTAS                        */
+/* ------------------------------ */
+
+ul,
+ol {
+  margin-bottom: 1.4rem;
+}
+
+li {
+  margin-bottom: 0.4rem;
+}
