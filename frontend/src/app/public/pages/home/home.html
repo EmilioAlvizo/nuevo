@@ -1,3 +1,4 @@
+<!-- nuevo/frontend/src/app/public/pages/home/home.html -->
 <div class="container">
   <div style="height: 100px;"> </div>
   <!-- Sección 1: Vídeo -->
@@ -78,6 +79,11 @@
       </div>
     </div>
   </section>
+
+  <app-carrusel-testimonios
+  [testimonios]="testimonios" 
+  [publicUrl]="publicUrl">
+</app-carrusel-testimonios>
 
   <!-- Modal agregar testimonio -->
   <div

@@ -1,6 +1,7 @@
 //nuevo/frontend/src/app/public/pages/home/home.ts
 
 import { Component, OnInit } from '@angular/core';
+import { CarruselTestimonios } from '../../components/carrusel-testimonios/carrusel-testimonios';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
 import { CommonModule } from '@angular/common';
@@ -9,7 +10,7 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CarruselTestimonios],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

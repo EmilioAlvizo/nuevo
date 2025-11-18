@@ -1,0 +1,36 @@
+<p-carousel 
+  [value]="testimonios" 
+  [numVisible]="3" 
+  [numScroll]="1" 
+  [circular]="true"
+  [responsiveOptions]="responsiveOptions"
+  [autoplayInterval]="5000"
+  [showNavigators]="true"
+  [showIndicators]="true"
+  [dt]="carouselDesignTokens">
+  
+  <ng-template let-testimonio #item>
+    <div class="testimonial-item">
+      <div class="row">
+        <div class="col-md-4 text-center" style="padding: 10px">
+          <img
+            class="img-fluid testimonial-img"
+            [src]="publicUrl + '/testimonios/' + testimonio.id_testimonios + '/' + testimonio.imagenT"
+            [alt]="testimonio.nombreM"
+          />
+          <p class="client-name mt-2">
+            {{ testimonio.nombreM }}
+          </p>
+          <p class="client-name mt-1">Municipio de {{ testimonio.nombreMunicipio }}</p>
+        </div>
+        <div class="col-md-8">
+          <div class="testimonial-text" style="padding: 20px">
+            <p style="text-align: justify; font-size: medium">
+              {{ testimonio.descripcion }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-carousel>
