@@ -8,6 +8,7 @@ export interface Testimonios {
   id_testimonios: number;
   id_municipio: number;
   nombreM: string;
+  nombreMunicipio: string;
   descripcion: string;
   fecha_modificacion: string;
   imagenT: string;
@@ -31,11 +32,7 @@ export class ApiTestimonios {
 
   constructor(private http: HttpClient) {}
 
-  getMessage():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/testimonios`,{});
-  }
-
-  getTestimonio():Observable<ApiResponse> {
+  getTestimonios():Observable<ApiResponse> {
     return this.http.get<ApiResponse>(`${this.apiUrl}/testimonios`,{});
   }
 

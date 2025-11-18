@@ -45,9 +45,9 @@ export class Home implements OnInit {
   }
 
   cargarTestimonios(): void {
-    this.datasetService.getMessage().subscribe({
+    this.datasetService.getTestimonios().subscribe({
       next: (datos) => {
-        this.testimonios = datos.data;
+        this.testimonios = datos.data.filter((testimonios) => testimonios.estatus == 'A');
       },
       error: (err) => {
         console.error('Error al obtener testimonios', err);

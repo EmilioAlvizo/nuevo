@@ -7,7 +7,7 @@
 
 // module.exports = router;
 
-// nuevo/backend/routes/temas_interesRoutes.js
+// nuevo/backend/routes/testimoniosRoutes.js
 
 const express = require("express");
 const router = express.Router();
@@ -15,7 +15,7 @@ const TestimoniosController = require("../controllers/testimoniosController");
 const { crearUpload } = require('../middleware/uploadMiddleware');
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
 
-const uploadTema = crearUpload('testimonios', {
+const uploadTestimonio = crearUpload('testimonios', {
   imagen: ['image/*']
 });
 
@@ -28,13 +28,13 @@ router.get("/testimonios", TestimoniosController.getAll);
 router.get("/testimonios/:id", TestimoniosController.getById);
 
 //POST - Crear registro
-router.post('/testimonios', uploadTema.fields([
-  { name: 'imagen', maxCount: 1 }
+router.post('/testimonios', uploadTestimonio.fields([
+  { name: 'imagenT', maxCount: 1 }
 ]), TestimoniosController.create);
 
 //PUT - Actualizar registro
-router.put('/testimonios/:id', uploadTema.fields([
-  { name: 'imagen', maxCount: 1 }
+router.put('/testimonios/:id', uploadTestimonio.fields([
+  { name: 'imagenT', maxCount: 1 }
 ]), TestimoniosController.update);
 
 // DELETE - Eliminar un registro

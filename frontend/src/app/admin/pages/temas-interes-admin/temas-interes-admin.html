@@ -36,10 +36,11 @@
           <th style="width: 5%">ID</th>
           <th style="width: 20%">Descripción</th>
           <th style="width: 10%">Estatus</th>
-          <th style="width: 15%">Link</th>
-          <th style="width: 25%">Descripción Adicional</th>
+          <th style="width: 10%">Link</th>
+          <th style="width: 20%">Descripción Adicional</th>
           <th style="width: 15%">Imagen</th>
-          <th style="width: 10%">Acciones</th>
+          <th style="width: 15%">Modificación</th>
+          <th style="width: 5%">Acciones</th>
         </tr>
       </ng-template>
       
@@ -73,10 +74,11 @@
               *ngIf="tema.imagen" 
               [src]="getImageUrl(tema)" 
               [alt]="tema.descripcionTema"
-              class="tema-imagen"
-              pTooltip="Click para ampliar"
-              tooltipPosition="top">
+              class="tema-imagen">
             <span *ngIf="!tema.imagen" class="text-muted">Sin imagen</span>
+          </td>
+          <td>
+            {{ tema.fecha_modificacionTema | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
           </td>
           <td>
             <p-button 
