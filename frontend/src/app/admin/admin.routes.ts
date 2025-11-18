@@ -8,6 +8,7 @@ import { CentroDocumentalAdmin } from '../admin/pages/centro-documental-admin/ce
 import { InformacionInteresAdmin } from '../admin/pages/informacion-interes-admin/informacion-interes-admin';
 import { TemasInteresAdmin } from './pages/temas-interes-admin/temas-interes-admin';
 import { TestimoniosAdmin } from './pages/testimonios-admin/testimonios-admin';
+import { PropuestasAccionAdmin } from './pages/propuestas-accion-admin/propuestas-accion-admin';
 
 
 export const adminRoutes: Routes = [
@@ -18,5 +19,6 @@ export const adminRoutes: Routes = [
   { path: 'centro-documental', component: CentroDocumentalAdmin },
   { path: 'informacion-interes', component: InformacionInteresAdmin },
   { path: 'temas-interes', component: TemasInteresAdmin },
-  { path: 'testimonios', component: TestimoniosAdmin }
+  { path: 'testimonios', component: TestimoniosAdmin },
+  { path: 'propuestas-accion', component: PropuestasAccionAdmin}
 ];
