@@ -14,6 +14,7 @@ class temas_interesModel {
     }
   }
 
+
   // Obtener un registro por ID
   static async getById(tableName, id, idColumn = "id") {
     try {
