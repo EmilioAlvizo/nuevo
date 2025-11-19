@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/admin/pages/testimonios-admin/testimonios-admin.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';

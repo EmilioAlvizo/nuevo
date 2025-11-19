@@ -1,0 +1,111 @@
+<!-- // nuevo/frontend/src/app/public/components/form-testimonios/forms-testimonios.html -->
+<p-dialog
+  header="Nuevo Testimonio"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '700px' }"
+  (onHide)="handleDialogHide()"
+>
+  <form [formGroup]="form">
+    <div class="row">
+      <!-- MUNICIPIO -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Municipio *</label>
+        <select class="form-select" formControlName="id_municipio">
+          <option value="">Seleccionar municipio</option>
+          <option *ngFor="let m of municipios()" [value]="m.id_municipio">
+            {{ m.nombre }}
+          </option>
+        </select>
+        @if (isFieldInvalid('id_municipio')) {
+        <small class="text-danger">Campo requerido</small>
+        }@else {
+        <div class="invisible">00</div>
+        }
+      </div>
+
+      <!-- NOMBRE -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Nombre *</label>
+        <input class="form-control" formControlName="nombreM" />
+        @if (isFieldInvalid('nombreM')) {
+        <small class="text-danger">Campo requerido</small>
+        }@else {
+        <div class="invisible">00</div>
+        }
+      </div>
+
+      <!-- DESCRIPCIÓN -->
+      <div class="col-12 mb-3">
+        <label class="form-label fw-semibold">Descripción *</label>
+        <textarea rows="4" class="form-control" formControlName="descripcion"></textarea>
+        @if (isFieldInvalid('descripcion')) {
+        <small class="text-danger">Campo requerido</small>
+        }@else {
+        <div class="invisible">00</div>
+        }
+      </div>
+
+      <!-- CORREO -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Correo *</label>
+        <input type="email" class="form-control" formControlName="correo" />
+        @if (isFieldInvalid('correo')) {
+        <small class="text-danger">Correo inválido</small>
+        }@else {
+        <div class="invisible">00</div>
+        }
+      </div>
+
+      <!-- TELÉFONO -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Teléfono *</label>
+        <input maxlength="10" class="form-control" formControlName="telefono" />
+        @if (isFieldInvalid('telefono')) {
+        <small class="text-danger">Debe ser 10 dígitos</small>
+        }@else {
+        <div class="invisible">00</div>
+        }
+      </div>
+
+      <!-- ESTATUS -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Estatus *</label>
+        <select class="form-select" formControlName="estatus">
+          <option value="A">Activo</option>
+          <option value="B">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- IMAGEN -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Imagen</label>
+        <input
+          type="file"
+          class="form-control"
+          accept="image/*"
+          (change)="seleccionarImagen($event)"
+        />
+      </div>
+
+      <div class="col-12 text-center mt-2" *ngIf="imagenPreview()">
+        <img [src]="imagenPreview()" class="img-fluid rounded shadow" style="max-width: 250px" />
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+      <p-button label="Cancelar" icon="pi pi-times" [outlined]="true" (onClick)="handleCancel()" />
+
+      <p-button
+        label="Guardar Testimonio"
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="handleSubmit()"
+        [loading]="isSaving()"
+        [disabled]="isSaving()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

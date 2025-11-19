@@ -1,4 +1,6 @@
 <!-- nuevo/frontend/src/app/public/pages/home/home.html -->
+ <p-toast/>
+
 <div class="container">
   <div style="height: 100px"></div>
   <!-- Sección 1: Vídeo -->
@@ -9,7 +11,7 @@
           src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4"
           type="video/mp4"
         />
-        Tu navegador no soporta el elemento de video.
+        Tu navegador no soporta el elemento de video
       </video>
     </div>
   </section>
@@ -21,18 +23,22 @@
   <div class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center">
     <div class="p-4 bg-light rounded">
       <h5>¿Quieres compartir tu experiencia?</h5>
-      <button
-        class="btn btn-primary mt-2"
-        data-bs-toggle="modal"
-        data-bs-target="#agregarNTestimonio"
-      >
+      <button class="btn btn-primary mt-2" (click)="abrirDialogo()">
         Deja tu testimonio
       </button>
     </div>
   </div>
 
   <!-- Modal agregar testimonio -->
-  <div
+  
+  <app-form-testimonios
+  [visible]="showDialog"
+  (visibleChange)="showDialog = $event"
+  (save)="guardarTestimonio($event)"
+/>
+
+
+  <!-- <div
     class="modal fade"
     id="agregarNTestimonio"
     tabindex="-1"
@@ -96,7 +102,7 @@
         </div>
       </form>
     </div>
-  </div>
+  </div> -->
   <!-- Fin Modal agregar testimonio -->
 
   <!-- Sección 3: Encuestas -->
