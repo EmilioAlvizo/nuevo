@@ -1,14 +1,15 @@
+//nuevo/backend/models/Banco_datosModel.js
 const { getConnection, mssql } = require("../config/database");
 
 // Modelo para operaciones CRUD
-class Propuestas_accionModel {
+class Banco_datosModel {
   // Obtener todos los registros
   static async getAll(tableName) {
     try {
       const pool = await getConnection();
-      // const result = await pool.request().query(`SELECT * FROM ${tableName}`);
-      const result = await pool.request().query(`SELECT t.*, m.nombre as nombreMunicipio FROM ${tableName} t
-        INNER JOIN municipio m ON t.id_municipio = m.id_municipio`);
+      const result = await pool.request().query(`SELECT * FROM ${tableName}`);
+    //   const result = await pool.request().query(`SELECT t.*, m.nombre as nombreMunicipio FROM ${tableName} t
+    //     INNER JOIN municipio m ON t.id_municipio = m.id_municipio`);
       return result.recordset;
     } catch (error) {
       throw new Error(`Error al obtener registros: ${error.message}`);
@@ -39,7 +40,7 @@ class Propuestas_accionModel {
         .join(", ");
 
       const request = pool.request();
-      
+
       // Agregar parámetros dinámicamente
       Object.keys(data).forEach((key) => {
         request.input(key, data[key]);
@@ -47,7 +48,7 @@ class Propuestas_accionModel {
 
       const query = `INSERT INTO ${tableName} (${columns}) VALUES (${values}); SELECT SCOPE_IDENTITY() AS id;`;
       const result = await request.query(query);
-      
+
       return { id: result.recordset[0].id, ...data };
     } catch (error) {
       throw new Error(`Error al crear registro: ${error.message}`);
@@ -55,7 +56,7 @@ class Propuestas_accionModel {
   }
 
   // Actualizar un registro
-  static async update(tableName, id, data, idColumn = "id") {
+    static async update(tableName, id, data, idColumn = "id") {
     try {
       const pool = await getConnection();
       const setClause = Object.keys(data)
@@ -64,15 +65,19 @@ class Propuestas_accionModel {
 
       const request = pool.request();
       request.input("id", mssql.Int, id);
+      Object.keys(data).forEach((key) => request.input(key, data[key]));
 
-      // Agregar parámetros dinámicamente
-      Object.keys(data).forEach((key) => {
-        request.input(key, data[key]);
-      });
+      const query = `
+        UPDATE ${tableName}
+        SET ${setClause}
+        WHERE ${idColumn} = @id;
+      `;
+      const result = await request.query(query);
 
-      const query = `UPDATE ${tableName} SET ${setClause} WHERE ${idColumn} = @id`;
-      await request.query(query);
-      
+      if (result.rowsAffected[0] === 0) {
+        return null; // 👈 Ninguna fila actualizada
+      }
+
       return { id, ...data };
     } catch (error) {
       throw new Error(`Error al actualizar registro: ${error.message}`);
@@ -80,14 +85,18 @@ class Propuestas_accionModel {
   }
 
   // Eliminar un registro
-  static async delete(tableName, id, idColumn = "id") {
+static async delete(tableName, id, idColumn = "id") {
     try {
       const pool = await getConnection();
-      await pool
+      const result = await pool
         .request()
         .input("id", mssql.Int, id)
         .query(`DELETE FROM ${tableName} WHERE ${idColumn} = @id`);
-      
+
+      if (result.rowsAffected[0] === 0) {
+        return null; // 👈 Ninguna fila eliminada
+      }
+
       return { message: "Registro eliminado exitosamente", id };
     } catch (error) {
       throw new Error(`Error al eliminar registro: ${error.message}`);
@@ -95,4 +104,4 @@ class Propuestas_accionModel {
   }
 }
 
-module.exports = Propuestas_accionModel;
+module.exports = Banco_datosModel;

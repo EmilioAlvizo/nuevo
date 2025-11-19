@@ -1,0 +1,389 @@
+<!-- <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="articulos-admin-container">
+
+  
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Artículos</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button 
+        label="Nuevo artículo" 
+        icon="pi pi-plus" 
+        (onClick)="abrirModal()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+
+  <p-card>
+    <p-table 
+      [value]="articulos" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} artículos"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 10%">Revista</th>
+          <th style="width: 20%">Título</th>
+          <th style="width: 15%">Autor</th>
+          <th style="width: 20%">Contenido</th>
+          <th style="width: 15%">Imagen</th>
+          <th style="width: 5%">Estatus</th>
+          <th style="width: 10%">Modificación</th>
+          <th style="width: 5%">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-articulo>
+        <tr>
+          <td>{{ articulo.id_articulo }}</td>
+          <td>{{ articulo.id_revista }}</td>
+          <td>{{ articulo.titulo }}</td>
+          <td>{{ articulo.autor }}</td>
+          <td>
+            <span [pTooltip]="articulo.contenido">
+              {{ articulo.contenido | slice:0:60 }}{{ articulo.contenido?.length > 60 ? '...' : '' }}
+            </span>
+          </td>
+
+          <td>
+            <img 
+              *ngIf="articulo.imagen" 
+              [src]="getImageUrl(articulo)"
+              alt="Imagen artículo"
+              class="articulo-imagen">
+            <span *ngIf="!articulo.imagen" class="text-muted">Sin imagen</span>
+          </td>
+
+          <td>
+            <span 
+              [class]="articulo.estatus === 'A' ? 'status-badge status-active' : 'status-badge status-inactive'">
+              {{ getEstatusLabel(articulo.estatus) }}
+            </span>
+          </td>
+
+          <td>{{ articulo.fecha_modificacion | date:'dd/MM/yyyy HH:mm' : 'UTC' }}</td>
+
+          <td>
+            <div class="acciones-group">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                severity="info"
+                pTooltip="Editar"
+                tooltipPosition="top"
+                (onClick)="abrirModal(articulo)">
+              </p-button>
+
+              <p-button 
+                icon="pi pi-search" 
+                [rounded]="true" 
+                [text]="true"
+                severity="secondary"
+                pTooltip="Ver contenido completo"
+                tooltipPosition="top"
+                (onClick)="verContenido(articulo)">
+              </p-button>
+            </div>
+          </td>
+
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay artículos registrados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </p-card>
+</div>
+
+
+  <p-dialog 
+  [(visible)]="modalVisible" 
+  [header]="editMode ? 'Editar Artículo' : 'Nuevo Artículo'"
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '90%', maxWidth: '800px' }"
+  [breakpoints]="{ '960px': '90%', '640px': '95%' }"
+  (onHide)="vaciarFormulario()">
+
+  <form [formGroup]="formArticulo" (ngSubmit)="submitForm()">
+
+
+    <div class="form-field">
+      <label class="form-label">ID Revista <span class="required">*</span></label>
+      <input type="number" pInputText class="w-full" formControlName="id_revista">
+    </div>
+
+ 
+    <div class="form-field">
+      <label class="form-label">Título <span class="required">*</span></label>
+      <input type="text" pInputText class="w-full" formControlName="titulo">
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Autor <span class="required">*</span></label>
+      <input type="text" pInputText class="w-full" formControlName="autor">
+    </div>
+
+
+    <div class="form-field">
+      <label class="form-label">Contenido <span class="required">*</span></label>
+      <textarea pInputTextarea class="w-full" rows="4" formControlName="contenido"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label">Imagen</label>
+      <input type="file" accept="image/*" class="w-full file-input" (change)="onFileSelected($event)">
+      <small *ngIf="selectedImage" class="selected-file"><i class="pi pi-check-circle"></i> {{ selectedImage.name }}</small>
+    </div>
+
+
+    <div class="form-field">
+      <label class="form-label">Estatus</label>
+      <p-select 
+        [options]="estatusOptions"
+        formControlName="estatus"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      ></p-select>
+    </div>
+
+    <div class="form-actions">
+      <p-button label="Cancelar" type="button" severity="secondary" (onClick)="cerrarModal()"></p-button>
+      <p-button label="Guardar" type="submit" [loading]="submitting"></p-button>
+    </div>
+
+  </form>
+
+</p-dialog>
+
+
+<p-dialog 
+  [(visible)]="modalContenidoVisible"
+  header="Contenido del artículo"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '60%', maxWidth: '800px' }">
+
+  <div class="contenido-full">
+    <p>{{ contenidoVista }}</p>
+  </div>
+
+</p-dialog> -->
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="articulos-admin-container">
+
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Artículos</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button 
+        label="Nuevo artículo" 
+        icon="pi pi-plus" 
+        (onClick)="abrirModal()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- ========================= -->
+  <!-- ACCORDION POR REVISTA -->
+  <!-- ========================= -->
+<p-accordion [value]="[0]" multiple="true" class="revista-accordion">
+
+  <ng-container *ngFor="let grupo of groupedArticulos; let idx = index">
+
+    <p-accordion-panel [value]="idx">
+
+      <!-- HEADER -->
+      <p-accordion-header>
+        <strong>
+          Vol. {{ grupo.revista.volumen }} - Núm. {{ grupo.revista.numero_year }} ({{ grupo.revista.fecha | date:'dd/MM/yyyy' : 'UTC' }})
+        </strong>
+      </p-accordion-header>
+
+      <!-- CONTENT -->
+      <p-accordion-content>
+
+        <!-- Tabla de artículos dentro del acordeón -->
+        <p-table [value]="grupo.articulos" styleClass="p-datatable-striped">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Imagen</th>
+              <th>Estatus</th>
+              <th>Modificación</th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-articulo>
+            <tr>
+              <td>{{ articulo.id_articulo }}</td>
+              <td>{{ articulo.titulo }}</td>
+              <td>{{ articulo.autor }}</td>
+
+              <td>
+                <img 
+                  *ngIf="articulo.imagen"
+                  [src]="getImageUrl(articulo)"
+                  class="articulo-imagen">
+              </td>
+
+              <td>
+                <span 
+                  [class]="articulo.estatus === 'A' ? 'status-badge status-active' : 'status-badge status-inactive'">
+                  {{ getEstatusLabel(articulo.estatus) }}
+                </span>
+              </td>
+
+              <td>{{ articulo.fecha_modificacion | date:'dd/MM/yyyy HH:mm' : 'UTC' }}</td>
+
+              <td>
+                <p-button 
+                  icon="pi pi-pencil" 
+                  [rounded]="true"
+                  [text]="true"
+                  severity="info"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  (onClick)="abrirModal(articulo)">
+                </p-button>
+
+                <p-button 
+                  icon="pi pi-search" 
+                  [rounded]="true"
+                  [text]="true"
+                  severity="secondary"
+                  pTooltip="Ver contenido"
+                  tooltipPosition="top"
+                  (onClick)="verContenido(articulo)">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <!-- Si la revista no tiene artículos -->
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7" class="text-center">No hay artículos para esta revista</td>
+            </tr>
+          </ng-template>
+
+        </p-table>
+
+      </p-accordion-content>
+
+    </p-accordion-panel>
+
+  </ng-container>
+
+</p-accordion>
+
+
+</div>
+
+<!-- MODAL DE ARTÍCULO -->
+<p-dialog 
+  [(visible)]="modalVisible"
+  [header]="editMode ? 'Editar Artículo' : 'Nuevo Artículo'"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '700px' }">
+
+  <form [formGroup]="formArticulo" (ngSubmit)="submitForm()">
+
+    <!-- Select de revistas -->
+    <div class="form-field">
+      <label class="form-label">Revista</label>
+      <p-select 
+        [options]="revistasOptions"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="id_revista"
+        class="w-full">
+      </p-select>
+    </div>
+
+    <div class="form-field">
+      <label>Título</label>
+      <input type="text" pInputText class="w-full" formControlName="titulo">
+    </div>
+
+    <div class="form-field">
+      <label>Autor</label>
+      <input type="text" pInputText class="w-full" formControlName="autor">
+    </div>
+
+    <div class="form-field">
+      <label>Contenido</label>
+      <textarea pInputTextarea rows="4" class="w-full" formControlName="contenido"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label>Imagen</label>
+      <input type="file" class="w-full" accept="image/*" (change)="onFileSelected($event)">
+      <small *ngIf="selectedImage">{{ selectedImage.name }}</small>
+    </div>
+
+    <div class="form-field">
+      <label>Estatus</label>
+      <p-select 
+        [options]="estatusOptions"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="estatus"
+        class="w-full">
+      </p-select>
+    </div>
+
+    <div class="form-actions">
+      <p-button label="Cancelar" severity="secondary" type="button" (click)="cerrarModal()"></p-button>
+      <p-button label="Guardar" [loading]="submitting"></p-button>
+    </div>
+
+  </form>
+
+</p-dialog>
+
+<!-- MODAL CONTENIDO -->
+<p-dialog 
+  [(visible)]="modalContenidoVisible"
+  header="Contenido del artículo"
+  [modal]="true"
+  [style]="{ width: '20%' }">
+  <p>{{ contenidoVista }}</p>
+</p-dialog>

@@ -7,6 +7,7 @@ import { Observable, of } from 'rxjs';
 export interface Propuesta {
   id_propuesta: number;
   id_municipio: number;
+  nombreMunicipio: string;
   nombreC: string;
   sexo: string;
   edad: number;
