@@ -6,6 +6,7 @@ import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
+import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 
 @Component({
   selector: 'app-home',
@@ -17,13 +18,15 @@ import { environment } from '../../../../environments/environment';
 export class Home implements OnInit {
   municipios: Municipio[] = [];
   testimonios: Testimonios[] = [];
+  temas: Temas[] = [];
   publicUrl = environment.publicUrl;
 
-  constructor(private api: ApiMunicipio, private datasetService: ApiTestimonios) {}
+  constructor(private api: ApiMunicipio, private datasetService: ApiTestimonios, private apiTemas: ApiTemas) {}
 
   ngOnInit(): void {
     this.cargarMunicipios();
     this.cargarTestimonios();
+    this.cargarTemas();
   }
 
   cargarMunicipios(): void {
@@ -43,13 +46,26 @@ export class Home implements OnInit {
   }
 
   cargarTestimonios(): void {
-    this.datasetService.getMessage().subscribe({
+    this.datasetService.getTestimonios().subscribe({
       next: (datos) => {
-        this.testimonios = datos.data;
+        this.testimonios = datos.data.filter((testimonios) => testimonios.estatus == 'A');
       },
       error: (err) => {
         console.error('Error al obtener testimonios', err);
       },
     });
   }
+
+  cargarTemas(): void {
+    this.apiTemas.getTemas().subscribe({
+      next: (datos) => {
+        this.temas = datos.data.filter((tema) => tema.estatusTema === 'A');
+      },
+      error: (err) => {
+        console.error('Error al obtener temas', err);
+      },
+    });
+  }
+
+  
 }

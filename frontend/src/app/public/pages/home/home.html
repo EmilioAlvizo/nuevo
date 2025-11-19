@@ -135,11 +135,12 @@
   <!-- Sección 4: Temas de interés -->
   <section class="home-section mb-4">
     <div class="row align-items-center">
+      <!-- Columna izquierda -->
       <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25">
-        <div class="p-4 bg-light rounded">
+        <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
           <button
-            class="btn btn-success mt-2"
+            class="btn btn-success mt-3"
             data-bs-toggle="modal"
             data-bs-target="#agregarPropuesta"
           >
@@ -147,30 +148,53 @@
           </button>
         </div>
       </div>
+
+      <!-- Columna derecha: Carrusel -->
       <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
-        <!-- Carrusel de temas de interés -->
-        <div id="temasCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div id="temasCarousel" class="carousel slide h-100" data-bs-ride="carousel">
           <div class="carousel-inner">
-            <div class="carousel-item active">
-              <blockquote class="blockquote">
-                <p><strong>Educación</strong></p>
-                <footer class="blockquote-footer">Últimas noticias</footer>
-              </blockquote>
+            @for (t of temas; track t.id_tema; let i = $index) {
+            <div class="carousel-item" [class.active]="i === 0">
+              <div class="tema-item card border-0 h-100">
+                <div class="row g-0 align-items-center">
+                  <div class="col-md-5 text-center p-3">
+                    <div class="tema-img-container">
+                      <img
+                        class="img-fluid tema-img rounded"
+                        [src]="`${publicUrl}/temas_interes/${t.id_tema}/${t.imagen}`"
+                        [alt]="t.descripcionTema"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-7 d-flex flex-column justify-content-center p-4">
+                    <h5 class="fw-bold text-primary">{{ t.descripcionTema }}</h5>
+                    <p class="text-muted text-justify mb-3">
+                      {{ t.descripcionMas }}
+                    </p>
+                    <a
+                      [href]="t.link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-outline-primary align-self-start"
+                    >
+                      Ver más
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="carousel-item">
-              <blockquote class="blockquote">
-                <p><strong>Salud</strong></p>
-                <footer class="blockquote-footer">Últimas noticias</footer>
-              </blockquote>
-            </div>
+            }
           </div>
+
+          <!-- Controles -->
           <button
             class="carousel-control-prev"
             type="button"
             data-bs-target="#temasCarousel"
             data-bs-slide="prev"
           >
-            <span class="carousel-control-prev-icon"></span>
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
           </button>
           <button
             class="carousel-control-next"
@@ -178,12 +202,15 @@
             data-bs-target="#temasCarousel"
             data-bs-slide="next"
           >
-            <span class="carousel-control-next-icon"></span>
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
           </button>
         </div>
       </div>
     </div>
   </section>
+
+
 
   <!-- Modal propuesta de acción -->
   <div

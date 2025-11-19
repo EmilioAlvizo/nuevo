@@ -8,7 +8,7 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-revista-voces',
   standalone: true,
-  imports: [CommonModule, Flipbook],
+  imports: [CommonModule],
   templateUrl: './revista-voces.html',
   styleUrl: './revista-voces.css',
 })

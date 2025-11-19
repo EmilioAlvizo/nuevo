@@ -1,0 +1,242 @@
+/* .propuestas-admin-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.empty-message {
+  padding: 3rem;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.empty-message p {
+  margin-top: 1rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  border-color: #dee2e6;
+  padding: 1rem;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr {
+  transition: background-color 0.2s ease;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f1f3f5;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-color: #dee2e6;
+}
+
+::ng-deep .p-card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+::ng-deep .p-card .p-card-body {
+  padding: 0;
+}
+
+::ng-deep .p-toolbar {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+::ng-deep .p-toast {
+  z-index: 9999;
+}
+
+::ng-deep .p-toast .p-toast-message {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+::ng-deep .p-button {
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
+}
+
+::ng-deep .p-tooltip {
+  font-size: 0.85rem;
+  border-radius: 4px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@media (max-width: 768px) {
+  .propuestas-admin-container {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-toolbar {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-toolbar .p-toolbar-group-left h2 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  ::ng-deep .p-datatable {
+    font-size: 0.875rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
+
+.propuestas-admin-container {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Card */
+::ng-deep .p-card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Encabezado del panel */
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.95rem;
+  align-items: center;
+}
+
+.header-left {
+  font-weight: 600;
+}
+
+.municipio {
+  color: #6c757d;
+  margin-left: 4px;
+}
+
+.header-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  color: #495057;
+}
+
+.header-right .fecha {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+/* Contenido */
+.panel-content {
+  padding: 0.5rem 0;
+  animation: fadeIn 0.3s ease;
+}
+
+.panel-content h4 {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #343a40;
+}
+
+.panel-content p {
+  padding-left: 0.5rem;
+  border-left: 3px solid #dee2e6;
+  margin: 0.25rem 0 0.75rem;
+}
+
+/* Grid de info adicional */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.empty-message {
+  padding: 2.5rem;
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+  color: #6c757d;
+}
+
+/* Toolbar */
+::ng-deep .p-toolbar {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+/* Accordion global styles */
+::ng-deep .p-accordion .p-accordion-header-link {
+  background-color: white;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+::ng-deep .p-accordion .p-accordion-header-link:hover {
+  background-color: #f8f9fa;
+}
+
+::ng-deep .p-accordion .p-accordion-content {
+  background-color: white;
+  border: none;
+  padding: 1.5rem;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 576px) {
+  .accordion-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+  }
+
+  .header-right {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
