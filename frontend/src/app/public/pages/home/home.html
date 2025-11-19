@@ -1,10 +1,10 @@
 <!-- nuevo/frontend/src/app/public/pages/home/home.html -->
 <div class="container">
-  <div style="height: 100px;"> </div>
+  <div style="height: 100px"></div>
   <!-- Sección 1: Vídeo -->
   <section class="home-section mb-4">
     <div class="video-container">
-      <video controls width="100%" style="border-radius: 20px;">
+      <video controls width="100%" style="border-radius: 20px">
         <source
           src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4"
           type="video/mp4"
@@ -15,75 +15,21 @@
   </section>
 
   <!-- Sección 2: Testimonios -->
-  <section class="home-section mb-4">
-    <div class="row align-items-center">
-      <div class="col-lg-9 col-md-8 col-sm-12 mb-2 carrusel-espacio">
-        <!-- Carrusel de testimonios -->
-        <div id="testimoniosCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">
-            @for (m of testimonios; track m.id_testimonios; let i = $index) {
-            <div class="carousel-item" [class.active]="i === 0">
-              <div class="testimonial-item">
-                <div class="row">
-                  <div class="col-md-4 text-center" style="padding: 10px">
-                    <img
-                      class="img-fluid testimonial-img"
-                      [src]="publicUrl+`/testimonios/${m.id_testimonios}/${m.imagenT}`"
-                    />
-                    <p class="client-name mt-2">
-                      {{ m.nombreM }}
-                    </p>
-                    <p class="client-name mt-1">Municipio de {{ m.nombreMunicipio }}</p>
-                  </div>
-                  <div class="col-md-8">
-                    <div class="testimonial-text" style="padding: 20px">
-                      <p style="text-align: justify; font-size: medium">
-                        {{ m.descripcion }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            }
-          </div>
-          <button
-            class="carousel-control-prev"
-            type="button"
-            data-bs-target="#testimoniosCarousel"
-            data-bs-slide="prev"
-          >
-            <span class="carousel-control-prev-icon"></span>
-          </button>
-          <button
-            class="carousel-control-next"
-            type="button"
-            data-bs-target="#testimoniosCarousel"
-            data-bs-slide="next"
-          >
-            <span class="carousel-control-next-icon"></span>
-          </button>
-        </div>
-      </div>
-      <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25">
-        <div class="p-4 bg-light rounded">
-          <h5>¿Quieres compartir tu experiencia?</h5>
-          <button
-            class="btn btn-primary mt-2"
-            data-bs-toggle="modal"
-            data-bs-target="#agregarNTestimonio"
-          >
-            Deja tu testimonio
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
+  <app-carrusel-testimonios [testimonios]="testimonios" [publicUrl]="publicUrl">
+  </app-carrusel-testimonios>
 
-  <app-carrusel-testimonios
-  [testimonios]="testimonios" 
-  [publicUrl]="publicUrl">
-</app-carrusel-testimonios>
+  <div class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center">
+    <div class="p-4 bg-light rounded">
+      <h5>¿Quieres compartir tu experiencia?</h5>
+      <button
+        class="btn btn-primary mt-2"
+        data-bs-toggle="modal"
+        data-bs-target="#agregarNTestimonio"
+      >
+        Deja tu testimonio
+      </button>
+    </div>
+  </div>
 
   <!-- Modal agregar testimonio -->
   <div
@@ -133,10 +79,10 @@
             <select class="form-select" name="municipioT" required>
               <option selected disabled value="">Seleccione una opción</option>
               @for (m of municipios; track m.id_municipio) {
-            <option [value]="m.id_municipio">
-              {{ m.nombre }}
-            </option>
-            }
+              <option [value]="m.id_municipio">
+                {{ m.nombre }}
+              </option>
+              }
             </select>
           </div>
           <div class="form-group mb-3">
@@ -176,7 +122,11 @@
         <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>Resultados</h5>
           <!-- Aquí va el gráfico, puedes usar una imagen o integrar una librería de gráficos -->
-          <img src="{{publicUrl}}/provisionales/grafica.png" alt="Gráfico de resultados" class="img-fluid" />
+          <img
+            src="{{ publicUrl }}/provisionales/grafica.png"
+            alt="Gráfico de resultados"
+            class="img-fluid"
+          />
         </div>
       </div>
     </div>
@@ -292,13 +242,13 @@
               <option value="1">Otro</option>
             </select>
             <input
-                type="text"
-                class="form-control"
-                style="margin-top: 5px"
-                name="especifica"
-                id="especifica"
-                placeholder="Especifica: "
-              />
+              type="text"
+              class="form-control"
+              style="margin-top: 5px"
+              name="especifica"
+              id="especifica"
+              placeholder="Especifica: "
+            />
           </div>
           <div class="form-group mb-3">
             <label class="col-form-label">Correo electrónico:</label>
@@ -309,10 +259,10 @@
             <select class="form-select" name="municipioP" required>
               <option selected disabled value="">Seleccione una opción</option>
               @for (m of municipios; track m.id_municipio) {
-            <option [value]="m.id_municipio">
-              {{ m.nombre }}
-            </option>
-            }
+              <option [value]="m.id_municipio">
+                {{ m.nombre }}
+              </option>
+              }
             </select>
           </div>
           <div class="form-group mb-3">

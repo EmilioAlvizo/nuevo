@@ -1,6 +1,6 @@
 <p-carousel 
   [value]="testimonios" 
-  [numVisible]="3" 
+  [numVisible]="1" 
   [numScroll]="1" 
   [circular]="true"
   [responsiveOptions]="responsiveOptions"
@@ -10,7 +10,7 @@
   [dt]="carouselDesignTokens">
   
   <ng-template let-testimonio #item>
-    <div class="testimonial-item">
+    <div class="testimonial-item align-content-center">
       <div class="row">
         <div class="col-md-4 text-center" style="padding: 10px">
           <img
@@ -23,7 +23,7 @@
           </p>
           <p class="client-name mt-1">Municipio de {{ testimonio.nombreMunicipio }}</p>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-8 align-content-center">
           <div class="testimonial-text" style="padding: 20px">
             <p style="text-align: justify; font-size: medium">
               {{ testimonio.descripcion }}
