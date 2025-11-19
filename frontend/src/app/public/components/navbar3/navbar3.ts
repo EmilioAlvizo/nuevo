@@ -49,6 +49,14 @@ export class Navbar3 implements OnInit, OnDestroy {
 
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
+  // 🆕 effect que previene scroll del body
+  private preventBodyScrollEffect = effect(() => {
+    if (typeof document === 'undefined') return;
+
+    const isOpen = this.mobileMenuOpen();
+    document.body.classList.toggle('mobile-menu-open', isOpen);
+  });
+
   ngOnInit(): void {
     // Detectar clic fuera del dropdown
     this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
@@ -62,9 +70,6 @@ export class Navbar3 implements OnInit, OnDestroy {
         this.handleScroll();
       });
     }
-
-    // 🆕 Prevenir scroll cuando el menú móvil está abierto
-    this.preventBodyScroll();
   }
 
   ngOnDestroy(): void {
@@ -72,14 +77,13 @@ export class Navbar3 implements OnInit, OnDestroy {
     this.scrollHandler?.();
     clearTimeout(this.debounceTimer);
 
-    // 🆕 Limpiar la clase del body al destruir
+    // Remover clase del body
     if (typeof document !== 'undefined') {
       document.body.classList.remove('mobile-menu-open');
     }
   }
 
   private handleScroll(): void {
-    // ⛔ No correr lógica de scroll si el menú móvil o el dropdown están abiertos
     if (this.topBarExpanded()) {
       this.isScrolled.set(false);
       this.showTopBar.set(true);
@@ -114,38 +118,6 @@ export class Navbar3 implements OnInit, OnDestroy {
     });
   }
 
-  // 🆕 Prevenir scroll del body cuando el menú está abierto
-  /*   private preventBodyScroll(): void {
-    if (typeof document === 'undefined') return;
-
-    const body = document.body;
-    
-    // Observar cambios en mobileMenuOpen
-    const checkMenuState = () => {
-      if (this.mobileMenuOpen()) {
-        body.classList.add('mobile-menu-open');
-      } else {
-        body.classList.remove('mobile-menu-open');
-      }
-    };
-
-    // Ejecutar cada vez que cambie el signal
-    //setInterval(checkMenuState, 50);
-  } */
-
-  private preventBodyScroll(): void {
-    if (typeof document === 'undefined') return;
-
-    effect(() => {
-      const isOpen = this.mobileMenuOpen();
-      if (isOpen) {
-        document.body.classList.add('mobile-menu-open');
-      } else {
-        document.body.classList.remove('mobile-menu-open');
-      }
-    });
-  }
-
   onTopBarExpanded(expanded: boolean) {
     this.topBarExpanded.set(expanded);
   }
@@ -153,7 +125,6 @@ export class Navbar3 implements OnInit, OnDestroy {
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);
 
-    // 🆕 Cerrar dropdown al cerrar menú móvil
     if (!this.mobileMenuOpen()) {
       this.dropdownOpen.set(false);
     }
@@ -173,7 +144,6 @@ export class Navbar3 implements OnInit, OnDestroy {
     this.dropdownOpen.set(false);
   }
 
-  // 🆕 Cerrar menú al navegar
   onLinkClick(): void {
     console.log('🔗 [NAVBAR] Navegando, cerrando menú');
     this.closeMenu();
