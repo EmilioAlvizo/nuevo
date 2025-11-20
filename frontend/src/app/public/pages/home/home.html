@@ -1,5 +1,5 @@
 <!-- nuevo/frontend/src/app/public/pages/home/home.html -->
- <p-toast/>
+<p-toast />
 
 <div class="container">
   <div style="height: 100px"></div>
@@ -17,93 +17,25 @@
   </section>
 
   <!-- Sección 2: Testimonios -->
-  <app-carrusel-testimonios [testimonios]="testimonios" [publicUrl]="publicUrl">
+  <app-carrusel-testimonios *ngIf="isBrowser" [testimonios]="testimonios" [publicUrl]="publicUrl">
   </app-carrusel-testimonios>
 
-  <div class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center">
+  <div
+    class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
+  >
     <div class="p-4 bg-light rounded">
       <h5>¿Quieres compartir tu experiencia?</h5>
-      <button class="btn btn-primary mt-2" (click)="abrirDialogo()">
-        Deja tu testimonio
-      </button>
+      <button class="btn btn-primary mt-2" (click)="abrirDialogo()">Deja tu testimonio</button>
     </div>
   </div>
 
   <!-- Modal agregar testimonio -->
-  
+
   <app-form-testimonios
-  [visible]="showDialog"
-  (visibleChange)="showDialog = $event"
-  (save)="guardarTestimonio($event)"
-/>
-
-
-  <!-- <div
-    class="modal fade"
-    id="agregarNTestimonio"
-    tabindex="-1"
-    aria-labelledby="publicacionTitle"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-lg">
-      <form method="POST" enctype="multipart/form-data" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="publicacionTitle">Agregar testimonio</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Cerrar"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group mb-3">
-            <label class="form-label">Nombre completo:</label>
-            <input type="text" class="form-control" name="nombreT" required />
-          </div>
-          <div class="form-group mb-3">
-            <label class="form-label">Correo:</label>
-            <input type="email" class="form-control" name="correo" required />
-          </div>
-          <div class="form-group mb-3">
-            <label class="form-label">Teléfono:</label>
-            <input type="tel" maxlength="10" class="form-control" name="telefono" required />
-          </div>
-          <div class="form-group mb-3">
-            <label class="form-label">Descripción:</label>
-            <textarea
-              maxlength="431"
-              name="descripcionT"
-              class="form-control"
-              rows="6"
-              placeholder="Describe aquí tus experiencias positivas relacionadas con JuventudEsGto. Puede ser sobre programas, eventos, ayuda o tu participación en actividades de alguna red juvenil."
-              required
-            ></textarea>
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Municipio:</label>
-            <select class="form-select" name="municipioT" required>
-              <option selected disabled value="">Seleccione una opción</option>
-              @for (m of municipios; track m.id_municipio) {
-              <option [value]="m.id_municipio">
-                {{ m.nombre }}
-              </option>
-              }
-            </select>
-          </div>
-          <div class="form-group mb-3">
-            <label class="form-label">Subir imagen:</label>
-            <input class="form-control" name="imagenT" type="file" required />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="submit" class="btn btn-success">Enviar testimonio</button>
-        </div>
-      </form>
-    </div>
-  </div> -->
-  <!-- Fin Modal agregar testimonio -->
+    [visible]="showDialog"
+    (visibleChange)="showDialog = $event"
+    (save)="guardarTestimonio($event)"
+  />
 
   <!-- Sección 3: Encuestas -->
   <section class="home-section mb-4">
@@ -140,16 +72,14 @@
 
   <!-- Sección 4: Temas de interés -->
   <section class="home-section mb-4">
-    <div class="row align-items-center">
+    <div class="row align-items-center justify-content-center">
       <!-- Columna izquierda -->
-      <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25">
+      <div
+        class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center"
+      >
         <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
-          <button
-            class="btn btn-success mt-3"
-            data-bs-toggle="modal"
-            data-bs-target="#agregarPropuesta"
-          >
+          <button class="btn btn-success mt-3" (click)="abrirDialogoPropuesta()">
             Regístrala aquí
           </button>
         </div>
@@ -216,10 +146,11 @@
     </div>
   </section>
 
+  <app-form-propuesta [visible]="showPropuesta" (visibleChange)="showPropuesta = $event" />
+</div>
 
-
-  <!-- Modal propuesta de acción -->
-  <div
+<!-- Modal propuesta de acción -->
+<!-- <div
     class="modal fade"
     id="agregarPropuesta"
     tabindex="-1"
@@ -356,5 +287,5 @@
       </form>
     </div>
   </div>
-  <!-- Fin Modal propuesta de acción -->
-</div>
+  
+</div> -->

@@ -13,7 +13,7 @@
         label="Nuevo testimonio"
         icon="pi pi-plus"
         (onClick)="abrirModal()"
-        [disabled]="loading"
+        [disabled]="loading()"
       >
       </p-button>
     </ng-template>
@@ -22,8 +22,8 @@
   <!-- Tabla de Testimonios -->
   <p-card>
     <p-table
-      [value]="testimonios"
-      [loading]="loading"
+      [value]="testimonios()"
+      [loading]="loading()"
       [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[5, 10, 20]"
@@ -95,6 +95,16 @@
               (onClick)="abrirModal(testimonio)"
             >
             </p-button>
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              pTooltip="eliminar testimonio"
+              tooltipPosition="top"
+              (onClick)="eliminarTestimonio(testimonio)"
+            >
+            </p-button>
           </td>
         </tr>
       </ng-template>
@@ -152,7 +162,7 @@
           Municipio <span class="text-danger">*</span>
         </label>
         <p-select
-          [options]="municipios"
+          [options]="municipios()"
           optionLabel="nombre"
           optionValue="id_municipio"
           placeholder="Seleccione un municipio"
@@ -271,7 +281,7 @@
         <p-button
           [label]="editMode ? 'Actualizar' : 'Crear'"
           icon="pi pi-check"
-          [loading]="submitting"
+          [loading]="submitting()"
           type="submit"
           [disabled]="formTestimonio.invalid || submitting"
         ></p-button>

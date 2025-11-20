@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { ApiMunicipio } from '../../../core/services/municipios';
 import { environment } from '../../../../environments/environment';
 
 import { DialogModule } from 'primeng/dialog';
@@ -38,9 +38,9 @@ export class FormTestimonios {
   publicUrl = environment.publicUrl;
   private confirmationService = inject(ConfirmationService);
   private msg = inject(MessageService);
+  private apiMunicipio = inject(ApiMunicipio);
 
   private fb = inject(FormBuilder).nonNullable;
-  private http = inject(HttpClient);
 
   // Inputs / Outputs
   visible = model.required<boolean>();
@@ -89,8 +89,8 @@ export class FormTestimonios {
   }
 
   loadMunicipios(): void {
-    this.http.get('http://localhost:3000/api/municipios').subscribe((resp: any) => {
-      this.municipios.set(resp.data || resp);
+    this.apiMunicipio.getMessage().subscribe((resp: any) => {
+      this.municipios.set(resp.data || []);
     });
   }
 

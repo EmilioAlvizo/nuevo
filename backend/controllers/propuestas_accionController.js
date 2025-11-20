@@ -55,7 +55,7 @@ class Propuestas_accionController {
       if (!data || Object.keys(data).length === 0) {
         return res.status(400).json({
           success: false,
-          message: "Datos inválidos o vacíos",
+          message: `Datos inválidos o vacíos ${data}`,
         });
       }
 

@@ -1,3 +1,4 @@
+// nuevo/frontend/src/app/core/shared/interface.ts
 // Agrega esta nueva interfaz para la respuesta de la API
 export interface ApiResponse<T> {
   success: boolean;

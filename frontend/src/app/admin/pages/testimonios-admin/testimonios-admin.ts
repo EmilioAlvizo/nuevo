@@ -1,5 +1,5 @@
 // nuevo/frontend/src/app/admin/pages/testimonios-admin/testimonios-admin.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -45,11 +45,18 @@ interface EstatusOption {
   providers: [MessageService, ConfirmationService],
   templateUrl: './testimonios-admin.html',
   styleUrl: './testimonios-admin.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TestimoniosAdmin implements OnInit, OnDestroy {
-  // DATA
-  testimonios: Testimonios[] = [];
-  municipios: Municipio[] = [];
+  private apiTestimonios = inject(ApiTestimonios);
+  private msg = inject(MessageService);
+  private confirm = inject(ConfirmationService);
+  private apiMunicipio = inject(ApiMunicipio);
+  private fb = inject(FormBuilder);
+
+  // ⭐ Usar signal en lugar de propiedades normales
+  testimonios = signal<Testimonios[]>([]);
+  municipios = signal<Municipio[]>([]);
 
   // FORM
   formTestimonio!: FormGroup;
@@ -65,8 +72,8 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   maxFileSize = 5242880; // 5MB
 
   // STATES
-  loading = false;
-  submitting = false;
+  loading = signal(false);
+  submitting = signal(false);
 
   // ESTATUS
   estatusOptions: EstatusOption[] = [
@@ -77,34 +84,36 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   // DESTROY
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private apiTestimonios: ApiTestimonios,
-    private apiMunicipio: ApiMunicipio,
-    private fb: FormBuilder,
-    private msg: MessageService,
-    private confirm: ConfirmationService
-  ) {
+  constructor() {
     this.inicializarFormulario();
   }
 
   ngOnInit(): void {
-    // Nos suscribimos al estado global; cualquier cambio en el servicio refresca la tabla
-    this.apiTestimonios.testimonios$.pipe(takeUntil(this.destroy$)).subscribe((lista) => {
-      this.testimonios = lista || [];
-    });
+    this.loading.set(true);
 
-    // Cargar una vez desde backend para poblar el BehaviorSubject
+    // ⬇ Primera carga del servidor
     this.apiTestimonios
       .getTestimonios()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          /* cargado al BehaviorSubject por el servicio */
+          console.log('✅ Testimonios cargados inicialmente');
+          this.loading.set(false);
         },
         error: (err) => {
-          console.error('Error inicial al cargar testimonios', err);
-          this.mostrarError('Error al cargar testimonios');
+          console.error('Error al cargar testimonios:', err);
+          this.loading.set(false);
         },
+      });
+
+    // ⬇ Escucha *permanente* del BehaviorSubject
+    // Esta suscripción se mantendrá activa y recibirá todas las actualizaciones
+    this.apiTestimonios.testimonios$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((lista) => {
+        console.log('📊 Admin recibió actualización:', lista.length, 'testimonios');
+        // ⭐ Usar signal para actualizar - Angular detectará el cambio automáticamente
+        this.testimonios.set([...lista]);
       });
 
     this.cargarMunicipios();
@@ -132,7 +141,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.municipios = res.data || [];
+          this.municipios.set(res.data || []);
         },
         error: (error) => {
           console.error('Error al cargar municipios:', error);
@@ -240,7 +249,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       return;
     }
 
-    this.submitting = true;
+    this.submitting.set(true);
     const formData = this.prepararFormData();
 
     if (this.editMode && this.selectedTestimonioId) {
@@ -273,7 +282,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   }
 
   // ===============================
-  // CRUD (delegar al servicio; servicio actualiza el BehaviorSubject)
+  // CRUD
   // ===============================
 
   crearTestimonio(fd: FormData): void {
@@ -288,12 +297,12 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
           } else {
             this.mostrarError(res.message || 'Error al crear testimonio');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
           console.error('Error al crear testimonio:', error);
           this.mostrarError('Error al crear el testimonio');
-          this.submitting = false;
+          this.submitting.set(false);
         },
       });
   }
@@ -310,18 +319,17 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
           } else {
             this.mostrarError(res.message || 'Error al actualizar testimonio');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
           console.error('Error al actualizar testimonio:', error);
           this.mostrarError('Error al actualizar el testimonio');
-          this.submitting = false;
+          this.submitting.set(false);
         },
       });
   }
 
   getImageUrl(testimonio: Testimonios): string {
-    // Ajusta si tu ruta de imágenes es distinta
     return `http://localhost:3000/public/testimonios/${testimonio.id_testimonios}/${testimonio.imagenT}`;
   }
 
@@ -350,7 +358,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
     this.msg.add({ severity: 'warn', summary: 'Advertencia', detail });
   }
 
-  /* eliminarTestimonio(testimonio: Testimonios): void {
+  eliminarTestimonio(testimonio: Testimonios): void {
     this.confirm.confirm({
       message: '¿Estás seguro que deseas eliminar este testimonio?',
       accept: () => {
@@ -361,8 +369,6 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
             next: (res) => {
               if (res.success) {
                 this.mostrarExito('Testimonio eliminado');
-              } else {
-                //this.mostrarError(res.message || 'Error al eliminar testimonio');
               }
             },
             error: (error) => {
@@ -372,5 +378,5 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
           });
       },
     });
-  } */
+  }
 }

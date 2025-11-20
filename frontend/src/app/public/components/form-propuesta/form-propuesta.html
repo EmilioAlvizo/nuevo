@@ -1,0 +1,198 @@
+<!-- frontend/src/app/public/components/form-propuesta/form-propuesta.html -->
+<p-dialog
+  header="Propuesta de acción"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '800px' }"
+  (onHide)="handleDialogHide()"
+>
+  <form [formGroup]="propuestaForm">
+    <!-- NOMBRE -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Nombre completo *</label>
+      <input pInputText formControlName="nombre" class="form-control" />
+      @if (isFieldInvalid('nombre')) {
+        <small class="text-danger">Campo requerido</small>
+      } @else {
+        <div class="invisible">00</div>
+      }
+    </div>
+
+    <!-- SEXO -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Sexo *</label>
+      <p-select
+        [options]="sexoOptions"
+        formControlName="sexo"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione una opción"
+        class="w-100"
+      ></p-select>
+      @if (isFieldInvalid('sexo')) {
+        <small class="text-danger">Campo requerido</small>
+      } @else {
+        <div class="invisible">00</div>
+      }
+    </div>
+
+    <!-- EDAD -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Edad *</label>
+      <input
+        pInputText
+        type="number"
+        formControlName="edad"
+        maxlength="2"
+        class="form-control"
+      />
+      @if (isFieldInvalid('edad')) {
+        <small class="text-danger">Campo requerido</small>
+      } @else {
+        <div class="invisible">00</div>
+      }
+    </div>
+
+    <!-- ACTIVIDAD -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Actividad principal *</label>
+      <p-select
+        [options]="actividadOptions"
+        formControlName="actividad"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione una opción"
+        class="w-100"
+        (onChange)="onActividadChange($event.value)"
+      ></p-select>
+      @if (isFieldInvalid('actividad')) {
+        <small class="text-danger">Campo requerido</small>
+      } @else {
+        <div class="invisible">00</div>
+      }
+
+      <!-- CAMPO ESPECÍFICA -->
+      @if (showEspecifica) {
+      <input
+        pInputText
+        formControlName="especifica"
+        class="form-control mt-2"
+        placeholder="Especifica"
+      />
+      @if (isFieldInvalid('especifica')) {
+        <small class="text-danger">Campo requerido cuando seleccionas 'Otro'</small>
+      }}
+    </div>
+
+    <!-- EMAIL -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Correo electrónico *</label>
+      <input pInputText formControlName="correo" class="form-control" />
+      @if (isFieldInvalid('correo')) {
+        <small class="text-danger">Correo inválido</small>
+      } @else {
+        <div class="invisible">00</div>
+      }
+    </div>
+
+    <!-- MUNICIPIO -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Municipio *</label>
+      <p-select
+        [options]="municipiosOptions"
+        formControlName="municipio"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione una opción"
+        class="w-100"
+      ></p-select>
+      @if (isFieldInvalid('municipio')) {
+        <small class="text-danger">Campo requerido</small>
+      } @else {
+        <div class="invisible">00</div>
+      }
+    </div>
+
+    <!-- ZONA -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Zona *</label>
+      <p-select
+        [options]="zonaOptions"
+        formControlName="zona"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione una zona"
+        class="w-100"
+      ></p-select>
+      @if (isFieldInvalid('zona')) {
+        <small class="text-danger">Campo requerido</small>
+      }
+    </div>
+
+    <!-- DETALLE -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        Detalla tu acción o propuesta *
+      </label>
+      <textarea
+        pInputTextarea
+        formControlName="detalle"
+        rows="4"
+        class="form-control"
+      ></textarea>
+      @if (isFieldInvalid('detalle')) {
+        <small class="text-danger">Campo requerido</small>
+      }
+    </div>
+
+    <!-- JUSTIFICACIÓN -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        Justifica tu acción o propuesta *
+      </label>
+      <textarea
+        pInputTextarea
+        formControlName="justificacion"
+        rows="4"
+        class="form-control"
+      ></textarea>
+      @if (isFieldInvalid('justificacion')) {
+        <small class="text-danger">Campo requerido</small>
+      }
+    </div>
+
+    <!-- NECESIDADES -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        ¿Qué y/o quién necesitas para lograrlo? *
+      </label>
+      <textarea
+        pInputTextarea
+        formControlName="necesidades"
+        rows="4"
+        class="form-control"
+      ></textarea>
+      @if (isFieldInvalid('necesidades')) {
+        <small class="text-danger">Campo requerido</small>
+      }
+    </div>
+  </form>
+
+  <!-- FOOTER -->
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        outlined
+        (onClick)="handleCancel()"
+      />
+      <p-button
+        label="Enviar propuesta"
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="handleSubmit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

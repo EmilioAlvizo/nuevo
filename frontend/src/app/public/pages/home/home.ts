@@ -1,6 +1,7 @@
 //nuevo/frontend/src/app/public/pages/home/home.ts
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CarruselTestimonios } from '../../components/carrusel-testimonios/carrusel-testimonios';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
@@ -8,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 import { FormTestimonios } from '../../components/form-testimonios/form-testimonios';
+import { FormPropuesta } from '../../components/form-propuesta/form-propuesta';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -15,7 +17,14 @@ import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, CarruselTestimonios, FormTestimonios, ConfirmDialogModule, ToastModule],
+  imports: [
+    CommonModule,
+    CarruselTestimonios,
+    FormTestimonios,
+    ConfirmDialogModule,
+    ToastModule,
+    FormPropuesta,
+  ],
   providers: [MessageService],
   templateUrl: './home.html',
   styleUrl: './home.css',
@@ -25,23 +34,35 @@ export class Home implements OnInit {
   testimonios: Testimonios[] = [];
   temas: Temas[] = [];
   publicUrl = environment.publicUrl;
-  private msg = inject(MessageService);
 
+  private msg = inject(MessageService);
+  private apiTestimonios = inject(ApiTestimonios);
+  private apiTemas = inject(ApiTemas);
+
+  isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   showDialog = false;
 
   abrirDialogo() {
     this.showDialog = true;
   }
 
-  constructor(
-    private api: ApiMunicipio,
-    private datasetService: ApiTestimonios,
-    private apiTemas: ApiTemas
-  ) {}
+  showPropuesta = false;
+  
+  abrirDialogoPropuesta() {
+    this.showPropuesta = true;
+  }
+
+  constructor(private api: ApiMunicipio) {}
 
   ngOnInit(): void {
+    // ⬇ Primera carga desde el servidor
+    this.apiTestimonios.getTestimonios().subscribe();
+
+    // ⬇ Suscripción permanente a la lista
+    this.apiTestimonios.testimonios$.subscribe((lista) => {
+      this.testimonios = lista.filter((t: any) => t.estatus === 'A');
+    });
     this.cargarMunicipios();
-    this.cargarTestimonios();
     this.cargarTemas();
   }
 
@@ -62,7 +83,7 @@ export class Home implements OnInit {
   }
 
   cargarTestimonios(): void {
-    this.datasetService.getTestimonios().subscribe({
+    this.apiTestimonios.getTestimonios().subscribe({
       next: (datos) => {
         this.testimonios = datos.data.filter((testimonios) => testimonios.estatus == 'A');
       },
@@ -84,31 +105,52 @@ export class Home implements OnInit {
   }
 
   guardarTestimonio(fd: FormData) {
-  const id = fd.get('id_testimonio');
+    console.log('💾 guardarTestimonio() llamado desde HOME');
 
-  const request = id 
-    ? this.datasetService.updateTestimonio(Number(id), fd)
-    : this.datasetService.createTestimonio(fd);
-
-  request.subscribe({
-    next: () => {
-      this.msg.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'Testimonio guardado correctamente'
-      });
-
-      this.showDialog = false;  // Cerrar modal
-      this.cargarTestimonios(); // Refrescar carrusel
-    },
-    error: () => {
-      this.msg.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudo guardar el testimonio'
-      });
+    // Debug: ver qué contiene el FormData
+    console.log('📦 FormData recibido:');
+    for (let [key, value] of fd.entries()) {
+      console.log(`  ${key}:`, value);
     }
-  });
-}
 
+    const id = fd.get('id_testimonio');
+    console.log('🔍 id_testimonio:', id, '(modo:', id ? 'EDIT' : 'CREATE', ')');
+
+    const request = id
+      ? this.apiTestimonios.updateTestimonio(Number(id), fd)
+      : this.apiTestimonios.createTestimonio(fd);
+
+    request.subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta exitosa en HOME:', response);
+
+        this.msg.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Testimonio guardado correctamente',
+        });
+
+        this.showDialog = false;
+
+        // Esperar un poco y verificar estado
+        setTimeout(() => {
+          const current = this.apiTestimonios.getCurrentTestimonios();
+          console.log('📊 Estado después de guardar:', current.length, 'testimonios');
+          console.log(
+            '📋 IDs actuales:',
+            current.map((t) => t.id_testimonios)
+          );
+        }, 100);
+      },
+      error: (err) => {
+        console.error('❌ Error al guardar testimonio:', err);
+
+        this.msg.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo guardar el testimonio',
+        });
+      },
+    });
+  }
 }
