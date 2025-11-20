@@ -40,14 +40,13 @@ interface EstatusOption {
     ConfirmDialogModule,
     CardModule,
     ToolbarModule,
-    TooltipModule
+    TooltipModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './testimonios-admin.html',
   styleUrl: './testimonios-admin.css',
 })
 export class TestimoniosAdmin implements OnInit, OnDestroy {
-
   // DATA
   testimonios: Testimonios[] = [];
   municipios: Municipio[] = [];
@@ -89,7 +88,25 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.cargarTestimonios();
+    // Nos suscribimos al estado global; cualquier cambio en el servicio refresca la tabla
+    this.apiTestimonios.testimonios$.pipe(takeUntil(this.destroy$)).subscribe((lista) => {
+      this.testimonios = lista || [];
+    });
+
+    // Cargar una vez desde backend para poblar el BehaviorSubject
+    this.apiTestimonios
+      .getTestimonios()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          /* cargado al BehaviorSubject por el servicio */
+        },
+        error: (err) => {
+          console.error('Error inicial al cargar testimonios', err);
+          this.mostrarError('Error al cargar testimonios');
+        },
+      });
+
     this.cargarMunicipios();
   }
 
@@ -105,33 +122,13 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       correo: ['', [Validators.required, Validators.email]],
       telefono: ['', Validators.required],
       descripcion: ['', [Validators.required, Validators.minLength(5)]],
-      estatus: ['A', Validators.required]
+      estatus: ['A', Validators.required],
     });
   }
 
-  // ===============================
-  // CARGA DE DATOS
-  // ===============================
-
-  cargarTestimonios(): void {
-    this.loading = true;
-    this.apiTestimonios.getTestimonios()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          this.testimonios = res.data || [];
-          this.loading = false;
-        },
-        error: (error) => {
-          console.error('Error al cargar testimonios:', error);
-          this.mostrarError('Error al cargar testimonios');
-          this.loading = false;
-        }
-      });
-  }
-
   cargarMunicipios(): void {
-    this.apiMunicipio.getMessage()
+    this.apiMunicipio
+      .getMessage()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
@@ -140,7 +137,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Error al cargar municipios:', error);
           this.mostrarError('No se pudieron cargar los municipios');
-        }
+        },
       });
   }
 
@@ -159,7 +156,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
         correo: testimonio.correo,
         telefono: testimonio.telefono,
         descripcion: testimonio.descripcion,
-        estatus: testimonio.estatus
+        estatus: testimonio.estatus,
       });
     } else {
       this.editMode = false;
@@ -170,10 +167,11 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
         correo: '',
         telefono: '',
         descripcion: '',
-        estatus: 'A'
+        estatus: 'A',
       });
     }
 
+    this.selectedImage = null;
     this.modalVisible = true;
   }
 
@@ -189,7 +187,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       correo: '',
       telefono: '',
       descripcion: '',
-      estatus: 'A'
+      estatus: 'A',
     });
     this.selectedImage = null;
     this.editMode = false;
@@ -267,26 +265,25 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       fd.append('imagenT', this.selectedImage);
     }
 
+    if (this.editMode && this.selectedTestimonioId) {
+      fd.append('id_testimonio', this.selectedTestimonioId.toString());
+    }
+
     return fd;
   }
 
   // ===============================
-  // CRUD LOCAL
+  // CRUD (delegar al servicio; servicio actualiza el BehaviorSubject)
   // ===============================
 
   crearTestimonio(fd: FormData): void {
-    this.apiTestimonios.createTestimonio(fd)
+    this.apiTestimonios
+      .createTestimonio(fd)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             this.mostrarExito('Testimonio creado exitosamente');
-
-            // Insertar en la lista local
-            if (res.data) {
-              this.testimonios = [res.data, ...this.testimonios];
-            }
-
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al crear testimonio');
@@ -297,25 +294,18 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
           console.error('Error al crear testimonio:', error);
           this.mostrarError('Error al crear el testimonio');
           this.submitting = false;
-        }
+        },
       });
   }
 
   actualizarTestimonio(fd: FormData): void {
-    this.apiTestimonios.updateTestimonio(this.selectedTestimonioId!, fd)
+    this.apiTestimonios
+      .updateTestimonio(this.selectedTestimonioId!, fd)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             this.mostrarExito('Testimonio actualizado exitosamente');
-
-            // Actualizar en la lista local
-            const index = this.testimonios.findIndex(t => t.id_testimonios === this.selectedTestimonioId);
-            if (index !== -1) {
-              this.testimonios[index] = { ...this.testimonios[index], ...this.formTestimonio.value, ...(res.data || {}) };
-              this.testimonios = [...this.testimonios]; // Forzar refresh
-            }
-
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al actualizar testimonio');
@@ -326,11 +316,12 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
           console.error('Error al actualizar testimonio:', error);
           this.mostrarError('Error al actualizar el testimonio');
           this.submitting = false;
-        }
+        },
       });
   }
 
   getImageUrl(testimonio: Testimonios): string {
+    // Ajusta si tu ruta de imágenes es distinta
     return `http://localhost:3000/public/testimonios/${testimonio.id_testimonios}/${testimonio.imagenT}`;
   }
 
@@ -358,4 +349,28 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   private mostrarAdvertencia(detail: string): void {
     this.msg.add({ severity: 'warn', summary: 'Advertencia', detail });
   }
+
+  /* eliminarTestimonio(testimonio: Testimonios): void {
+    this.confirm.confirm({
+      message: '¿Estás seguro que deseas eliminar este testimonio?',
+      accept: () => {
+        this.apiTestimonios
+          .deleteTestimonio(testimonio.id_testimonios)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (res) => {
+              if (res.success) {
+                this.mostrarExito('Testimonio eliminado');
+              } else {
+                //this.mostrarError(res.message || 'Error al eliminar testimonio');
+              }
+            },
+            error: (error) => {
+              console.error('Error al eliminar testimonios:', error);
+              this.mostrarError('Error al eliminar testimonio');
+            },
+          });
+      },
+    });
+  } */
 }

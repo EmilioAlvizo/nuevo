@@ -9,29 +9,30 @@
       <h2 class="m-0">Testimonios</h2>
     </ng-template>
     <ng-template pTemplate="right">
-      <p-button 
-        label="Nuevo testimonio" 
-        icon="pi pi-plus" 
+      <p-button
+        label="Nuevo testimonio"
+        icon="pi pi-plus"
         (onClick)="abrirModal()"
-        [disabled]="loading">
+        [disabled]="loading"
+      >
       </p-button>
     </ng-template>
   </p-toolbar>
 
   <!-- Tabla de Testimonios -->
   <p-card>
-    <p-table 
-      [value]="testimonios" 
+    <p-table
+      [value]="testimonios"
       [loading]="loading"
-      [paginator]="true" 
+      [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[5, 10, 20]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} testimonios"
       [tableStyle]="{ 'min-width': '60rem' }"
       styleClass="p-datatable-striped"
-      responsiveLayout="scroll">
-      
+      responsiveLayout="scroll"
+    >
       <ng-template pTemplate="header">
         <tr>
           <th style="width: 5%">ID</th>
@@ -46,7 +47,7 @@
           <th style="width: 5%">Acciones</th>
         </tr>
       </ng-template>
-      
+
       <ng-template pTemplate="body" let-testimonio>
         <tr>
           <td>{{ testimonio.id_testimonios }}</td>
@@ -56,45 +57,53 @@
           <td>{{ testimonio.telefono }}</td>
           <td>
             <span [pTooltip]="testimonio.descripcion" tooltipPosition="top">
-              {{ testimonio.descripcion | slice:0:50 }}{{ testimonio.descripcion?.length > 50 ? '...' : '' }}
+              {{ testimonio.descripcion | slice : 0 : 50
+              }}{{ testimonio.descripcion?.length > 50 ? '...' : '' }}
             </span>
           </td>
           <td>
-            <img 
-              *ngIf="testimonio.imagenT" 
-              [src]="getImageUrl(testimonio)" 
+            <img
+              *ngIf="testimonio.imagenT"
+              [src]="getImageUrl(testimonio)"
               [alt]="testimonio.descripcion"
-              class="testimonio-imagen">
+              class="testimonio-imagen"
+            />
             <span *ngIf="!testimonio.imagenT" class="text-muted">Sin imagen</span>
           </td>
           <td>
-            <span 
-              [class]="testimonio.estatus === 'A' ? 'status-badge status-active' : 'status-badge status-inactive'">
+            <span
+              [class]="
+                testimonio.estatus === 'A'
+                  ? 'status-badge status-active'
+                  : 'status-badge status-inactive'
+              "
+            >
               {{ getEstatusLabel(testimonio.estatus) }}
             </span>
           </td>
           <td>
-            {{ testimonio.fecha_modificacion | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
+            {{ testimonio.fecha_modificacion | date : 'dd/MM/yyyy HH:mm' : 'UTC' }}
           </td>
           <td>
-            <p-button 
-              icon="pi pi-pencil" 
-              [rounded]="true" 
-              [text]="true" 
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
               severity="info"
-              pTooltip="Editar testimonio" 
+              pTooltip="Editar testimonio"
               tooltipPosition="top"
-              (onClick)="abrirModal(testimonio)">
+              (onClick)="abrirModal(testimonio)"
+            >
             </p-button>
           </td>
         </tr>
       </ng-template>
-      
+
       <ng-template pTemplate="emptymessage">
         <tr>
           <td colspan="10" class="text-center">
             <div class="empty-message">
-              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc"></i>
               <p>No hay testimonios registrados</p>
             </div>
           </td>
@@ -104,132 +113,171 @@
   </p-card>
 </div>
 
-
-<p-dialog 
-  [(visible)]="modalVisible" 
+<!-- DIALOG: usa tu mismo form (el HTML del dialog lo tenías ya) -->
+<p-dialog
+  [(visible)]="modalVisible"
   [header]="editMode ? 'Editar Testimonio' : 'Nuevo Testimonio'"
-  [modal]="true" 
+  [modal]="true"
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
-  [style]="{ width: '600px' }"
+  [style]="{ width: '700px' }"
   [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
-  (onHide)="vaciarFormulario()">
-  
+  (onHide)="vaciarFormulario()"
+>
   <form [formGroup]="formTestimonio" (ngSubmit)="submitForm()">
-    
-    <!-- Nombre -->
-    <div class="form-field">
-      <label class="form-label">Nombre completo <span class="required">*</span></label>
-      <input 
-        type="text" pInputText 
-        formControlName="nombreM"
-        placeholder="Nombre del testimonio"
-        class="w-full"
-        [class.ng-invalid]="hasError('nombreM')"
-        [class.ng-dirty]="hasError('nombreM')"
-      />
-      <small *ngIf="hasError('nombreM')" class="p-error">El nombre es requerido</small>
+
+    <div class="row">
+
+      <!-- NOMBRE -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Nombre completo <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          pInputText
+          class="form-control"
+          formControlName="nombreM"
+          placeholder="Nombre del testimonio"
+        />
+        <small *ngIf="hasError('nombreM')" class="text-danger">
+          El nombre es requerido
+        </small>
+      </div>
+
+      <!-- MUNICIPIO -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Municipio <span class="text-danger">*</span>
+        </label>
+        <p-select
+          [options]="municipios"
+          optionLabel="nombre"
+          optionValue="id_municipio"
+          placeholder="Seleccione un municipio"
+          formControlName="id_municipio"
+          class="w-100"
+        ></p-select>
+        <small *ngIf="hasError('id_municipio')" class="text-danger">
+          El municipio es requerido
+        </small>
+      </div>
+
+      <!-- CORREO -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Correo <span class="text-danger">*</span>
+        </label>
+        <input
+          type="email"
+          pInputText
+          class="form-control"
+          formControlName="correo"
+          placeholder="correo@ejemplo.com"
+        />
+        <small *ngIf="hasError('correo')" class="text-danger">
+          Correo inválido
+        </small>
+      </div>
+
+      <!-- TELÉFONO -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Teléfono <span class="text-danger">*</span>
+        </label>
+        <input
+          type="tel"
+          maxlength="10"
+          pInputText
+          class="form-control"
+          formControlName="telefono"
+          placeholder="Ej. 7711234567"
+        />
+        <small *ngIf="hasError('telefono')" class="text-danger">
+          El teléfono es requerido
+        </small>
+      </div>
+
+      <!-- DESCRIPCIÓN -->
+      <div class="col-12 mb-3">
+        <label class="form-label fw-semibold">
+          Descripción <span class="text-danger">*</span>
+        </label>
+        <textarea
+          rows="3"
+          pInputTextarea
+          class="form-control"
+          formControlName="descripcion"
+          placeholder="Ingrese la descripción del testimonio"
+        ></textarea>
+        <small *ngIf="hasError('descripcion')" class="text-danger">
+          La descripción es requerida (mínimo 5 caracteres)
+        </small>
+      </div>
+
+      <!-- ESTATUS -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Estatus *</label>
+        <p-select
+          [options]="estatusOptions"
+          formControlName="estatus"
+          optionLabel="label"
+          optionValue="value"
+          class="w-100"
+        ></p-select>
+      </div>
+
+      <!-- IMAGEN -->
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Imagen <span *ngIf="!editMode" class="text-danger">*</span>
+        </label>
+        <input
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+          (change)="onFileSelected($event)"
+          class="form-control"
+        />
+        <small *ngIf="selectedImage" class="text-success d-block mt-1">
+          <i class="pi pi-check-circle"></i> {{ selectedImage.name }}
+        </small>
+      </div>
+
+      <!-- PREVIEW -->
+      <!-- <div class="col-12 text-center" *ngIf="selectedImage">
+        <img
+          [src]="selectedImage ? (selectedImage | filePreview) : null"
+          class="img-thumbnail shadow mt-2"
+          style="max-width: 250px;"
+        />
+      </div> -->
+
     </div>
 
-    <!-- Municipio -->
-    <div class="form-field">
-      <label class="form-label">Municipio <span class="required">*</span></label>
-      <p-select 
-        [options]="municipios"
-        optionLabel="nombre"
-        optionValue="id_municipio"
-        placeholder="Seleccione un municipio"
-        formControlName="id_municipio"
-        class="w-full"
-      ></p-select>
-      <small *ngIf="hasError('id_municipio')" class="p-error">El municipio es requerido</small>
-    </div>
+    <!-- BOTONES -->
+    <ng-template pTemplate="footer">
+      <div class="d-flex justify-content-end gap-2">
 
-    <!-- Correo -->
-    <div class="form-field">
-      <label class="form-label">Correo <span class="required">*</span></label>
-      <input 
-        type="email" pInputText
-        formControlName="correo"
-        placeholder="correo@ejemplo.com"
-        class="w-full"
-      />
-      <small *ngIf="hasError('correo')" class="p-error">Ingrese un correo válido</small>
-    </div>
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          type="button"
+          (onClick)="cerrarModal()"
+        ></p-button>
 
-    <!-- Teléfono -->
-    <div class="form-field">
-      <label class="form-label">Teléfono <span class="required">*</span></label>
-      <input 
-        type="text" pInputText
-        formControlName="telefono"
-        placeholder="Ej. 7711234567"
-        class="w-full"
-      />
-      <small *ngIf="hasError('telefono')" class="p-error">El teléfono es requerido</small>
-    </div>
+        <p-button
+          [label]="editMode ? 'Actualizar' : 'Crear'"
+          icon="pi pi-check"
+          [loading]="submitting"
+          type="submit"
+          [disabled]="formTestimonio.invalid || submitting"
+        ></p-button>
 
-    <!-- Descripción -->
-    <div class="form-field">
-      <label class="form-label">Descripción <span class="required">*</span></label>
-      <textarea 
-        pInputTextarea 
-        formControlName="descripcion"
-        rows="4"
-        placeholder="Ingrese la descripción del testimonio"
-        class="w-full">
-      </textarea>
-      <small *ngIf="hasError('descripcion')" class="p-error">La descripción es requerida (mínimo 5 caracteres)</small>
-    </div>
-
-    <!-- Imagen -->
-    <div class="form-field">
-      <label class="form-label">
-        Imagen <span *ngIf="!editMode" class="required">*</span>
-      </label>
-      <input 
-        type="file"
-        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-        (change)="onFileSelected($event)"
-        class="w-full file-input"
-      />
-      <small *ngIf="selectedImage" class="selected-file">
-        <i class="pi pi-check-circle"></i> {{ selectedImage.name }}
-      </small>
-    </div>
-
-    <!-- Estatus -->
-    <div class="form-field">
-      <label class="form-label">Estatus <span class="required">*</span></label>
-      <p-select 
-        [options]="estatusOptions"
-        formControlName="estatus"
-        optionLabel="label"
-        optionValue="value"
-        class="w-full"
-      ></p-select>
-    </div>
-
-    <!-- Botones -->
-    <div class="form-actions">
-      <p-button 
-        label="Cancelar" 
-        icon="pi pi-times" 
-        severity="secondary"
-        [outlined]="true"
-        type="button"
-        (onClick)="cerrarModal()">
-      </p-button>
-
-      <p-button 
-        [label]="editMode ? 'Actualizar' : 'Crear'" 
-        icon="pi pi-check"
-        type="submit"
-        [loading]="submitting"
-        [disabled]="formTestimonio.invalid || submitting">
-      </p-button>
-    </div>
-
+      </div>
+    </ng-template>
   </form>
 </p-dialog>
+

@@ -66,8 +66,17 @@ testimonios$ = this.testimoniosSubject.asObservable();
   );
   }
 
-  deleteTestimonio(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  deleteTestimonio(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
+      tap((res) => {
+        if (res.success) {
+          const filtered = this.testimoniosSubject.value.filter(
+            (t) => t.id_testimonios !== id
+          );
+          this.testimoniosSubject.next(filtered);
+        }
+      })
+    );
   }
    
 }
