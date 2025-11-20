@@ -82,7 +82,7 @@ export class FileManagerComponent implements OnInit {
   // Opciones
   tiposArchivo = ['PDF', 'Word', 'Excel', 'Imagen', 'Otro'];
   dependencias = ['Recursos Humanos', 'Finanzas', 'Operaciones', 'Legal', 'TI'];
-  municipios = ['Guadalajara', 'Zapopan', 'Tlaquepaque', 'Tonalá', 'Tlajomulco'];
+  municipios = ['San Felipe', 'Guanajuato', 'Dolores Hidalgo', 'León', 'San Miguel de Allende'];
   regiones = ['Región Centro', 'Región Norte', 'Región Sur', 'Región Costa', 'Región Altos'];
 
   constructor(

@@ -11,6 +11,7 @@ import { InformacionInteres } from './pages/informacion-interes/informacion-inte
 import { Directorio } from './pages/directorio/directorio';
 import { Contactanos } from './pages/contactanos/contactanos';
 import { Articulos } from './pages/articulos/articulos';
+import { Consejo } from './pages/consejo/consejo';
 
 export const publicRoutes: Routes = [
   { path: '', component: Home },
@@ -23,4 +24,5 @@ export const publicRoutes: Routes = [
   { path: 'informacion-interes', component: InformacionInteres },
   { path: 'contactanos', component: Contactanos },
   { path: 'directorio', component: Directorio },
+  { path: 'consejo', component: Consejo }
 ];
