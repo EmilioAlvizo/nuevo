@@ -11,6 +11,7 @@ import { TestimoniosAdmin } from './pages/testimonios-admin/testimonios-admin';
 import { PropuestasAccionAdmin } from './pages/propuestas-accion-admin/propuestas-accion-admin';
 import { BancoDatosAdmin } from './pages/banco-datos-admin/banco-datos-admin';
 import { ArticulosAdmin } from './pages/articulos-admin/articulos-admin';
+import { FileManagerComponent } from './pages/file-manager.component/file-manager.component';
 
 
 export const adminRoutes: Routes = [
@@ -24,5 +25,6 @@ export const adminRoutes: Routes = [
   { path: 'testimonios', component: TestimoniosAdmin },
   { path: 'propuestas-accion', component: PropuestasAccionAdmin},
   { path: 'banco-datos', component: BancoDatosAdmin},
-  { path: 'articulos', component: ArticulosAdmin}
+  { path: 'articulos', component: ArticulosAdmin},
+  { path: 'file-manager', component: FileManagerComponent}
 ];
