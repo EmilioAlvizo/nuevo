@@ -1,0 +1,57 @@
+ .articulos-admin-container {
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: auto;
+}
+
+/* Imagen */
+.articulo-imagen {
+  max-width: 70px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  transition: transform 0.2s ease;
+  cursor: zoom-in;
+}
+
+.articulo-imagen:hover {
+  transform: scale(3.5);
+}
+
+/* Badges */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.form-field {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #ddd;
+}
+
+/* Accordion */
+.revista-accordion .p-accordion-header-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+}

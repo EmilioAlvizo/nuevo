@@ -6,7 +6,9 @@ class Propuestas_accionModel {
   static async getAll(tableName) {
     try {
       const pool = await getConnection();
-      const result = await pool.request().query(`SELECT * FROM ${tableName}`);
+      // const result = await pool.request().query(`SELECT * FROM ${tableName}`);
+      const result = await pool.request().query(`SELECT t.*, m.nombre as nombreMunicipio FROM ${tableName} t
+        INNER JOIN municipio m ON t.id_municipio = m.id_municipio`);
       return result.recordset;
     } catch (error) {
       throw new Error(`Error al obtener registros: ${error.message}`);

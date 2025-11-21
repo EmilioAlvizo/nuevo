@@ -180,6 +180,11 @@
                 >Gestionar Revista</a
               >
             </li>
+            <li>
+              <a routerLink="/admin/articulos" (click)="closeAdminMenu()" routerLinkActive="active"
+                >Artículos</a
+              >
+            </li>
           </ul>
         </div>
 
@@ -193,14 +198,6 @@
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
                 >Centro Documental</a
-              >
-            </li>
-            <li>
-              <a
-                routerLink="/admin/centro-documental/banco-datos"
-                (click)="closeAdminMenu()"
-                routerLinkActive="active"
-                >Banco de datos</a
               >
             </li>
           </ul>
@@ -236,6 +233,39 @@
             </li>
           </ul>
         </div>
+
+        <div class="admin-nav-section"  (click)="toggleSection(6)" 
+        [class.open]="openSection() === 6">
+          <h4><i class="fa-solid fa-user-cog"></i> Admin </h4>
+          <ul>
+            <li>
+              <a
+                routerLink="/admin/"
+                (click)="closeAdminMenu()"
+                routerLinkActive="active"
+                >Interfaz</a
+              >
+            </li>
+            <li>
+              <a
+                routerLink="/admin/"
+                (click)="closeAdminMenu()"
+                routerLinkActive="active"
+                >Usuarios</a
+              >
+            </li>
+            <li>
+              <a
+                routerLink="/admin/file-manager"
+                (click)="closeAdminMenu()"
+                routerLinkActive="active"
+                >Banco de datos</a
+              >
+            </li>
+          </ul>
+        </div>
+
+
       </nav>
 
       <!-- Botón de cerrar sesión -->

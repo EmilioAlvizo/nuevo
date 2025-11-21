@@ -105,7 +105,7 @@
             <div class="accordion-header">
               <div class="header-left">
                 <strong>#{{ p.id_propuesta }}</strong> - {{ p.nombreC }}
-                <span class="municipio">({{ getNombreMunicipio(p.id_municipio) }})</span>
+                <span class="municipio">({{ p.nombreMunicipio }})</span>
               </div>
 
               <div class="header-right">
@@ -150,10 +150,18 @@
 
     </p-accordion>
 
-    <div *ngIf="!propuestas?.length && !loading" class="empty-message">
+    <!-- <div *ngIf="!propuestas.length && !loading" class="empty-message">
       <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
       <p>No hay propuestas registradas</p>
-    </div>
+    </div> -->
+
+    @if (!propuestas.length && !loading) {
+      <div class="empty-message">
+        <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p>No hay propuestas registradas</p>
+      </div>
+    }
+
 
   </p-card>
 </div>

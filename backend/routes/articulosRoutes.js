@@ -3,25 +3,29 @@
 const express = require("express");
 const router = express.Router();
 const ArticulosController = require("../controllers/articulosController");
-
-//autenticacion
-// const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
+const { crearUpload } = require('../middleware/uploadMiddleware');
 
 
-// GET - Obtener todos los registros
+const uploadArticulos = crearUpload('articulos', {
+  imagen: ['image/*']
+});
+
 router.get("/articulos", ArticulosController.getAll);
-
-// GET - Obtener un registro por ID
 router.get("/articulos/:id", ArticulosController.getById);
 
-//POST - Crear un nuevo registro
-router.post("/articulos", ArticulosController.create);
+router.post(
+  "/articulos",
+  uploadArticulos.fields([{ name: "imagen", maxCount: 1 }]),
+  ArticulosController.create
+);
 
+router.put(
+  "/articulos/:id",
+  uploadArticulos.fields([{ name: "imagen", maxCount: 1 }]),
+  ArticulosController.update
+);
 
-// PUT - Actualizar un registro
-router.put("/articulos/:id", ArticulosController.update);
-
-// DELETE - Eliminar un registro
 router.delete("/articulos/:id", ArticulosController.delete);
 
 module.exports = router;
+

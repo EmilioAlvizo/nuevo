@@ -1,0 +1,83 @@
+<!-- <p-toast></p-toast>
+
+<div class="propuestas-admin-container">
+
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Propuestas de acción</h2>
+    </ng-template>
+  </p-toolbar>
+
+  <p-card>
+    <p-table 
+      [value]="propuestas" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} propuestas"
+      [tableStyle]="{ 'min-width': '80rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 10%">Municipio</th>
+          <th style="width: 15%">Nombre</th>
+          <th style="width: 8%">Sexo</th>
+          <th style="width: 8%">Edad</th>
+          <th style="width: 12%">Actividad</th>
+          <th style="width: 15%">Correo</th>
+          <th style="width: 10%">Zona</th>
+          <th style="width: 25%">Detalle</th>
+          <th style="width: 25%">Justificación</th>
+          <th style="width: 25%">Necesidades</th>
+          <th style="width: 12%">Fecha Registro</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-p>
+        <tr>
+          <td>{{ p.id_propuesta }}</td>
+          <td>{{ p.id_municipio }}</td>
+          <td>{{ p.nombreC }}</td>
+          <td>{{ p.sexo }}</td>
+          <td>{{ p.edad }}</td>
+          <td>{{ p.actividad }}</td>
+          <td>{{ p.correo }}</td>
+          <td>{{ p.zona }}</td>
+          <td>
+            <span pTooltip="{{ p.detalle }}" tooltipPosition="top">
+              {{ p.detalle | slice:0:50 }}{{ p.detalle?.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <span pTooltip="{{ p.justificacion }}" tooltipPosition="top">
+              {{ p.justificacion | slice:0:50 }}{{ p.justificacion?.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <span pTooltip="{{ p.necesidades }}" tooltipPosition="top">
+              {{ p.necesidades | slice:0:50 }}{{ p.necesidades?.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+          <td>{{ p.fecha_registro | date:'dd/MM/yyyy HH:mm':'UTC' }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="12" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay propuestas registradas</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </p-card>
+</div> -->

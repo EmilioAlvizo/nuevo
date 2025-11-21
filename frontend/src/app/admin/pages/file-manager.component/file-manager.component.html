@@ -1,0 +1,647 @@
+<div class="file-manager-container">
+  <div class="header">
+    <h1><i class="pi pi-cloud"></i> Gestor de Archivos</h1>
+  </div>
+
+  @if (platform.isBrowser) {
+
+  <p-tabs [(value)]="vistaActiva">
+
+    <p-tablist>
+      <p-tab value="0" leftIcon="pi pi-folder">Categorías</p-tab>
+      <p-tab value="1" leftIcon="pi pi-building">Por Dependencia</p-tab>
+      <p-tab value="2" leftIcon="pi pi-map-marker">Por Municipio</p-tab>
+      <p-tab value="3" leftIcon="pi pi-globe">Por Región</p-tab>
+      <p-tab value="4" leftIcon="pi pi-file">Por Tipo</p-tab>
+    </p-tablist>
+    
+<p-tabpanels>
+
+    <p-tabpanel value="0" header="Categorías" leftIcon="pi pi-folder">
+      <div class="vista-categorias">
+        <div class="toolbar">
+          <p-button 
+            label="Nueva Carpeta" 
+            icon="pi pi-folder-plus" 
+            (onClick)="abrirDialogNuevaCarpeta()"
+            severity="success"
+            [outlined]="true">
+          </p-button>
+          <p-button 
+            label="Subir Archivo" 
+            icon="pi pi-upload" 
+            (onClick)="abrirDialogSubida()"
+            [disabled]="!categoriaSeleccionada || categoriaSeleccionada.type !== 'folder'"
+            severity="primary">
+          </p-button>
+          <p-button 
+            label="Eliminar Carpeta" 
+            icon="pi pi-trash" 
+            (onClick)="eliminarCarpeta()"
+            [disabled]="!categoriaSeleccionada || categoriaSeleccionada.type !== 'folder'"
+            severity="danger"
+            [outlined]="true">
+          </p-button>
+        </div>
+
+        <div class="contenido-arbol">
+          <p-tree 
+            [value]="categorias" 
+            selectionMode="single"
+            [(selection)]="nodoSeleccionado"
+            (onNodeSelect)="onSeleccionNodo($event)"
+            (onNodeUnselect)="onSeleccionNodo($event)"
+            (onNodeClick)="onNodoClick($event)"
+            [filter]="true"
+            filterMode="lenient"
+            filterPlaceholder="Buscar..."
+            class="arbol-categorias">
+          </p-tree>
+
+
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+    </p-tabpanel>
+
+
+    <p-tabpanel value="1" header="Por Dependencia" leftIcon="pi pi-building">
+      <p-table 
+        [value]="archivosPorDependencia" 
+        [paginator]="true" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{'min-width': '60rem'}"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+        [globalFilterFields]="['clasificacion', 'nombre', 'autor']"
+        #dt1>
+        <ng-template pTemplate="caption">
+          <div class="table-header">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input 
+                pInputText 
+                type="text" 
+                (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="clasificacion">
+              Dependencia <p-sortIcon field="clasificacion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="autor">
+              Autor <p-sortIcon field="autor"></p-sortIcon>
+            </th>
+            <th pSortableColumn="fecha">
+              Fecha <p-sortIcon field="fecha"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tipo">
+              Tipo <p-sortIcon field="tipo"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-archivo>
+          <tr>
+            <td>
+              <i [class]="getIconoClasificacion(archivo.clasificacion)" class="icono-clasificacion"></i>
+              {{ archivo.clasificacion }}
+            </td>
+            <td>{{ archivo.nombre }}</td>
+            <td>{{ archivo.autor }}</td>
+            <td>{{ archivo.fecha | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
+            </td>
+            <td>
+              <p-button 
+                icon="pi pi-eye" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="visualizarArchivo(archivo)"
+                pTooltip="Ver">
+              </p-button>
+              <p-button 
+                icon="pi pi-download" 
+                [rounded]="true" 
+                [text]="true"
+                severity="success"
+                (onClick)="descargarArchivo(archivo)"
+                pTooltip="Descargar">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabpanel>
+
+
+    <p-tabpanel value="2" header="Por Municipio" leftIcon="pi pi-map-marker">
+      <p-table 
+        [value]="archivosPorMunicipio" 
+        [paginator]="true" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{'min-width': '60rem'}"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+        [globalFilterFields]="['clasificacion', 'nombre', 'autor']"
+        #dt2>
+        <ng-template pTemplate="caption">
+          <div class="table-header">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input 
+                pInputText 
+                type="text" 
+                (input)="dt2.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="clasificacion">
+              Municipio <p-sortIcon field="clasificacion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="autor">
+              Autor <p-sortIcon field="autor"></p-sortIcon>
+            </th>
+            <th pSortableColumn="fecha">
+              Fecha <p-sortIcon field="fecha"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tipo">
+              Tipo <p-sortIcon field="tipo"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-archivo>
+          <tr>
+            <td>
+              <i class="pi pi-map-marker icono-clasificacion"></i>
+              {{ archivo.clasificacion }}
+            </td>
+            <td>{{ archivo.nombre }}</td>
+            <td>{{ archivo.autor }}</td>
+            <td>{{ archivo.fecha | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
+            </td>
+            <td>
+              <p-button 
+                icon="pi pi-eye" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="visualizarArchivo(archivo)"
+                pTooltip="Ver">
+              </p-button>
+              <p-button 
+                icon="pi pi-download" 
+                [rounded]="true" 
+                [text]="true"
+                severity="success"
+                (onClick)="descargarArchivo(archivo)"
+                pTooltip="Descargar">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabpanel>
+
+
+    <p-tabpanel value="3" header="Por Región" leftIcon="pi pi-globe">
+      <p-table 
+        [value]="archivosPorRegion" 
+        [paginator]="true" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{'min-width': '60rem'}"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+        [globalFilterFields]="['clasificacion', 'nombre', 'autor']"
+        #dt3>
+        <ng-template pTemplate="caption">
+          <div class="table-header">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input 
+                pInputText 
+                type="text" 
+                (input)="dt3.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="clasificacion">
+              Región <p-sortIcon field="clasificacion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="autor">
+              Autor <p-sortIcon field="autor"></p-sortIcon>
+            </th>
+            <th pSortableColumn="fecha">
+              Fecha <p-sortIcon field="fecha"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tipo">
+              Tipo <p-sortIcon field="tipo"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-archivo>
+          <tr>
+            <td>
+              <i class="pi pi-globe icono-clasificacion"></i>
+              {{ archivo.clasificacion }}
+            </td>
+            <td>{{ archivo.nombre }}</td>
+            <td>{{ archivo.autor }}</td>
+            <td>{{ archivo.fecha | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
+            </td>
+            <td>
+              <p-button 
+                icon="pi pi-eye" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="visualizarArchivo(archivo)"
+                pTooltip="Ver">
+              </p-button>
+              <p-button 
+                icon="pi pi-download" 
+                [rounded]="true" 
+                [text]="true"
+                severity="success"
+                (onClick)="descargarArchivo(archivo)"
+                pTooltip="Descargar">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabpanel>
+
+
+    <p-tabpanel value="4" header="Por Tipo" leftIcon="pi pi-file">
+      <p-table 
+        [value]="archivosPorTipo" 
+        [paginator]="true" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{'min-width': '60rem'}"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+        [globalFilterFields]="['clasificacion', 'nombre', 'autor']"
+        #dt4>
+        <ng-template pTemplate="caption">
+          <div class="table-header">
+            <span class="p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input 
+                pInputText 
+                type="text" 
+                (input)="dt4.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="clasificacion">
+              Tipo <p-sortIcon field="clasificacion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="autor">
+              Autor <p-sortIcon field="autor"></p-sortIcon>
+            </th>
+            <th pSortableColumn="fecha">
+              Fecha <p-sortIcon field="fecha"></p-sortIcon>
+            </th>
+            <th pSortableColumn="dependencia">
+              Dependencia <p-sortIcon field="dependencia"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-archivo>
+          <tr>
+            <td>
+              <i [class]="getIconoClasificacion(archivo.clasificacion)" class="icono-clasificacion"></i>
+              {{ archivo.clasificacion }}
+            </td>
+            <td>{{ archivo.nombre }}</td>
+            <td>{{ archivo.autor }}</td>
+            <td>{{ archivo.fecha | date:'dd/MM/yyyy' }}</td>
+            <td>{{ archivo.dependencia }}</td>
+            <td>
+              <p-button 
+                icon="pi pi-eye" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="visualizarArchivo(archivo)"
+                pTooltip="Ver">
+              </p-button>
+              <p-button 
+                icon="pi pi-download" 
+                [rounded]="true" 
+                [text]="true"
+                severity="success"
+                (onClick)="descargarArchivo(archivo)"
+                pTooltip="Descargar">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabpanel>
+  </p-tabpanels>
+
+    </p-tabs>
+    } @else {
+    <!-- PLACEHOLDER PARA SSR -->
+    <div class="p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0">Gestión de Archivos Municipales</h3>
+        <div class="text-muted">
+          <i class="pi pi-spin pi-spinner"></i> Cargando...
+        </div>
+      </div>
+      
+      <div class="border rounded p-4 bg-light">
+        <div class="animate-pulse space-y-3">
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+
+<p-dialog 
+  header="Subir Archivo" 
+  [(visible)]="mostrarDialogSubida" 
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <form [formGroup]="formularioArchivo" class="formulario-archivo">
+    <div class="field">
+      <label for="archivo">Seleccionar Archivo *</label>
+      <p-fileUpload 
+        mode="basic" 
+        chooseLabel="Elegir archivo"
+        [auto]="true"
+        (onSelect)="onSeleccionArchivo($event)"
+        [maxFileSize]="10000000">
+      </p-fileUpload>
+      <small *ngIf="archivoSeleccionado" class="archivo-seleccionado">
+        <i class="pi pi-check-circle"></i> {{ archivoSeleccionado.name }}
+      </small>
+    </div>
+
+    <div class="field">
+      <label for="nombre">Nombre del Documento *</label>
+      <input 
+        id="nombre" 
+        type="text" 
+        pInputText 
+        formControlName="nombre"
+        placeholder="Ej: Reporte Anual 2024" />
+    </div>
+
+    <div class="field">
+      <label for="palabrasClave">Palabras Clave</label>
+      <input 
+        id="palabrasClave" 
+        type="text" 
+        pInputText 
+        formControlName="palabrasClave"
+        placeholder="Separadas por comas" />
+      <small>Ej: finanzas, reporte, anual</small>
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="field">
+          <label for="autor">Autor *</label>
+          <input 
+            id="autor" 
+            type="text" 
+            pInputText 
+            formControlName="autor" />
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="field">
+          <label for="tipo">Tipo de Archivo *</label>
+          <p-select 
+            id="tipo"
+            [options]="tiposArchivo" 
+            formControlName="tipo"
+            placeholder="Selecciona el tipo">
+          </p-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="field">
+          <label for="dependencia">Dependencia *</label>
+          <p-select 
+            id="dependencia"
+            [options]="dependencias" 
+            formControlName="dependencia"
+            placeholder="Selecciona dependencia">
+          </p-select>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="field">
+          <label for="municipio">Municipio *</label>
+          <p-select 
+            id="municipio"
+            [options]="municipios" 
+            formControlName="municipio"
+            placeholder="Selecciona municipio">
+          </p-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="field">
+          <label for="region">Región *</label>
+          <p-select 
+            id="region"
+            [options]="regiones" 
+            formControlName="region"
+            placeholder="Selecciona región">
+          </p-select>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="field">
+          <label for="pais">País *</label>
+          <input 
+            id="pais" 
+            type="text" 
+            pInputText 
+            formControlName="pais" />
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fecha">Fecha *</label>
+      <p-datepicker 
+        id="fecha"
+        formControlName="fecha" 
+        [showIcon]="true"
+        dateFormat="dd/mm/yy">
+      </p-datepicker>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogSubida = false"
+      [outlined]="true">
+    </p-button>
+    <p-button 
+      label="Subir" 
+      icon="pi pi-upload" 
+      (onClick)="subirArchivo()"
+      [disabled]="!formularioArchivo.valid || !archivoSeleccionado">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+
+<p-dialog 
+  header="Nueva Carpeta" 
+  [(visible)]="mostrarDialogNuevaCarpeta" 
+  [modal]="true"
+  [style]="{width: '400px'}">
+  
+  <div class="field">
+    <label for="nombreCarpeta">Nombre de la Carpeta</label>
+    <input 
+      id="nombreCarpeta" 
+      type="text" 
+      pInputText 
+      [(ngModel)]="nombreNuevaCarpeta"
+      placeholder="Ej: Documentos 2024" />
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogNuevaCarpeta = false"
+      [outlined]="true">
+    </p-button>
+    <p-button 
+      label="Crear" 
+      icon="pi pi-check" 
+      (onClick)="crearCarpeta()"
+      [disabled]="!nombreNuevaCarpeta.trim()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+
+<p-dialog 
+  [header]="archivoParaVisualizar?.nombre || 'Vista previa'" 
+  [(visible)]="mostrarDialogVisualizador" 
+  [modal]="true"
+  [style]="{width: '80vw', height: '80vh'}"
+  [maximizable]="true">
+  
+  <div class="visualizador-contenido" *ngIf="archivoParaVisualizar">
+    <div class="metadatos-archivo">
+      <p><strong>Autor:</strong> {{ archivoParaVisualizar.autor }}</p>
+      <p><strong>Dependencia:</strong> {{ archivoParaVisualizar.dependencia }}</p>
+      <p><strong>Municipio:</strong> {{ archivoParaVisualizar.municipio }}</p>
+      <p><strong>Fecha:</strong> {{ archivoParaVisualizar.fecha | date:'dd/MM/yyyy' }}</p>
+      <p *ngIf="archivoParaVisualizar.palabrasClave.length > 0">
+        <strong>Palabras clave:</strong> 
+        <p-tag 
+          *ngFor="let palabra of archivoParaVisualizar.palabrasClave" 
+          [value]="palabra"
+          [style]="{'margin-right': '5px'}">
+        </p-tag>
+      </p>
+    </div>
+
+    <div class="preview-container">
+      <iframe 
+        *ngIf="archivoParaVisualizar.tipo === 'PDF' && urlVisualizacion"
+        [src]="urlVisualizacion | safe: 'resourceUrl'"
+        class="iframe-preview">
+      </iframe>
+      
+      <img 
+        *ngIf="archivoParaVisualizar.tipo === 'Imagen' && urlVisualizacion"
+        [src]="urlVisualizacion"
+        class="imagen-preview"
+        alt="Vista previa" />
+      
+      <div 
+        *ngIf="archivoParaVisualizar.tipo !== 'PDF' && archivoParaVisualizar.tipo !== 'Imagen'"
+        class="no-preview">
+        <i class="pi pi-file" style="font-size: 4rem"></i>
+        <p>Vista previa no disponible para este tipo de archivo</p>
+        <p-button 
+          label="Descargar archivo" 
+          icon="pi pi-download"
+          (onClick)="descargarArchivo(archivoParaVisualizar!)">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Descargar" 
+      icon="pi pi-download" 
+      (onClick)="descargarArchivo(archivoParaVisualizar!)"
+      severity="success">
+    </p-button>
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogVisualizador = false"
+      [outlined]="true">
+    </p-button>
+  </ng-template>
+</p-dialog>

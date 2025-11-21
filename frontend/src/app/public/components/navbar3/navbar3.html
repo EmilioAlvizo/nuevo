@@ -19,21 +19,27 @@
       <div class="nav-dropdown">
         <button
           class="nav-item-btn"
-          [class.active]="dropdownOpen()"
-          (click)="toggleDropdown($event)"
+          [class.active]="isOpen('juventudes') || isDropdownActive('juventudes')"
+          (click)="toggleDropdown('juventudes', $event)"
           type="button"
-          aria-expanded="{{ dropdownOpen() }}"
+          aria-expanded="{{ isOpen('juventudes') }}"
         >
           <span>Sistema Juventudes</span>
-          <i  [class.rotated]="dropdownOpen()"></i>
+          <i  [class.rotated]="isOpen('juventudes')"></i>
         </button>
-        <div class="dropdown-content" [class.active]="dropdownOpen()">
+        <div class="dropdown-content" [class.active]="isOpen('juventudes')">
           <div class="dropdown-item">
-            <div class="dropdown-item-title">¿Qué es?</div>
+            <a
+              routerLink="/sistema"
+              routerLinkActive="active"
+              class="dropdown-item-title"
+              (click)="onLinkClick()">
+              ¿Qué es?
+            </a>
           </div>
           <div class="dropdown-item">
             <a 
-              routerLink="/directorio" 
+              routerLink="/consejo" 
               routerLinkActive="active" 
               class="dropdown-item-title"
               (click)="onLinkClick()">
@@ -68,13 +74,38 @@
         (click)="onLinkClick()">
         Centro Documental
       </a>
-      <a 
-        class="boton-rutas" 
-        routerLink="/informacion-interes" 
-        routerLinkActive="active"
-        (click)="onLinkClick()">
-        Información de interés
-      </a>
+
+      <!-- Dropdown Información de interés -->
+      <div class="nav-dropdown">
+        <button
+          class="nav-item-btn"
+          [class.active]="isOpen('informacion') || isDropdownActive('informacion')"
+          (click)="toggleDropdown('informacion', $event)"
+          type="button"
+          aria-expanded="{{ isOpen('informacion') }}"
+        >
+          <span>Información de interés</span>
+          <i  [class.rotated]="isOpen('informacion')"></i>
+        </button>
+        <div class="dropdown-content" [class.active]="isOpen('informacion')">
+          <div class="dropdown-item">
+            <div class="dropdown-item-title">Apoyos y servicios</div>
+          </div>
+          <div class="dropdown-item">
+            <a 
+              routerLink="/" 
+              routerLinkActive="active" 
+              class="dropdown-item-title"
+              (click)="onLinkClick()">
+              Directorios
+            </a>
+          </div>
+          <div class="dropdown-item">
+            <div class="dropdown-item-title">Temas de interés</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Botón hamburguesa -->

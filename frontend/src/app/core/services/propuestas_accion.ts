@@ -9,6 +9,7 @@ import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 export interface Propuesta {
   id_propuesta: number;
   id_municipio: number;
+  nombreMunicipio: string;
   nombreC: string;
   sexo: string;
   edad: number;
