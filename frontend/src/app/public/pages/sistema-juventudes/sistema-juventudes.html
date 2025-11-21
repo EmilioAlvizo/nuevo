@@ -1,6 +1,65 @@
 <div class="row text-wrap text-break">
   <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
     <p class="text-center texto-title-pages mb-4">Sistema Juventudes</p>
-    <hr>
   </div>
+</div>
+
+
+<div class="organos-container">
+  <!-- Header -->
+  <div class="organos-header">
+    <p>Explora el Sistema Juventudes: haz clic para descubrir qué son y cuáles son sus objetivos.</p>
+  </div>
+
+  <!-- Cards Grid -->
+  <div class="cards-grid">
+    <div *ngFor="let card of cards; let i = index" 
+         class="card-container animate-fade-up"
+         [style.animation-delay]="(i * 0.1) + 's'"
+         (click)="toggleFlip(card.id)">
+
+      <!-- Flip Container -->
+      <div class="flip-container" [class.flipped]="isFlipped(card.id)">
+        
+        <!-- Front - Título -->
+        <div class="card-face card-front">
+          <div class="card-accent-line"></div>
+          
+          <div class="card-content">
+            <div class="card-icon">{{ card.icon }}</div>
+            <h2 class="card-title">{{ card.title }}</h2>
+            <p class="card-hint">Clic para explorar</p>
+          </div>
+
+          <div class="card-corner-accent"></div>
+        </div>
+
+        <!-- Back - Contenido -->
+        <div class="card-face card-back">
+          <div class="card-accent-line-back"></div>
+
+          <div class="card-content-back">
+            <!-- ¿Qué es? -->
+            <div class="content-section">
+              <h3 class="section-title">¿Qué es?</h3>
+              <div class="section-text" [innerHTML]="card.que"></div>
+            </div>
+
+            <!-- Divider -->
+            <div class="content-divider"></div>
+
+            <!-- ¿Cuál es el objetivo? -->
+            <div class="content-section">
+              <h3 class="section-title">{{ card.objetivoTitulo }}</h3>
+              <div class="section-text" [innerHTML]="card.objetivo"></div>
+            </div>
+
+            <!-- Footer hint -->
+            <p class="back-hint">Clic para volver</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

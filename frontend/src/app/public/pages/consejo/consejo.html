@@ -1,1 +1,71 @@
-<p>consejo works!</p>
+<div class="consejo-container">
+  <!-- Banner principal con imagen y descripción -->
+  <div class="consejo-banner">
+    <div class="banner-imagen">
+      <img 
+        src="http://localhost:3000/public/integrantes_consejo/1745522053_9ebf51964bdb99c9a118.jpg" 
+        alt="Consejo de Dirección"
+        class="banner-foto"
+      />
+      <div class="banner-overlay"></div>
+    </div>
+
+    <div class="banner-contenido">
+      <h1 class="banner-titulo">Consejo estatal para apoyos, atención e información para las juventudes del Estado de Guanajuato</h1>
+      <p class="banner-descripcion">
+        <strong>Objetivo</strong>
+        <br>
+        El Consejo Estatal para Apoyos, Atención e Información para las Juventudes del Estado de Guanajuato que es un órgano colegiado de 
+        deliberación, consulta, asesoría y participación social, con carácter interinstitucional, coadyuvante en el diseño, planeación, 
+        programación, instrumentación, seguimiento y evaluación de la política estatal de atención y desarrollo de las juventudes
+
+        El Consejo es coordinado por el Instituto para el Desarrollo y Atención a las Juventudes de Guanajuato, con el objetivo de ser el 
+        único referente estatal y un ente rector que invite a las instituciones públicas y privadas a realizar y reportar estas acciones 
+        en pro de las juventudes
+      </p>
+    </div>
+  </div>
+
+  <!-- Título del grid -->
+<div class="row text-wrap text-break">
+    <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+      <p class="text-center texto-title-pages mb-4">Integrantes del consejo</p>
+    </div>
+  </div>
+
+  <!-- Estado de carga -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando integrantes del consejo...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <!-- <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div> -->
+
+  <!-- Grid de integrantes -->
+  <div *ngIf="!loading && !error && integrantes.length > 0" class="integrantes-grid">
+    <div *ngFor="let integrante of integrantes" class="integrante-card">
+      <div class="card-imagen">
+        <img 
+          [src]="'http://localhost:3000/public' + '/integrantes_consejo/' + integrante.id_integrante + '/' + integrante.imagen"
+          [alt]="integrante.nombre"
+          class="integrante-foto"
+        />
+        <!-- <div class="card-badge">{{ integrante.importancia }}</div> -->
+      </div>
+      
+      <div class="card-contenido">
+        <h3 class="integrante-nombre">{{ integrante.nombre }}</h3>
+        <p class="integrante-cargo">{{ integrante.cargo }}</p>
+        <p class="integrante-cargo-consejo">{{ integrante.cargo_consejo }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!loading && !error && integrantes.length === 0" class="no-results">
+    <p>No hay integrantes disponibles en el consejo</p>
+  </div>
+</div>

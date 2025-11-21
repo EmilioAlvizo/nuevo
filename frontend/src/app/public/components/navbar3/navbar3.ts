@@ -2,6 +2,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   signal,
   input,
   ElementRef,
@@ -11,9 +12,10 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { TopBar } from '../../../admin/shared/top-bar/top-bar';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar3',
@@ -41,6 +43,14 @@ export class Navbar3 implements OnInit, OnDestroy {
   dropdownOpenId = signal<string | null>(null);
   topBarExpanded = signal(false);
 
+  private routeChanged = signal(0);
+
+  // 🆕 Mapa de rutas por dropdown
+private dropdownRoutes = {
+  juventudes: ['/sistema-juventudes', '/consejo'],
+  informacion: ['/directorio']
+};
+
   // Internos
   private clickOutsideHandler?: () => void;
   private scrollHandler?: () => void;
@@ -48,7 +58,12 @@ export class Navbar3 implements OnInit, OnDestroy {
   private ticking = false;
   private debounceTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
+  constructor(
+  private el: ElementRef, 
+  private renderer: Renderer2,
+  private router: Router,
+  private cdr: ChangeDetectorRef
+) {}
 
   // 🆕 effect que previene scroll del body
   private preventBodyScrollEffect = effect(() => {
@@ -71,6 +86,14 @@ export class Navbar3 implements OnInit, OnDestroy {
         this.handleScroll();
       });
     }
+
+  this.router.events
+    .pipe(filter(ev => ev instanceof NavigationEnd))
+    .subscribe(() => {
+      this.routeChanged.update(v => v + 1); // Actualizar signal
+      this.cdr.markForCheck(); // Forzar detección de cambios
+    });
+
   }
 
   ngOnDestroy(): void {
@@ -119,6 +142,17 @@ export class Navbar3 implements OnInit, OnDestroy {
     });
   }
 
+  // 🆕 Verificar si un dropdown tiene una ruta activa
+isDropdownActive(id: string): boolean {
+  this.routeChanged(); // Lee el signal para activar detección
+  const routes = this.dropdownRoutes[id as keyof typeof this.dropdownRoutes];
+  if (!routes) return false;
+  
+  const currentUrl = this.router.url;
+  return routes.some(route => currentUrl.startsWith(route));
+}
+
+
   onTopBarExpanded(expanded: boolean) {
     this.topBarExpanded.set(expanded);
   }
@@ -156,7 +190,7 @@ export class Navbar3 implements OnInit, OnDestroy {
   closeMenu(): void {
     console.log('🔒 [NAVBAR] Cerrando todo');
     this.mobileMenuOpen.set(false);
-    this.dropdownOpen.set(false);
+    this.dropdownOpenId.set(null);
   }
 
   onLinkClick(): void {

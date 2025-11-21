@@ -19,7 +19,7 @@
       <div class="nav-dropdown">
         <button
           class="nav-item-btn"
-          [class.active]="isOpen('juventudes')"
+          [class.active]="isOpen('juventudes') || isDropdownActive('juventudes')"
           (click)="toggleDropdown('juventudes', $event)"
           type="button"
           aria-expanded="{{ isOpen('juventudes') }}"
@@ -29,7 +29,13 @@
         </button>
         <div class="dropdown-content" [class.active]="isOpen('juventudes')">
           <div class="dropdown-item">
-            <div class="dropdown-item-title">¿Qué es?</div>
+            <a
+              routerLink="/sistema"
+              routerLinkActive="active"
+              class="dropdown-item-title"
+              (click)="onLinkClick()">
+              ¿Qué es?
+            </a>
           </div>
           <div class="dropdown-item">
             <a 
@@ -73,7 +79,7 @@
       <div class="nav-dropdown">
         <button
           class="nav-item-btn"
-          [class.active]="isOpen('informacion')"
+          [class.active]="isOpen('informacion') || isDropdownActive('informacion')"
           (click)="toggleDropdown('informacion', $event)"
           type="button"
           aria-expanded="{{ isOpen('informacion') }}"
@@ -87,7 +93,7 @@
           </div>
           <div class="dropdown-item">
             <a 
-              routerLink="/directorio" 
+              routerLink="/" 
               routerLinkActive="active" 
               class="dropdown-item-title"
               (click)="onLinkClick()">
