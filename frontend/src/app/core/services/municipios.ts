@@ -1,4 +1,4 @@
-// nuevo/frontend/src/app/services/municipios.ts
+// nuevo/frontend/src/app/core/services/municipios.ts
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';

@@ -34,10 +34,10 @@ export class ApiTestimonios {
   getTestimonios(): Observable<ApiResponse<Testimonios>> {
     return this.http.get<ApiResponse<Testimonios>>(this.apiUrl).pipe(
       tap((res) => {
-        console.log('📥 GET testimonios response:', res);
+        //console.log('📥 GET testimonios response:', res);
         if (res.data) {
           this.testimoniosSubject.next(res.data);
-          console.log('📋 Lista actualizada:', res.data.length, 'items');
+          //console.log('📋 Lista actualizada:', res.data.length, 'items');
         }
       })
     );

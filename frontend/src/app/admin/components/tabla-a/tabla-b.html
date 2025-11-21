@@ -7,12 +7,7 @@
       <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="openNew()" />
     </ng-template>
     <ng-template #end>
-      <p-button
-        label="Exportar"
-        icon="pi pi-upload"
-        severity="secondary"
-        
-      />
+     
     </ng-template>
   </p-toolbar>
 
@@ -71,7 +66,7 @@
               pInputText
               type="text"
               (input)="dt.filterGlobal($event.target.value, 'contains')"
-              placeholder="Buscar archivos..."
+              placeholder="Buscar..."
             />
           </p-iconfield>
         </div>

@@ -14,19 +14,19 @@ import { Menubar } from 'primeng/menubar';
 })
 export class EstadisticasAdmin {
   items: MenuItem[] = [];
-  selectedTable = signal<'a' | 'docCendoc'>('a'); // estado reactivo
+  selectedTable = signal<'a' | 'docCendoc'>('docCendoc'); // estado reactivo
 
   ngOnInit() {
     this.items = [
       {
-        label: 'Archivos municipio',
-        icon: 'pi pi-table',
-        command: () => this.selectedTable.set('a'),
-      },
-      {
         label: 'Documentos Cendoc',
         icon: 'pi pi-file',
         command: () => this.selectedTable.set('docCendoc'),
+      },
+      {
+        label: 'Archivos municipio',
+        icon: 'pi pi-table',
+        command: () => this.selectedTable.set('a'),
       },
     ];
   }

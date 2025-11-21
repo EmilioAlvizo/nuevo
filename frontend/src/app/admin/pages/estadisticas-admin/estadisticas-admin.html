@@ -1,10 +1,11 @@
 <!-- nuevo/frontend/src/app/admin/pages/estadisticas-admin/estadisticas-admin.html -->
 <div class="card">
-  <p-menubar [model]="items" breakpoint='300px'></p-menubar>
+  <p-menubar [model]="items" breakpoint="300px"></p-menubar>
 </div>
 
 <div class="mt-4">
-  @if (selectedTable() === 'a') {
-  <app-tabla-a></app-tabla-a>} @else if (selectedTable() === 'docCendoc') {
+  @if (selectedTable() === 'docCendoc') {
   <app-tabla-doc-cendoc></app-tabla-doc-cendoc>}
+  @else if (selectedTable() === 'a') {
+  <app-tabla-a></app-tabla-a>}
 </div>

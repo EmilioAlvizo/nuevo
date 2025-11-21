@@ -2,17 +2,20 @@
 
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
+
 import { CarruselTestimonios } from '../../components/carrusel-testimonios/carrusel-testimonios';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
-import { CommonModule } from '@angular/common';
 import { environment } from '../../../../environments/environment';
 import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 import { FormTestimonios } from '../../components/form-testimonios/form-testimonios';
 import { FormPropuesta } from '../../components/form-propuesta/form-propuesta';
+
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +27,7 @@ import { MessageService } from 'primeng/api';
     ConfirmDialogModule,
     ToastModule,
     FormPropuesta,
+    ButtonModule,
   ],
   providers: [MessageService],
   templateUrl: './home.html',

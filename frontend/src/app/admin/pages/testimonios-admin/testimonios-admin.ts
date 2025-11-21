@@ -379,4 +379,11 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       },
     });
   }
+
+  // Personalización con Design Tokens de PrimeNG
+  tablaDesignTokens = {
+    tableContainer: {
+      borderRadius: '10rem',
+    }
+  };
 }

@@ -2,9 +2,34 @@
 <div class="container-xxl border-round border-1 surface-border shadow-2">
   <!-- 🔹 Toolbar principal -->
   @if (platform.isBrowser) {
-  <p-toolbar class="mb-4">
+  <p-toolbar class="mb-4 w-100">
     <ng-template #start>
-      <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />
+        <div class="d-flex gap-2 align-items-center">
+          <!-- Búsqueda Global -->
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              placeholder="Buscar..."
+              class="w-100"
+            />
+          </p-iconfield>
+
+          <p-button
+            label="Limpiar Filtros"
+            [outlined]="true"
+            icon="pi pi-filter-slash"
+            (click)="clearFilters()"
+          />
+        </div>
+      </div>
+
       @if (showSelection()) {
       <p-button
         label="Eliminar seleccionados"
@@ -43,29 +68,6 @@
     <ng-template #caption>
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
         <h3 class="m-0">{{ title() }}</h3>
-        <div class="d-flex gap-2 align-items-center">
-          <!-- Búsqueda Global -->
-          <p-iconfield iconPosition="left">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input
-              pInputText
-              type="text"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-              placeholder="Buscar..."
-              class="w-100"
-              style="min-width: 250px"
-            />
-          </p-iconfield>
-
-          <p-button
-            label="Limpiar Filtros"
-            [outlined]="true"
-            icon="pi pi-filter-slash"
-            (click)="clearFilters()"
-          />
-        </div>
       </div>
     </ng-template>
 

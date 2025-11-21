@@ -17,6 +17,10 @@
   text-transform: uppercase;
 }
 
+.p-datatable-table-container {
+  border-radius: 12px 12px 0 0;
+}
+
 .status-active {
   background-color: #d4edda;
   color: #155724;
@@ -149,96 +153,6 @@
   border-top: 1px solid #dee2e6;
 }
 
-/* Ajustes de PrimeNG */
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background-color: #f8f9fa;
-  color: #495057;
-  font-weight: 600;
-  border-color: #dee2e6;
-  padding: 1rem;
-}
-
-::ng-deep .p-datatable .p-datatable-tbody > tr {
-  transition: background-color 0.2s ease;
-}
-
-::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
-  background-color: #f1f3f5;
-}
-
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  padding: 1rem;
-  border-color: #dee2e6;
-}
-
-::ng-deep .p-card {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-::ng-deep .p-card .p-card-body {
-  padding: 0;
-}
-
-::ng-deep .p-toolbar {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-}
-
-::ng-deep .p-dialog .p-dialog-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  padding: 1.5rem;
-}
-
-::ng-deep .p-dialog .p-dialog-content {
-  padding: 2rem;
-  background-color: white;
-}
-
-::ng-deep .p-dialog .p-dialog-footer {
-  padding: 1rem 2rem;
-  background-color: #f8f9fa;
-  border-top: 1px solid #dee2e6;
-}
-
-/* Toast personalizado */
-::ng-deep .p-toast {
-  z-index: 9999;
-}
-
-::ng-deep .p-toast .p-toast-message {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Botones */
-::ng-deep .p-button {
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-::ng-deep .p-button:focus {
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
-}
-
-/* Dropdown */
-::ng-deep .p-dropdown {
-  width: 100%;
-}
-
-/* Inputs con error */
-::ng-deep .ng-invalid.ng-dirty {
-  border-color: #dc3545;
-}
-
-::ng-deep .p-error {
-  color: #dc3545;
-  font-size: 0.875rem;
-  display: block;
-  margin-top: 0.25rem;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

@@ -70,7 +70,7 @@ export class FormTestimonios {
       descripcion: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      estatus: ['A', Validators.required],
+      estatus: ['B', Validators.required],
       imagenT: [''],
     });
 
@@ -121,7 +121,7 @@ export class FormTestimonios {
   }
 
   resetForm(): void {
-    this.form.reset({ estatus: 'A' });
+    this.form.reset({ estatus: 'B' });
     this.imagenFile.set(null);
     this.imagenPreview.set(null);
     this.formSubmitted.set(false);
