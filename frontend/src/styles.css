@@ -3,11 +3,13 @@
 /* You can add global styles to this file, and also import other style files */
 body {
   font-family: AvenirNextPForBBG, Helvetica, Arial, sans-serif;
+  background-color: rgb(236, 240, 240);
   height: 100%;
   margin: 0;
   display: flex;
   flex-direction: column;
   background-color: #ecf0f0;
+  /* padding-right: 0 !important; */
 }
 
 body.mobile-menu-open {
@@ -65,3 +67,5 @@ app-footer, footer {
 
   /* O cualquier otro ajuste que necesites */
 }
+
+

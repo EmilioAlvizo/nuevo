@@ -40,7 +40,6 @@
   --background: linear-gradient(to bottom, rgba(0, 20, 25, 20%) 0%, transparent 100%);
   --item-color: #000000;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   padding-top: 0.625rem;
   padding-bottom: 0.625rem;
 }

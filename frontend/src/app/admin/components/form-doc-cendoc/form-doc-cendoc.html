@@ -3,6 +3,7 @@
   [header]="isEditMode() ? 'Editar Documento' : 'Agregar Documento'"
   [(visible)]="visible"
   [modal]="true"
+  [dismissableMask]="true"
   [style]="{ width: '700px' }"
   (onHide)="handleDialogHide()"
 >

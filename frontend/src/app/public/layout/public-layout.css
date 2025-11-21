@@ -23,21 +23,12 @@ body {
   text-align: center;
 } */
 
-html, body, app-root, public-layout, .app-layout {
-  height: 100%;
-  margin: 0;
-  scrollbar-gutter: stable;
-}
+
 
 app-tabla {
   margin: 0;
 }
 
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
 
 .app-layout {
   display: flex;
