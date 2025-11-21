@@ -39,7 +39,7 @@ export class Navbar3 implements OnInit, OnDestroy {
   showTopBar = signal(true);
   isScrolled = signal(false);
   mobileMenuOpen = signal(false);
-  dropdownOpen = signal(false);
+  // dropdownOpen = signal(false);
   dropdownOpenId = signal<string | null>(null);
   topBarExpanded = signal(false);
 
@@ -77,9 +77,10 @@ private dropdownRoutes = {
     // Detectar clic fuera del dropdown
     this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
       const insideDropdown = (event.target as HTMLElement).closest('.nav-dropdown');
-      if (!insideDropdown) this.dropdownOpen.set(false);
+      if (!insideDropdown) {
+        this.dropdownOpenId.set(null); 
+      }
     });
-
     // Escuchar scroll solo si hay ventana
     if (typeof window !== 'undefined') {
       this.scrollHandler = this.renderer.listen('window', 'scroll', () => {
@@ -161,7 +162,7 @@ isDropdownActive(id: string): boolean {
     this.mobileMenuOpen.update((open) => !open);
 
     if (!this.mobileMenuOpen()) {
-      this.dropdownOpen.set(false);
+      this.dropdownOpenId.set(null);
     }
 
     console.log('📱 [NAVBAR] Menú móvil:', this.mobileMenuOpen() ? 'Abierto' : 'Cerrado');
