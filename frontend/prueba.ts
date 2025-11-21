@@ -1,55 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TreeNode } from 'primeng/api';
-import { CommonModule } from '@angular/common';
-import { FileManagerService, FileMetadata, Categoria } from './../../../core/services/file';
-
-
-import { TreeModule } from 'primeng/tree';
-import { TableModule } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
-import { FileUploadModule } from 'primeng/fileupload';
-import { InputTextModule } from 'primeng/inputtext';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { SafePipe } from '../../../core/pipes/safe.pipe';
-import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { TabList, TabsModule } from 'primeng/tabs';
-import { TabPanel } from 'primeng/tabs';
-import { PlatformService } from '../../../core/services/platform.service';
-
+import { FileManagerService, FileMetadata, Categoria } from './file-manager.service';
 
 @Component({
-  selector: 'app-file-manager.component',
+  selector: 'app-file-manager',
   templateUrl: './file-manager.component.html',
-  styleUrls: ['./file-manager.component.css'],
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    TreeModule,
-    TableModule,
-    DialogModule,
-    ButtonModule,
-    FileUploadModule,
-    InputTextModule,
-    TagModule,
-    TooltipModule,
-    SafePipe,
-    SelectModule,
-    DatePickerModule,
-    TabsModule,
-
-  ]
+  styleUrls: ['./file-manager.component.css']
 })
 export class FileManagerComponent implements OnInit {
-
-  protected platform = inject(PlatformService);
-
   // Vistas
   vistaActiva: number = 0;
   
