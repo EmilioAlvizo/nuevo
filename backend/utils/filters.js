@@ -1,4 +1,4 @@
-// 📁 nuevo/backend/utils/primengFilters.js
+// 📁 nuevo/backend/utils/filters.js
 const { mssql } = require("../config/database");
 
 /**
@@ -122,9 +122,17 @@ function buildConditions(params, request, config) {
     if (isMulti && Array.isArray(value)) {
       const paramList = value.map((v, i) => {
         const paramName = `${name}_${i}`;
-        request.input(paramName, mssql.NVarChar, v);
+
+        // 👇 FIX: Usar el tipo correcto según la configuración
+        if (type === "int") {
+          request.input(paramName, mssql.Int, parseInt(v));
+        } else {
+          request.input(paramName, mssql.NVarChar, v);
+        }
+
         return `@${paramName}`;
       });
+
       conditions.push(`${dbField} IN (${paramList.join(",")})`);
       return;
     }
@@ -147,8 +155,6 @@ function buildConditions(params, request, config) {
     );
     if (condition) conditions.push(condition);
   });
-
-  //console.log("conditions ", conditions)
 
   return conditions;
 }
