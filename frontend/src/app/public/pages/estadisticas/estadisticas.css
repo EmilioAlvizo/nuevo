@@ -1,4 +1,12 @@
 .contenedor {
     margin: 0 auto;
-    padding: 0 16px; 
+    padding: 200px 16px 0 16px; 
+    background-color: rgb(16,29,64);
+}
+
+.texto-title-pages {
+    color: white;
+    text-align: center;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }

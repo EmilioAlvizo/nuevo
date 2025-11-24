@@ -4,8 +4,14 @@
 </div>
 
 <div class="mt-4">
-  @if (selectedTable() === 'docCendoc') {
-  <app-tabla-doc-cendoc></app-tabla-doc-cendoc>}
-  @else if (selectedTable() === 'a') {
-  <app-tabla-a></app-tabla-a>}
+  @switch (selectedTable()) { 
+    @case ('archMunicipios'){
+  <app-tabla-arch-municipios></app-tabla-arch-municipios>
+  } @case ('a'){
+  <app-tabla-a></app-tabla-a>
+  } @case ('docCendoc'){
+  <app-tabla-doc-cendoc></app-tabla-doc-cendoc>
+  } @default{
+  <div>Welcome, Guest!</div>
+  } }
 </div>

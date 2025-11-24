@@ -1,10 +1,12 @@
-// nuevo/frontend/src/app/admin/components/tabla-doc-cendoc/tabla-doc-cendoc.ts
+// nuevo/frontend/src/app/admin/components/tabla-arch-municipios/tabla-arch-municipios.ts
 import { Component, inject, signal, WritableSignal, computed, effect } from '@angular/core';
 
-import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
-import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
+import {
+  ApiArchivos_municipio,
+  Archivos_municipio,
+} from '../../../core/services/archivos_municipio';
+import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
-import { FormDocCendoc } from '../../../admin/components/form-doc-cendoc/form-doc-cendoc';
 import { environment } from '../../../../environments/environment';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -12,47 +14,50 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-tabla-doc-cendoc',
-  imports: [TablaGenerica, FormDocCendoc, ConfirmDialogModule, ToastModule],
+  selector: 'app-tabla-arch-municipios',
+  imports: [TablaGenerica, ConfirmDialogModule, ToastModule],
   providers: [MessageService, ConfirmationService],
-  templateUrl: './tabla-doc-cendoc.html',
-  styleUrl: './tabla-doc-cendoc.css',
+  templateUrl: './tabla-arch-municipios.html',
+  styleUrl: './tabla-arch-municipios.css',
 })
-export class TablaDocCendoc {
+export class TablaArchMunicipios {
   publicUrl = environment.publicUrl;
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
-  documentosCendocService: ApiDocumentos_cendoc = inject(ApiDocumentos_cendoc);
-  
-  // ✅ INYECTAR el servicio de categorías
-  private apiCategoriaCendoc = inject(ApiCategoriaCendoc);
+  private apiMunicipio = inject(ApiMunicipio);
+  apiArchivos_municipio = inject(ApiArchivos_municipio);
 
-  readonly categorias = signal<Categoria_cendoc[]>([]);
+  readonly municipios = signal<Municipio[]>([]);
 
   showDialog: WritableSignal<boolean> = signal(false);
-  revistaToEdit: Documentos_cendoc | null = null;
+  revistaToEdit: Archivos_municipio | null = null;
   refrescarTabla = signal(0);
 
+  constructor() {
+    // Cargar municipios al iniciar (para casos especiales)
+    this.apiMunicipio.getMessage().subscribe({
+      next: (resp) => {
+        if (resp.success && resp.data) {
+          this.municipios.set(resp.data);
+        }
+      },
+      error: (err) => console.error('Error cargando municipios:', err)
+    });
+    console.log("qqqqqqqqqqq ", this.municipios())
+  }
+
   // 🧠 Computed: opciones de municipios
-  readonly categoriasOptions = computed(() =>
-    this.categorias().map((m) => ({
-      label: m.nombre_categoria_cendoc,
-      value: m.id_categoria_cendoc,
+  readonly municipiosOptions = computed(() =>
+    this.municipios().map((m) => ({
+      label: m.nombre,
+      value: m.id_municipio,
     }))
   );
 
-  columns: ColumnConfig[] = [
+  readonly columns = computed<ColumnConfig[]>(() => [
     {
-      field: 'id_documento',
-      header: 'Id',
-      sortable: true,
-      filterable: true,
-      filterType: 'numeric',
-      tooltip: false,
-    },
-    {
-      field: 'nombre_documento',
-      header: 'Nombre',
+      field: 'nombre_archivo',
+      header: 'Nombre Archivo',
       width: '200px',
       sortable: true,
       filterable: true,
@@ -60,25 +65,31 @@ export class TablaDocCendoc {
       tooltip: true,
     },
     {
-      field: 'autor_documento',
-      header: 'Autor',
-      width: '200px',
+      field: 'nombre_municipio',
+      header: 'Municipio',
       sortable: true,
       filterable: true,
+      filterType: 'multiselect',
       tooltip: false,
+      renderAs: 'tag',
+      // ✅ agrega opciones aquí
+      options: this.municipiosOptions(),
+      optionsField: 'id_municipio', 
     },
-
     {
-      field: 'descripcion_documento',
-      header: 'Descripción',
+      field: 'tipo_archivo',
+      header: 'Tipo',
       sortable: true,
       filterable: true,
-      filterType: 'text',
-      width: '200px',
-      tooltip: true,
+      filterType: 'multiselect',
+      tooltip: false,
+      renderAs: 'tag',
+      // ✅ agrega opciones aquí
+      loadOptionsFromBackend: true, // 👈 Carga opciones desde backend
+      optionsField: 'tipo_archivo',
     },
     {
-      field: 'nombre_categoria',
+      field: 'categoria_archivo',
       header: 'Categoria',
       sortable: true,
       filterable: true,
@@ -86,22 +97,23 @@ export class TablaDocCendoc {
       tooltip: false,
       renderAs: 'tag',
       // ✅ agrega opciones aquí
-      options: [
-        { label: 'Discriminación y DH', value: 'Discriminación y DH' },
-        { label: 'Economía', value: 'Economía' },
-      ],
+      loadOptionsFromBackend: true, // 👈 Carga opciones desde backend
+      optionsField: 'categoria_archivo',
     },
     {
-      field: 'palabras_clave',
-      header: 'Palabra Clave',
-      width: '200px',
+      field: 'subcategoria_archivo',
+      header: 'Subcategoria',
       sortable: true,
       filterable: true,
-      filterType: 'text',
-      tooltip: true,
+      filterType: 'multiselect',
+      tooltip: false,
+      renderAs: 'tag',
+      // ✅ agrega opciones aquí
+      loadOptionsFromBackend: true, // 👈 Carga opciones desde backend
+      optionsField: 'subcategoria_archivo',
     },
     {
-      field: 'fecha_documento',
+      field: 'fecha_modificacion',
       header: 'Fecha',
       sortable: true,
       filterable: true,
@@ -111,7 +123,7 @@ export class TablaDocCendoc {
     },
 
     {
-      field: 'estatus_documento',
+      field: 'estatus_archivo',
       header: 'Estatus',
       sortable: true,
       filterable: true,
@@ -123,47 +135,15 @@ export class TablaDocCendoc {
       // ✅ agrega opciones aquí
       options: [
         { label: 'Activo', value: 'A' },
-        { label: 'Inactivo', value: 'I' },
+        { label: 'Inactivo', value: 'B' },
       ],
     },
-  ];
-
-  // ✅ Constructor para cargar las categorías
-  constructor() {
-    effect(() => this.cargarCategorias());
-  }
-
-  // ✅ Método para cargar las categorías
-  private cargarCategorias(): void {
-    this.apiCategoriaCendoc.get().subscribe({
-      next: (res) => {
-        this.categorias.set(res.data);
-        
-        // ✅ Actualizar las opciones del filtro de categorías dinámicamente
-        const categoriaColumn = this.columns.find(c => c.field === 'nombre_categoria');
-        if (categoriaColumn) {
-          categoriaColumn.options = res.data.map(cat => ({
-            label: cat.nombre_categoria_cendoc,
-            value: cat.nombre_categoria_cendoc
-          }));
-        }
-        
-        //console.log('✅ Categorías cargadas:', res.data);
-      },
-      error: (err) => {
-        console.error('❌ Error al cargar categorías:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar las categorías',
-        });
-      },
-    });
-  }
+  ]);
 
   agregar() {
     this.revistaToEdit = null;
     this.showDialog.set(true);
+    console.log('asdasd ', this.municipiosOptions());
   }
 
   editar(doc: any) {
@@ -172,7 +152,7 @@ export class TablaDocCendoc {
     this.showDialog.set(true); // 📌 Abre el diálogo
   }
 
-  eliminar(doc: Documentos_cendoc) {
+  /* eliminar(doc: Documentos_cendoc) {
     this.confirmationService.confirm({
       message: `¿Está seguro de eliminar el archivo "${doc.id_documento}"?`,
       header: 'Confirmar Eliminación',
@@ -260,5 +240,5 @@ export class TablaDocCendoc {
         });
       },
     });
-  }
+  } */
 }

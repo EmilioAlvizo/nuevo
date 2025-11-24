@@ -1,0 +1,17 @@
+<div class="container-municipios">
+  <h1>Gestión de Municipios</h1>
+
+  <!-- Tabla de Archivos Municipio -->
+  <app-tabla-dinamica
+    [service]="archivosService"
+    [columns]="columnasArchivosMunicipio"
+    [filters]="filtrosArchivosMunicipio"
+    title="Archivos por Municipio"
+    entityName="archivo"
+    [pageSize]="10"
+    [showViewMode]="true"
+    (rowSelected)="verArchivo($event)"
+    (rowEdited)="editarArchivo($event)"
+    (rowDeleted)="eliminarArchivo($event)"
+  />
+</div>

@@ -5,7 +5,7 @@
     z-index: 999;
     height: auto;
     overflow: visible;
-    display: flex;
+    /* display: flex; */
     justify-content: center;
   }
   

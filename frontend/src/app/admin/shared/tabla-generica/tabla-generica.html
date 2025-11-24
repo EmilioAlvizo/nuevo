@@ -51,7 +51,7 @@
     [paginator]="true"
     [rows]="rows()"
     [totalRecords]="totalRecords()"
-    [loading]="loading()"
+    [loading]="loading() || loadingOptions()"
     [scrollable]="true"
     scrollDirection="both"
     scrollHeight="auto"
@@ -75,7 +75,9 @@
       <tr>
         @if (showSelection()) {
         <th><p-tableHeaderCheckbox /></th>
-        } @for (col of columns(); track col.field) {
+        }
+        <!-- 👇 CAMBIO: Usar columnsWithOptions() en lugar de columns() -->
+        @for (col of columnsWithOptions(); track col.field) {
         <th
           [style]="{ width: col.width, 'max-width': col.width, 'min-width': col.width }"
           [pSortableColumn]="col.sortable ? col.field : undefined"
@@ -99,7 +101,7 @@
               <ng-template #filter let-value let-filter="filterCallback">
                 <p-multiSelect
                   [ngModel]="value"
-                  [options]="col.options"
+                  [options]="col.options || []"
                   optionLabel="label"
                   optionValue="value"
                   placeholder="Seleccionar"
@@ -107,6 +109,7 @@
                   display="chip"
                   class="w-100"
                   (onChange)="filter($event.value)"
+                  [disabled]="loadingOptions() || !col.options || col.options.length === 0"
                 />
               </ng-template>
               }
@@ -124,7 +127,9 @@
       <tr>
         @if (showSelection()) {
         <td style="width: 20px"><p-tableCheckbox [value]="row" /></td>
-        } @for (col of columns(); track col.field) { @if (col.tooltip !== false) {
+        }
+        <!-- 👇 CAMBIO: Usar columnsWithOptions() en lugar de columns() -->
+        @for (col of columnsWithOptions(); track col.field) { @if (col.tooltip !== false) {
         <td
           [style]="{
             width: col.width,
@@ -195,7 +200,7 @@
       <tr>
         <td
           [attr.colspan]="
-            columns().length +
+            columnsWithOptions().length +
             (showSelection() ? 1 : 0) +
             (showViewButton() || showEditButton() || showDeleteButton() ? 1 : 0)
           "
@@ -205,6 +210,7 @@
           <p>No se encontraron {{ entityName() }}s</p>
         </td>
       </tr>
-    </ng-template> </p-table
-  >}
+    </ng-template>
+  </p-table>
+  }
 </div>

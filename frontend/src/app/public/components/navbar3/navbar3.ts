@@ -46,10 +46,10 @@ export class Navbar3 implements OnInit, OnDestroy {
   private routeChanged = signal(0);
 
   // 🆕 Mapa de rutas por dropdown
-private dropdownRoutes = {
-  juventudes: ['/sistema-juventudes', '/consejo'],
-  informacion: ['/directorio']
-};
+  private dropdownRoutes = {
+    juventudes: ['/sistema-juventudes', '/consejo'],
+    informacion: ['/directorio'],
+  };
 
   // Internos
   private clickOutsideHandler?: () => void;
@@ -59,11 +59,11 @@ private dropdownRoutes = {
   private debounceTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
-  private el: ElementRef, 
-  private renderer: Renderer2,
-  private router: Router,
-  private cdr: ChangeDetectorRef
-) {}
+    private el: ElementRef,
+    private renderer: Renderer2,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   // 🆕 effect que previene scroll del body
   private preventBodyScrollEffect = effect(() => {
@@ -74,11 +74,13 @@ private dropdownRoutes = {
   });
 
   ngOnInit(): void {
+    /* const navbarHeight = this.el.nativeElement.offsetHeight;
+    document.body.style.paddingTop = navbarHeight + 'px'; */
     // Detectar clic fuera del dropdown
     this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
       const insideDropdown = (event.target as HTMLElement).closest('.nav-dropdown');
       if (!insideDropdown) {
-        this.dropdownOpenId.set(null); 
+        this.dropdownOpenId.set(null);
       }
     });
     // Escuchar scroll solo si hay ventana
@@ -88,16 +90,15 @@ private dropdownRoutes = {
       });
     }
 
-  this.router.events
-    .pipe(filter(ev => ev instanceof NavigationEnd))
-    .subscribe(() => {
-      this.routeChanged.update(v => v + 1); // Actualizar signal
+    this.router.events.pipe(filter((ev) => ev instanceof NavigationEnd)).subscribe(() => {
+      this.routeChanged.update((v) => v + 1); // Actualizar signal
       this.cdr.markForCheck(); // Forzar detección de cambios
     });
-
   }
 
   ngOnDestroy(): void {
+    //document.body.style.paddingTop = '0px';
+
     this.clickOutsideHandler?.();
     this.scrollHandler?.();
     clearTimeout(this.debounceTimer);
@@ -144,15 +145,14 @@ private dropdownRoutes = {
   }
 
   // 🆕 Verificar si un dropdown tiene una ruta activa
-isDropdownActive(id: string): boolean {
-  this.routeChanged(); // Lee el signal para activar detección
-  const routes = this.dropdownRoutes[id as keyof typeof this.dropdownRoutes];
-  if (!routes) return false;
-  
-  const currentUrl = this.router.url;
-  return routes.some(route => currentUrl.startsWith(route));
-}
+  isDropdownActive(id: string): boolean {
+    this.routeChanged(); // Lee el signal para activar detección
+    const routes = this.dropdownRoutes[id as keyof typeof this.dropdownRoutes];
+    if (!routes) return false;
 
+    const currentUrl = this.router.url;
+    return routes.some((route) => currentUrl.startsWith(route));
+  }
 
   onTopBarExpanded(expanded: boolean) {
     this.topBarExpanded.set(expanded);
@@ -175,18 +175,15 @@ isDropdownActive(id: string): boolean {
   // }
   toggleDropdown(id: string, event: Event) {
     event.stopPropagation();
-    
-    this.dropdownOpenId.update(current =>
-      current === id ? null : id
-    );
 
-    console.log("📋 Dropdown abierto:", this.dropdownOpenId());
+    this.dropdownOpenId.update((current) => (current === id ? null : id));
+
+    console.log('📋 Dropdown abierto:', this.dropdownOpenId());
   }
 
   isOpen(id: string) {
     return this.dropdownOpenId() === id;
   }
-
 
   closeMenu(): void {
     console.log('🔒 [NAVBAR] Cerrando todo');

@@ -6,5 +6,13 @@
   </div>
 </div>
 
-<app-navbar-documentos (tipoCambio)="onTipoCambio($event)"></app-navbar-documentos>
+<!-- <app-navbar-documentos (tipoCambio)="onTipoCambio($event)"></app-navbar-documentos> -->
+
+@switch (selectedTable()) { @case ('archMunicipios'){
+<app-tabla-arch-municipios></app-tabla-arch-municipios>
+} 
+@case ('docCendoc'){ } @default{
+<div>Welcome, Guest!</div>
+} }
+
 <app-tabla [tipoDocumento]="mostrarTabla"></app-tabla>

@@ -19,6 +19,11 @@
   style="position: sticky; top: 0; z-index: 1000"
 >
 </app-navbar3>
+@if (mostrarDiv) {
+  <div style="height: 160px">
+    <!-- ESTE DIV APARECE EN TODAS MENOS LAS QUE DEFINAS -->
+  </div>}
+  
 <main class="content">
   <div class="container-xxl">
     <router-outlet></router-outlet>

@@ -72,7 +72,7 @@ interface LazyLoadParams {
     NuevoArchivoForm,
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './tabla-b.html',
+  templateUrl: './tabla-a.html',
   styleUrl: './tabla-a.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -146,7 +146,7 @@ export class TablaA {
 
   private cargarArchivos(): void {
     this.loading.set(true);
-    this.apiArchivos_municipio.getMessage().subscribe({
+    this.apiArchivos_municipio.get_archivos().subscribe({
       next: (res) => {
         this.archivos_municipio.set(res.data);
         this.loading.set(false);
@@ -190,7 +190,7 @@ export class TablaA {
       busqueda: (event.globalFilter as string) || undefined,
     };
 
-    this.apiArchivos_municipio.getArchivosFiltrados(params).subscribe({
+    this.apiArchivos_municipio.getFiltrados(params).subscribe({
       next: (response) => {
         this.archivos_municipio.set(response.data);
         this.totalRecords.set(response.total || 0);

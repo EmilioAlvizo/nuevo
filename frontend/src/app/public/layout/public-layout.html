@@ -6,11 +6,17 @@
   <!-- <app-navbar></app-navbar> -->
   <main class="content">
     <!-- <app-navbar2 style="position: sticky; top: 0; z-index: 1000;"></app-navbar2> -->
+    <div></div>
     <app-navbar3
       [brandLink]="'/'"
-      [scrollThreshold]="100" style="position: sticky; top: 0; z-index: 1000"
+      [scrollThreshold]="100" style="position: fixed; top: 0; z-index: 1000; width: 100%;"
     >
     </app-navbar3>
+    @if (mostrarDiv) {
+    <div style="height: 160px">
+      <!-- ESTE DIV APARECE EN TODAS MENOS LAS QUE DEFINAS -->
+    </div>}
+    
     <router-outlet></router-outlet>
   </main>
   <!-- Si este botón es flotante, puede quedarse fuera -->

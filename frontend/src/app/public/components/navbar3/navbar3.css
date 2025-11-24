@@ -15,16 +15,19 @@
   color: #5498ff;
 } /* Navbar Banamex Style */
 .cmp-navbar {
-  --position: relative;
-  --top: 0;
+  position: fixed;
+  /* top: 0;
+  left: 0; */
+  /* --position: relative;
+  --top: 0; */
   --nav-bg: #ffffff;
   --background: transparent;
   --item-color: #003746;
   --selector-left: 0;
   --selector-right: 0;
   --selector-opacity: 0;
-  position: var(--position);
-  top: var(--top);
+  /* position: var(--position);
+  top: var(--top); */
   z-index: 1500;
   transition: top 0.32s ease-in-out;
   background: var(--background);
@@ -366,7 +369,7 @@
   .dropdown-content {
     position: absolute;
     top: calc(100% + 23px);
-    left: 50%;
+    /* left: 50%; */
     transform: translateX(-50%);
     background-color: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
@@ -883,7 +886,7 @@ body.menu-open {
   .dropdown-content {
     position: absolute;
     top: calc(100% + 23px);
-    left: 50%;
+    /* left: 50%; */
     transform: translateX(-50%);
     background-color: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);

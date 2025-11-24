@@ -1,0 +1,26 @@
+<app-tabla-generica
+  [dataService]="apiArchivos_municipio"
+  [columns]="columns()"
+  [title]="'Archivos Municipios'"
+  [entityName]="'documento'"
+  [showSelection]="false"
+  [showViewButton]="true"
+  [showEditButton]="true"
+  [showDeleteButton]="true"
+  (add)="agregar()"
+  (edit)="editar($event)"
+  [refreshSignal]="refrescarTabla"
+/>
+
+<!-- <app-form-doc-cendoc
+  [categorias]="categorias()"
+  [visible]="showDialog()"
+  [isEditMode]="!!revistaToEdit"
+  [docToEdit]="revistaToEdit"
+  (save)="guardar($event)"
+  (visibleChange)="showDialog.set($event)"
+/> -->
+
+<!-- mensajes -->
+<p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" />
+<p-toast />
