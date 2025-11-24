@@ -2,14 +2,12 @@ import {
   Component,
   Input,
   AfterViewInit,
-  ViewChildren,
-  QueryList,
-  ElementRef,
   ViewChild,
-  Renderer2,
+  ElementRef,
   HostListener,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID,
+  OnDestroy
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 
@@ -20,160 +18,308 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
   templateUrl: './flipbook.html',
   styleUrls: ['./flipbook.css']
 })
-export class Flipbook implements AfterViewInit {
+export class Flipbook implements AfterViewInit, OnDestroy {
   @Input() src!: string;
-  @Input() pageWidth = 800;
 
-  @ViewChild('stage', { static: true }) stageRef!: ElementRef<HTMLDivElement>;
-  @ViewChildren('frontCanvas') frontCanvases!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('backCanvas') backCanvases!: QueryList<ElementRef<HTMLCanvasElement>>;
+  @ViewChild('stage') stageRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('leftCanvas') leftCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('rightCanvas') rightCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('flipForwardFront') flipForwardFront?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('flipForwardBack') flipForwardBack?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('flipBackFront') flipBackFront?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('flipBackBack') flipBackBack?: ElementRef<HTMLCanvasElement>;
 
   pdfDoc: any = null;
-  folios: Array<{ front: number | null; back: number | null; flipped: boolean }> = [];
-  currentFolioIndex = 0;
+  currentPage = 1;
+  totalPages = 0;
+  isFullscreen = false;
+  isAnimating = false;
+  animationDirection: 'forward' | 'back' | null = null;
+  zoomLevel = 1;
 
   private touchStartX = 0;
   private touchEndX = 0;
 
-  constructor(
-    private renderer: Renderer2,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   async ngAfterViewInit() {
-    if (!isPlatformBrowser(this.platformId)) {
-      // En SSR: no hacemos nada
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
 
     if (!this.src) {
-      console.error('Flipbook: `src` input is required and should point to a PDF file.');
+      console.error('Flipbook: src is required');
       return;
     }
 
-    this.renderer.setStyle(this.stageRef.nativeElement, '--page-width', `${this.pageWidth}px`);
     await this.loadPdf(this.src);
-    setTimeout(() => this.renderVisibleFolios(), 50);
+    this.renderCurrentSpread();
   }
 
-async loadPdf(url: string) {
-  try {
-    const pdfjsLib = await import('pdfjs-dist/');
+  ngOnDestroy() {}
 
-    // 👇 Usa el worker desde assets
-    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'pdfjs-dist/pdf.worker.js';
-
-    const loadingTask = (pdfjsLib as any).getDocument(url);
-    this.pdfDoc = await loadingTask.promise;
-
-    const numPages = this.pdfDoc.numPages;
-    this.folios = [];
-    for (let p = 1; p <= numPages; p += 2) {
-      const front = p;
-      const back = (p + 1) <= numPages ? (p + 1) : null;
-      this.folios.push({ front, back, flipped: false });
-    }
-    this.currentFolioIndex = 0;
-  } catch (err) {
-    console.error('Error loading PDF', err);
-  }
-}
-
-
-  // renderVisibleFolios() {
-  //   const start = Math.max(0, this.currentFolioIndex - 2);
-  //   const end = Math.min(this.folios.length - 1, this.currentFolioIndex + 2);
-
-  //   const frontList = this.frontCanvases.toArray();
-  //   const backList = this.backCanvases.toArray();
-
-  //   for (let i = start; i <= end; i++) {
-  //     const folio = this.folios[i];
-  //     const frontCanvasRef = frontList[i];
-  //     const backCanvasRef = backList[i];
-  //     if (folio.front && frontCanvasRef) this.renderPageToCanvas(folio.front, frontCanvasRef.nativeElement);
-  //     if (folio.back && backCanvasRef) this.renderPageToCanvas(folio.back, backCanvasRef.nativeElement);
-  //   }
-  // }
-
-  renderVisibleFolios() {
-  const frontList = this.frontCanvases.toArray();
-  const backList = this.backCanvases.toArray();
-
-  this.folios.forEach((folio, i) => {
-    if (Math.abs(i - this.currentFolioIndex) <= 2) {
-      if (folio.front && frontList[i]) {
-        const canvas = frontList[i].nativeElement;
-        if (!canvas.dataset['rendered']) {
-          this.renderPageToCanvas(folio.front, canvas);
-          canvas.dataset['rendered'] = 'true';
-        }
-      }
-
-      if (folio.back && backList[i]) {
-        const canvas = backList[i].nativeElement;
-        if (!canvas.dataset['rendered']) {
-          this.renderPageToCanvas(folio.back, canvas);
-          canvas.dataset['rendered'] = 'true';
-        }
-      }
-    }
-  });
-}
-
-
-  async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
-    if (!this.pdfDoc) return;
+  async loadPdf(url: string) {
     try {
-      const page = await this.pdfDoc.getPage(pageNumber);
+      const pdfjsLib = await import('pdfjs-dist/');
+      (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'pdfjs-dist/pdf.worker.js';
+
+      const loadingTask = (pdfjsLib as any).getDocument(url);
+      this.pdfDoc = await loadingTask.promise;
+      this.totalPages = this.pdfDoc.numPages;
+      this.currentPage = 1;
+    } catch (err) {
+      console.error('Error loading PDF:', err);
+    }
+  }
+
+  async renderCurrentSpread() {
+    if (!this.pdfDoc) return;
+
+    const leftPageNum = this.currentPage;
+    const rightPageNum = this.currentPage + 1;
+
+    // Renderizar página izquierda
+    if (leftPageNum <= this.totalPages) {
+      await this.renderPage(leftPageNum, this.leftCanvas.nativeElement);
+    } else {
+      this.clearCanvas(this.leftCanvas.nativeElement);
+    }
+
+    // Renderizar página derecha
+    if (rightPageNum <= this.totalPages) {
+      await this.renderPage(rightPageNum, this.rightCanvas.nativeElement);
+    } else {
+      this.clearCanvas(this.rightCanvas.nativeElement);
+    }
+  }
+
+  async renderPage(pageNum: number, canvas: HTMLCanvasElement) {
+    if (!this.pdfDoc || pageNum > this.totalPages || pageNum < 1) return;
+
+    try {
+      const page = await this.pdfDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: 1 });
-      const targetWidth = this.pageWidth / 2;
-      const scale = targetWidth / viewport.width;
+      
+      const containerWidth = this.stageRef.nativeElement.offsetWidth / 2;
+      const scale = (containerWidth / viewport.width) * 1.5;
       const scaledViewport = page.getViewport({ scale });
 
-      canvas.width = Math.round(scaledViewport.width);
-      canvas.height = Math.round(scaledViewport.height);
+      canvas.width = scaledViewport.width;
+      canvas.height = scaledViewport.height;
+
+      const context = canvas.getContext('2d');
+      if (!context) return;
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
 
       const renderContext = {
-        canvasContext: canvas.getContext('2d') as CanvasRenderingContext2D,
+        canvasContext: context,
         viewport: scaledViewport
       };
 
       await page.render(renderContext).promise;
     } catch (err) {
-      console.error('Error rendering page', pageNumber, err);
+      console.error('Error rendering page', pageNum, err);
     }
   }
 
-  prev() {
-    if (this.currentFolioIndex <= 0) return;
-    this.setFolioFlipped(this.currentFolioIndex, false);
-    this.currentFolioIndex -= 1;
-    this.renderVisibleFolios();
+  clearCanvas(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
   }
 
-  next() {
-    if (this.currentFolioIndex >= this.folios.length - 1) return;
-    this.setFolioFlipped(this.currentFolioIndex, true);
-    this.currentFolioIndex += 1;
-    this.renderVisibleFolios();
+  async nextPage() {
+    if (this.currentPage >= this.totalPages || this.isAnimating) return;
+
+    this.isAnimating = true;
+    this.animationDirection = 'forward';
+
+    // ANTES de la animación: Actualizar la página estática derecha con la NUEVA página
+    const newRightPage = this.currentPage + 3; // La que quedará a la derecha después
+    if (newRightPage <= this.totalPages) {
+      await this.renderPage(newRightPage, this.rightCanvas.nativeElement);
+    } else {
+      this.clearCanvas(this.rightCanvas.nativeElement);
+    }
+
+    // Esperar a que Angular renderice el elemento de la animación
+    setTimeout(async () => {
+      // Pre-renderizar las páginas que se verán durante la animación
+      await this.prepareForwardAnimation();
+
+      // Pequeño delay para iniciar la animación visual
+      setTimeout(() => {
+        // Esperar a que termine la animación CSS (600ms)
+        setTimeout(async () => {
+          this.currentPage += 2;
+          this.isAnimating = false;
+          this.animationDirection = null;
+          
+          // Actualizar solo la página izquierda (la derecha ya está actualizada)
+          const newLeftPage = this.currentPage;
+          if (newLeftPage <= this.totalPages) {
+            await this.renderPage(newLeftPage, this.leftCanvas.nativeElement);
+          } else {
+            this.clearCanvas(this.leftCanvas.nativeElement);
+          }
+        // }, 650);
+        }, 50);
+      }, 50);
+    }, 50);
   }
 
-  toggleFolio(index: number) {
-    const folio = this.folios[index];
-    folio.flipped = !folio.flipped;
-    this.currentFolioIndex = Math.max(0, Math.min(this.folios.length - 1, index));
-    this.renderVisibleFolios();
+  async prevPage() {
+    if (this.currentPage <= 1 || this.isAnimating) return;
+
+    this.isAnimating = true;
+    this.animationDirection = 'back';
+
+    // ANTES de la animación: Actualizar la página estática izquierda con la NUEVA página
+    const newLeftPage = this.currentPage - 2; // La que quedará a la izquierda después
+    if (newLeftPage > 0) {
+      await this.renderPage(newLeftPage, this.leftCanvas.nativeElement);
+    } else {
+      this.clearCanvas(this.leftCanvas.nativeElement);
+    }
+
+    // Esperar a que Angular renderice el elemento de la animación
+    setTimeout(async () => {
+      // Pre-renderizar las páginas que se verán durante la animación
+      await this.prepareBackAnimation();
+
+      // Pequeño delay para iniciar la animación visual
+      setTimeout(() => {
+        // Esperar a que termine la animación CSS (600ms)
+        setTimeout(async () => {
+          this.currentPage -= 2;
+          this.isAnimating = false;
+          this.animationDirection = null;
+          
+          // Actualizar solo la página derecha (la izquierda ya está actualizada)
+          const newRightPage = this.currentPage + 1;
+          if (newRightPage <= this.totalPages) {
+            await this.renderPage(newRightPage, this.rightCanvas.nativeElement);
+          } else {
+            this.clearCanvas(this.rightCanvas.nativeElement);
+          }
+        }, 50);
+      }, 50);
+    }, 50);
   }
 
-  setFolioFlipped(index: number, flipped: boolean) {
-    if (this.folios[index]) this.folios[index].flipped = flipped;
+  async prepareForwardAnimation() {
+    // Cuando avanzamos, la página derecha voltea
+    // Frente: página derecha actual
+    // Reverso: siguiente página izquierda (la que quedará a la izquierda después del volteo)
+    
+    const frontPageNum = this.currentPage + 1; // Página derecha actual
+    const backPageNum = this.currentPage + 2;  // Siguiente página izquierda
+
+    // Esperar a que Angular renderice los elementos
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    if (this.flipForwardFront && frontPageNum <= this.totalPages) {
+      await this.renderPage(frontPageNum, this.flipForwardFront.nativeElement);
+    }
+
+    if (this.flipForwardBack && backPageNum <= this.totalPages) {
+      await this.renderPage(backPageNum, this.flipForwardBack.nativeElement);
+    }
+  }
+
+  async prepareBackAnimation() {
+    // Cuando retrocedemos, la página izquierda voltea
+    // Frente: página izquierda actual
+    // Reverso: página anterior derecha (la que quedará a la derecha después del volteo)
+    
+    const frontPageNum = this.currentPage;     // Página izquierda actual
+    const backPageNum = this.currentPage - 1;  // Página anterior derecha
+
+    // Esperar a que Angular renderice los elementos
+    await new Promise(resolve => setTimeout(resolve, 10));
+
+    if (this.flipBackFront && frontPageNum <= this.totalPages) {
+      await this.renderPage(frontPageNum, this.flipBackFront.nativeElement);
+    }
+
+    if (this.flipBackBack && backPageNum > 0) {
+      await this.renderPage(backPageNum, this.flipBackBack.nativeElement);
+    }
+  }
+
+  zoomIn() {
+    if (this.zoomLevel < 2) {
+      this.zoomLevel = Math.min(2, this.zoomLevel + 0.25);
+    }
+  }
+
+  zoomOut() {
+    if (this.zoomLevel > 0.5) {
+      this.zoomLevel = Math.max(0.5, this.zoomLevel - 0.25);
+    }
+  }
+
+  toggleFullscreen() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    if (!this.isFullscreen) {
+      this.enterFullscreen();
+    } else {
+      this.exitFullscreen();
+    }
+  }
+
+  enterFullscreen() {
+    const elem = document.querySelector('.flipbook-viewer') as any;
+    if (!elem) return;
+
+    const requestFS = elem.requestFullscreen || 
+                     elem.webkitRequestFullscreen || 
+                     elem.msRequestFullscreen;
+    
+    if (requestFS) {
+      requestFS.call(elem);
+      this.isFullscreen = true;
+      setTimeout(() => this.renderCurrentSpread(), 300);
+    }
+  }
+
+  exitFullscreen() {
+    const doc = document as any;
+    const exitFS = doc.exitFullscreen || 
+                  doc.webkitExitFullscreen || 
+                  doc.msExitFullscreen;
+    
+    if (exitFS) {
+      exitFS.call(doc);
+      this.isFullscreen = false;
+      setTimeout(() => this.renderCurrentSpread(), 300);
+    }
+  }
+
+  @HostListener('document:fullscreenchange')
+  @HostListener('document:webkitfullscreenchange')
+  @HostListener('document:msfullscreenchange')
+  onFullscreenChange() {
+    const doc = document as any;
+    const isFS = !!(doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement);
+    
+    if (this.isFullscreen !== isFS) {
+      this.isFullscreen = isFS;
+      setTimeout(() => this.renderCurrentSpread(), 300);
+    }
   }
 
   @HostListener('window:keydown', ['$event'])
   handleKey(e: KeyboardEvent) {
-    if (e.key === 'ArrowLeft') this.prev();
-    if (e.key === 'ArrowRight') this.next();
+    if (e.key === 'ArrowLeft') this.prevPage();
+    if (e.key === 'ArrowRight') this.nextPage();
+    if (e.key === 'Escape' && this.isFullscreen) this.exitFullscreen();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    setTimeout(() => this.renderCurrentSpread(), 100);
   }
 
   @HostListener('touchstart', ['$event'])
@@ -189,9 +335,12 @@ async loadPdf(url: string) {
 
   handleSwipe() {
     const diff = this.touchStartX - this.touchEndX;
-    if (Math.abs(diff) > 60) {
-      if (diff > 0) this.next(); // swipe left
-      else this.prev(); // swipe right
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        this.nextPage();
+      } else {
+        this.prevPage();
+      }
     }
   }
 }

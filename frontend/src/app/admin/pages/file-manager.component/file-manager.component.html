@@ -83,15 +83,6 @@
             </ng-template>
           </p-tree>
 
-
-
-
-
-
-
-
-
-
         </div>
       </div>
     </p-tabpanel>
@@ -152,14 +143,6 @@
               <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
             </td>
             <td>
-              <!-- <p-button 
-                icon="pi pi-pencil" 
-                [rounded]="true" 
-                [text]="true"
-                severity="warning"
-                (onClick)="editarArchivo(archivo)"
-                pTooltip="Editar">
-              </p-button> -->
               <p-button 
                 icon="pi pi-pencil" 
                 [rounded]="true" 
@@ -172,7 +155,6 @@
         </ng-template>
       </p-table>
     </p-tabpanel>
-
 
     <p-tabpanel value="2" header="Por Municipio" leftIcon="pi pi-map-marker">
       <p-table 
@@ -229,7 +211,7 @@
               <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
             </td>
             <td>
-              <p-button 
+              <!-- <p-button 
                 icon="pi pi-eye" 
                 [rounded]="true" 
                 [text]="true"
@@ -243,6 +225,13 @@
                 severity="success"
                 (onClick)="descargarArchivo(archivo)"
                 pTooltip="Descargar">
+              </p-button> -->
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
@@ -306,7 +295,7 @@
               <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
             </td>
             <td>
-              <p-button 
+              <!-- <p-button 
                 icon="pi pi-eye" 
                 [rounded]="true" 
                 [text]="true"
@@ -320,6 +309,13 @@
                 severity="success"
                 (onClick)="descargarArchivo(archivo)"
                 pTooltip="Descargar">
+              </p-button> -->
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
@@ -381,7 +377,7 @@
             <td>{{ archivo.fecha | date:'dd/MM/yyyy' }}</td>
             <td>{{ archivo.dependencia }}</td>
             <td>
-              <p-button 
+              <!-- <p-button 
                 icon="pi pi-eye" 
                 [rounded]="true" 
                 [text]="true"
@@ -395,6 +391,13 @@
                 severity="success"
                 (onClick)="descargarArchivo(archivo)"
                 pTooltip="Descargar">
+              </p-button> -->
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
