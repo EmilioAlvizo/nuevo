@@ -83,7 +83,7 @@ app.get("/", (req, res) => {
 // Rutas del API
 app.use("/api/auth", authRoutes);
 app.use("/api", documentos_cendocRoutes);
-app.use("/api", archivos_municipioRoutes);
+app.use("/api/archivos_municipio", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", categorias_cendocRoutes);
 app.use("/api", testimoniosRoutes);

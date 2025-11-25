@@ -71,6 +71,14 @@ export class Tabla implements OnInit {
   // Estado de carga
   cargando: boolean = false;
 
+  valoresUnicos: any = {
+  id_municipio: [],
+  estatus_archivo: [],
+  tipo_archivo: [],
+  categoria_archivo: [],
+  subcategoria_archivo: []
+};
+
   constructor(
     private datasetService: ApiMunicipio,
     private archivos_municipioService: ApiArchivos_municipio,
@@ -91,11 +99,30 @@ export class Tabla implements OnInit {
 
   ngOnInit(): void {
     this.cargarMunicipios();
+    this.cargarValoresUnicos();
     this.cargarConteosMunicipios();
     this.cargarArchivosFiltrados(); // Carga inicial
     this.cargarConteosDocumentosCendoc();
     this.cargarDocumentosCendocFiltrados(); // Carga inicial
   }
+
+  cargarValoresUnicos(): void {
+  this.archivos_municipioService.getValoresUnicos().subscribe({
+    next: (res) => {
+      this.valoresUnicos = res.data;
+
+      // Si quieres que los filtros de municipio sigan mostrando nombre y contador:
+      this.municipiosFiltrados = res.data.id_municipio.map((id: number) => ({
+        id_municipio: id,
+        nombre: this.obtenerNombreMunicipio(id),
+        contador: 0 // si ya no tienes conteos, lo pones en 0
+      }));
+    },
+    error: (err) => {
+      console.error("Error al obtener valores únicos:", err);
+    }
+  });
+}
 
   cargarMunicipios(): void {
     this.datasetService.getMessage().subscribe({
@@ -134,7 +161,7 @@ export class Tabla implements OnInit {
     this.cargando = true;
 
     const params = {
-      municipios: Array.from(this.municipiosSeleccionados),
+      id_municipio: Array.from(this.municipiosSeleccionados).join(','),
       busqueda: this.searchTerm || undefined,
       //categoria: Array.from(this.documentosCendocSeleccionados),
       palabra_clave: this.palabrasClaveTerm || undefined,
@@ -143,7 +170,7 @@ export class Tabla implements OnInit {
       pagina: this.paginaActual,
     };
 
-    this.archivos_municipioService.getArchivosFiltrados(params).subscribe({
+    this.archivos_municipioService.getFiltrados(params).subscribe({
       next: (response) => {
         this.filteredArchivos_municipio = response.data;
         this.totalResultados = response.total || 0;

@@ -434,19 +434,65 @@ module.exports = ${modelName};
 /**
  * 🎮 Genera el archivo de controlador
  */
+
+// Función auxiliar para detectar si una columna es realmente un campo de archivo
+function isActualFileColumn(columnName, allColumns) {
+  const lower = columnName.toLowerCase();
+  
+  // Excluir campos que son claramente metadatos
+  const metadataPatterns = [
+    /^id_/,                    // id_archivo
+    /^nombre_/,                // nombre_archivo
+    /^fecha_/,                 // fecha_archivo
+    /estatus/,                 // estatus_archivo
+    /tipo_/,                   // tipo_archivo
+    /categoria_/,              // categoria_archivo
+    /subcategoria_/,           // subcategoria_archivo
+    /_id$/,                    // archivo_id
+    /_nombre$/,                // archivo_nombre
+    /_fecha$/,                 // archivo_fecha
+    /_tipo$/,                  // archivo_tipo
+    /_categoria$/,             // archivo_categoria
+    /_estatus$/,               // archivo_estatus
+  ];
+  
+  // Si coincide con algún patrón de metadata, no es un archivo
+  if (metadataPatterns.some(pattern => pattern.test(lower))) {
+    return false;
+  }
+  
+  // Patrones que SÍ indican un campo de archivo
+  const filePatterns = [
+    /^archivo$/,               // "archivo"
+    /^file$/,                  // "file"
+    /^imagen$/,                // "imagen"
+    /^portada$/,               // "portada"
+    /^foto$/,                  // "foto"
+    /^documento$/,             // "documento"
+    /^pdf$/,                   // "pdf"
+    /^attachment$/,            // "attachment"
+    /^adjunto$/,               // "adjunto"
+  ];
+  
+  return filePatterns.some(pattern => pattern.test(lower));
+}
+
 function generateController(schema) {
   const { tableName, columns, primaryKey } = schema;
   const modelName = toPascalCase(tableName) + 'Model';
   const controllerName = toPascalCase(tableName) + 'Controller';
   const config = getTableConfig(tableName);
-  const hasFiles = hasFileColumn(columns);
   
-  // Generar parámetros de query (excluir columnas de archivo de filtros)
+  // Detectar columnas de archivo REALES
+  const fileColumns = columns.filter(col => isActualFileColumn(col.name, columns));
+  const hasFiles = fileColumns.length > 0;
+  
+  console.log(`📂 Columnas de archivo detectadas para ${tableName}:`, fileColumns.map(c => c.name));
+  
+  // Generar parámetros de query (excluir solo las columnas de archivo reales)
+  const fileColumnNames = fileColumns.map(c => c.name.toLowerCase());
   const queryParams = columns
-    .filter(col => !col.name.toLowerCase().includes('archivo') && 
-                   !col.name.toLowerCase().includes('file') &&
-                   !col.name.toLowerCase().includes('imagen') &&
-                   !col.name.toLowerCase().includes('portada'))
+    .filter(col => !fileColumnNames.includes(col.name.toLowerCase()))
     .map(col => {
       return `        // ${col.name}
         ${col.name},
@@ -455,10 +501,7 @@ function generateController(schema) {
 
   // Generar procesamiento de parámetros
   const paramProcessing = columns
-    .filter(col => !col.name.toLowerCase().includes('archivo') && 
-                   !col.name.toLowerCase().includes('file') &&
-                   !col.name.toLowerCase().includes('imagen') &&
-                   !col.name.toLowerCase().includes('portada'))
+    .filter(col => !fileColumnNames.includes(col.name.toLowerCase()))
     .map(col => {
       const filterType = getFilterType(col.type);
       const isMulti = isMultiselectColumn(col.name, tableName);
@@ -481,21 +524,10 @@ function generateController(schema) {
       col.nullable === 'NO' && 
       !col.name.toLowerCase().includes('fecha_modificacion') &&
       !col.name.toLowerCase().includes('fecha_captura') &&
-      !col.name.toLowerCase().includes('archivo') &&
-      !col.name.toLowerCase().includes('file') &&
-      !col.name.toLowerCase().includes('imagen') &&
-      !col.name.toLowerCase().includes('portada')
+      !fileColumnNames.includes(col.name.toLowerCase())
     )
     .map(col => `"${col.name}"`)
     .join(', ');
-
-  // Detectar columnas de archivo
-  const fileColumns = columns.filter(col => 
-    col.name.toLowerCase().includes('archivo') || 
-    col.name.toLowerCase().includes('file') ||
-    col.name.toLowerCase().includes('imagen') ||
-    col.name.toLowerCase().includes('portada')
-  );
 
   return `//nuevo/backend/controllers/${tableName}Controller.js
 const ${modelName} = require("../models/${tableName}Model");

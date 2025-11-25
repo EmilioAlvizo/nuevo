@@ -33,7 +33,7 @@ export class ApiArchivos_municipio {
   //url del backend
   private apiUrl = `${environment.apiUrl}/archivos_municipio`;
   private http = inject(HttpClient);
-  
+
   getMessage(): Observable<ApiResponse<Archivos_municipio>> {
     //realiza una solicitud GET a la URL del backend
     return this.http.get<ApiResponse<Archivos_municipio>>(this.apiUrl);
@@ -44,34 +44,34 @@ export class ApiArchivos_municipio {
     return this.http.get<ApiResponse<Archivos_municipio>>(`${this.apiUrl}/filtrados`, {});
   }
 
-  getFiltrados(
-      filtros: any
-    ): Observable<ApiResponse<Archivos_municipio>> {
-      let params = new HttpParams();
-  
-      // Agregar todos los parámetros dinámicamente
-      Object.keys(filtros).forEach((key) => {
-        const value = filtros[key];
-  
-        if (value !== null && value !== undefined) {
-          // Si es un array, convertir a string separado por comas
-          if (Array.isArray(value)) {
-            if (value.length > 0) {
-              params = params.set(key, value.join(','));
-            }
-          } else {
-            params = params.set(key, value.toString());
+  getValoresUnicos(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/valores-unicos`);
+  }
+
+  getFiltrados(filtros: any): Observable<ApiResponsePaginated<Archivos_municipio>> {
+    let params = new HttpParams();
+
+    // Agregar todos los parámetros dinámicamente
+    Object.keys(filtros).forEach((key) => {
+      const value = filtros[key];
+
+      if (value !== null && value !== undefined) {
+        // Si es un array, convertir a string separado por comas
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            params = params.set(key, value.join(','));
           }
+        } else {
+          params = params.set(key, value.toString());
         }
-      });
-      console.log('Llamando a API Archivos_municipio con params:', params.toString());
-  
-      return this.http.get<ApiResponsePaginated<Archivos_municipio>>(`${this.apiUrl}/filtrados`, {
-        params,
-      });
-    }
+      }
+    });
+    console.log('Llamando a API Archivos_municipio con params:', params.toString());
 
-
+    return this.http.get<ApiResponsePaginated<Archivos_municipio>>(`${this.apiUrl}/filtrados`, {
+      params,
+    });
+  }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
   getArchivosFiltrados(params: {
@@ -83,7 +83,9 @@ export class ApiArchivos_municipio {
     ordenar?: string;
     limite?: number;
     pagina?: number;
-  }): Observable<ApiResponse<Archivos_municipio> & { total?: number; pagina?: number; totalPaginas?: number }> {
+  }): Observable<
+    ApiResponse<Archivos_municipio> & { total?: number; pagina?: number; totalPaginas?: number }
+  > {
     let httpParams = new HttpParams();
 
     // Agregar municipios seleccionados
@@ -139,45 +141,20 @@ export class ApiArchivos_municipio {
   }> {
     return this.http.get<any>(`${this.apiUrl}/conteos`);
   }
-  
-  // Crear nuevo archivo_municipio
-  // createArchivo(data: Partial<Archivos_municipio>): Observable<any> {
-  //   return this.http.post(`${this.apiUrl}/archivos_municipio`, data);
-  // }
 
-  // // Crear nuevo archivo_municipio
-  // createArchivoConUpload(formData: FormData): Observable<any> {
-  //   return this.http.post(`${this.apiUrl}/archivos_municipio`, formData);
-  // }
   createArchivo(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl, formData);
   }
-
 
   // Eliminar archivo
   deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 
-  
-updateArchivo(id: number, formData: FormData) {
-  return this.http.put<{ success: boolean; message: string; data: any }>(
-    `${this.apiUrl}/${id}`,
-    formData
-  );
-}
-
-// createArchivo(formData: FormData) {
-//   return this.http.post<{ success: boolean; message: string; data: any }>(
-//     `${this.baseUrl}/archivos_municipio`,
-//     formData
-//   );
-// }
-
-// deleteArchivo(id: number) {
-//   return this.http.delete<{ success: boolean; message: string }>(
-//     `${this.baseUrl}/archivos_municipio/${id}`
-//   );
-// }
-
+  updateArchivo(id: number, formData: FormData) {
+    return this.http.put<{ success: boolean; message: string; data: any }>(
+      `${this.apiUrl}/${id}`,
+      formData
+    );
+  }
 }

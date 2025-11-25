@@ -2,7 +2,6 @@
 import { Routes } from '@angular/router';
 import { HomeAdmin } from './pages/home-admin/home-admin';
 import { SistemaJuventudesAdmin } from '../admin/pages/sistema-juventudes-admin/sistema-juventudes-admin';
-import { EstadisticasAdmin } from '../admin/pages/estadisticas-admin/estadisticas-admin';
 import { RevistaVocesAdmin } from '../admin/pages/revista-voces-admin/revista-voces-admin';
 import { CentroDocumentalAdmin } from '../admin/pages/centro-documental-admin/centro-documental-admin';
 import { InformacionInteresAdmin } from '../admin/pages/informacion-interes-admin/informacion-interes-admin';
@@ -12,12 +11,12 @@ import { PropuestasAccionAdmin } from './pages/propuestas-accion-admin/propuesta
 import { BancoDatosAdmin } from './pages/banco-datos-admin/banco-datos-admin';
 import { ArticulosAdmin } from './pages/articulos-admin/articulos-admin';
 import { FileManagerComponent } from './pages/file-manager.component/file-manager.component';
-
+import { ArchivosMunicipiosAdmin } from './pages/archivos-municipios-admin/archivos-municipios-admin';
+import { DocumentosCendocAdmin } from './pages/documentos-cendoc-admin/documentos-cendoc-admin';
 
 export const adminRoutes: Routes = [
   { path: '', component: HomeAdmin },
   { path: 'sistema-juventudes', component: SistemaJuventudesAdmin },
-  { path: 'estadisticas', component: EstadisticasAdmin },
   { path: 'revista', component: RevistaVocesAdmin },
   { path: 'centro-documental', component: CentroDocumentalAdmin },
   { path: 'informacion-interes', component: InformacionInteresAdmin },
@@ -26,5 +25,8 @@ export const adminRoutes: Routes = [
   { path: 'propuestas-accion', component: PropuestasAccionAdmin},
   { path: 'banco-datos', component: BancoDatosAdmin},
   { path: 'articulos', component: ArticulosAdmin},
-  { path: 'file-manager', component: FileManagerComponent}
+  { path: 'file-manager', component: FileManagerComponent},
+  { path: 'archivos-municipio', component: ArchivosMunicipiosAdmin},
+  { path: 'documentos-cendoc', component: DocumentosCendocAdmin},
+
 ];

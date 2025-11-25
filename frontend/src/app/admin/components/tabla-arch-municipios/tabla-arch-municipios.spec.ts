@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EstadisticasAdmin } from './estadisticas-admin';
+import { TablaArchMunicipios } from './tabla-arch-municipios';
 
-describe('EstadisticasAdmin', () => {
-  let component: EstadisticasAdmin;
-  let fixture: ComponentFixture<EstadisticasAdmin>;
+describe('TablaArchMunicipios', () => {
+  let component: TablaArchMunicipios;
+  let fixture: ComponentFixture<TablaArchMunicipios>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EstadisticasAdmin]
+      imports: [TablaArchMunicipios]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EstadisticasAdmin);
+    fixture = TestBed.createComponent(TablaArchMunicipios);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
