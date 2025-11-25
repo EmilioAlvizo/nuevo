@@ -1,80 +1,20 @@
-<div class="flipbook-viewer" [class.fullscreen]="isFullscreen">
-  <div class="viewer-header">
-    <div class="viewer-title">Visor de Documentos</div>
-    <div class="header-controls">
-      <button class="control-btn" (click)="zoomOut()" [disabled]="zoomLevel <= 0.5" title="Alejar">
-        <span>−</span>
-      </button>
-      <span class="zoom-label">{{ (zoomLevel * 100).toFixed(0) }}%</span>
-      <button class="control-btn" (click)="zoomIn()" [disabled]="zoomLevel >= 2" title="Acercar">
-        <span>+</span>
-      </button>
-      <button class="control-btn fullscreen-btn" (click)="toggleFullscreen()" title="Pantalla completa">
-        <span *ngIf="!isFullscreen">⛶</span>
-        <span *ngIf="isFullscreen">✕</span>
-      </button>
-    </div>
+<div class="flipbook-root" tabindex="0">
+  <div class="controls">
+    <button (click)="prev()" [disabled]="currentFolioIndex === 0">◀ Prev</button>
+    <div class="page-counter">Página {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}</div>
+    <button (click)="next()" [disabled]="currentFolioIndex >= folios.length - 1">Next ▶</button>
   </div>
 
-  <div class="viewer-content">
-    <div class="book-wrapper">
-      <div class="book-stage" #stage [style.transform]="'scale(' + zoomLevel + ')'">
-        <!-- Página izquierda -->
-        <div class="page-container left">
-          <div class="page-static">
-            <canvas #leftCanvas></canvas>
-          </div>
-          
-          <!-- Página volteadora para ir ATRÁS (página izquierda voltea) -->
-          <div class="page-flip" 
-               [class.flipping-back]="animationDirection === 'back' && isAnimating"
-               *ngIf="animationDirection === 'back' && isAnimating">
-            <div class="flip-front">
-              <canvas #flipBackFront></canvas>
-            </div>
-            <div class="flip-back">
-              <canvas #flipBackBack></canvas>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Página derecha -->
-        <div class="page-container right">
-          <div class="page-static">
-            <canvas #rightCanvas></canvas>
-          </div>
-          
-          <!-- Página volteadora para ir ADELANTE (página derecha voltea) -->
-          <div class="page-flip" 
-               [class.flipping-forward]="animationDirection === 'forward' && isAnimating"
-               *ngIf="animationDirection === 'forward' && isAnimating">
-            <div class="flip-front">
-              <canvas #flipForwardFront></canvas>
-            </div>
-            <div class="flip-back">
-              <canvas #flipForwardBack></canvas>
-            </div>
-          </div>
-        </div>
+  <div class="book-stage" #stage>
+    <ng-container *ngFor="let folio of folios; let fi = index">
+      <div class="folio" 
+           [class.flipped]="folio.flipped" 
+           [style.z-index]="getZIndex(fi)">
+        <div class="leaf front"><canvas #frontCanvas></canvas></div>
+        <div class="leaf back"><canvas #backCanvas></canvas></div>
       </div>
-    </div>
+    </ng-container>
   </div>
 
-  <div class="viewer-controls">
-    <button class="nav-btn" (click)="prevPage()" [disabled]="currentPage <= 1 || isAnimating" title="Anterior">
-      ◀
-    </button>
-    
-    <div class="page-info">
-      <span class="page-counter">Página {{ currentPage }} de {{ totalPages }}</span>
-    </div>
-    
-    <button class="nav-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages || isAnimating" title="Siguiente">
-      ▶
-    </button>
-  </div>
-
-  <div class="viewer-tips">
-    Usa las flechas ← → del teclado o desliza para navegar
-  </div>
+  <div class="tips">Usa flechas ← → o desliza para cambiar página</div>
 </div>
