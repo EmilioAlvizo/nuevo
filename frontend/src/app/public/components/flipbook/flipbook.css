@@ -9,12 +9,33 @@
   font-family: Arial, Helvetica, sans-serif; 
 }
 
+/* 🔹 Fullscreen - usar flexbox para distribuir altura */
+.flipbook-root:fullscreen,
+.flipbook-root:-webkit-full-screen,
+.flipbook-root:-moz-full-screen {
+  max-width: none !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #222;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 .controls { 
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
   gap: 10px;
+}
+
+.flipbook-root:fullscreen .controls,
+.flipbook-root:-webkit-full-screen .controls,
+.flipbook-root:-moz-full-screen .controls {
+  flex-shrink: 0; /* No se comprime */
 }
 
 .book-stage { 
@@ -27,14 +48,30 @@
   touch-action: pan-y;
 }
 
+/* 🔹 Book stage en fullscreen - ocupa todo el espacio disponible */
+.flipbook-root:fullscreen .book-stage,
+.flipbook-root:-webkit-full-screen .book-stage,
+.flipbook-root:-moz-full-screen .book-stage {
+  flex: 1 !important; /* Ocupa todo el espacio restante */
+  height: auto !important;
+  min-height: 0;
+}
+
 .folio { 
   position: absolute;
-  width: calc(var(--page-width, 800px) / 2);
-  height: 80%;
+  /* width se aplica desde [style.width.px] en el template */
+
   transform-style: preserve-3d;
   transform-origin: left center;
   transition: transform 0.6s ease;
   left: 50%;
+}
+
+/* 🔹 Folio en fullscreen - usa casi toda la altura */
+.flipbook-root:fullscreen .folio,
+.flipbook-root:-webkit-full-screen .folio,
+.flipbook-root:-moz-full-screen .folio {
+  height: 95% !important;
 }
 
 .folio.flipped { 
@@ -72,6 +109,14 @@
   text-align: center; 
 }
 
+.flipbook-root:fullscreen .tips,
+.flipbook-root:-webkit-full-screen .tips,
+.flipbook-root:-moz-full-screen .tips {
+  flex-shrink: 0; /* No se comprime */
+  color: #ccc;
+  margin-top: 10px;
+}
+
 .page-counter { 
   font-weight: 600; 
 }
@@ -92,6 +137,16 @@ button:hover:not(:disabled) {
 button:disabled { 
   opacity: 0.5;
   cursor: not-allowed; 
+}
+
+.fullscreen-btn {
+  margin-top: 10px;
+}
+
+.flipbook-root:fullscreen .fullscreen-btn,
+.flipbook-root:-webkit-full-screen .fullscreen-btn,
+.flipbook-root:-moz-full-screen .fullscreen-btn {
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {

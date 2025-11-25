@@ -9,11 +9,18 @@
     <ng-container *ngFor="let folio of folios; let fi = index">
       <div class="folio" 
            [class.flipped]="folio.flipped" 
-           [style.z-index]="getZIndex(fi)">
+           [style.z-index]="getZIndex(fi)"
+           [style.width.px]="pageWidth / 2"
+           [style.height.px]="folioHeight">
         <div class="leaf front"><canvas #frontCanvas></canvas></div>
         <div class="leaf back"><canvas #backCanvas></canvas></div>
       </div>
     </ng-container>
+
+  </div>
+
+  <div>
+    <button class="fullscreen-btn" (click)="toggleFullscreen()">Fullscreen</button>
   </div>
 
   <div class="tips">Usa flechas ← → o desliza para cambiar página</div>
