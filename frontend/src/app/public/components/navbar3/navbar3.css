@@ -366,7 +366,7 @@
   .dropdown-content {
     position: absolute;
     top: calc(100% + 23px);
-    left: 50%;
+    /* left: 50%; */
     transform: translateX(-50%);
     background-color: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
@@ -883,7 +883,7 @@ body.menu-open {
   .dropdown-content {
     position: absolute;
     top: calc(100% + 23px);
-    left: 50%;
+    /* left: 50%; */
     transform: translateX(-50%);
     background-color: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);

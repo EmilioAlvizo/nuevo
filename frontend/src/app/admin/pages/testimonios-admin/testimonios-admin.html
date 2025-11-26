@@ -20,109 +20,108 @@
   </p-toolbar>
 
   <!-- Tabla de Testimonios -->
-  
-    <p-table
-      [value]="testimonios()"
-      [loading]="loading()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[5, 10, 20]"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} testimonios"
-      [tableStyle]="{ 'min-width': '60rem' }"
-      styleClass="p-datatable-striped"
-      responsiveLayout="scroll"
-      [dt]="tablaDesignTokens"
-      class="p-datatable-table-container"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 5%">ID</th>
-          <th style="width: 10%">Nombre</th>
-          <th style="width: 10%">Municipio</th>
-          <th style="width: 10%">Correo</th>
-          <th style="width: 10%">Teléfono</th>
-          <th style="width: 20%">Descripción</th>
-          <th style="width: 15%">Imagen</th>
-          <th style="width: 5%">Estatus</th>
-          <th style="width: 10%">Modificación</th>
-          <th style="width: 5%">Acciones</th>
-        </tr>
-      </ng-template>
 
-      <ng-template pTemplate="body" let-testimonio>
-        <tr>
-          <td>{{ testimonio.id_testimonios }}</td>
-          <td>{{ testimonio.nombreM }}</td>
-          <td>{{ testimonio.nombreMunicipio }}</td>
-          <td>{{ testimonio.correo }}</td>
-          <td>{{ testimonio.telefono }}</td>
-          <td>
-            <span [pTooltip]="testimonio.descripcion" tooltipPosition="top">
-              {{ testimonio.descripcion | slice : 0 : 50
-              }}{{ testimonio.descripcion?.length > 50 ? '...' : '' }}
-            </span>
-          </td>
-          <td>
-            <img
-              *ngIf="testimonio.imagenT"
-              [src]="getImageUrl(testimonio)"
-              [alt]="testimonio.descripcion"
-              class="testimonio-imagen"
-            />
-            <span *ngIf="!testimonio.imagenT" class="text-muted">Sin imagen</span>
-          </td>
-          <td>
-            <span
-              [class]="
-                testimonio.estatus === 'A'
-                  ? 'status-badge status-active'
-                  : 'status-badge status-inactive'
-              "
-            >
-              {{ getEstatusLabel(testimonio.estatus) }}
-            </span>
-          </td>
-          <td>
-            {{ testimonio.fecha_modificacion | date : 'dd/MM/yyyy HH:mm' : 'UTC' }}
-          </td>
-          <td>
-            <p-button
-              icon="pi pi-pencil"
-              [rounded]="true"
-              [text]="true"
-              severity="info"
-              pTooltip="Editar testimonio"
-              tooltipPosition="top"
-              (onClick)="abrirModal(testimonio)"
-            >
-            </p-button>
-            <p-button
-              icon="pi pi-trash"
-              [rounded]="true"
-              [text]="true"
-              severity="info"
-              pTooltip="eliminar testimonio"
-              tooltipPosition="top"
-              (onClick)="eliminarTestimonio(testimonio)"
-            >
-            </p-button>
-          </td>
-        </tr>
-      </ng-template>
+  <p-table
+    [value]="testimonios()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} testimonios"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    styleClass="p-datatable-striped"
+    responsiveLayout="scroll"
+    [dt]="tablaDesignTokens"
+    class="p-datatable-table-container"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 5%">ID</th>
+        <th style="width: 10%">Nombre</th>
+        <th style="width: 10%">Municipio</th>
+        <th style="width: 10%">Correo</th>
+        <th style="width: 10%">Teléfono</th>
+        <th style="width: 20%">Descripción</th>
+        <th style="width: 15%">Imagen</th>
+        <th style="width: 5%">Estatus</th>
+        <th style="width: 10%">Modificación</th>
+        <th style="width: 5%">Acciones</th>
+      </tr>
+    </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="10" class="text-center">
-            <div class="empty-message">
-              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc"></i>
-              <p>No hay testimonios registrados</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
+    <ng-template pTemplate="body" let-testimonio>
+      <tr>
+        <td>{{ testimonio.id_testimonios }}</td>
+        <td>{{ testimonio.nombreM }}</td>
+        <td>{{ testimonio.nombreMunicipio }}</td>
+        <td>{{ testimonio.correo }}</td>
+        <td>{{ testimonio.telefono }}</td>
+        <td>
+          <span [pTooltip]="testimonio.descripcion" tooltipPosition="top">
+            {{ testimonio.descripcion | slice : 0 : 50
+            }}{{ testimonio.descripcion?.length > 50 ? '...' : '' }}
+          </span>
+        </td>
+        <td>
+          <img
+            *ngIf="testimonio.imagenT"
+            [src]="getImageUrl(testimonio)"
+            [alt]="testimonio.descripcion"
+            class="testimonio-imagen"
+          />
+          <span *ngIf="!testimonio.imagenT" class="text-muted">Sin imagen</span>
+        </td>
+        <td>
+          <span
+            [class]="
+              testimonio.estatus === 'A'
+                ? 'status-badge status-active'
+                : 'status-badge status-inactive'
+            "
+          >
+            {{ getEstatusLabel(testimonio.estatus) }}
+          </span>
+        </td>
+        <td>
+          {{ testimonio.fecha_modificacion | date : 'dd/MM/yyyy HH:mm' : 'UTC' }}
+        </td>
+        <td>
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [text]="true"
+            severity="info"
+            pTooltip="Editar testimonio"
+            tooltipPosition="top"
+            (onClick)="abrirModal(testimonio)"
+          >
+          </p-button>
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            [text]="true"
+            severity="info"
+            pTooltip="eliminar testimonio"
+            tooltipPosition="top"
+            (onClick)="eliminarTestimonio(testimonio)"
+          >
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="10" class="text-center">
+          <div class="empty-message">
+            <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc"></i>
+            <p>No hay testimonios registrados</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
 
 <!-- DIALOG: usa tu mismo form (el HTML del dialog lo tenías ya) -->
@@ -138,9 +137,7 @@
   (onHide)="vaciarFormulario()"
 >
   <form [formGroup]="formTestimonio" (ngSubmit)="submitForm()">
-
     <div class="row">
-
       <!-- NOMBRE -->
       <div class="col-md-6 mb-3">
         <label class="form-label fw-semibold">
@@ -153,16 +150,12 @@
           formControlName="nombreM"
           placeholder="Nombre del testimonio"
         />
-        <small *ngIf="hasError('nombreM')" class="text-danger">
-          El nombre es requerido
-        </small>
+        <small *ngIf="hasError('nombreM')" class="text-danger"> El nombre es requerido </small>
       </div>
 
       <!-- MUNICIPIO -->
       <div class="col-md-6 mb-3">
-        <label class="form-label fw-semibold">
-          Municipio <span class="text-danger">*</span>
-        </label>
+        <label class="form-label fw-semibold"> Municipio <span class="text-danger">*</span> </label>
         <p-select
           [options]="municipios()"
           optionLabel="nombre"
@@ -178,9 +171,7 @@
 
       <!-- CORREO -->
       <div class="col-md-6 mb-3">
-        <label class="form-label fw-semibold">
-          Correo <span class="text-danger">*</span>
-        </label>
+        <label class="form-label fw-semibold"> Correo <span class="text-danger">*</span> </label>
         <input
           type="email"
           pInputText
@@ -188,16 +179,12 @@
           formControlName="correo"
           placeholder="correo@ejemplo.com"
         />
-        <small *ngIf="hasError('correo')" class="text-danger">
-          Correo inválido
-        </small>
+        <small *ngIf="hasError('correo')" class="text-danger"> Correo inválido </small>
       </div>
 
       <!-- TELÉFONO -->
       <div class="col-md-6 mb-3">
-        <label class="form-label fw-semibold">
-          Teléfono <span class="text-danger">*</span>
-        </label>
+        <label class="form-label fw-semibold"> Teléfono <span class="text-danger">*</span> </label>
         <input
           type="tel"
           maxlength="10"
@@ -206,9 +193,7 @@
           formControlName="telefono"
           placeholder="Ej. 7711234567"
         />
-        <small *ngIf="hasError('telefono')" class="text-danger">
-          El teléfono es requerido
-        </small>
+        <small *ngIf="hasError('telefono')" class="text-danger"> El teléfono es requerido </small>
       </div>
 
       <!-- DESCRIPCIÓN -->
@@ -244,7 +229,7 @@
       <!-- IMAGEN -->
       <div class="col-md-6 mb-3">
         <label class="form-label fw-semibold">
-          Imagen <span *ngIf="!editMode" class="text-danger">*</span>
+          Imagen<span *ngIf="!editMode" class="text-danger">*</span>
         </label>
         <input
           type="file"
@@ -265,32 +250,31 @@
           style="max-width: 250px;"
         />
       </div> -->
+    </div>
+  </form>
+  <!-- BOTONES -->
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (onClick)="cerrarModal()"
+      ></p-button>
+
+      <p-button
+        [label]="editMode ? 'Actualizar' : 'Crear'"
+        icon="pi pi-check"
+        [loading]="submitting()"
+        type="button"
+        [disabled]="formTestimonio.invalid || submitting()"
+        (onClick)="submitForm()"
+      ></p-button>
 
     </div>
-
-    <!-- BOTONES -->
-    <ng-template pTemplate="footer">
-      <div class="d-flex justify-content-end gap-2">
-
-        <p-button
-          label="Cancelar"
-          icon="pi pi-times"
-          severity="secondary"
-          [outlined]="true"
-          type="button"
-          (onClick)="cerrarModal()"
-        ></p-button>
-
-        <p-button
-          [label]="editMode ? 'Actualizar' : 'Crear'"
-          icon="pi pi-check"
-          [loading]="submitting()"
-          type="submit"
-          [disabled]="formTestimonio.invalid || submitting"
-        ></p-button>
-
-      </div>
-    </ng-template>
-  </form>
+  </ng-template>
 </p-dialog>
-
