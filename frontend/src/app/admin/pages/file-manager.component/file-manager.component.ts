@@ -51,7 +51,7 @@ export class FileManagerComponent implements OnInit {
   protected platform = inject(PlatformService);
 
   // Vistas
-  vistaActiva: string = '0';
+  vistaActiva: number = 0;
   
   // Datos
   categorias: TreeNode[] = [];
@@ -69,27 +69,31 @@ export class FileManagerComponent implements OnInit {
   mostrarDialogSubida: boolean = false;
   mostrarDialogNuevaCarpeta: boolean = false;
   mostrarDialogVisualizador: boolean = false;
+  mostrarDialogEdicion: boolean = false;
   
   // Formularios
   formularioArchivo!: FormGroup;
+  formularioEdicion!: FormGroup;
   nombreNuevaCarpeta: string = '';
   
   // Archivo actual
   archivoSeleccionado: File | null = null;
   archivoParaVisualizar: FileMetadata | null = null;
+  archivoParaEditar: FileMetadata | null = null;
   urlVisualizacion: string = '';
   
   // Opciones
   tiposArchivo = ['PDF', 'Word', 'Excel', 'Imagen', 'Otro'];
   dependencias = ['Recursos Humanos', 'Finanzas', 'Operaciones', 'Legal', 'TI'];
-  municipios = ['San Felipe', 'Guanajuato', 'Dolores Hidalgo', 'León', 'San Miguel de Allende'];
+  municipios = ['Guadalajara', 'Zapopan', 'Tlaquepaque', 'Tonalá', 'Tlajomulco'];
   regiones = ['Región Centro', 'Región Norte', 'Región Sur', 'Región Costa', 'Región Altos'];
 
   constructor(
     private fb: FormBuilder,
-    private fileService: FileManagerService
+    public fileService: FileManagerService
   ) {
     this.inicializarFormulario();
+    this.inicializarFormularioEdicion();
   }
 
   ngOnInit(): void {
@@ -99,6 +103,20 @@ export class FileManagerComponent implements OnInit {
 
   private inicializarFormulario(): void {
     this.formularioArchivo = this.fb.group({
+      nombre: ['', Validators.required],
+      palabrasClave: [''],
+      autor: ['', Validators.required],
+      dependencia: ['', Validators.required],
+      municipio: ['', Validators.required],
+      region: ['', Validators.required],
+      pais: ['México', Validators.required],
+      fecha: [new Date(), Validators.required],
+      tipo: ['PDF', Validators.required]
+    });
+  }
+
+  private inicializarFormularioEdicion(): void {
+    this.formularioEdicion = this.fb.group({
       nombre: ['', Validators.required],
       palabrasClave: [''],
       autor: ['', Validators.required],
@@ -275,5 +293,44 @@ export class FileManagerComponent implements OnInit {
       'Imagen': 'pi pi-image'
     };
     return iconos[tipo] || 'pi pi-folder';
+  }
+
+  editarArchivo(archivo: FileMetadata): void {
+    this.archivoParaEditar = archivo;
+    this.formularioEdicion.patchValue({
+      nombre: archivo.nombre,
+      palabrasClave: archivo.palabrasClave.join(', '),
+      autor: archivo.autor,
+      dependencia: archivo.dependencia,
+      municipio: archivo.municipio,
+      region: archivo.region,
+      pais: archivo.pais,
+      fecha: new Date(archivo.fecha),
+      tipo: archivo.tipo
+    });
+    this.mostrarDialogEdicion = true;
+  }
+
+  guardarEdicion(): void {
+    if (this.formularioEdicion.valid && this.archivoParaEditar) {
+      const palabrasClave = this.formularioEdicion.value.palabrasClave
+        ? this.formularioEdicion.value.palabrasClave.split(',').map((p: string) => p.trim())
+        : [];
+
+      // Actualizar el archivo
+      this.archivoParaEditar.nombre = this.formularioEdicion.value.nombre;
+      this.archivoParaEditar.palabrasClave = palabrasClave;
+      this.archivoParaEditar.autor = this.formularioEdicion.value.autor;
+      this.archivoParaEditar.dependencia = this.formularioEdicion.value.dependencia;
+      this.archivoParaEditar.municipio = this.formularioEdicion.value.municipio;
+      this.archivoParaEditar.region = this.formularioEdicion.value.region;
+      this.archivoParaEditar.pais = this.formularioEdicion.value.pais;
+      this.archivoParaEditar.fecha = this.formularioEdicion.value.fecha;
+      this.archivoParaEditar.tipo = this.formularioEdicion.value.tipo;
+
+      // Actualizar vistas
+      this.actualizarVistasClasificadas();
+      this.mostrarDialogEdicion = false;
+    }
   }
 }

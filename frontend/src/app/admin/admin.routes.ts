@@ -13,6 +13,8 @@ import { ArticulosAdmin } from './pages/articulos-admin/articulos-admin';
 import { FileManagerComponent } from './pages/file-manager.component/file-manager.component';
 import { ArchivosMunicipiosAdmin } from './pages/archivos-municipios-admin/archivos-municipios-admin';
 import { DocumentosCendocAdmin } from './pages/documentos-cendoc-admin/documentos-cendoc-admin';
+import { ConsejoAdmin  } from './pages/consejo-admin/consejo-admin';
+
 
 export const adminRoutes: Routes = [
   { path: '', component: HomeAdmin },
@@ -29,4 +31,5 @@ export const adminRoutes: Routes = [
   { path: 'archivos-municipio', component: ArchivosMunicipiosAdmin},
   { path: 'documentos-cendoc', component: DocumentosCendocAdmin},
 
+  { path: 'consejo', component: ConsejoAdmin }
 ];

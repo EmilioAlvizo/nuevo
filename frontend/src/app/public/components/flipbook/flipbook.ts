@@ -41,10 +41,7 @@ export class Flipbook implements AfterViewInit {
   ) {}
 
   async ngAfterViewInit() {
-    if (!isPlatformBrowser(this.platformId)) {
-      // En SSR: no hacemos nada
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
 
     if (!this.src) {
       console.error('Flipbook: `src` input is required and should point to a PDF file.');
@@ -56,71 +53,51 @@ export class Flipbook implements AfterViewInit {
     setTimeout(() => this.renderVisibleFolios(), 50);
   }
 
-async loadPdf(url: string) {
-  try {
-    const pdfjsLib = await import('pdfjs-dist/');
+  async loadPdf(url: string) {
+    try {
+      const pdfjsLib = await import('pdfjs-dist/');
+      (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'pdfjs-dist/pdf.worker.js';
 
-    // 👇 Usa el worker desde assets
-    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'pdfjs-dist/pdf.worker.js';
+      const loadingTask = (pdfjsLib as any).getDocument(url);
+      this.pdfDoc = await loadingTask.promise;
 
-    const loadingTask = (pdfjsLib as any).getDocument(url);
-    this.pdfDoc = await loadingTask.promise;
-
-    const numPages = this.pdfDoc.numPages;
-    this.folios = [];
-    for (let p = 1; p <= numPages; p += 2) {
-      const front = p;
-      const back = (p + 1) <= numPages ? (p + 1) : null;
-      this.folios.push({ front, back, flipped: false });
+      const numPages = this.pdfDoc.numPages;
+      this.folios = [];
+      for (let p = 1; p <= numPages; p += 2) {
+        const front = p;
+        const back = (p + 1) <= numPages ? (p + 1) : null;
+        this.folios.push({ front, back, flipped: false });
+      }
+      this.currentFolioIndex = 0;
+    } catch (err) {
+      console.error('Error loading PDF', err);
     }
-    this.currentFolioIndex = 0;
-  } catch (err) {
-    console.error('Error loading PDF', err);
   }
-}
-
-
-  // renderVisibleFolios() {
-  //   const start = Math.max(0, this.currentFolioIndex - 2);
-  //   const end = Math.min(this.folios.length - 1, this.currentFolioIndex + 2);
-
-  //   const frontList = this.frontCanvases.toArray();
-  //   const backList = this.backCanvases.toArray();
-
-  //   for (let i = start; i <= end; i++) {
-  //     const folio = this.folios[i];
-  //     const frontCanvasRef = frontList[i];
-  //     const backCanvasRef = backList[i];
-  //     if (folio.front && frontCanvasRef) this.renderPageToCanvas(folio.front, frontCanvasRef.nativeElement);
-  //     if (folio.back && backCanvasRef) this.renderPageToCanvas(folio.back, backCanvasRef.nativeElement);
-  //   }
-  // }
 
   renderVisibleFolios() {
-  const frontList = this.frontCanvases.toArray();
-  const backList = this.backCanvases.toArray();
+    const frontList = this.frontCanvases.toArray();
+    const backList = this.backCanvases.toArray();
 
-  this.folios.forEach((folio, i) => {
-    if (Math.abs(i - this.currentFolioIndex) <= 2) {
-      if (folio.front && frontList[i]) {
-        const canvas = frontList[i].nativeElement;
-        if (!canvas.dataset['rendered']) {
-          this.renderPageToCanvas(folio.front, canvas);
-          canvas.dataset['rendered'] = 'true';
+    this.folios.forEach((folio, i) => {
+      if (Math.abs(i - this.currentFolioIndex) <= 2) {
+        if (folio.front && frontList[i]) {
+          const canvas = frontList[i].nativeElement;
+          if (!canvas.dataset['rendered']) {
+            this.renderPageToCanvas(folio.front, canvas);
+            canvas.dataset['rendered'] = 'true';
+          }
+        }
+
+        if (folio.back && backList[i]) {
+          const canvas = backList[i].nativeElement;
+          if (!canvas.dataset['rendered']) {
+            this.renderPageToCanvas(folio.back, canvas);
+            canvas.dataset['rendered'] = 'true';
+          }
         }
       }
-
-      if (folio.back && backList[i]) {
-        const canvas = backList[i].nativeElement;
-        if (!canvas.dataset['rendered']) {
-          this.renderPageToCanvas(folio.back, canvas);
-          canvas.dataset['rendered'] = 'true';
-        }
-      }
-    }
-  });
-}
-
+    });
+  }
 
   async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
     if (!this.pdfDoc) return;
@@ -147,27 +124,18 @@ async loadPdf(url: string) {
 
   prev() {
     if (this.currentFolioIndex <= 0) return;
-    this.setFolioFlipped(this.currentFolioIndex, false);
-    this.currentFolioIndex -= 1;
+    this.currentFolioIndex--;
+    this.folios[this.currentFolioIndex].flipped = false;
     this.renderVisibleFolios();
   }
 
   next() {
     if (this.currentFolioIndex >= this.folios.length - 1) return;
-    this.setFolioFlipped(this.currentFolioIndex, true);
-    this.currentFolioIndex += 1;
-    this.renderVisibleFolios();
-  }
-
-  toggleFolio(index: number) {
-    const folio = this.folios[index];
-    folio.flipped = !folio.flipped;
-    this.currentFolioIndex = Math.max(0, Math.min(this.folios.length - 1, index));
-    this.renderVisibleFolios();
-  }
-
-  setFolioFlipped(index: number, flipped: boolean) {
-    if (this.folios[index]) this.folios[index].flipped = flipped;
+    this.folios[this.currentFolioIndex].flipped = true;
+    setTimeout(() => {
+      this.currentFolioIndex++;
+      this.renderVisibleFolios();
+    }, 600);
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -184,14 +152,26 @@ async loadPdf(url: string) {
   @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
     this.touchEndX = event.changedTouches[0].screenX;
-    this.handleSwipe();
-  }
-
-  handleSwipe() {
     const diff = this.touchStartX - this.touchEndX;
     if (Math.abs(diff) > 60) {
-      if (diff > 0) this.next(); // swipe left
-      else this.prev(); // swipe right
+      if (diff > 0) this.next();
+      else this.prev();
     }
   }
+
+  getZIndex(index: number): number {
+    // Si la página está girando (flipped pero aún es currentFolioIndex o anterior)
+    if (this.folios[index].flipped && index >= this.currentFolioIndex - 1 && index <= this.currentFolioIndex) {
+      return 100;
+    }
+    
+    if (index < this.currentFolioIndex) {
+      return 10 + index;
+    } else if (index === this.currentFolioIndex) {
+      return 100;
+    } else {
+      return 50 - index;
+    }
+  }
+  
 }

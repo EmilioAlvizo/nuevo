@@ -10,7 +10,7 @@
     <p class="fecha">{{ revista.fecha | date:'longDate' }}</p>
     
     <div class="flipbook-wrapper">
-        <app-flipbook [src]="publicUrl+'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo" [pageWidth]="900"></app-flipbook>
+        <app-flipbook [src]="publicUrl+'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo"></app-flipbook>
 
 
         <div class="card-layer with-image" [style.background-image]="'url('+publicUrl+'/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
@@ -33,12 +33,17 @@
         <h3>{{ articulo.titulo }}</h3>
         <p class="autor"><strong>Autor:</strong> {{ articulo.autor }}</p>
         <p class="contenido">{{ articulo.contenido | slice:0:200 }}...</p>
-        <button [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn-leer">Leer más
+        <!-- <button [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn-leer">Leer más -->
 
          <!--  <a [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn btn-secondary mb-4">
     ← Regresar a la revista
   </a> -->
+
+        <button (click)="abrirFlipbookEnPagina(articulo.pagina)" class="btn-leer">
+          Leer más
         </button>
+
+
       </div>
     </div>
 

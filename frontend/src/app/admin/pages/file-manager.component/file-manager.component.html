@@ -56,16 +56,32 @@
             filterMode="lenient"
             filterPlaceholder="Buscar..."
             class="arbol-categorias">
+
+            <ng-template let-node pTemplate="default">
+              <div class="nodo-contenido">
+                <span class="nodo-label">{{ node.label }}</span>
+                <span class="nodo-acciones" *ngIf="node.data?.type === 'file' && node.data.fileId">
+                  <p-button 
+                    icon="pi pi-eye" 
+                    [rounded]="true" 
+                    [text]="true"
+                    size="small"
+                    (onClick)="visualizarArchivo(fileService.getArchivoPorId(node.data.fileId)!); $event.stopPropagation()"
+                    pTooltip="Ver">
+                  </p-button>
+                  <p-button 
+                    icon="pi pi-download" 
+                    [rounded]="true" 
+                    [text]="true"
+                    size="small"
+                    severity="success"
+                    (onClick)="descargarArchivo(fileService.getArchivoPorId(node.data.fileId)!); $event.stopPropagation()"
+                    pTooltip="Descargar">
+                  </p-button>
+                </span>
+              </div>
+            </ng-template>
           </p-tree>
-
-
-
-
-
-
-
-
-
 
         </div>
       </div>
@@ -128,26 +144,17 @@
             </td>
             <td>
               <p-button 
-                icon="pi pi-eye" 
+                icon="pi pi-pencil" 
                 [rounded]="true" 
                 [text]="true"
-                (onClick)="visualizarArchivo(archivo)"
-                pTooltip="Ver">
-              </p-button>
-              <p-button 
-                icon="pi pi-download" 
-                [rounded]="true" 
-                [text]="true"
-                severity="success"
-                (onClick)="descargarArchivo(archivo)"
-                pTooltip="Descargar">
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
         </ng-template>
       </p-table>
     </p-tabpanel>
-
 
     <p-tabpanel value="2" header="Por Municipio" leftIcon="pi pi-map-marker">
       <p-table 
@@ -204,7 +211,7 @@
               <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
             </td>
             <td>
-              <p-button 
+              <!-- <p-button 
                 icon="pi pi-eye" 
                 [rounded]="true" 
                 [text]="true"
@@ -218,6 +225,13 @@
                 severity="success"
                 (onClick)="descargarArchivo(archivo)"
                 pTooltip="Descargar">
+              </p-button> -->
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
@@ -281,7 +295,7 @@
               <p-tag [value]="archivo.tipo" [severity]="archivo.tipo === 'PDF' ? 'danger' : 'info'"></p-tag>
             </td>
             <td>
-              <p-button 
+              <!-- <p-button 
                 icon="pi pi-eye" 
                 [rounded]="true" 
                 [text]="true"
@@ -295,6 +309,13 @@
                 severity="success"
                 (onClick)="descargarArchivo(archivo)"
                 pTooltip="Descargar">
+              </p-button> -->
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
@@ -356,7 +377,7 @@
             <td>{{ archivo.fecha | date:'dd/MM/yyyy' }}</td>
             <td>{{ archivo.dependencia }}</td>
             <td>
-              <p-button 
+              <!-- <p-button 
                 icon="pi pi-eye" 
                 [rounded]="true" 
                 [text]="true"
@@ -370,6 +391,13 @@
                 severity="success"
                 (onClick)="descargarArchivo(archivo)"
                 pTooltip="Descargar">
+              </p-button> -->
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true"
+                (onClick)="editarArchivo(archivo)"
+                pTooltip="Editar">
               </p-button>
             </td>
           </tr>
@@ -642,6 +670,145 @@
       icon="pi pi-times" 
       (onClick)="mostrarDialogVisualizador = false"
       [outlined]="true">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+
+
+
+
+
+
+
+
+<!-- Dialog: Editar Archivo -->
+<p-dialog 
+  header="Editar Archivo" 
+  [(visible)]="mostrarDialogEdicion" 
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <form [formGroup]="formularioEdicion" class="formulario-archivo">
+    <div class="field">
+      <label for="nombreEdit">Nombre del Documento *</label>
+      <input 
+        id="nombreEdit" 
+        type="text" 
+        pInputText 
+        formControlName="nombre"
+        placeholder="Ej: Reporte Anual 2024" />
+    </div>
+
+    <div class="field">
+      <label for="palabrasClaveEdit">Palabras Clave</label>
+      <input 
+        id="palabrasClaveEdit" 
+        type="text" 
+        pInputText 
+        formControlName="palabrasClave"
+        placeholder="Separadas por comas" />
+      <small>Ej: finanzas, reporte, anual</small>
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="field">
+          <label for="autorEdit">Autor *</label>
+          <input 
+            id="autorEdit" 
+            type="text" 
+            pInputText 
+            formControlName="autor" />
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="field">
+          <label for="tipoEdit">Tipo de Archivo *</label>
+          <p-select 
+            id="tipoEdit"
+            [options]="tiposArchivo" 
+            formControlName="tipo"
+            placeholder="Selecciona el tipo">
+          </p-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="field">
+          <label for="dependenciaEdit">Dependencia *</label>
+          <p-select 
+            id="dependenciaEdit"
+            [options]="dependencias" 
+            formControlName="dependencia"
+            placeholder="Selecciona dependencia">
+          </p-select>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="field">
+          <label for="municipioEdit">Municipio *</label>
+          <p-select 
+            id="municipioEdit"
+            [options]="municipios" 
+            formControlName="municipio"
+            placeholder="Selecciona municipio">
+          </p-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="field">
+          <label for="regionEdit">Región *</label>
+          <p-select 
+            id="regionEdit"
+            [options]="regiones" 
+            formControlName="region"
+            placeholder="Selecciona región">
+          </p-select>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="field">
+          <label for="paisEdit">País *</label>
+          <input 
+            id="paisEdit" 
+            type="text" 
+            pInputText 
+            formControlName="pais" />
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fechaEdit">Fecha *</label>
+      <p-datepicker 
+        id="fechaEdit"
+        formControlName="fecha" 
+        [showIcon]="true"
+        dateFormat="dd/mm/yy">
+      </p-datepicker>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogEdicion = false"
+      [outlined]="true">
+    </p-button>
+    <p-button 
+      label="Guardar" 
+      icon="pi pi-check" 
+      (onClick)="guardarEdicion()"
+      [disabled]="!formularioEdicion.valid">
     </p-button>
   </ng-template>
 </p-dialog>
