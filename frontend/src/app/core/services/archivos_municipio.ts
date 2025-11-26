@@ -73,6 +73,22 @@ export class ApiArchivos_municipio {
     });
   }
 
+  createArchivo(formData: FormData): Observable<any> {
+    return this.http.post(this.apiUrl, formData);
+  }
+
+  // Eliminar archivo
+  deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  }
+
+  updateArchivo(id: number, formData: FormData) {
+    return this.http.put<{ success: boolean; message: string; data: any }>(
+      `${this.apiUrl}/${id}`,
+      formData
+    );
+  }
+
   // ✅ NUEVO - Método con filtros (más eficiente)
   getArchivosFiltrados(params: {
     municipios?: number[];
@@ -140,21 +156,5 @@ export class ApiArchivos_municipio {
     data: { id_municipio: number; nombre: string; contador: number }[];
   }> {
     return this.http.get<any>(`${this.apiUrl}/conteos`);
-  }
-
-  createArchivo(formData: FormData): Observable<any> {
-    return this.http.post(this.apiUrl, formData);
-  }
-
-  // Eliminar archivo
-  deleteArchivo(id: number): Observable<{ success: boolean; message: string; id: number }> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
-  }
-
-  updateArchivo(id: number, formData: FormData) {
-    return this.http.put<{ success: boolean; message: string; data: any }>(
-      `${this.apiUrl}/${id}`,
-      formData
-    );
   }
 }

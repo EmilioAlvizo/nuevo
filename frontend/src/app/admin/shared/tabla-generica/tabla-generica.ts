@@ -169,6 +169,7 @@ export class TablaGenerica {
   showEditButton = input<boolean>(true); // mostrar u ocultar botón editar []
   showDeleteButton = input<boolean>(true); // mostrar u ocultar botón eliminar []
   showSelection = input<boolean>(true); // mostrar u ocultar selección de filas []
+  showNew = input<boolean>(true); // mostrar u ocultar boton nuevo []
 
   // Outputs
   add = output<void>(); // evento para agregar elementos a la tabla ()

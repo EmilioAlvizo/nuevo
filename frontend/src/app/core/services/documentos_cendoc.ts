@@ -36,6 +36,10 @@ export class ApiDocumentos_cendoc {
     return this.http.get<ApiResponse<Documentos_cendoc>>(this.apiUrl);
   }
 
+  getValoresUnicos(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/valores-unicos`);
+  }
+
   // ✅ NUEVO - Método con filtros (más eficiente)
   getFiltrados(filtros: any): Observable<ApiResponsePaginated<Documentos_cendoc>> {
     let params = new HttpParams();

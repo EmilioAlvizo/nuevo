@@ -251,6 +251,7 @@
                 routerLink="/admin/"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
                 >Interfaz</a
               >
             </li>
@@ -259,6 +260,7 @@
                 routerLink="/admin/"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
                 >Usuarios</a
               >
             </li>

@@ -30,6 +30,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { DatePickerModule } from 'primeng/datepicker';
 
 interface MunicipioOption {
   label: string;
@@ -49,6 +50,7 @@ interface MunicipioOption {
     FileUploadModule,
     TagModule,
     AutoCompleteModule,
+    DatePickerModule,
   ],
   templateUrl: './nuevo-archivo-form.html',
   styleUrl: './nuevo-archivo-form.css',
@@ -116,7 +118,7 @@ export class NuevoArchivoForm {
     palabras_clave: [''],
     estatus_archivo: ['A', [Validators.required]],
     archivo: [null as File | null],
-    fecha_archivo: [null, [Validators.required]],
+    fecha_archivo:  [null as Date | null, Validators.required],
   });
 
   // 🔄 Effect para cargar datos en modo edición

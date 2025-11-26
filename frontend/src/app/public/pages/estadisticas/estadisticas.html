@@ -1,3 +1,4 @@
+<!-- // nuevo/frontend/src/app/public/pages/estadisticas/estadisticas.ts -->
 <div class="contenedor">
   <div class="row text-wrap text-break">
     <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
@@ -6,5 +7,9 @@
   </div>
 </div>
 
-<app-navbar-documentos (tipoCambio)="onTipoCambio($event)"></app-navbar-documentos>
-<app-tabla [tipoDocumento]="mostrarTabla"></app-tabla>
+<app-tabla-dinamica [strategy]="archivosStrategy"></app-tabla-dinamica>
+
+<!-- <app-navbar-documentos (tipoCambio)="onTipoCambio($event)"></app-navbar-documentos>
+<app-tabla [tipoDocumento]="mostrarTabla"></app-tabla> -->
+
+

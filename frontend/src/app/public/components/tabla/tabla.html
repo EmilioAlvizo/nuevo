@@ -194,8 +194,8 @@
                   class="input-busqueda"
                   placeholder="Buscar una categoria"
                   autocomplete="off"
-                  [(ngModel)]="terminoBusquedaDocumentoCendoc"
-                  (input)="buscarCategoriasDocumentoCendoc($event)"
+                  [(ngModel)]="terminoBusquedaCategoria"
+                  (input)="buscarCategoria($event)"
                 />
                 <svg
                   class="icono-busqueda"
@@ -220,25 +220,25 @@
               </div>
             </div>
             <div class="opciones-busqueda">
-              @for (municipio of documentosCendocFiltrados; track municipio.id_categoria_cendoc) {
+              @for (cat of categoriasFiltradasLista; track cat) {
               <label class="etiqueta-campo">
                 <input
                   type="checkbox"
                   class="campo-checkbox"
-                  [id]="'categoria-' + municipio.id_categoria_cendoc"
-                  [checked]="isDocumento_cendocSeleccionado(municipio.id_categoria_cendoc)"
-                  (change)="toggleDocumento_cendoc(municipio.id_categoria_cendoc)"
+                  [id]="'categoria-' + cat"
+                  [checked]="isCategoriaSeleccionada(cat)"
+                  (change)="toggleCategoria(cat)"
                 />
                 <span class="descripcion-input">
-                  {{ municipio.nombre_categoria_cendoc }}
-                  <span class="contador-input">{{ municipio.contador }}</span>
+                  {{ cat }}
+                  <!-- <span class="contador-input">{{ cat.contador }}</span> -->
                 </span>
               </label>
               }
 
               <!-- Mensaje cuando no hay resultados -->
-              @if (municipiosFiltrados.length === 0) {
-              <div class="sin-resultados">No se encontraron municipios</div>
+              @if (categoriasFiltradasLista.length === 0) {
+              <div class="sin-resultados">No se encontraron</div>
               }
             </div>
           </div>
@@ -337,7 +337,7 @@
                 />
                 <span class="descripcion-input">
                   {{ municipio.nombre }}
-                  <span class="contador-input">{{ municipio.contador }}</span>
+                  <!-- <span class="contador-input">{{ municipio.contador }}</span> -->
                 </span>
               </label>
               }

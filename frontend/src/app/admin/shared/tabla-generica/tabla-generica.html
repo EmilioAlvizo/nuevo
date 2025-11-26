@@ -5,7 +5,8 @@
   <p-toolbar class="mb-4 w-100">
     <ng-template #start>
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-        <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />
+        @if (showNew()) {
+        <p-button label="Nuevo" icon="pi pi-plus" class="me-2" (onClick)="add.emit()" />}
         <div class="d-flex gap-2 align-items-center">
           <!-- Búsqueda Global -->
           <p-iconfield iconPosition="left">

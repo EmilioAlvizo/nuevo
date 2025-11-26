@@ -1,11 +1,21 @@
 // nuevo/frontend/src/app/public/components/tabla/tabla.ts
 import { Component, OnInit, Input } from '@angular/core';
-import { ApiArchivos_municipio, Archivos_municipio } from '../../../core/services/archivos_municipio';
+import {
+  ApiArchivos_municipio,
+  Archivos_municipio,
+} from '../../../core/services/archivos_municipio';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject } from 'rxjs';
+
+// Interfaz para manejar la lista visual de filtros
+interface OpcionFiltro {
+  valor: string | number; // Puede ser ID (municipio) o String (categoria)
+  nombre: string; // Lo que se muestra en pantalla
+  conteo?: number; // Opcional
+}
 
 interface GrupoExpandible {
   expandido: boolean;
@@ -44,6 +54,12 @@ export class Tabla implements OnInit {
   terminoBusquedaMunicipio: string = '';
   municipiosSeleccionados: Set<number> = new Set();
 
+  // --- LOGICA DE FILTRO CATEGORIAS (Basado en strings del backend) ---
+  categoriasOpciones: string[] = [];
+  categoriasFiltradasLista: string[] = [];
+  terminoBusquedaCategoria: string = '';
+  categoriasSeleccionadas: Set<string> = new Set();
+
   // para el filtro de documentos cendoc
   documentosCendocConContador: Documentos_cendocConContador[] = [];
   documentosCendocFiltrados: Documentos_cendocConContador[] = [];
@@ -72,12 +88,12 @@ export class Tabla implements OnInit {
   cargando: boolean = false;
 
   valoresUnicos: any = {
-  id_municipio: [],
-  estatus_archivo: [],
-  tipo_archivo: [],
-  categoria_archivo: [],
-  subcategoria_archivo: []
-};
+    id_municipio: [],
+    estatus_archivo: [],
+    tipo_archivo: [],
+    categoria_archivo: [],
+    subcategoria_archivo: [],
+  };
 
   constructor(
     private datasetService: ApiMunicipio,
@@ -107,22 +123,27 @@ export class Tabla implements OnInit {
   }
 
   cargarValoresUnicos(): void {
-  this.archivos_municipioService.getValoresUnicos().subscribe({
-    next: (res) => {
-      this.valoresUnicos = res.data;
+    this.archivos_municipioService.getValoresUnicos().subscribe({
+      next: (res) => {
+        const data = res.data;
 
-      // Si quieres que los filtros de municipio sigan mostrando nombre y contador:
-      this.municipiosFiltrados = res.data.id_municipio.map((id: number) => ({
-        id_municipio: id,
-        nombre: this.obtenerNombreMunicipio(id),
-        contador: 0 // si ya no tienes conteos, lo pones en 0
-      }));
-    },
-    error: (err) => {
-      console.error("Error al obtener valores únicos:", err);
-    }
-  });
-}
+        // Si quieres que los filtros de municipio sigan mostrando nombre y contador:
+        this.municipiosFiltrados = res.data.id_municipio.map((id: number) => ({
+          id_municipio: id,
+          nombre: this.obtenerNombreMunicipio(id),
+          contador: 0, // si ya no tienes conteos, lo pones en 0
+        }));
+        // B. Configurar CATEGORIAS (Strings directos)
+        if (data.categoria_archivo && Array.isArray(data.categoria_archivo)) {
+          this.categoriasOpciones = data.categoria_archivo;
+          this.categoriasFiltradasLista = [...this.categoriasOpciones];
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener valores únicos:', err);
+      },
+    });
+  }
 
   cargarMunicipios(): void {
     this.datasetService.getMessage().subscribe({
@@ -164,6 +185,10 @@ export class Tabla implements OnInit {
       id_municipio: Array.from(this.municipiosSeleccionados).join(','),
       busqueda: this.searchTerm || undefined,
       //categoria: Array.from(this.documentosCendocSeleccionados),
+      categoria_archivo:
+        this.categoriasSeleccionadas.size > 0
+          ? Array.from(this.categoriasSeleccionadas).join(',')
+          : undefined,
       palabra_clave: this.palabrasClaveTerm || undefined,
       ordenar: this.ordenActual || undefined,
       limite: this.limite,
@@ -227,6 +252,20 @@ export class Tabla implements OnInit {
     }
   }
 
+  // 2. Buscador de Categoría (Filtra la lista de checkboxes)
+  buscarCategoria(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.terminoBusquedaCategoria = input.value.toLowerCase();
+
+    if (!this.terminoBusquedaCategoria) {
+      this.categoriasFiltradasLista = [...this.categoriasOpciones];
+    } else {
+      this.categoriasFiltradasLista = this.categoriasOpciones.filter((cat) =>
+        cat.toLowerCase().includes(this.terminoBusquedaCategoria)
+      );
+    }
+  }
+
   buscarCategoriasDocumentoCendoc(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.terminoBusquedaDocumentoCendoc = input.value.toLowerCase();
@@ -257,6 +296,16 @@ export class Tabla implements OnInit {
     this.applyFilters();
   }
 
+  toggleCategoria(categoria: string): void {
+    if (this.categoriasSeleccionadas.has(categoria)) {
+      this.categoriasSeleccionadas.delete(categoria);
+    } else {
+      this.categoriasSeleccionadas.add(categoria);
+    }
+    this.paginaActual = 1;
+    this.cargarArchivosFiltrados();
+  }
+
   toggleDocumento_cendoc(idCategoria: number): void {
     //console.log('Toggle categoria documento cendoc:', idCategoria);
 
@@ -273,6 +322,10 @@ export class Tabla implements OnInit {
 
   isMunicipioSeleccionado(idMunicipio: number): boolean {
     return this.municipiosSeleccionados.has(idMunicipio);
+  }
+
+  isCategoriaSeleccionada(cat: string): boolean {
+    return this.categoriasSeleccionadas.has(cat);
   }
 
   isDocumento_cendocSeleccionado(idCategoria: number): boolean {

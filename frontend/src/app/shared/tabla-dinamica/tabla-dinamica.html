@@ -1,0 +1,483 @@
+<!-- // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.html -->
+<!-- // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.html -->
+<div class="container">
+  <!-- === PANEL DE FILTROS (Solo en vista GRID) === -->
+  @if (viewMode === 'grid') {
+  <div class="panel-filtros">
+    <div class="encabezado-filtros">
+      <h2 class="titulo-filtros">Filtros</h2>
+      @if (filtersConfig.length) {
+      <button class="boton-restablecer" (click)="limpiarFiltros()">
+        <span class="texto-boton">Limpiar</span>
+      </button>
+      }
+    </div>
+
+    <div class="contenido-filtros">
+      @for (filter of filtersConfig; track filter.key) {
+      <!-- Grupo de Facetas -->
+      <fieldset class="grupo-facetas">
+        <legend class="encabezado-grupo">
+          <button
+            type="button"
+            class="boton-encabezado-grupo"
+            [attr.aria-expanded]="filter.expandido"
+            (click)="toggleFilterGroup(filter)"
+          >
+            <span class="titulo-grupo">{{ filter.label }}</span>
+            <span class="icono-grupo">
+              @if (!filter.expandido) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2C8.55228 2 9 2.44772 9 3V7H13C13.5523 7 14 7.44772 14 8C14 8.55229 13.5523 9 13 9H9V13C9 13.5523 8.55228 14 8 14C7.44772 14 7 13.5523 7 13V9H3C2.44772 9 2 8.55229 2 8C2 7.44772 2.44772 7 3 7H7V3C7 2.44772 7.44772 2 8 2Z"
+                  fill="currentcolor"
+                />
+              </svg>
+              } @if (filter.expandido) {
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14 8C14 8.55228 13.5523 9 13 9L3 9C2.44771 9 2 8.55228 2 8C2 7.44772 2.44772 7 3 7L13 7C13.5523 7 14 7.44772 14 8Z"
+                  fill="currentcolor"
+                />
+              </svg>
+              }
+            </span>
+          </button>
+        </legend>
+
+        <div
+          class="contenido-grupo"
+          [class.contenido-grupo--expandido]="filter.expandido"
+          [attr.aria-hidden]="!filter.expandido"
+        >
+          <!-- INPUT TEXTO -->
+          @if (filter.type === 'text') {
+          <div class="combobox-busqueda">
+            <div class="contenedor-busqueda">
+              <label [for]="'input-' + filter.key" class="etiqueta-busqueda">
+                Buscar {{ filter.label }}
+              </label>
+              <div class="contenedor-input-busqueda">
+                <input
+                  [id]="'input-' + filter.key"
+                  type="search"
+                  class="input-busqueda"
+                  [placeholder]="'Buscar ' + filter.label"
+                  [(ngModel)]="filter.valorActual"
+                  (input)="paginaActual = 1; cargarDatos()"
+                  autocomplete="off"
+                />
+                <svg
+                  class="icono-busqueda"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M10.5 10.5L14 14"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+          }
+
+          <!-- CHECKBOXES CON BUSCADOR -->
+          @if (filter.type === 'checkbox') {
+          <div class="combobox-busqueda">
+            <div class="contenedor-busqueda">
+              <label [for]="'busqueda-' + filter.key" class="etiqueta-busqueda">
+                Buscar {{ filter.label }}
+              </label>
+              <div class="contenedor-input-busqueda">
+                <input
+                  [id]="'busqueda-' + filter.key"
+                  type="search"
+                  class="input-busqueda"
+                  [placeholder]="'Buscar ' + filter.label"
+                  [(ngModel)]="filter.busquedaInterna"
+                  autocomplete="off"
+                />
+                <svg
+                  class="icono-busqueda"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 12C9.76142 12 12 9.76142 12 7C12 4.23858 9.76142 2 7 2C4.23858 2 2 4.23858 2 7C2 9.76142 4.23858 12 7 12Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M10.5 10.5L14 14"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div class="opciones-busqueda">
+              @for (op of getOpcionesVisibles(filter); track op.value) {
+              <label class="etiqueta-campo">
+                <input
+                  type="checkbox"
+                  class="campo-checkbox"
+                  [id]="filter.key + '-' + op.value"
+                  [checked]="isChecked(filter, op.value)"
+                  (change)="toggleCheckbox(filter, op.value)"
+                />
+                <span class="descripcion-input">{{ op.label }}</span>
+              </label>
+              } @if (getOpcionesVisibles(filter).length === 0) {
+              <div class="sin-resultados">No se encontraron resultados</div>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </fieldset>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- === CONTENIDO PRINCIPAL === -->
+  <main class="content">
+    <!-- ENCABEZADO SUPERIOR -->
+    <div class="encabezado-busqueda">
+      <h2 class="titulo-resultados">
+        <span class="contador-resultados">{{ totalResultados }} resultados</span>
+      </h2>
+
+      <div class="acciones-encabezado">
+        <!-- Ordenar (solo en vista grid) -->
+        @if (viewMode === 'grid') {
+        <div class="contenedor-ordenar">
+          <label class="etiqueta-ordenar" for="orden-busqueda">Ordenar</label>
+          <select class="selector-ordenar" id="orden-busqueda" (change)="ordenar($event)">
+            <option value="masRelevante">Más relevante</option>
+            <option value="masReciente">Más reciente</option>
+            <option value="masAntiguo">Más antiguo</option>
+            <option value="AZ">A-Z</option>
+            <option value="ZA">Z-A</option>
+          </select>
+        </div>
+        }
+
+        <!-- Botones de vista -->
+        <div class="alternador-vista">
+          <button
+            class="boton-vista"
+            [class.boton-vista--activo]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            type="button"
+            [attr.aria-pressed]="viewMode === 'list'"
+            aria-label="Vista de lista"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m4.48 2.10526c0-.29313.10114-.57426.28118-.78154.18003-.20727.42421-.32372.67882-.32372h9.6c.2546 0 .4988.11645.6788.32372.1801.20728.2812.48841.2812.78154 0 .29314-.1011.57427-.2812.78154-.18.20728-.4242.32373-.6788.32373h-9.6c-.25461 0-.49879-.11645-.67882-.32373-.18004-.20727-.28118-.4884-.28118-.78154zm10.56 4.78948h-9.6c-.25461 0-.49879.11644-.67882.32372-.18004.20728-.28118.48841-.28118.78154s.10114.57426.28118.78154c.18003.20728.42421.32372.67882.32372h9.6c.2546 0 .4988-.11644.6788-.32372.1801-.20728.2812-.48841.2812-.78154s-.1011-.57426-.2812-.78154c-.18-.20728-.4242-.32372-.6788-.32372zm0 5.89476h-9.6c-.25461 0-.49879.1164-.67882.3237-.18004.2073-.28118.4884-.28118.7815 0 .2932.10114.5743.28118.7816.18003.2073.42421.3237.67882.3237h9.6c.2546 0 .4988-.1164.6788-.3237.1801-.2073.2812-.4884.2812-.7816 0-.2931-.1011-.5742-.2812-.7815-.18-.2073-.4242-.3237-.6788-.3237zm-12.8-11.7895h-1.28c-.254608 0-.498788.11645-.678822.32372-.180035.20728-.281178.48841-.281178.78154 0 .29314.101143.57427.281178.78154.180034.20728.424214.32373.678822.32373h1.28c.25461 0 .49879-.11645.67882-.32373.18004-.20727.28118-.4884.28118-.78154 0-.29313-.10114-.57426-.28118-.78154-.18003-.20727-.42421-.32372-.67882-.32372zm0 5.89474h-1.28c-.254608 0-.498788.11644-.678822.32372-.180035.20728-.281178.48841-.281178.78154s.101143.57426.281178.78154c.180034.20728.424214.32372.678822.32372h1.28c.25461 0 .49879-.11644.67882-.32372.18004-.20728.28118-.48841.28118-.78154s-.10114-.57426-.28118-.78154c-.18003-.20728-.42421-.32372-.67882-.32372zm0 5.89476h-1.28c-.254608 0-.498788.1164-.678822.3237-.180035.2073-.281178.4884-.281178.7815 0 .2932.101143.5743.281178.7816.180034.2073.424214.3237.678822.3237h1.28c.25461 0 .49879-.1164.67882-.3237.18004-.2073.28118-.4884.28118-.7816 0-.2931-.10114-.5742-.28118-.7815-.18003-.2073-.42421-.3237-.67882-.3237z"
+                fill="currentcolor"
+              />
+            </svg>
+          </button>
+
+          <button
+            class="boton-vista"
+            [class.boton-vista--activo]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            type="button"
+            [attr.aria-pressed]="viewMode === 'grid'"
+            aria-label="Vista de cuadrícula"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect x="1" y="1" width="6" height="6" rx="1" fill="currentcolor" />
+              <rect x="9" y="1" width="6" height="6" rx="1" fill="currentcolor" />
+              <rect x="1" y="9" width="6" height="6" rx="1" fill="currentcolor" />
+              <rect x="9" y="9" width="6" height="6" rx="1" fill="currentcolor" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- === AREA DE RESULTADOS === -->
+    <div class="resultados-area" [class.loading]="loading">
+      <!-- VISTA GRID (CARDS) -->
+      @if (viewMode === 'grid') {
+      <div class="cards-grid">
+        @for (row of data; track $index) {
+        <div class="card">
+          <div class="contenido">
+            <!-- Badge -->
+            <div>
+              @for (col of columns; track col.key) { @if (col.role === 'subtitle') {
+              <div class="badge">{{ row[col.key] }}</div>
+              } }
+            </div>
+
+            <!-- Título -->
+            <div class="titulo">
+              @for (col of columns; track col.key) { @if (col.role === 'title') {
+              <h3>{{ row[col.key] }}</h3>
+              } }
+            </div>
+
+            <!-- Descripción/Detalles -->
+            <div class="descripcion">
+              @for (col of columns; track col.key) { @if (col.role === 'body') {
+              <p>
+                <strong>{{ col.label }}:</strong>
+                @if (col.type === 'date') { {{ row[col.key] | date : 'dd/MM/yyyy' }} } @else {
+                {{ row[col.key] }} }
+              </p>
+              } }
+            </div>
+          </div>
+
+          <!-- Footer con enlace -->
+          <div class="metadato">
+            <a target="_blank" rel="noopener noreferrer" [href]="row['url_descarga']">
+              📄 Ver documento
+            </a>
+          </div>
+        </div>
+        }
+
+        <!-- Sin resultados -->
+        @if (data.length === 0 && !loading) {
+        <div class="sin-resultados-grid">
+          <p>No se encontraron resultados con los filtros aplicados.</p>
+          @if (filtersConfig.length > 0) {
+          <button type="button" class="boton-limpiar-filtros" (click)="limpiarFiltros()">
+            Limpiar filtros
+          </button>
+          }
+        </div>
+        }
+      </div>
+      }
+
+      <!-- VISTA LISTA (TABLA) -->
+      @else { @if (tableGenericaService() && tableGenericaColumns().length > 0) {
+      <app-tabla-generica
+        [dataService]="tableGenericaService()"
+        [columns]="tableGenericaColumns()"
+        [title]="'Documentos'"
+        [entityName]="'documento'"
+        [showSelection]="false"
+        [showViewButton]="true"
+        [showEditButton]="false"
+        [showDeleteButton]="false"
+        [showNew]="false"
+        (view)="onView($event)"
+      />
+      } @else {
+      <div class="sin-resultados-grid">
+        <p>⚠️ La vista de tabla no está disponible para esta estrategia.</p>
+      </div>
+      } }
+    </div>
+
+    <!-- === PAGINACIÓN === -->
+    @if (totalPaginas > 1 && viewMode === 'grid') {
+    <div class="contenedor-paginacion">
+      <div class="info-paginacion">
+        <p class="texto-info">
+          Mostrando
+          <strong>{{ (paginaActual - 1) * limite + 1 }}</strong>
+          a
+          <strong>{{ Math.min(paginaActual * limite, totalResultados) }}</strong>
+          de
+          <strong>{{ totalResultados }}</strong>
+          resultados
+        </p>
+      </div>
+
+      <nav class="navegacion-paginacion" aria-label="Paginación">
+        <button
+          type="button"
+          class="boton-paginacion"
+          [disabled]="paginaActual === 1"
+          (click)="cambiarPagina(1)"
+          aria-label="Ir a la primera página"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M11 2L5 8L11 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8 2L2 8L8 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="boton-paginacion"
+          [disabled]="paginaActual === 1"
+          (click)="cambiarPagina(paginaActual - 1)"
+          aria-label="Página anterior"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M10 2L4 8L10 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <!-- Números de página -->
+        <div class="numeros-pagina">
+          @for (pagina of obtenerPaginasVisibles(); track pagina) { @if (pagina === '...') {
+          <span class="puntos-suspensivos">...</span>
+          } @else {
+          <button
+            type="button"
+            class="boton-numero-pagina"
+            [class.activo]="pagina === paginaActual"
+            (click)="cambiarPagina(+pagina)"
+            [attr.aria-current]="pagina === paginaActual ? 'page' : null"
+          >
+            {{ pagina }}
+          </button>
+          } }
+        </div>
+
+        <button
+          type="button"
+          class="boton-paginacion"
+          [disabled]="paginaActual === totalPaginas"
+          (click)="cambiarPagina(paginaActual + 1)"
+          aria-label="Página siguiente"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M6 2L12 8L6 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="boton-paginacion"
+          [disabled]="paginaActual === totalPaginas"
+          (click)="cambiarPagina(totalPaginas)"
+          aria-label="Ir a la última página"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5 2L11 8L5 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M8 2L14 8L8 14"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </nav>
+
+      <!-- Selector de items por página -->
+      <div class="selector-limite">
+        <label for="items-por-pagina" class="etiqueta-limite">Items por página:</label>
+        <select
+          id="items-por-pagina"
+          class="select-limite"
+          [(ngModel)]="limite"
+          (change)="cambiarLimite($event)"
+        >
+          <option [value]="10">10</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+    </div>
+    }
+  </main>
+</div>
