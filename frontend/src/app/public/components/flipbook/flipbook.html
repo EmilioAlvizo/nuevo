@@ -1,20 +1,57 @@
+
 <div class="flipbook-root" tabindex="0">
-  <div class="controls">
+  <!-- Controles normales (solo visible fuera de fullscreen) -->
+  <div class="controls" *ngIf="!isFullscreen">
     <button (click)="prev()" [disabled]="currentFolioIndex === 0">◀ Prev</button>
     <div class="page-counter">Página {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}</div>
     <button (click)="next()" [disabled]="currentFolioIndex >= folios.length - 1">Next ▶</button>
   </div>
 
   <div class="book-stage" #stage>
+    <!-- Botones flotantes de navegación (solo en fullscreen) -->
+    <button class="nav-btn nav-btn-left" 
+            *ngIf="isFullscreen"
+            (click)="prev()" 
+            [disabled]="currentFolioIndex === 0">
+      ◀
+    </button>
+    
+    <button class="nav-btn nav-btn-right" 
+            *ngIf="isFullscreen"
+            (click)="next()" 
+            [disabled]="currentFolioIndex >= folios.length - 1">
+      ▶
+    </button>
+
+    <!-- Botón para salir de fullscreen (esquina superior derecha) -->
+    <button class="exit-fullscreen-btn" 
+            *ngIf="isFullscreen"
+            (click)="toggleFullscreen()"
+            title="Salir de pantalla completa">
+      ✕
+    </button>
+
+    <!-- Contador de páginas en fullscreen (abajo al centro) -->
+    <div class="page-counter-fullscreen" *ngIf="isFullscreen">
+      {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}
+    </div>
+
     <ng-container *ngFor="let folio of folios; let fi = index">
       <div class="folio" 
            [class.flipped]="folio.flipped" 
-           [style.z-index]="getZIndex(fi)">
+           [style.z-index]="getZIndex(fi)"
+           [style.width.px]="pageWidth / 2"
+           [style.height.px]="folioHeight">
         <div class="leaf front"><canvas #frontCanvas></canvas></div>
         <div class="leaf back"><canvas #backCanvas></canvas></div>
       </div>
     </ng-container>
   </div>
 
-  <div class="tips">Usa flechas ← → o desliza para cambiar página</div>
+  <!-- Botón para entrar a fullscreen (solo visible fuera de fullscreen) -->
+  <div *ngIf="!isFullscreen">
+    <button class="fullscreen-btn" (click)="toggleFullscreen()">Fullscreen</button>
+  </div>
+
+  <div class="tips" *ngIf="!isFullscreen">Usa flechas ← → o desliza para cambiar página</div>
 </div>

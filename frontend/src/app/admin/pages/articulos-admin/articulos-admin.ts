@@ -108,7 +108,8 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
       titulo: ['', Validators.required],
       autor: ['', Validators.required],
       contenido: ['', Validators.required],
-      estatus: ['A', Validators.required]
+      estatus: ['A', Validators.required],
+      pagina: [null, Validators.required]
     });
   }
 
@@ -121,28 +122,16 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.revistas = res.data || [];
-
-          // this.revistasOptions = this.revistas.map(r => ({
-          //   label: `Vol. ${r.volumen} - Núm. ${r.numero_year} (${r.fecha })`,
-          //   value: r.id_revista
-          // }));
-
             this.revistasOptions = this.revistas.map(r => ({
               label: `Vol. ${r.volumen} - Núm. ${r.numero_year} (${this.datePipe.transform(r.fecha, 'dd/MM/yyyy', 'UTC')})`,
               value: r.id_revista
             }));
-
-
         },
         error: () => {
           this.mostrarError('Error al cargar revistas');
         }
       });
   }
-
-
-
-
 
   // ===========================
   // CARGA DE ARTÍCULOS
@@ -188,6 +177,7 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
         id_revista: art.id_revista,
         titulo: art.titulo,
         autor: art.autor,
+        pagina: art.pagina,
         contenido: art.contenido,
         estatus: art.estatus
       });
@@ -241,9 +231,9 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
   // ===========================
   // SUBMIT
   // ===========================
-  submitForm(): void {
+
+  submitForm() {
     if (this.formArticulo.invalid) {
-      this.formArticulo.markAllAsTouched();
       return;
     }
 
@@ -257,6 +247,7 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
     }
   }
 
+
   private prepararFormData(): FormData {
     const fd = new FormData();
     const v = this.formArticulo.value;
@@ -264,6 +255,7 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
     fd.append('id_revista', v.id_revista.toString());
     fd.append('titulo', v.titulo);
     fd.append('autor', v.autor);
+    fd.append('pagina', v.pagina.toString());
     fd.append('contenido', v.contenido);
     fd.append('estatus', v.estatus);
 

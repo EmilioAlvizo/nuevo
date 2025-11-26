@@ -44,6 +44,7 @@
               <th>ID</th>
               <th>Título</th>
               <th>Autor</th>
+              <th>Pagina en PDf</th>
               <th>Imagen</th>
               <th>Estatus</th>
               <th>Modificación</th>
@@ -56,6 +57,7 @@
               <td>{{ articulo.id_articulo }}</td>
               <td>{{ articulo.titulo }}</td>
               <td>{{ articulo.autor }}</td>
+              <td>{{ articulo.pagina }}</td>
 
               <td>
                 <img 
@@ -149,6 +151,11 @@
     </div>
 
     <div class="form-field">
+      <label>Página en PDF</label>
+      <input type="number" pInputText class="w-full" formControlName="pagina">
+    </div>
+
+    <div class="form-field">
       <label>Contenido</label>
       <textarea pInputTextarea rows="4" class="w-full" formControlName="contenido"></textarea>
     </div>
@@ -172,7 +179,9 @@
 
     <div class="form-actions">
       <p-button label="Cancelar" severity="secondary" type="button" (click)="cerrarModal()"></p-button>
-      <p-button label="Guardar" [loading]="submitting"></p-button>
+      <!-- <p-button label="Guardar" [loading]="submitting"></p-button> -->
+       <button pButton label="Guardar" type="submit" [loading]="submitting"></button>
+
     </div>
 
   </form>

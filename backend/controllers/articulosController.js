@@ -200,10 +200,10 @@ class ArticulosController {
   // -----------------------------------------------------------
   static async create(req, res) {
     try {
-      const { id_revista, titulo, autor, contenido, estatus } = req.body;
+      const { id_revista, titulo, autor, contenido, estatus, pagina } = req.body;
 
       // Validación básica
-      if (!id_revista || !titulo || !autor || !contenido) {
+      if (!id_revista || !titulo || !autor || !contenido || !pagina) {
         return res.status(400).json({
           success: false,
           message: "Faltan campos requeridos",
@@ -216,6 +216,7 @@ class ArticulosController {
         titulo,
         autor,
         contenido,
+        pagina,
         estatus: estatus || "A",
       });
 
@@ -279,7 +280,7 @@ class ArticulosController {
     try {
       const { id } = req.params;
 
-      const { id_revista, titulo, autor, contenido, estatus } = req.body;
+      const { id_revista, titulo, autor, contenido, estatus, pagina } = req.body;
 
       const registroActual = await ArticulosModel.getById(TABLE_NAME, id, ID_COLUMN);
 
@@ -294,7 +295,7 @@ class ArticulosController {
       await ArticulosModel.update(
         TABLE_NAME,
         id,
-        { id_revista, titulo, autor, contenido, estatus },
+        { id_revista, titulo, autor, contenido, estatus, pagina },
         ID_COLUMN
       );
 
