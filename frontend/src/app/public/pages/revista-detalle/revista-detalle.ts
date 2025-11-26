@@ -8,6 +8,7 @@ import { Flipbook } from '../../components/flipbook/flipbook';
 import localeEs from '@angular/common/locales/es';
 import { environment } from '../../../../environments/environment';
 import { RouterModule } from '@angular/router';
+import { ViewChild } from '@angular/core';
 
 registerLocaleData(localeEs);
 
@@ -22,6 +23,8 @@ registerLocaleData(localeEs);
 })
 
 export class RevistaDetalle implements OnInit {
+  @ViewChild(Flipbook) flipbookComponent!: Flipbook;
+
   publicUrl = environment.publicUrl;
 
   revista?: Revistas;
@@ -77,5 +80,111 @@ export class RevistaDetalle implements OnInit {
       console.error('Archivo o ID de revista no definidos');
     }
   }
+
+
+// abrirFlipbookEnPagina(pagina: number | null) {
+//   if (pagina === null || !this.flipbookComponent) return;
+
+//   const folioIndex = Math.floor((pagina - 1) / 2);
+//   const folio = this.flipbookComponent.folios[folioIndex];
+//   if (!folio) return;
+
+//   this.flipbookComponent.currentFolioIndex = folioIndex;
+
+//   // Render ambos lados si existen
+//   const frontCanvas = this.flipbookComponent.frontCanvases.toArray()[folioIndex]?.nativeElement;
+//   const backCanvas = this.flipbookComponent.backCanvases.toArray()[folioIndex]?.nativeElement;
+
+//   if (frontCanvas && folio.front !== null) {
+//     this.flipbookComponent.renderPageToCanvas(folio.front, frontCanvas);
+//   }
+//   if (backCanvas && folio.back !== null) {
+//     this.flipbookComponent.renderPageToCanvas(folio.back, backCanvas);
+//   }
+
+//   // Scroll hacia flipbook
+//   const flipbookEl = document.querySelector('.flipbook-wrapper');
+//   if (flipbookEl) {
+//     flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//   }
+// }
+
+// abrirFlipbookEnPagina(pagina: number | null) {
+//   if (pagina === null || !this.flipbookComponent) return;
+
+//   // Calcular el índice del folio (cada folio tiene 2 páginas)
+//   const folioIndex = Math.floor((pagina - 1) / 2);
+  
+//   // Verificar que el folio existe
+//   if (folioIndex < 0 || folioIndex >= this.flipbookComponent.folios.length) {
+//     console.error('Índice de folio fuera de rango:', folioIndex);
+//     return;
+//   }
+
+//   // Marcar los folios anteriores como "flipped"
+//   for (let i = 0; i < folioIndex; i++) {
+//     this.flipbookComponent.folios[i].flipped = true;
+//   }
+
+//   // Asegurarse de que el folio actual NO esté flipped
+//   this.flipbookComponent.folios[folioIndex].flipped = false;
+
+//   // Actualizar el índice actual
+//   this.flipbookComponent.currentFolioIndex = folioIndex;
+
+//   // Renderizar los folios visibles (esto renderizará el actual y los adyacentes)
+//   this.flipbookComponent.renderVisibleFolios();
+
+//   // Scroll hacia el flipbook después de un pequeño delay
+//   setTimeout(() => {
+//     const flipbookEl = document.querySelector('.flipbook-wrapper');
+//     if (flipbookEl) {
+//       flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//     }
+//   }, 100);
+// }
+
+abrirFlipbookEnPagina(pagina: number | null) {
+  if (pagina === null || !this.flipbookComponent) return;
+
+  // Calcular el índice del folio considerando que la portada (página 1) está sola
+  let folioIndex: number;
+  
+  if (pagina === 1) {
+    // La portada está en el folio 0
+    folioIndex = 0;
+  } else {
+    // Páginas 2 en adelante: página 2-3 → folio 1, página 4-5 → folio 2, etc.
+    folioIndex = Math.floor((pagina - 2) / 2) + 1;
+  }
+  
+  // Verificar que el folio existe
+  if (folioIndex < 0 || folioIndex >= this.flipbookComponent.folios.length) {
+    console.error('Índice de folio fuera de rango:', folioIndex);
+    return;
+  }
+
+  // Marcar los folios anteriores como "flipped"
+  for (let i = 0; i < folioIndex; i++) {
+    this.flipbookComponent.folios[i].flipped = true;
+  }
+
+  // Asegurarse de que el folio actual NO esté flipped
+  this.flipbookComponent.folios[folioIndex].flipped = false;
+
+  // Actualizar el índice actual
+  this.flipbookComponent.currentFolioIndex = folioIndex;
+
+  // Renderizar los folios visibles
+  this.flipbookComponent.renderVisibleFolios();
+
+  // Scroll hacia el flipbook después de un pequeño delay
+  setTimeout(() => {
+    const flipbookEl = document.querySelector('.flipbook-wrapper');
+    if (flipbookEl) {
+      flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 100);
+}
 
 }

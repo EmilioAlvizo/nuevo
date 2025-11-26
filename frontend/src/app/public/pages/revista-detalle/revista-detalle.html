@@ -33,12 +33,17 @@
         <h3>{{ articulo.titulo }}</h3>
         <p class="autor"><strong>Autor:</strong> {{ articulo.autor }}</p>
         <p class="contenido">{{ articulo.contenido | slice:0:200 }}...</p>
-        <button [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn-leer">Leer más
+        <!-- <button [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn-leer">Leer más -->
 
          <!--  <a [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn btn-secondary mb-4">
     ← Regresar a la revista
   </a> -->
+
+        <button (click)="abrirFlipbookEnPagina(articulo.pagina)" class="btn-leer">
+          Leer más
         </button>
+
+
       </div>
     </div>
 

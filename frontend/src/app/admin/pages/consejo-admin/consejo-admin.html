@@ -1,1 +1,292 @@
-<p>consejo-admin works!</p>
+<!-- // nuevo/frontend/src/app/admin/pages/consejo-admin/ -->
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="integrantes-admin-container">
+
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Integrantes del Consejo</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button
+        label="Nuevo integrante"
+        icon="pi pi-plus"
+        (onClick)="abrirModal()"
+        [disabled]="loading()"
+      >
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+  
+    <p-table
+      [value]="integrantesConsejo()"
+      [loading]="loading()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} integrantes"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll"
+      [dt]="tablaDesignTokens"
+      class="p-datatable-table-container"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 10%">Nombre</th>
+          <th style="width: 10%">Cargo</th>
+          <th style="width: 10%">Cargo en el consejo</th>
+          <th style="width: 10%">Importancia</th>
+          <th style="width: 10%">Estatus</th>
+          <th style="width: 25%">Imagen</th>
+          <th style="width: 10%">Modificación</th>
+          <th style="width: 10%">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-integrante>
+        <tr>
+          <td>{{ integrante.id_integrante }}</td>
+          <td>{{ integrante.nombre }}</td>
+          <td>{{ integrante.cargo }}</td>
+          <td>{{ integrante.cargo_consejo }}</td>
+          <td>{{ integrante.importancia }}</td>
+          <td>{{ integrante.estatus }}</td>
+          <td>
+            <img
+              *ngIf="integrante.imagen"
+              [src]="getImageUrl(integrante)"
+              [alt]="integrante.descripcion"
+              class="integrante-imagen"
+            />
+            <span *ngIf="!integrante.imagen" class="text-muted">Sin imagen</span>
+          </td>
+          <td>
+            <span
+              [class]="
+                integrante.estatus === 'A'
+                  ? 'status-badge status-active'
+                  : 'status-badge status-inactive'
+              "
+            >
+              {{ getEstatusLabel(integrante.estatus) }}
+            </span>
+          </td>
+          <td>
+            {{ integrante.fecha_modificacion | date : 'dd/MM/yyyy HH:mm' : 'UTC' }}
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              pTooltip="Editar integrante"
+              tooltipPosition="top"
+              (onClick)="abrirModal(integrante)"
+            >
+            </p-button>
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              pTooltip="eliminar integrante"
+              tooltipPosition="top"
+              (onClick)="eliminarIntegrante(integrante)"
+            >
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="10" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc"></i>
+              <p>No hay integrantes registrados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  
+</div>
+
+
+
+<!-- Modal para crear/editar integrante -->
+
+<p-dialog
+  [(visible)]="modalVisible"
+  [header]="editMode ? 'Editar Integrante' : 'Nuevo Integrante'"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '700px' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+  (onHide)="vaciarFormulario()"
+>
+  <form [formGroup]="formConsejo" (ngSubmit)="submitForm()">
+
+    <div class="row">
+
+   
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Nombre completo <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          pInputText
+          class="form-control"
+          formControlName="nombre"
+          placeholder="Nombre del integrante"
+        />
+        <small *ngIf="hasError('nombre')" class="text-danger">
+          El nombre es requerido
+        </small>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Cargo <span class="text-danger">*</span>
+        </label>
+        <input
+          type="text"
+          pInputText
+          class="form-control"
+          formControlName="cargo"
+          placeholder="Cargo del integrante"
+        />
+        <small *ngIf="hasError('cargo')" class="text-danger">
+          El cargo es requerido
+        </small>
+      </div>
+ 
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Cargo Consejo <span class="text-danger">*</span>
+        </label>
+
+        <p-select
+          formControlName="cargo_consejo"
+          class="w-100"
+          placeholder="Seleccione un cargo"
+        >
+          <ng-template pTemplate="items">
+            <p-selectItem label="Presidente" value="Presidente"></p-selectItem>
+            <p-selectItem label="Secretario Técnico" value="Secretario Técnico"></p-selectItem>
+            <p-selectItem label="Consejero" value="Consejero"></p-selectItem>
+          </ng-template>
+        </p-select>
+
+        <small *ngIf="hasError('cargo_consejo')" class="text-danger">
+          El cargo consejo es requerido
+        </small>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Importancia <span class="text-danger">*</span>
+        </label>
+
+        <p-select
+          formControlName="importancia"
+          class="w-100"
+          placeholder="Seleccione un nivel de importancia"
+        >
+          <ng-template pTemplate="items">
+            <p-selectItem label="1" value="1"></p-selectItem>
+            <p-selectItem label="2" value="2"></p-selectItem>
+            <p-selectItem label="3" value="3"></p-selectItem>
+            <p-selectItem label="4" value="4"></p-selectItem>
+            <p-selectItem label="5" value="5"></p-selectItem>
+            <p-selectItem label="6" value="6"></p-selectItem>
+            <p-selectItem label="7" value="7"></p-selectItem>
+            <p-selectItem label="8" value="8"></p-selectItem>
+            <p-selectItem label="9" value="9"></p-selectItem>
+            <p-selectItem label="10" value="10"></p-selectItem>
+            <p-selectItem label="11" value="11"></p-selectItem>
+            <p-selectItem label="12" value="12"></p-selectItem>
+            <p-selectItem label="13" value="13"></p-selectItem>
+            <p-selectItem label="14" value="14"></p-selectItem>
+            <p-selectItem label="15" value="15"></p-selectItem>
+          </ng-template>
+        </p-select>
+
+        <small *ngIf="hasError('importancia')" class="text-danger">
+          La importancia es requerida
+        </small>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Estatus *</label>
+        <p-select
+          [options]="estatusOptions"
+          formControlName="estatus"
+          optionLabel="label"
+          optionValue="value"
+          class="w-100"
+          [appendTo]="'body'"
+        ></p-select>
+      </div>
+
+      
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">
+          Imagen <span *ngIf="!editMode" class="text-danger">*</span>
+        </label>
+        <input
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+          (change)="onFileSelected($event)"
+          class="form-control"
+        />
+        <small *ngIf="selectedImage" class="text-success d-block mt-1">
+          <i class="pi pi-check-circle"></i> {{ selectedImage.name }}
+        </small>
+      </div> 
+
+      <!-- <div class="col-12 text-center" *ngIf="selectedImage">
+        <img
+          [src]="selectedImage ? (selectedImage | filePreview) : null"
+          class="img-thumbnail shadow mt-2"
+          style="max-width: 250px;"
+        />
+      </div>  -->
+
+     </div>
+
+   
+    <ng-template pTemplate="footer">
+      <div class="d-flex justify-content-end gap-2">
+
+        <p-button
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          type="button"
+          (onClick)="cerrarModal()"
+        ></p-button>
+
+        <p-button
+          [label]="editMode ? 'Actualizar' : 'Crear'"
+          icon="pi pi-check"
+          [loading]="submitting()"
+          type="submit"
+          [disabled]="formConsejo.invalid || submitting"
+        ></p-button>
+
+      </div>
+    </ng-template>
+  </form>
+</p-dialog>
+

@@ -63,6 +63,7 @@ export interface Articulos {
   titulo: string;
   autor: string;
   contenido: string;
+  pagina: number;
   imagen: string;
   estatus: string;
   fecha_modificacion: string;
