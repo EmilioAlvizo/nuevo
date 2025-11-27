@@ -9,7 +9,7 @@
 
 /* ---------- NORMAL MODE ---------- */
 
-.book-stage {
+/* .book-stage {
   perspective: 2000px;
   height: 600px;
   position: relative;
@@ -17,9 +17,25 @@
   justify-content: center;
   align-items: center;
   touch-action: pan-y;
+} */
+
+.book-stage {
+  perspective: 2000px;
+  height: clamp(250px, 60vw, 600px); /* Considerado para cel, falta verificar */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: pan-y;
 }
 
-/* Cada folio se ubica con su lomo al centro */
+/* Ajusta los folios para que también reduzcan */
+.folio {
+  transform-origin: left center;
+  width: auto;
+}
+
+
 .folio {
   position: absolute;
   left: 50%;
@@ -82,4 +98,19 @@
 /* El flipped sigue funcionando sin alterarlo */
 .flipbook-root:fullscreen .folio.flipped {
   transform: rotateY(-180deg) !important;
+}
+
+
+
+/* FALTA VERIFICAR */
+/* 📱 FULLSCREEN MÓVIL → Ocultar la mitad derecha del folio */
+@media (max-width: 768px) {
+  .flipbook-root:fullscreen .folio {
+    width: 100% !important; /* una sola página */
+    transform-origin: center center;
+  }
+  
+  .flipbook-root:fullscreen .leaf.back {
+    display: none !important;
+  }
 }

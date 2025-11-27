@@ -1,4 +1,3 @@
-
 import {
   Component,
   Input,
@@ -40,6 +39,9 @@ export class Flipbook implements AfterViewInit {
   private isRendering = false; // 🔹 NUEVO FLAG
   private renderQueue: (() => void) | null = null; // 🔹 Para encolar renders
 
+  private isTurning = false;
+
+
   constructor(
     private renderer: Renderer2,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -58,27 +60,28 @@ export class Flipbook implements AfterViewInit {
     setTimeout(() => this.renderVisibleFolios(), 50);
   }
 
-setStageWidth() {
-  const stage = this.stageRef.nativeElement;
-  const root = stage.closest('.flipbook-root') as HTMLElement;
-  const isFullscreen = !!document.fullscreenElement;
-  
-  if (isFullscreen) {
-    this.calculateFullscreenSize(); // 🔹 Usar el cálculo proporcional
-  } else {
-    this.pageWidth = Math.min(800, window.innerWidth);
-    this.folioHeight = 480;
+  setStageWidth() {
+    const stage = this.stageRef.nativeElement;
+    const root = stage.closest('.flipbook-root') as HTMLElement;
+    const isFullscreen = !!document.fullscreenElement;
+    
+    if (isFullscreen) {
+      this.calculateFullscreenSize(); // 🔹 Usar el cálculo proporcional
+    } else {
+      this.pageWidth = Math.min(800, window.innerWidth);
+      this.folioHeight = 480;
+    }
+    
+    if (root) {
+      this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
+    }
   }
-  
-  if (root) {
-    this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
-  }
-}
+
   @HostListener('window:resize')
   onResize() {
     this.setStageWidth();
     this.scheduleRender(); // 🔹 Usar schedule en lugar de llamar directo
-  }
+    }
 
   async loadPdf(url: string) {
     try {
@@ -144,43 +147,61 @@ setStageWidth() {
     }
   }
 
-async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
-  if (!this.pdfDoc) return;
-  try {
-    const page = await this.pdfDoc.getPage(pageNumber);
+  async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
+    if (!this.pdfDoc) return;
 
-    const viewport = page.getViewport({ scale: 1 });
-    const targetWidth = this.pageWidth / 2; // 🔹 MANTÉN el /2
-    const scale = targetWidth / viewport.width;
-    const scaledViewport = page.getViewport({ scale });
+    try {
+      const page = await this.pdfDoc.getPage(pageNumber);
+      const viewport = page.getViewport({ scale: 1 });
 
-    canvas.width = Math.round(scaledViewport.width);
-    canvas.height = Math.round(scaledViewport.height);
+      const targetWidth = this.pageWidth / 2;
+      const scale = targetWidth / viewport.width;
+      const scaledViewport = page.getViewport({ scale });
 
-    const renderContext = {
-      canvasContext: canvas.getContext('2d') as CanvasRenderingContext2D,
-      viewport: scaledViewport
-    };
+      // 🎯 Canvas offscreen para evitar parpadeo
+      const offscreen = document.createElement("canvas");
+      offscreen.width = scaledViewport.width;
+      offscreen.height = scaledViewport.height;
 
-    await page.render(renderContext).promise;
-  } catch (err) {
-    console.error('Error rendering page', pageNumber, err);
+      const ctx = offscreen.getContext("2d")!;
+      await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+
+      // 🎯 Copiamos al canvas visible SOLO cuando está listo
+      const visible = canvas.getContext("2d")!;
+      canvas.width = offscreen.width;
+      canvas.height = offscreen.height;
+      visible.drawImage(offscreen, 0, 0);
+
+    } catch (err) {
+      console.error("Error rendering page", pageNumber, err);
+    }
   }
-}
 
   prev() {
+    if (this.isTurning) return;
     if (this.currentFolioIndex <= 0) return;
+
+    this.isTurning = true;
     this.currentFolioIndex--;
     this.folios[this.currentFolioIndex].flipped = false;
-    this.scheduleRender(); // 🔹 Cambiar a schedule
+
+    setTimeout(() => {
+      this.scheduleRender();
+      this.isTurning = false;
+    }, 600);
   }
 
   next() {
+    if (this.isTurning) return;
     if (this.currentFolioIndex >= this.folios.length - 1) return;
+
+    this.isTurning = true;
     this.folios[this.currentFolioIndex].flipped = true;
+
     setTimeout(() => {
       this.currentFolioIndex++;
-      this.scheduleRender(); // 🔹 Cambiar a schedule
+      this.scheduleRender();
+      this.isTurning = false;
     }, 600);
   }
 
@@ -228,109 +249,153 @@ async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
   }
 
 
-@HostListener('document:fullscreenchange')
-async onFullscreenChange() {
-  const stage = this.stageRef.nativeElement;
-  const root = stage.closest('.flipbook-root') as HTMLElement;
-  
-  this.isFullscreen = !!document.fullscreenElement;
-  
-  if (this.isFullscreen) {
-    await this.calculateFullscreenSize();
-    root?.classList.add('fullscreen');
-  } else {
-    this.pageWidth = Math.min(800, window.innerWidth);
-    this.folioHeight = 480;
-    root?.classList.remove('fullscreen');
-  }
-
-  if (root) {
-    this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
-  }
-  
-  // 🔹 DEBUG: Mira la altura del book-stage
-  setTimeout(() => {
-    const computedRoot = window.getComputedStyle(root!);
-    const computedStage = window.getComputedStyle(stage);
+  @HostListener('document:fullscreenchange')
+  async onFullscreenChange() {
+    const stage = this.stageRef.nativeElement;
+    const root = stage.closest('.flipbook-root') as HTMLElement;
     
-    console.log('📊 CONTENEDORES EN FULLSCREEN:', {
-      root_height: computedRoot.height,
-      root_display: computedRoot.display,
-      root_flexDirection: computedRoot.flexDirection,
-      stage_height: computedStage.height,
-      stage_offsetHeight: stage.offsetHeight,
-      stage_minHeight: computedStage.minHeight,
-      folio: this.folioHeight,
-      pageWidth: this.pageWidth
-    });
-  }, 100);
-  
-  this.scheduleRender();
-}
-
-
-
-async calculateFullscreenSize() {
-  if (!this.pdfDoc) return;
-  
-  const stage = this.stageRef.nativeElement;
-  const root = stage.closest('.flipbook-root') as HTMLElement;
-  
-  // 🔹 DEBUG INICIAL
-  console.log('🔍 calculateFullscreenSize START:', {
-    window_innerWidth: window.innerWidth,
-    window_innerHeight: window.innerHeight,
-    root_offsetWidth: root?.offsetWidth,
-    root_offsetHeight: root?.offsetHeight,
-    stage_offsetWidth: stage.offsetWidth,
-    stage_offsetHeight: stage.offsetHeight
-  });
-  
-  try {
-    const page = await this.pdfDoc.getPage(1);
-    const viewport = page.getViewport({ scale: 1 });
+    this.isFullscreen = !!document.fullscreenElement;
     
-    const singlePageAspectRatio = viewport.width / viewport.height;
-    
-    // 🔹 El cálculo que estás haciendo
-    const availableWidth = window.innerWidth - 120;
-    const availableHeight = window.innerHeight - 80;
-    
-    console.log('🔍 Disponible:', {
-      availableWidth,
-      availableHeight,
-      viewport_width: viewport.width,
-      viewport_height: viewport.height,
-      singlePageAspectRatio
-    });
-    
-    let finalWidth: number;
-    let finalHeight: number;
-    
-    const twoPageWidth = availableWidth;
-    const twoPageHeight = twoPageWidth / (singlePageAspectRatio * 2);
-    
-    if (twoPageHeight <= availableHeight) {
-      finalWidth = twoPageWidth;
-      finalHeight = twoPageHeight;
+    if (this.isFullscreen) {
+      await this.calculateFullscreenSize();
+      root?.classList.add('fullscreen');
     } else {
-      finalHeight = availableHeight;
-      finalWidth = finalHeight * singlePageAspectRatio * 2;
+      this.pageWidth = Math.min(800, window.innerWidth);
+      this.folioHeight = 480;
+      root?.classList.remove('fullscreen');
+    }
+
+    if (root) {
+      this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
     }
     
-    this.pageWidth = finalWidth;
-    this.folioHeight = finalHeight;
+    // 🔹 DEBUG: Mira la altura del book-stage
+    setTimeout(() => {
+      const computedRoot = window.getComputedStyle(root!);
+      const computedStage = window.getComputedStyle(stage);
+    }, 100);
     
-    console.log('📏 FINAL Calculated size:', {
-      finalWidth,
-      finalHeight,
-      pageWidth: this.pageWidth,
-      folioHeight: this.folioHeight
-    });
-  } catch (err) {
-    console.error('Error calculating fullscreen size:', err);
+    this.scheduleRender();
   }
-}
+
+// async calculateFullscreenSize() {
+//   if (!this.pdfDoc) return;
+  
+//   const stage = this.stageRef.nativeElement;
+//   const root = stage.closest('.flipbook-root') as HTMLElement;
+  
+//   // 🔹 DEBUG INICIAL
+//   console.log('🔍 calculateFullscreenSize START:', {
+//     window_innerWidth: window.innerWidth,
+//     window_innerHeight: window.innerHeight,
+//     root_offsetWidth: root?.offsetWidth,
+//     root_offsetHeight: root?.offsetHeight,
+//     stage_offsetWidth: stage.offsetWidth,
+//     stage_offsetHeight: stage.offsetHeight
+//   });
+  
+//   try {
+//     const page = await this.pdfDoc.getPage(1);
+//     const viewport = page.getViewport({ scale: 1 });
+    
+//     const singlePageAspectRatio = viewport.width / viewport.height;
+    
+//     // 🔹 El cálculo que estás haciendo
+//     const availableWidth = window.innerWidth - 120;
+//     const availableHeight = window.innerHeight - 80;
+    
+//     console.log('🔍 Disponible:', {
+//       availableWidth,
+//       availableHeight,
+//       viewport_width: viewport.width,
+//       viewport_height: viewport.height,
+//       singlePageAspectRatio
+//     });
+    
+//     let finalWidth: number;
+//     let finalHeight: number;
+    
+//     const twoPageWidth = availableWidth;
+//     const twoPageHeight = twoPageWidth / (singlePageAspectRatio * 2);
+    
+//     if (twoPageHeight <= availableHeight) {
+//       finalWidth = twoPageWidth;
+//       finalHeight = twoPageHeight;
+//     } else {
+//       finalHeight = availableHeight;
+//       finalWidth = finalHeight * singlePageAspectRatio * 2;
+//     }
+    
+//     this.pageWidth = finalWidth;
+//     this.folioHeight = finalHeight;
+    
+//     console.log('📏 FINAL Calculated size:', {
+//       finalWidth,
+//       finalHeight,
+//       pageWidth: this.pageWidth,
+//       folioHeight: this.folioHeight
+//     });
+//   } catch (err) {
+//     console.error('Error calculating fullscreen size:', err);
+//   }
+// }
+
+//Método para considerar vista en Cel, falta verificar funcionalidad.
+  async calculateFullscreenSize() {
+    if (!this.pdfDoc) return;
+    
+    const stage = this.stageRef.nativeElement;
+    const root = stage.closest('.flipbook-root') as HTMLElement;
+    
+    try {
+      const page = await this.pdfDoc.getPage(1);
+      const viewport = page.getViewport({ scale: 1 });
+      
+      const singlePageAspectRatio = viewport.width / viewport.height;
+      
+      // 🔹 El cálculo que estás haciendo
+      const availableWidth = window.innerWidth - 120;
+      const availableHeight = window.innerHeight - 80;
+      
+      // Detecta si estamos en móvil
+      const isMobile = window.innerWidth < 768;
+
+      let finalWidth: number;
+      let finalHeight: number;
+
+      if (isMobile) {
+        // 📱 FULLSCREEN MÓVIL → 1 sola página
+        const onePageWidth = availableWidth;
+        const onePageHeight = onePageWidth / singlePageAspectRatio;
+
+        if (onePageHeight <= availableHeight) {
+          finalWidth = onePageWidth;
+          finalHeight = onePageHeight;
+        } else {
+          finalHeight = availableHeight;
+          finalWidth = finalHeight * singlePageAspectRatio;
+        }
+      } else {
+        // 💻 ESCRITORIO → 2 páginas
+        const twoPageWidth = availableWidth;
+        const twoPageHeight = twoPageWidth / (singlePageAspectRatio * 2);
+
+        if (twoPageHeight <= availableHeight) {
+          finalWidth = twoPageWidth;
+          finalHeight = twoPageHeight;
+        } else {
+          finalHeight = availableHeight;
+          finalWidth = finalHeight * singlePageAspectRatio * 2;
+        }
+      }
+
+      this.pageWidth = finalWidth;
+      this.folioHeight = finalHeight;
+
+    } catch (err) {
+        console.error('Error calculating fullscreen size:', err);
+    }
+  }
 
 }
 
