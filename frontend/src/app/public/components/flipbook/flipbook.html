@@ -1,58 +1,80 @@
-
 <div class="flipbook-root" tabindex="0">
-  <!-- Controles normales (solo visible fuera de fullscreen) -->
-  <div class="controls" *ngIf="!isFullscreen">
-    <button (click)="prev()" [disabled]="currentFolioIndex === 0">◀ Prev</button>
-    <div class="page-counter">Página {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}</div>
-    <button (click)="next()" [disabled]="currentFolioIndex >= folios.length - 1">Next ▶</button>
-  </div>
+  <!-- Contenedor del visor -->
+  <div class="viewer-container">
+    <div class="book-stage" #stage>
+      <!-- Botones flotantes de navegación (solo en fullscreen) -->
+      <button class="nav-btn nav-btn-left" 
+              *ngIf="isFullscreen"
+              (click)="prev()" 
+              [disabled]="currentFolioIndex === 0">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      
+      <button class="nav-btn nav-btn-right" 
+              *ngIf="isFullscreen"
+              (click)="next()" 
+              [disabled]="currentFolioIndex >= folios.length - 1">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
 
-  <div class="book-stage" #stage>
+      <!-- Botón para salir de fullscreen (esquina superior derecha) -->
+      <button class="exit-fullscreen-btn" 
+              *ngIf="isFullscreen"
+              (click)="toggleFullscreen()"
+              title="Salir de pantalla completa">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+      </button>
 
-    <!-- Botones flotantes de navegación (solo en fullscreen) -->
-    <button class="nav-btn nav-btn-left" 
-            *ngIf="isFullscreen"
-            (click)="prev()" 
-            [disabled]="currentFolioIndex === 0">
-      ◀
-    </button>
-    
-    <button class="nav-btn nav-btn-right" 
-            *ngIf="isFullscreen"
-            (click)="next()" 
-            [disabled]="currentFolioIndex >= folios.length - 1">
-      ▶
-    </button>
+      <!-- Contador de páginas en fullscreen (abajo al centro) -->
+      <div class="page-counter-fullscreen" *ngIf="isFullscreen">
+        {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}
+      </div>
 
-    <!-- Botón para salir de fullscreen (esquina superior derecha) -->
-    <button class="exit-fullscreen-btn" 
-            *ngIf="isFullscreen"
-            (click)="toggleFullscreen()"
-            title="Salir de pantalla completa">
-      ✕
-    </button>
-
-    <!-- Contador de páginas en fullscreen (abajo al centro) -->
-    <div class="page-counter-fullscreen" *ngIf="isFullscreen">
-      {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}
+      <ng-container *ngFor="let folio of folios; let fi = index">
+        <div class="folio" 
+             [class.flipped]="folio.flipped" 
+             [style.z-index]="getZIndex(fi)"
+             [style.width.px]="pageWidth / 2"
+             [style.height.px]="folioHeight">
+          <div class="leaf front"><canvas #frontCanvas></canvas></div>
+          <div class="leaf back"><canvas #backCanvas></canvas></div>
+        </div>
+      </ng-container>
     </div>
 
-    <ng-container *ngFor="let folio of folios; let fi = index">
-      <div class="folio" 
-           [class.flipped]="folio.flipped" 
-           [style.z-index]="getZIndex(fi)"
-           [style.width.px]="pageWidth / 2"
-           [style.height.px]="folioHeight">
-        <div class="leaf front"><canvas #frontCanvas></canvas></div>
-        <div class="leaf back"><canvas #backCanvas></canvas></div>
-      </div>
-    </ng-container>
+    <!-- Botón para entrar a fullscreen -->
+    <button class="fullscreen-btn" 
+            *ngIf="!isFullscreen"
+            (click)="toggleFullscreen()"
+            title="Pantalla completa">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
   </div>
 
-  <!-- Botón para entrar a fullscreen (solo visible fuera de fullscreen) -->
-  <div *ngIf="!isFullscreen">
-    <button class="fullscreen-btn" (click)="toggleFullscreen()">Fullscreen</button>
+  <!-- Controles normales debajo (solo visible fuera de fullscreen) -->
+  <div class="controls" *ngIf="!isFullscreen">
+    <button class="control-btn" (click)="prev()" [disabled]="currentFolioIndex === 0">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <div class="page-counter">{{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}</div>
+    <button class="control-btn" (click)="next()" [disabled]="currentFolioIndex >= folios.length - 1">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
 
-  <div class="tips" *ngIf="!isFullscreen">Usa flechas ← → o desliza para cambiar página</div>
+  <div class="tips" *ngIf="!isFullscreen">
+    Usa flechas ← → o desliza para cambiar página
+  </div>
 </div>

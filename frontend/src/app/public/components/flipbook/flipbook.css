@@ -1,40 +1,82 @@
-:host { display: block; }
+:host { 
+  display: block; 
+}
 
 .flipbook-root {
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
 
-/* ---------- NORMAL MODE ---------- */
-
-/* .book-stage {
-  perspective: 2000px;
-  height: 600px;
-  position: relative;
+/* ========== CONTROLES NORMALES ========== */
+.controls {
   display: flex;
-  justify-content: center;
   align-items: center;
-  touch-action: pan-y;
-} */
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+}
+
+.control-btn {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.control-btn:hover:not(:disabled) {
+  background: #e8e8e8;
+  border-color: #d0d0d0;
+}
+
+.control-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-counter {
+  font-size: 14px;
+  color: #666;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* ========== CONTENEDOR DEL VISOR ========== */
+.viewer-container {
+  position: relative;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
 
 .book-stage {
   perspective: 2000px;
-  height: clamp(250px, 60vw, 600px); /* Considerado para cel, falta verificar */
+  height: clamp(250px, 60vw, 600px);
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   touch-action: pan-y;
+  overflow: hidden;
 }
 
-/* Ajusta los folios para que también reduzcan */
-.folio {
-  transform-origin: left center;
-  width: auto;
+/* Asegurar que los folios no se desborden */
+.book-stage::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
-
 
 .folio {
   position: absolute;
@@ -42,6 +84,8 @@
   transform-origin: left center;
   transform-style: preserve-3d;
   transition: transform 0.6s ease;
+  max-width: 50%;
+  max-height: 100%;
 }
 
 .folio.flipped {
@@ -54,11 +98,17 @@
   height: 100%;
   backface-visibility: hidden;
   background: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-.leaf.front { left: 0; }
-.leaf.back  { right: 0; transform: rotateY(180deg); }
+.leaf.front { 
+  left: 0; 
+}
+
+.leaf.back { 
+  right: 0; 
+  transform: rotateY(180deg); 
+}
 
 .leaf canvas {
   width: 100%;
@@ -66,20 +116,57 @@
   display: block;
 }
 
-/* ---------- FULLSCREEN MODE ---------- */
+/* ========== BOTÓN FULLSCREEN (MODO NORMAL) ========== */
+.fullscreen-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  backdrop-filter: blur(8px);
+}
 
+.fullscreen-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.05);
+}
+
+/* ========== TIPS ========== */
+.tips {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #888;
+}
+
+/* ========== MODO FULLSCREEN ========== */
 .flipbook-root:fullscreen {
   width: 100vw !important;
   height: 100vh !important;
   margin: 0 !important;
-  padding: 20px;
-  background: #222;
+  padding: 0;
+  background: #1a1a1a;
   box-sizing: border-box;
   display: flex !important;
   flex-direction: column !important;
 }
 
-/* El stage se centra y ocupa todo */
+.flipbook-root:fullscreen .viewer-container {
+  flex: 1;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  background: #1a1a1a;
+}
+
 .flipbook-root:fullscreen .book-stage {
   flex: 1 !important;
   width: 100% !important;
@@ -89,28 +176,183 @@
   align-items: center;
 }
 
-/* Los folios NO se centran con translate.
-   Mantienen left:50% para que el lomo quede al centro. */
 .flipbook-root:fullscreen .folio {
   height: 90vh !important;
 }
 
-/* El flipped sigue funcionando sin alterarlo */
 .flipbook-root:fullscreen .folio.flipped {
   transform: rotateY(-180deg) !important;
 }
 
+/* ========== BOTONES DE NAVEGACIÓN EN FULLSCREEN ========== */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1000;
+}
 
+.nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-50%) scale(1.05);
+}
 
-/* FALTA VERIFICAR */
-/* 📱 FULLSCREEN MÓVIL → Ocultar la mitad derecha del folio */
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.nav-btn-left {
+  left: 20px;
+}
+
+.nav-btn-right {
+  right: 20px;
+}
+
+/* ========== BOTÓN SALIR DE FULLSCREEN ========== */
+.exit-fullscreen-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1000;
+}
+
+.exit-fullscreen-btn:hover {
+  background: rgba(255, 59, 48, 0.8);
+  border-color: rgba(255, 59, 48, 1);
+  transform: scale(1.05);
+}
+
+/* ========== CONTADOR EN FULLSCREEN ========== */
+.page-counter-fullscreen {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 10px 24px;
+  color: white;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+/* ========== RESPONSIVE MOBILE ========== */
 @media (max-width: 768px) {
+  .viewer-container {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .book-stage {
+    height: clamp(200px, 50vw, 400px);
+    padding: 8px;
+  }
+
+  .folio {
+    max-width: 45%;
+  }
+
+  .controls {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .control-btn {
+    padding: 8px 12px;
+  }
+
+  .page-counter {
+    font-size: 13px;
+    min-width: 100px;
+  }
+
+  .tips {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
   .flipbook-root:fullscreen .folio {
-    width: 100% !important; /* una sola página */
+    width: 100% !important;
     transform-origin: center center;
+    max-width: none;
   }
   
   .flipbook-root:fullscreen .leaf.back {
     display: none !important;
+  }
+
+  .nav-btn {
+    padding: 16px 10px;
+  }
+
+  .nav-btn-left {
+    left: 10px;
+  }
+
+  .nav-btn-right {
+    right: 10px;
+  }
+
+  .exit-fullscreen-btn {
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+  }
+
+  .page-counter-fullscreen {
+    bottom: 20px;
+    font-size: 13px;
+    padding: 8px 20px;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .viewer-container {
+    padding: 8px;
+  }
+
+  .book-stage {
+    height: clamp(180px, 45vw, 300px);
+  }
+
+  .folio {
+    max-width: 42%;
+  }
+
+  .fullscreen-btn {
+    padding: 8px;
+  }
+
+  .fullscreen-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
