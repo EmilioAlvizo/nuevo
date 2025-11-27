@@ -1,6 +1,12 @@
 @import "../node_modules/primeicons/primeicons.css";
 
 /* You can add global styles to this file, and also import other style files */
+
+:host {
+  will-change: transform;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
 body {
   font-family: AvenirNextPForBBG, Helvetica, Arial, sans-serif;
   background-color: rgb(236, 240, 240);

@@ -1,20 +1,28 @@
+/* /nuevo/frontend/src/app/admin/shared/top-bar/top-bar.css */
 /* Barra informativa superior */
 .top-bar {
-    transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
-    position: relative;
-    z-index: 999;
-    height: auto;
-    overflow: visible;
-    display: flex;
-    justify-content: center;
-  }
+  /* Usamos max-height para animar el cierre */
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+  overflow: visible; /* Visible por defecto para los dropdowns */
   
-  .top-bar.hidden {
-    transform: translateY(-100%);
-    opacity: 0;
-    height: 0;
-    padding: 0;
-  }
+  /* Altura máxima inicial suficiente (ajústalo si es necesario) */
+  max-height: 150px; 
+  opacity: 1;
+  display: flex;
+  justify-content: center;
+  background-color: #000; /* Fondo negro para evitar transparencias */
+}
+
+.top-bar.hidden {
+  /* Al ocultar: altura 0 y ocultamos overflow para que desaparezca limpiamente */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden; 
+  pointer-events: none;
+  
+  /* IMPORTANTE: Quitamos transform. Usamos el layout interno del fixed container */
+  /* transform: translateY(-100%);  <-- ELIMINAR ESTO */
+}
   
   .top-bar-content {
     background-color: #000000;
@@ -137,6 +145,10 @@
     border-top: 1px solid #333;
     padding: 30px 40px;
     animation: slideDown 0.3s ease;
+
+    max-height: calc(100vh - 60px); /* altura visible restante bajo la topbar */
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   
   @keyframes slideDown {
@@ -330,8 +342,9 @@
     }
   
     .admin-menu {
-      padding: 20px;
-    }
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
   
     .admin-nav {
       grid-template-columns: 1fr;

@@ -1,3 +1,4 @@
+/* nuevo/frontend/src/app/public/components/navbar3/navbar3.css */
 /* Barra informativa superior */
 .top-bar-info ::ng-deep a {
   color: #fff;
@@ -14,34 +15,28 @@
 .social ::ng-deep a:hover {
   color: #5498ff;
 } /* Navbar Banamex Style */
-.cmp-navbar {
-  --position: relative;
-  --top: 0;
-  --nav-bg: #ffffff;
-  --background: transparent;
-  --item-color: #003746;
-  --selector-left: 0;
-  --selector-right: 0;
-  --selector-opacity: 0;
-  position: var(--position);
-  top: var(--top);
-  z-index: 1500;
-  transition: top 0.32s ease-in-out;
-  background: var(--background);
+/* Fijamos todo el componente al techo */
+:host {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  backdrop-filter: none;
-  padding-top: 0;
-  padding-bottom: 24px;
+  z-index: 1500;
+  
+  /* Esto asegura que el colapso de altura no afecte al contenido detrás */
+  display: block; 
 }
+
+/* Navbar Banamex Style (Tu código existente ajustado) */
+.cmp-navbar {
+  /* Ya no necesitamos controlar la posición aquí, lo hace el :host */
+  width: 100%;
+  background-color: #ffffff; /* Asegura fondo para no ver contenido detrás */
+  transition: box-shadow 0.3s ease;
+}
+
 .cmp-navbar.scrolled {
-  --nav-bg: #ffffff;
-  --background: linear-gradient(to bottom, rgba(0, 20, 25, 20%) 0%, transparent 100%);
-  --item-color: #000000;
-  backdrop-filter: blur(10px);
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 .cmp-navbar-nav {
   background-color: var(--nav-bg);;

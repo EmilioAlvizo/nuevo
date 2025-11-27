@@ -109,39 +109,35 @@ private dropdownRoutes = {
   }
 
   private handleScroll(): void {
-    if (this.topBarExpanded()) {
-      this.isScrolled.set(false);
-      this.showTopBar.set(true);
-      return;
+  if (this.topBarExpanded()) return;
+
+  if (this.ticking) return;
+  this.ticking = true;
+
+  requestAnimationFrame(() => {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const threshold = this.scrollThreshold();
+
+    const HIDE_POINT = threshold + 80;  // punto donde se oculta
+    const SHOW_POINT = threshold + 20;  // punto donde vuelve a mostrarse
+
+    console.log("scrollTop ",scrollTop)
+    // Solo ocultar si estaba visible
+    if (scrollTop > HIDE_POINT && this.showTopBar()) {
+      this.showTopBar.set(false);
+      this.isScrolled.set(true);
     }
 
-    if (this.ticking) return;
-    this.ticking = true;
+    // Solo mostrar si estaba oculta
+    if (scrollTop < SHOW_POINT && !this.showTopBar()) {
+      this.showTopBar.set(true);
+      this.isScrolled.set(false);
+    }
 
-    requestAnimationFrame(() => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const threshold = this.scrollThreshold();
-      const tolerance = 60;
+    this.ticking = false;
+  });
+}
 
-      clearTimeout(this.debounceTimer);
-      this.debounceTimer = setTimeout(() => {
-        const shouldShowTopBar = scrollTop < threshold - tolerance;
-        const shouldBeScrolled = scrollTop > threshold + tolerance;
-
-        if (shouldShowTopBar !== this.showTopBar()) {
-          this.showTopBar.set(shouldShowTopBar);
-        }
-
-        if (shouldBeScrolled !== this.isScrolled()) {
-          this.isScrolled.set(shouldBeScrolled);
-        }
-
-        this.lastScrollTop = scrollTop;
-      }, 80);
-
-      this.ticking = false;
-    });
-  }
 
   // 🆕 Verificar si un dropdown tiene una ruta activa
 isDropdownActive(id: string): boolean {
