@@ -227,30 +227,6 @@ async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
     }
   }
 
-//   @HostListener('document:fullscreenchange')
-// async onFullscreenChange() {
-//   const stage = this.stageRef.nativeElement;
-//   const root = stage.closest('.flipbook-root') as HTMLElement;
-  
-//   this.isFullscreen = !!document.fullscreenElement; // 🔹 Actualizar flag
-  
-//   if (this.isFullscreen) {
-//     await this.calculateFullscreenSize();
-//     root?.classList.add('fullscreen');
-//   } else {
-//     this.pageWidth = Math.min(800, window.innerWidth);
-//     this.folioHeight = 480;
-//     root?.classList.remove('fullscreen');
-//   }
-
-//   if (root) {
-//     this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
-//   }
-//   this.scheduleRender();
-// }
-
-// Añade esto al final de onFullscreenChange() para ver qué valores se están usando
-
 
 @HostListener('document:fullscreenchange')
 async onFullscreenChange() {
