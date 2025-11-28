@@ -8,10 +8,12 @@
     <!-- <app-navbar2 style="position: sticky; top: 0; z-index: 1000;"></app-navbar2> -->
     <app-navbar3
       [brandLink]="'/'"
-      [scrollThreshold]="100"  class="container-xxl"
+      [scrollThreshold]="100" class="" style="position: fixed; z-index: 1000; width: 100%;"
     >
     </app-navbar3>
+    <div style="height: 150px;"></div>
     <router-outlet></router-outlet>
+    
   </main>
   <!-- Si este botón es flotante, puede quedarse fuera -->
   <!-- <app-boton-contactanos></app-boton-contactanos> -->

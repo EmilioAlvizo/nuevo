@@ -16,11 +16,7 @@
   max-width: 900px;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 0;
-}
+
 
 .carousel {
   margin: 24px 0;
@@ -36,9 +32,7 @@
   min-height: 400px;
   display: flex;
   align-items: center;
-}
-
-
+} 
 
 /* Contenedor de la tarjeta del tema */
 .tema-item {

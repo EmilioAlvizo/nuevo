@@ -2,402 +2,402 @@
 /* Barra informativa superior */
 .top-bar {
   /* Usamos max-height para animar el cierre */
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+  transition: max-translateY 5.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
   overflow: visible; /* Visible por defecto para los dropdowns */
-  
+
   /* Altura máxima inicial suficiente (ajústalo si es necesario) */
-  max-height: 150px; 
+  /* max-height: 150px; */
   opacity: 1;
   display: flex;
   justify-content: center;
-  background-color: #000; /* Fondo negro para evitar transparencias */
+  /* background-color: #000;  */ /* Fondo negro para evitar transparencias */
 }
 
 .top-bar.hidden {
   /* Al ocultar: altura 0 y ocultamos overflow para que desaparezca limpiamente */
-  max-height: 0;
+  transform: translateY(-100%);
   opacity: 0;
-  overflow: hidden; 
-  pointer-events: none;
-  
+  height: 0;
+  padding: 0;
+
   /* IMPORTANTE: Quitamos transform. Usamos el layout interno del fixed container */
   /* transform: translateY(-100%);  <-- ELIMINAR ESTO */
 }
-  
-  .top-bar-content {
-    background-color: #000000;
-    border-bottom: 1px solid #333;
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    transition: max-height 0.4s ease;
-  }
-  
-  .top-bar-content.expanded {
-    max-height: 800px;
-  }
-  
-  .top-bar-main {
-    padding: 8px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .top-bar-info {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 30px;
-    font-size: 13px;
-  }
-  
-  .top-bar-info a {
-    color: #fff;
-    text-decoration: none;
-    transition: color 0.2s;
-    cursor: pointer;
-  }
-  
-  .top-bar-info a:hover {
-    color: #5498ff;
-  }
-  
-  .top-bar-right {
-    display: flex;
-    align-items: center;
-    gap: 30px;
-  }
-  
-  /* Redes sociales */
-  .social {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-  }
-  
-  .social a {
-    color: #fff;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    text-decoration: none;
-  }
-  
-  .social a:hover {
-    color: #5498ff;
-    transform: translateY(-2px);
-  }
-  
-  /* Sección de autenticación */
-  .auth-section {
-    display: flex;
-    align-items: center;
-  }
-  
-  .login-btn,
-  .admin-btn {
-    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-    background: #004a8b;
-    border: none;
-    color: white;
-    padding: 8px 20px;
-    border-radius: 25px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    /* box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); */
-  }
-  
-  .login-btn:hover,
-  .admin-btn:hover {
-    transform: translateY(-2px);
-    /* box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); */
-  }
-  
-  .admin-btn.active {
-    /* background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); */
-    background: #004a8b;
-  }
-  
-  .login-btn i,
-  .admin-btn i:first-child {
-    font-size: 14px;
-  }
-  
-  .admin-btn i:last-child {
-    font-size: 10px;
-    margin-left: 4px;
-  }
-  
-  /* Menú desplegable de admin */
-  .admin-menu {
-    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
-    border-top: 1px solid #333;
-    padding: 30px 40px;
-    animation: slideDown 0.3s ease;
 
-    max-height: calc(100vh - 60px); /* altura visible restante bajo la topbar */
-    overflow-y: auto;
-    overscroll-behavior: contain;
+.top-bar-content {
+  background-color: #000000;
+  border-bottom: 1px solid #333;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  transition: max-height 0.4s ease;
+}
+
+.top-bar-content.expanded {
+  /* max-height: 800px; */
+}
+
+.top-bar-main {
+  padding: 8px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-bar-info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 30px;
+  font-size: 13px;
+}
+
+.top-bar-info a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.top-bar-info a:hover {
+  color: #5498ff;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+/* Redes sociales */
+.social {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.social a {
+  color: #fff;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  text-decoration: none;
+}
+
+.social a:hover {
+  color: #5498ff;
+  transform: translateY(-2px);
+}
+
+/* Sección de autenticación */
+.auth-section {
+  display: flex;
+  align-items: center;
+}
+
+.login-btn,
+.admin-btn {
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  background: #004a8b;
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  /* box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); */
+}
+
+.login-btn:hover,
+.admin-btn:hover {
+  transform: translateY(-2px);
+  /* box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); */
+}
+
+.admin-btn.active {
+  /* background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); */
+  background: #004a8b;
+}
+
+.login-btn i,
+.admin-btn i:first-child {
+  font-size: 14px;
+}
+
+.admin-btn i:last-child {
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+/* Menú desplegable de admin */
+.admin-menu {
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  border-top: 1px solid #333;
+  padding: 30px 40px;
+  animation: slideDown 0.3s ease;
+
+  max-height: calc(100vh - 60px); /* altura visible restante bajo la topbar */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  /* Información del usuario */
+}
+
+/* Información del usuario */
+.admin-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #333;
+  margin-bottom: 25px;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+  background: linear-gradient(90deg, #00d2ff 0%, #3a47d5 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.user-details h3 {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+}
+
+.user-details p {
+  color: #999;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.user-role {
+  display: inline-block;
+  background: rgba(102, 126, 234, 0.2);
+  color: #00d2ff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Navegación administrativa */
+.admin-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.admin-nav-section h4 {
+  color: #5498ff;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-nav-section h4 i {
+  font-size: 16px;
+}
+
+.admin-nav-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/*contenedor de ruta*/
+.admin-nav-section li {
+  margin-bottom: 8px;
+}
+
+.admin-nav-section a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 13px;
+  display: block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-section a:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #fff;
+  padding-left: 16px;
+}
+
+.admin-nav-section a.active {
+  background: rgb(114, 118, 139);
+  color: #000000;
+  padding-left: 16px;
+}
+
+/* Footer del menú admin */
+.admin-footer {
+  border-top: 1px solid #333;
+  padding-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.logout-btn {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #ef4444;
+  padding: 10px 30px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.logout-btn i {
+  font-size: 14px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (min-width: 744px) {
+  .top-bar-content {
+    max-width: 46.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .top-bar-content {
+    max-width: 75rem;
+  }
+
+  .top-bar-main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+@media (max-width: 743px) {
   .admin-info {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid #333;
-    margin-bottom: 25px;
+    display: none;
   }
-  
-  .user-avatar {
-    width: 60px;
-    height: 60px;
-    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
-    background: linear-gradient(90deg, #00d2ff 0%, #3a47d5 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
+  .top-bar-main {
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px 20px;
+  }
+
+  .top-bar-info {
+    flex-wrap: wrap;
     justify-content: center;
-    font-size: 32px;
-    color: white;
-    flex-shrink: 0;
-  }
-  
-  .user-details h3 {
-    color: #fff;
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 5px 0;
-  }
-  
-  .user-details p {
-    color: #999;
-    font-size: 14px;
-    margin: 0 0 8px 0;
-  }
-  
-  .user-role {
-    display: inline-block;
-    background: rgba(102, 126, 234, 0.2);
-    color: #00d2ff;
-    padding: 4px 12px;
-    border-radius: 12px;
+    text-align: center;
     font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
+    gap: 15px;
   }
-  
-  /* Navegación administrativa */
-  .admin-nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
-    margin-bottom: 25px;
+
+  .top-bar-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 15px;
   }
-  
-  .admin-nav-section h4 {
-    color: #5498ff;
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0 0 12px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .admin-nav-section h4 i {
-    font-size: 16px;
-  }
-  
-  .admin-nav-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  /*contenedor de ruta*/
-  .admin-nav-section li {
-    margin-bottom: 8px;
-  }
-  
-  .admin-nav-section a {
-    color: #ccc;
-    text-decoration: none;
-    font-size: 13px;
-    display: block;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-  }
-  
-  .admin-nav-section a:hover {
-    background: rgba(102, 126, 234, 0.1);
-    color: #fff;
-    padding-left: 16px;
-  }
-  
-  .admin-nav-section a.active {
-    background: rgb(114, 118, 139);
-    color: #000000;
-    padding-left: 16px;
-  }
-  
-  /* Footer del menú admin */
-  .admin-footer {
-    border-top: 1px solid #333;
-    padding-top: 20px;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .logout-btn {
-    background: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    color: #ef4444;
-    padding: 10px 30px;
-    border-radius: 25px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-  }
-  
-  .logout-btn:hover {
-    background: rgba(220, 38, 38, 0.2);
-    border-color: #ef4444;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-  }
-  
-  .logout-btn i {
-    font-size: 14px;
-  }
-  
-  /* ==================== RESPONSIVE ==================== */
-  
-  @media (min-width: 744px) {
-    .top-bar-content {
-      max-width: 46.25rem;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .top-bar-content {
-      max-width: 75rem;
-    }
-  
-    .top-bar-main {
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-    }
-  }
-  
-  @media (max-width: 743px) {
-    .admin-info{
-      display: none;
-    }
-    .top-bar-main {
-      flex-direction: column;
-      gap: 15px;
-      padding: 10px 20px;
-    }
-  
-    .top-bar-info {
-      flex-wrap: wrap;
-      justify-content: center;
-      text-align: center;
-      font-size: 11px;
-      gap: 15px;
-    }
-  
-    .top-bar-right {
-      width: 100%;
-      justify-content: space-between;
-      gap: 15px;
-    }
-  
-    .admin-menu {
+
+  .admin-menu {
     max-height: calc(100vh - 80px);
     overflow-y: auto;
   }
-  
-    .admin-nav {
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-  
-    .admin-info {
-      flex-direction: column;
-      text-align: center;
-    }
-  
-    .user-details {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
 
-    /*esto es para los botones deplegables en mobil*/
-    .admin-nav-section ul {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.3s ease, opacity 0.3s ease;
-    }
-  
-    .admin-nav-section.open ul {
-      max-height: 500px; /* suficiente para 10 items */
-      opacity: 1;
-    }
-  
-    /* Estilo visual del título clickeable */
-    .admin-nav-section h4 {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      padding: 10px 0;
-    }
-  
-    /* Flechita opcional */
-    .admin-nav-section h4::after {
-      content: "\f078"; /* chevron-down */
-      font-family: "Font Awesome 6 Free";
-      font-weight: 900;
-      transition: transform 0.3s ease;
-    }
-  
-    .admin-nav-section.open h4::after {
-      transform: rotate(180deg);
-    }
+  .admin-nav {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
-  @media (min-width: 1920px) {
-    .top-bar-content {
-      max-width: 90rem;
-    }
+
+  .admin-info {
+    flex-direction: column;
+    text-align: center;
   }
+
+  .user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /*esto es para los botones deplegables en mobil*/
+  .admin-nav-section ul {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+  }
+
+  .admin-nav-section.open ul {
+    max-height: 500px; /* suficiente para 10 items */
+    opacity: 1;
+  }
+
+  /* Estilo visual del título clickeable */
+  .admin-nav-section h4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px 0;
+  }
+
+  /* Flechita opcional */
+  .admin-nav-section h4::after {
+    content: '\f078'; /* chevron-down */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    transition: transform 0.3s ease;
+  }
+
+  .admin-nav-section.open h4::after {
+    transform: rotate(180deg);
+  }
+}
+@media (min-width: 1920px) {
+  .top-bar-content {
+    max-width: 90rem;
+  }
+}
