@@ -5,14 +5,14 @@ const router = express.Router();
 const TestimoniosController = require("../controllers/testimoniosController");
 const { crearUpload } = require("../middleware/uploadMiddleware");
 const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
-//const rateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
 
 const uploadTestimonio = crearUpload("testimonios", {
   imagen: ["image/*"],
 });
 
 // Rate limiter para usuarios públicos (MÁS RESTRICTIVO)
-/* const publicTestimonioLimiter = rateLimit({
+const publicTestimonioLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
   max: 3, // Máximo 3 testimonios por IP por hora
   message: {
@@ -23,9 +23,37 @@ const uploadTestimonio = crearUpload("testimonios", {
   legacyHeaders: false,
   // Identificar por IP
   keyGenerator: (req) => req.ip,
-}); */
+});
 
-// Rutas del API REST
+// Rate limiter para lectura (más permisivo)
+const readLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // 100 peticiones por IP
+  message: {
+    success: false,
+    message: 'Demasiadas peticiones. Intenta de nuevo en unos minutos.'
+  }
+});
+
+// ========================================
+// 🌐 RUTAS PÚBLICAS (sin autenticación)
+// ========================================
+
+// GET - Obtener testimonios activos (solo los aprobados)
+router.get("/testimonios/publicos", 
+  readLimiter,
+  TestimoniosController.getPublicos
+);
+
+// POST - Crear testimonio público (CON RESTRICCIONES)
+router.post('/testimonios/publico', 
+  publicTestimonioLimiter,
+  uploadTestimonio.fields([
+    { name: 'imagenT', maxCount: 1 }
+  ]),
+  TestimoniosController.createPublico
+);
+
 
 // GET - Obtener todos los registros
 router.get("/testimonios", TestimoniosController.getAll);
@@ -36,7 +64,7 @@ router.get("/testimonios/:id", TestimoniosController.getById);
 //POST - Crear registro
 router.post(
   "/testimonios",
-  //publicTestimonioLimiter,
+  authMiddleware,
   uploadTestimonio.fields([{ name: "imagenT", maxCount: 1 }]),
   TestimoniosController.create
 );

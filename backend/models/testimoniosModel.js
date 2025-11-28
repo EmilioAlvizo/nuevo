@@ -16,6 +16,25 @@ class testimoniosModel {
     }
   }
 
+  /**
+   * 🆕 Obtener solo testimonios activos (para vista pública)
+   */
+  static async getActivos(tableName) {
+    try {
+      const pool = await getConnection();
+      const result = await pool.request().query(`
+        SELECT t.*, m.nombre as nombreMunicipio 
+        FROM ${tableName} t
+        INNER JOIN municipio m ON t.id_municipio = m.id_municipio
+        WHERE t.estatus = 'A'
+        ORDER BY t.id_testimonios DESC
+      `);
+      return result.recordset;
+    } catch (error) {
+      throw new Error(`Error al obtener testimonios activos: ${error.message}`);
+    }
+  }
+
   // Obtener un registro por ID
   static async getById(tableName, id, idColumn = "id") {
     try {
