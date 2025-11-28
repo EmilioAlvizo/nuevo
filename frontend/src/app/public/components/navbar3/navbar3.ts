@@ -48,7 +48,6 @@ export class Navbar3 implements OnInit, OnDestroy {
   // 🆕 Mapa de rutas por dropdown
 private dropdownRoutes = {
   juventudes: ['/sistema-juventudes', '/consejo'],
-  informacion: ['/directorio']
 };
 
   // Internos

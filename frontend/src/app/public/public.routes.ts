@@ -7,7 +7,7 @@ import { Estadisticas } from './pages/estadisticas/estadisticas';
 import { RevistaVoces } from './pages/revista-voces/revista-voces';
 import { RevistaDetalle } from './pages/revista-detalle/revista-detalle';
 import { CentroDocumental } from './pages/centro-documental/centro-documental';
-// import { InformacionInteres } from './pages/informacion-interes/informacion-interes';
+import { InformacionInteres } from './pages/informacion-interes/informacion-interes';
 import { Directorio } from './pages/directorio/directorio';
 import { Contactanos } from './pages/contactanos/contactanos';
 import { Articulos } from './pages/articulos/articulos';
@@ -21,7 +21,7 @@ export const publicRoutes: Routes = [
   { path: 'revista/:id', component: RevistaDetalle },
   { path: 'revista/:id/articulo', component: Articulos, children: ARTICULOS_CHILD_ROUTES },
   { path: 'centro-documental', component: CentroDocumental },
-  // { path: 'informacion', component: InformacionInteres },
+  { path: 'informacion', component: InformacionInteres },
   { path: 'contactanos', component: Contactanos },
   { path: 'directorio', component: Directorio },
   { path: 'consejo', component: Consejo }
