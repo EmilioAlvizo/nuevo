@@ -1,0 +1,245 @@
+<!-- apoyos-servicios-admin.component.html -->
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="apoyos-admin-container">
+  <!-- Header con Toolbar -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Apoyos y Servicios</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button 
+        label="Nuevo Apoyo" 
+        icon="pi pi-plus" 
+        (onClick)="abrirModal()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabla de Apoyos -->
+  <p-card>
+    <p-table 
+      [value]="apoyos" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} apoyos"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 18%">Nombre</th>
+          <th style="width: 10%">Estatus</th>
+          <th style="width: 10%">Link</th>
+          <th style="width: 20%">Descripción</th>
+          <th style="width: 12%">Imagen</th>
+          <th style="width: 12%">Fecha Creación</th>
+          <th style="width: 12%">Modificación</th>
+          <th style="width: 5%">Acciones</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-apoyo>
+        <tr>
+          <td>{{ apoyo.id_apoyo }}</td>
+          <td>
+            <span pTooltip="{{ apoyo.nombre }}" tooltipPosition="top">
+              {{ apoyo.nombre | slice:0:50 }}{{ apoyo.nombre?.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <span 
+              [class]="apoyo.estatus === 'activo' ? 'status-badge status-active' : 'status-badge status-inactive'">
+              {{ getEstatusLabel(apoyo.estatus) }}
+            </span>
+          </td>
+          <td>
+            <a *ngIf="apoyo.link" [href]="apoyo.link" target="_blank" class="link-text">
+              {{ apoyo.link | slice:0:30 }}{{ apoyo.link?.length > 30 ? '...' : '' }}
+            </a>
+            <span *ngIf="!apoyo.link" class="text-muted">Sin link</span>
+          </td>
+          <td>
+            <span pTooltip="{{ apoyo.descripcion }}" tooltipPosition="top">
+              {{ apoyo.descripcion | slice:0:60 }}{{ apoyo.descripcion?.length > 60 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <img 
+              *ngIf="apoyo.imagen" 
+              [src]="getImageUrl(apoyo)" 
+              [alt]="apoyo.nombre"
+              class="apoyo-imagen">
+            <span *ngIf="!apoyo.imagen" class="text-muted">Sin imagen</span>
+          </td>
+          <td>
+            {{ apoyo.fecha_creacion | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
+          </td>
+          <td>
+            {{ apoyo.fecha_modificacion | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
+          </td>
+          <td>
+            <p-button 
+              icon="pi pi-pencil" 
+              [rounded]="true" 
+              [text]="true" 
+              severity="info"
+              pTooltip="Editar apoyo" 
+              tooltipPosition="top"
+              (onClick)="abrirModal(apoyo)">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay apoyos registrados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Modal de Crear/Editar -->
+<p-dialog 
+  [(visible)]="modalVisible" 
+  [header]="editMode ? 'Editar Apoyo' : 'Nuevo Apoyo'"
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '600px' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+  (onHide)="vaciarFormulario()">
+  
+  <form [formGroup]="formApoyo" (ngSubmit)="submitForm()">
+    <!-- Nombre -->
+    <div class="form-field">
+      <label for="nombre" class="form-label">
+        Nombre <span class="required">*</span>
+      </label>
+      <input 
+        id="nombre"
+        type="text" 
+        pInputText 
+        formControlName="nombre"
+        placeholder="Ingrese el nombre del apoyo o servicio"
+        class="w-full"
+        [class.ng-invalid]="hasError('nombre')"
+        [class.ng-dirty]="hasError('nombre')">
+      <small *ngIf="hasError('nombre')" class="p-error">
+        {{ getErrorMessage('nombre') }}
+      </small>
+    </div>
+
+    <!-- Estatus -->
+    <div class="form-field">
+      <label for="estatus" class="form-label">
+        Estatus <span class="required">*</span>
+      </label>
+      <p-select 
+        id="estatus"
+        [options]="estatusOptions" 
+        formControlName="estatus"
+        optionLabel="label" 
+        optionValue="value"
+        placeholder="Seleccione el estatus"
+        [style]="{ width: '100%' }"
+        [class.ng-invalid]="hasError('estatus')"
+        [class.ng-dirty]="hasError('estatus')">
+      </p-select>
+      <small *ngIf="hasError('estatus')" class="p-error">
+        {{ getErrorMessage('estatus') }}
+      </small>
+    </div>
+
+    <!-- Link -->
+    <div class="form-field">
+      <label for="link" class="form-label">Link</label>
+      <input 
+        id="link"
+        type="url" 
+        pInputText 
+        formControlName="link"
+        placeholder="https://ejemplo.com"
+        class="w-full"
+        [class.ng-invalid]="hasError('link')"
+        [class.ng-dirty]="hasError('link')">
+      <small *ngIf="hasError('link')" class="p-error">
+        {{ getErrorMessage('link') }}
+      </small>
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-field">
+      <label for="descripcion" class="form-label">Descripción</label>
+      <textarea 
+        id="descripcion"
+        pInputTextarea 
+        formControlName="descripcion"
+        [rows]="4"
+        placeholder="Ingrese la descripción del apoyo o servicio..."
+        class="w-full"
+        [class.ng-invalid]="hasError('descripcion')"
+        [class.ng-dirty]="hasError('descripcion')">
+      </textarea>
+      <small *ngIf="hasError('descripcion')" class="p-error">
+        {{ getErrorMessage('descripcion') }}
+      </small>
+    </div>
+
+    <!-- Imagen -->
+    <div class="form-field">
+      <label for="imagen" class="form-label">
+        Imagen <span *ngIf="!editMode" class="required">*</span>
+      </label>
+      <input 
+        #fileInput
+        id="imagen"
+        type="file" 
+        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+        (change)="onFileSelected($event)"
+        class="w-full file-input">
+      <small class="help-text">
+        Formatos permitidos: JPG, PNG, GIF, WEBP. Tamaño máximo: 5MB
+      </small>
+      <small *ngIf="selectedImage" class="selected-file">
+        <i class="pi pi-check-circle"></i> {{ selectedImage.name }}
+      </small>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (onClick)="cerrarModal()"
+        [disabled]="submitting">
+      </p-button>
+      <p-button 
+        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        icon="pi pi-check"
+        type="submit"
+        [loading]="submitting"
+        [disabled]="formApoyo.invalid || submitting">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>

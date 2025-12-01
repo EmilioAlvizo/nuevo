@@ -1,0 +1,286 @@
+/* apoyos-servicios.component.css */
+
+.container {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #64748b;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Card Styles */
+::ng-deep .apoyo-card {
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .apoyo-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+::ng-deep .apoyo-card .p-card-header {
+  padding: 0;
+  margin: 0;
+}
+
+::ng-deep .apoyo-card .p-card-body {
+  padding: 1.25rem;
+}
+
+::ng-deep .apoyo-card .p-card-content {
+  padding: 0;
+}
+
+::ng-deep .apoyo-card .p-card-footer {
+  padding: 0 1.25rem 1.25rem;
+}
+
+/* Card Image Container */
+.card-image-container {
+  position: relative;
+  width: 100%;
+  height: 11rem;
+  overflow: hidden;
+  background-color: #f1f5f9;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+.apoyo-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.2), rgba(147, 51, 234, 0.2));
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.apoyo-card:hover .card-overlay {
+  opacity: 0.4;
+}
+
+.card-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: 50%;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon i {
+  font-size: 1.25rem;
+  color: #475569;
+}
+
+/* Card Content */
+.card-body {
+  padding: 0;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.card-description {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Button Styles */
+::ng-deep .view-more-btn {
+  transition: all 0.3s ease;
+}
+
+::ng-deep .apoyo-card:hover .view-more-btn {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: white !important;
+}
+
+::ng-deep .view-more-btn .pi {
+  transition: transform 0.3s ease;
+}
+
+::ng-deep .apoyo-card:hover .view-more-btn .pi {
+  transform: translateX(4px);
+}
+
+/* Loading Skeleton Styles */
+.card-image-skeleton {
+  padding: 0;
+}
+
+.card-content-skeleton {
+  padding: 1.25rem;
+}
+
+/* Error State */
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  color: #ef4444;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.error-message i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-message p {
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 1.125rem;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Dark Mode Support (opcional) */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: linear-gradient(to bottom right, #1e293b, #0f172a);
+  }
+
+  .title {
+    color: #f8fafc;
+  }
+
+  .subtitle {
+    color: #cbd5e1;
+  }
+
+  .card-title {
+    color: #f8fafc;
+  }
+
+  .card-description {
+    color: #cbd5e1;
+  }
+}

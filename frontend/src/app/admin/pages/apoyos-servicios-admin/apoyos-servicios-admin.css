@@ -1,0 +1,321 @@
+/* apoyos-servicios-admin.component.css */
+
+/* Contenedor principal */
+.apoyos-admin-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Estilos de badges de estatus */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Imagen en tabla */
+.apoyo-imagen {
+  max-width: 80px;
+  max-height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 1px solid #dee2e6;
+}
+
+.apoyo-imagen:hover {
+  transform: scale(4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Links */
+.link-text {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link-text:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Texto muted */
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Mensaje vacío */
+.empty-message {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-message p {
+  margin-top: 1rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Estilos del formulario en el modal */
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.required {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Input de archivo personalizado */
+.file-input {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.file-input:hover {
+  border-color: #80bdff;
+}
+
+.file-input:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Texto de ayuda */
+.help-text {
+  display: block;
+  margin-top: 0.25rem;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* Archivo seleccionado */
+.selected-file {
+  display: block;
+  margin-top: 0.5rem;
+  color: #28a745;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.selected-file i {
+  margin-right: 0.25rem;
+}
+
+/* Acciones del formulario */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Ajustes de PrimeNG */
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  border-color: #dee2e6;
+  padding: 1rem;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr {
+  transition: background-color 0.2s ease;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f1f3f5;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-color: #dee2e6;
+}
+
+::ng-deep .p-card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+::ng-deep .p-card .p-card-body {
+  padding: 0;
+}
+
+::ng-deep .p-toolbar {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1.5rem;
+}
+
+::ng-deep .p-dialog .p-dialog-content {
+  padding: 2rem;
+  background-color: white;
+}
+
+::ng-deep .p-dialog .p-dialog-footer {
+  padding: 1rem 2rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Toast personalizado */
+::ng-deep .p-toast {
+  z-index: 9999;
+}
+
+::ng-deep .p-toast .p-toast-message {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Botones */
+::ng-deep .p-button {
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-button:focus {
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
+}
+
+/* Dropdown */
+::ng-deep .p-dropdown {
+  width: 100%;
+}
+
+/* Inputs con error */
+::ng-deep .ng-invalid.ng-dirty {
+  border-color: #dc3545;
+}
+
+::ng-deep .p-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .apoyos-admin-container {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-toolbar {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-toolbar .p-toolbar-group-left h2 {
+    font-size: 1.25rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Aplicar animaciones suaves a los elementos */
+.apoyos-admin-container,
+.p-card,
+.p-dialog,
+.form-field,
+.empty-message {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Tooltip */
+::ng-deep .p-tooltip {
+  font-size: 0.85rem;
+  border-radius: 4px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+/* Ajustes finales de tabla en pantallas pequeñas */
+@media (max-width: 576px) {
+  ::ng-deep .p-datatable {
+    font-size: 0.875rem;
+  }
+
+  .apoyo-imagen {
+    max-width: 60px;
+    max-height: 45px;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+}

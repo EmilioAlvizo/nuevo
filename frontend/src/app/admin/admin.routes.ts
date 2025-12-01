@@ -15,6 +15,7 @@ import { ArchivosMunicipiosAdmin } from './pages/archivos-municipios-admin/archi
 import { DocumentosCendocAdmin } from './pages/documentos-cendoc-admin/documentos-cendoc-admin';
 import { ConsejoAdmin  } from './pages/consejo-admin/consejo-admin';
 import { DirectoriosAdmin } from './pages/directorios-admin/directorios-admin';
+import { ApoyosServiciosAdmin } from './pages/apoyos-servicios-admin/apoyos-servicios-admin';
 
 
 export const adminRoutes: Routes = [
@@ -32,5 +33,6 @@ export const adminRoutes: Routes = [
   { path: 'archivos-municipio', component: ArchivosMunicipiosAdmin},
   { path: 'documentos-cendoc', component: DocumentosCendocAdmin},
   { path: 'consejo', component: ConsejoAdmin },
-  { path: 'directorios', component: DirectoriosAdmin}
+  { path: 'directorios', component: DirectoriosAdmin},
+  { path: 'apoyos', component: ApoyosServiciosAdmin},
 ];

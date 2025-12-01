@@ -278,68 +278,6 @@ export class Flipbook implements AfterViewInit {
     this.scheduleRender();
   }
 
-// async calculateFullscreenSize() {
-//   if (!this.pdfDoc) return;
-  
-//   const stage = this.stageRef.nativeElement;
-//   const root = stage.closest('.flipbook-root') as HTMLElement;
-  
-//   // 🔹 DEBUG INICIAL
-//   console.log('🔍 calculateFullscreenSize START:', {
-//     window_innerWidth: window.innerWidth,
-//     window_innerHeight: window.innerHeight,
-//     root_offsetWidth: root?.offsetWidth,
-//     root_offsetHeight: root?.offsetHeight,
-//     stage_offsetWidth: stage.offsetWidth,
-//     stage_offsetHeight: stage.offsetHeight
-//   });
-  
-//   try {
-//     const page = await this.pdfDoc.getPage(1);
-//     const viewport = page.getViewport({ scale: 1 });
-    
-//     const singlePageAspectRatio = viewport.width / viewport.height;
-    
-//     // 🔹 El cálculo que estás haciendo
-//     const availableWidth = window.innerWidth - 120;
-//     const availableHeight = window.innerHeight - 80;
-    
-//     console.log('🔍 Disponible:', {
-//       availableWidth,
-//       availableHeight,
-//       viewport_width: viewport.width,
-//       viewport_height: viewport.height,
-//       singlePageAspectRatio
-//     });
-    
-//     let finalWidth: number;
-//     let finalHeight: number;
-    
-//     const twoPageWidth = availableWidth;
-//     const twoPageHeight = twoPageWidth / (singlePageAspectRatio * 2);
-    
-//     if (twoPageHeight <= availableHeight) {
-//       finalWidth = twoPageWidth;
-//       finalHeight = twoPageHeight;
-//     } else {
-//       finalHeight = availableHeight;
-//       finalWidth = finalHeight * singlePageAspectRatio * 2;
-//     }
-    
-//     this.pageWidth = finalWidth;
-//     this.folioHeight = finalHeight;
-    
-//     console.log('📏 FINAL Calculated size:', {
-//       finalWidth,
-//       finalHeight,
-//       pageWidth: this.pageWidth,
-//       folioHeight: this.folioHeight
-//     });
-//   } catch (err) {
-//     console.error('Error calculating fullscreen size:', err);
-//   }
-// }
-
 //Método para considerar vista en Cel, falta verificar funcionalidad.
   async calculateFullscreenSize() {
     if (!this.pdfDoc) return;

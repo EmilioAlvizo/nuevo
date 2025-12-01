@@ -89,19 +89,31 @@
         </button>
         <div class="dropdown-content" [class.active]="isOpen('informacion')">
           <div class="dropdown-item">
-            <div class="dropdown-item-title">Apoyos y servicios</div>
+            <a 
+              routerLink="/temas" 
+              routerLinkActive="active" 
+              class="dropdown-item-title"
+              (click)="onLinkClick()">
+              Temás de interés
+            </a>
           </div>
           <div class="dropdown-item">
             <a 
-              routerLink="/directorio" 
+              routerLink="/apoyos" 
+              routerLinkActive="active" 
+              class="dropdown-item-title"
+              (click)="onLinkClick()">
+              Apoyos y servicios
+            </a>
+          </div>
+          <div class="dropdown-item">
+            <a 
+              routerLink="/directorio-info" 
               routerLinkActive="active" 
               class="dropdown-item-title"
               (click)="onLinkClick()">
               Directorios
             </a>
-          </div>
-          <div class="dropdown-item">
-            <div class="dropdown-item-title">Temas de interés</div>
           </div>
         </div>
       </div>

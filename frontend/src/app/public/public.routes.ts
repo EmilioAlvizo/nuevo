@@ -12,6 +12,8 @@ import { Directorio } from './pages/directorio/directorio';
 import { Contactanos } from './pages/contactanos/contactanos';
 import { Articulos } from './pages/articulos/articulos';
 import { Consejo } from './pages/consejo/consejo';
+import { TemasInteres } from './pages/temas-interes/temas-interes';
+import { ApoyosServicios } from './pages/apoyos-servicios/apoyos-servicios';
 
 export const publicRoutes: Routes = [
   { path: '', component: Home },
@@ -23,6 +25,8 @@ export const publicRoutes: Routes = [
   { path: 'centro-documental', component: CentroDocumental },
   { path: 'informacion', component: InformacionInteres },
   { path: 'contactanos', component: Contactanos },
-  { path: 'directorio', component: Directorio },
-  { path: 'consejo', component: Consejo }
+  { path: 'directorio-info', component: Directorio },
+  { path: 'consejo', component: Consejo },
+  { path: 'temas', component: TemasInteres},
+  { path: 'apoyos', component: ApoyosServicios},
 ];
