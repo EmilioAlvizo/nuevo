@@ -56,6 +56,8 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
 
   revistasOptions: any[] = [];
 
+  revistasOptionsConNulo: any[] = [];
+
   groupedArticulos: any[] = [];
 
   formArticulo!: FormGroup;
@@ -89,10 +91,76 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
     this.inicializarFormulario();
   }
 
+  // ngOnInit(): void {
+  //   this.cargarRevistas();
+  //   this.cargarArticulos();
+    
+  //   this.formArticulo.get('id_revista')?.valueChanges
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe((idRevista) => {
+  //       const paginaControl = this.formArticulo.get('pagina');
+
+  //       if (idRevista) {
+  //         // Si hay revista, habilitar y hacer obligatorio
+  //         paginaControl?.enable();
+  //         paginaControl?.setValidators([Validators.required, Validators.min(1)]);
+  //       } else {
+  //         // Si no hay revista, deshabilitar y limpiar validaciones
+  //         paginaControl?.disable();
+  //         paginaControl?.clearValidators();
+  //         paginaControl?.setValue(null);
+  //       }
+
+  //       paginaControl?.updateValueAndValidity();
+  //     });
+
+  // }
+
   ngOnInit(): void {
-    this.cargarRevistas();
-    this.cargarArticulos();
-  }
+  this.loading = true;
+
+  this.apiRevistas.getRevistas()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (res) => {
+        this.revistas = res.data || [];
+
+        this.revistasOptionsConNulo = [
+          { label: 'Sin revista', value: null },
+          ...this.revistas.map(r => ({
+            label: `Vol. ${r.volumen} - Núm. ${r.numero_year}`,
+            value: r.id_revista
+          }))
+        ];
+
+        // Ahora que ya tenemos revistas, cargamos artículos
+        this.cargarArticulos();
+      },
+      error: () => {
+        this.mostrarError('Error al cargar revistas');
+        // Aunque falle, cargamos artículos para que no se quede vacío
+        this.cargarArticulos();
+      }
+    });
+
+  this.formArticulo.get('id_revista')?.valueChanges
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((idRevista) => {
+      const paginaControl = this.formArticulo.get('pagina');
+
+      if (idRevista) {
+        paginaControl?.enable();
+        paginaControl?.setValidators([Validators.required, Validators.min(1)]);
+      } else {
+        paginaControl?.disable();
+        paginaControl?.clearValidators();
+        paginaControl?.setValue(null);
+      }
+
+      paginaControl?.updateValueAndValidity();
+    });
+}
+
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -104,34 +172,57 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
   // ===========================
   private inicializarFormulario(): void {
     this.formArticulo = this.fb.group({
-      id_revista: [null, Validators.required],
+      id_revista: [null],
       titulo: ['', Validators.required],
       autor: ['', Validators.required],
       contenido: ['', Validators.required],
       estatus: ['A', Validators.required],
-      pagina: [null, Validators.required]
+      pagina: [{value: null, disabled: true}]
     });
   }
 
   // ===========================
   // CARGA DE REVISTAS
   // ===========================
+  // cargarRevistas() {
+  //   this.apiRevistas.getRevistas()
+  //     .pipe(takeUntil(this.destroy$))
+  //     .subscribe({
+  //       next: (res) => {
+  //         this.revistas = res.data || [];
+  //           this.revistasOptions = this.revistas.map(r => ({
+  //             label: `Vol. ${r.volumen} - Núm. ${r.numero_year} (${this.datePipe.transform(r.fecha, 'dd/MM/yyyy', 'UTC')})`,
+  //             value: r.id_revista
+  //           }));
+  //       },
+  //       error: () => {
+  //         this.mostrarError('Error al cargar revistas');
+  //       }
+  //     });
+  // }
   cargarRevistas() {
-    this.apiRevistas.getRevistas()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          this.revistas = res.data || [];
-            this.revistasOptions = this.revistas.map(r => ({
-              label: `Vol. ${r.volumen} - Núm. ${r.numero_year} (${this.datePipe.transform(r.fecha, 'dd/MM/yyyy', 'UTC')})`,
-              value: r.id_revista
-            }));
-        },
-        error: () => {
-          this.mostrarError('Error al cargar revistas');
-        }
-      });
-  }
+  this.apiRevistas.getRevistas()
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (res) => {
+        this.revistas = res.data || [];
+
+        this.revistasOptions = this.revistas.map(r => ({
+          label: `Vol. ${r.volumen} - Núm. ${r.numero_year} (${this.datePipe.transform(r.fecha, 'dd/MM/yyyy', 'UTC')})`,
+          value: r.id_revista
+        }));
+
+        this.revistasOptionsConNulo = [
+          { label: 'Sin revista', value: null },
+          ...this.revistasOptions
+        ];
+      },
+      error: () => {
+        this.mostrarError('Error al cargar revistas');
+      }
+    });
+}
+
 
   // ===========================
   // CARGA DE ARTÍCULOS
@@ -156,12 +247,27 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
   // ===========================
   // AGRUPAR ARTÍCULOS POR REVISTA
   // ===========================
+  // groupArticulos() {
+  //   this.groupedArticulos = this.revistas.map(rev => ({
+  //     revista: rev,
+  //     articulos: this.articulos.filter(a => a.id_revista === rev.id_revista)
+  //   }));
+  // }
   groupArticulos() {
-    this.groupedArticulos = this.revistas.map(rev => ({
+  const articulosSinRevista = this.articulos.filter(a => !a.id_revista);
+
+  this.groupedArticulos = [
+    ...this.revistas.map(rev => ({
       revista: rev,
       articulos: this.articulos.filter(a => a.id_revista === rev.id_revista)
-    }));
-  }
+    })),
+    {
+      revista: null,
+      articulos: articulosSinRevista
+    }
+  ];
+}
+
 
   // ===========================
   // MODAL
@@ -248,21 +354,52 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
   }
 
 
+  // private prepararFormData(): FormData {
+  //   const fd = new FormData();
+  //   const v = this.formArticulo.value;
+
+  //   // fd.append('id_revista', v.id_revista.toString());
+  //   if (v.id_revista != null) {
+  //     fd.append('id_revista', v.id_revista.toString());
+  //   } else {
+  //     fd.append('id_revista', '');
+  //   }
+  //   fd.append('titulo', v.titulo);
+  //   fd.append('autor', v.autor);
+  //   fd.append('pagina', v.pagina.toString());
+  //   fd.append('contenido', v.contenido);
+  //   fd.append('estatus', v.estatus);
+
+  //   if (this.selectedImage) fd.append('imagen', this.selectedImage);
+
+  //   return fd;
+  // }
+
   private prepararFormData(): FormData {
     const fd = new FormData();
     const v = this.formArticulo.value;
 
-    fd.append('id_revista', v.id_revista.toString());
+    // id_revista puede ser null
+    fd.append('id_revista', v.id_revista != null ? v.id_revista.toString() : '');
+
     fd.append('titulo', v.titulo);
     fd.append('autor', v.autor);
-    fd.append('pagina', v.pagina.toString());
+
+    // Solo agregar pagina si tiene valor
+    if (v.pagina != null) {
+      fd.append('pagina', v.pagina.toString());
+    }
+
     fd.append('contenido', v.contenido);
     fd.append('estatus', v.estatus);
 
-    if (this.selectedImage) fd.append('imagen', this.selectedImage);
+    if (this.selectedImage) {
+      fd.append('imagen', this.selectedImage);
+    }
 
     return fd;
   }
+
 
   // ===========================
   // CRUD

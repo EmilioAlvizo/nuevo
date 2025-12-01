@@ -1,12 +1,11 @@
 <div class="flipbook-root" tabindex="0">
-  <!-- Contenedor del visor -->
   <div class="viewer-container">
     <div class="book-stage" #stage>
       <!-- Botones flotantes de navegación (solo en fullscreen) -->
       <button class="nav-btn nav-btn-left" 
               *ngIf="isFullscreen"
               (click)="prev()" 
-              [disabled]="currentFolioIndex === 0">
+              [disabled]="isMobileView ? (getCurrentMobilePage() === 1) : (currentFolioIndex === 0)">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
@@ -15,13 +14,13 @@
       <button class="nav-btn nav-btn-right" 
               *ngIf="isFullscreen"
               (click)="next()" 
-              [disabled]="currentFolioIndex >= folios.length - 1">
+              [disabled]="isMobileView ? (getCurrentMobilePage() >= getTotalPages()) : (currentFolioIndex >= folios.length - 1)">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>
 
-      <!-- Botón para salir de fullscreen (esquina superior derecha) -->
+      <!-- Botón para salir de fullscreen -->
       <button class="exit-fullscreen-btn" 
               *ngIf="isFullscreen"
               (click)="toggleFullscreen()"
@@ -31,19 +30,36 @@
         </svg>
       </button>
 
-      <!-- Contador de páginas en fullscreen (abajo al centro) -->
+      <!-- Contador de páginas en fullscreen -->
       <div class="page-counter-fullscreen" *ngIf="isFullscreen">
-        {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}
+        <ng-container *ngIf="isMobileView; else desktopCounter">
+          {{ getCurrentMobilePage() }} / {{ getTotalPages() }}
+        </ng-container>
+        <ng-template #desktopCounter>
+          {{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ getTotalPages() }}
+        </ng-template>
       </div>
 
+      <!-- Folios - SIEMPRE en el DOM para que los canvas existan -->
       <ng-container *ngFor="let folio of folios; let fi = index">
         <div class="folio" 
+             [class.folio-hidden]="!isFolioVisible(fi)"
              [class.flipped]="folio.flipped" 
              [style.z-index]="getZIndex(fi)"
-             [style.width.px]="pageWidth / 2"
+             [style.width.px]="(isFullscreen && isMobileView) ? pageWidth : (pageWidth / 2)"
              [style.height.px]="folioHeight">
-          <div class="leaf front"><canvas #frontCanvas></canvas></div>
-          <div class="leaf back"><canvas #backCanvas></canvas></div>
+          
+          <!-- Front leaf -->
+          <div class="leaf front" 
+               [class.leaf-hidden]="isFullscreen && isMobileView && !shouldShowFrontInMobile()">
+            <canvas #frontCanvas></canvas>
+          </div>
+          
+          <!-- Back leaf -->
+          <div class="leaf back" 
+               [class.leaf-hidden]="isFullscreen && isMobileView && !shouldShowBackInMobile()">
+            <canvas #backCanvas></canvas>
+          </div>
         </div>
       </ng-container>
     </div>
@@ -59,14 +75,14 @@
     </button>
   </div>
 
-  <!-- Controles normales debajo (solo visible fuera de fullscreen) -->
+  <!-- Controles normales -->
   <div class="controls" *ngIf="!isFullscreen">
     <button class="control-btn" (click)="prev()" [disabled]="currentFolioIndex === 0">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="15 18 9 12 15 6"></polyline>
       </svg>
     </button>
-    <div class="page-counter">{{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ folios.length * 2 }}</div>
+    <div class="page-counter">{{ currentFolioIndex * 2 + 1 }}-{{ currentFolioIndex * 2 + 2 }} / {{ getTotalPages() }}</div>
     <button class="control-btn" (click)="next()" [disabled]="currentFolioIndex >= folios.length - 1">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="9 18 15 12 9 6"></polyline>

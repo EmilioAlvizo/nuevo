@@ -201,9 +201,11 @@ class ArticulosController {
   static async create(req, res) {
     try {
       const { id_revista, titulo, autor, contenido, estatus, pagina } = req.body;
+      const idRevistaValue = id_revista === '' || id_revista === 'null' ? null : id_revista;
+
 
       // Validación básica
-      if (!id_revista || !titulo || !autor || !contenido || !pagina) {
+      if ( !titulo || !autor || !contenido) {
         return res.status(400).json({
           success: false,
           message: "Faltan campos requeridos",
@@ -211,14 +213,31 @@ class ArticulosController {
       }
 
       // Crear registro sin imagen primero
+      // const nuevoArticulo = await ArticulosModel.create(TABLE_NAME, {
+      //   id_revista,
+      //   titulo,
+      //   autor,
+      //   contenido,
+      //   pagina,
+      //   estatus: estatus || "A",
+      // });
+      // Validación condicional de pagina
+      if (idRevistaValue && (!pagina || isNaN(pagina) || pagina <= 0)) {
+        return res.status(400).json({
+          success: false,
+          message: "La página es obligatoria si se selecciona una revista",
+        });
+      }
+
       const nuevoArticulo = await ArticulosModel.create(TABLE_NAME, {
-        id_revista,
+        id_revista: idRevistaValue,
         titulo,
         autor,
         contenido,
         pagina,
         estatus: estatus || "A",
       });
+
 
       // Detectar ID generado
       const id =
@@ -281,6 +300,7 @@ class ArticulosController {
       const { id } = req.params;
 
       const { id_revista, titulo, autor, contenido, estatus, pagina } = req.body;
+      const idRevistaValue = id_revista === '' || id_revista === 'null' ? null : id_revista;
 
       const registroActual = await ArticulosModel.getById(TABLE_NAME, id, ID_COLUMN);
 
@@ -292,10 +312,34 @@ class ArticulosController {
       }
 
       // Actualizar datos
+      // await ArticulosModel.update(
+      //   TABLE_NAME,
+      //   id,
+      //   { id_revista, titulo, autor, contenido, estatus, pagina },
+      //   ID_COLUMN
+      // );
+
+      
+      // Validación básica
+      if (!titulo || !autor || !contenido) {
+        return res.status(400).json({
+          success: false,
+          message: "Faltan campos requeridos",
+        });
+      }
+
+      // Validación condicional de pagina
+      if (idRevistaValue && (!pagina || isNaN(pagina) || pagina <= 0)) {
+        return res.status(400).json({
+          success: false,
+          message: "La página es obligatoria si se selecciona una revista",
+        });
+      }
+
       await ArticulosModel.update(
         TABLE_NAME,
         id,
-        { id_revista, titulo, autor, contenido, estatus, pagina },
+        { id_revista: idRevistaValue, titulo, autor, contenido, estatus, pagina },
         ID_COLUMN
       );
 

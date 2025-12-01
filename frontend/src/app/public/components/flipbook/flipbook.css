@@ -69,23 +69,21 @@
   overflow: hidden;
 }
 
-/* Asegurar que los folios no se desborden */
-.book-stage::before {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 .folio {
   position: absolute;
   left: 50%;
   transform-origin: left center;
   transform-style: preserve-3d;
-  transition: transform 0.6s ease;
+  transition: transform 0.6s ease, opacity 0.3s ease;
   max-width: 50%;
   max-height: 100%;
+}
+
+/* Ocultar folios no visibles (pero mantenerlos en el DOM) */
+.folio-hidden {
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1 !important;
 }
 
 .folio.flipped {
@@ -101,6 +99,12 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
+/* Ocultar leaves específicas sin quitarlas del DOM */
+.leaf-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .leaf.front { 
   left: 0; 
 }
@@ -114,6 +118,7 @@
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
 }
 
 /* ========== BOTÓN FULLSCREEN (MODO NORMAL) ========== */
@@ -165,6 +170,9 @@
   padding: 0;
   box-shadow: none;
   background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .flipbook-root:fullscreen .book-stage {
@@ -174,14 +182,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.flipbook-root:fullscreen .folio {
-  height: 90vh !important;
-}
-
-.flipbook-root:fullscreen .folio.flipped {
-  transform: rotateY(-180deg) !important;
 }
 
 /* ========== BOTONES DE NAVEGACIÓN EN FULLSCREEN ========== */
@@ -298,16 +298,6 @@
     margin-top: 12px;
   }
 
-  .flipbook-root:fullscreen .folio {
-    width: 100% !important;
-    transform-origin: center center;
-    max-width: none;
-  }
-  
-  .flipbook-root:fullscreen .leaf.back {
-    display: none !important;
-  }
-
   .nav-btn {
     padding: 16px 10px;
   }
@@ -330,6 +320,38 @@
     bottom: 20px;
     font-size: 13px;
     padding: 8px 20px;
+  }
+
+  /* 📱 MÓVIL FULLSCREEN: Una sola página centrada */
+  .flipbook-root:fullscreen .folio {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    transform-origin: center center !important;
+    max-width: none !important;
+  }
+
+  /* .flipbook-root:fullscreen .leaf {
+    position: relative !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+  } */
+
+  .flipbook-root:fullscreen .leaf {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+
+  .flipbook-root:fullscreen .leaf canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 }
 
