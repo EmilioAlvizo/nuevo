@@ -2,8 +2,8 @@
 const { buildConditions } = require("../utils/filters");
 const { getConnection, mssql } = require("../config/database");
 
-// Modelo generado automáticamente para la tabla: documentos_cendoc
-class DocumentosCendocModel {
+// Modelo para operaciones CRUD
+class Documentos_cendocModel {
   // Obtener todos los registros
   static async getAll(tableName) {
     try {
@@ -29,63 +29,103 @@ class DocumentosCendocModel {
     }
   }
 
-  // Obtener registros con filtros
-  static async getFiltrados(params) {
+  // ✅ NUEVO - Obtener archivos con filtros
+  static async getArchivosFiltrados(params) {
     try {
       const pool = await getConnection();
       const request = pool.request();
 
-      let query = `SELECT a.*, m.nombre_categoria_cendoc as nombre_categoria FROM documentos_cendoc a
-        INNER JOIN categorias_cendoc m ON a.id_categoria_cendoc = m.id_categoria_cendoc WHERE 1=1`;
+      // Construir la consulta base con JOIN
+      let query = `
+        SELECT 
+          a.*,
+          m.nombre_categoria_cendoc as nombre_categoria
+        FROM documentos_cendoc a
+        INNER JOIN categorias_cendoc m ON a.id_categoria_cendoc = m.id_categoria_cendoc
+        WHERE 1=1
+      `;
 
-      // Configuración de filtros
+      // Configuración reutilizable
       const filterConfig = [
-    { name: "nombre_documento", dbField: "a.nombre_documento", type: "string" },
-    { name: "autor_documento", dbField: "a.autor_documento", type: "string", isMulti: true },
-    { name: "descripcion_documento", dbField: "a.descripcion_documento", type: "string" },
-    { name: "fecha_documento", dbField: "a.fecha_documento", type: "date" },
-    { name: "id_categoria_cendoc", dbField: "a.id_categoria_cendoc", type: "int", isMulti: true },
-    { name: "estatus_documento", dbField: "a.estatus_documento", type: "string", isMulti: true },
-    { name: "fecha_modificacion", dbField: "a.fecha_modificacion", type: "date" },
-    { name: "palabras_clave", dbField: "a.palabras_clave", type: "string" }
+        { name: "id_documento", dbField: "id_documento", type: "int" },
+        {
+          name: "nombre_documento",
+          dbField: "nombre_documento",
+          type: "string",
+        },
+        { name: "autor_documento", dbField: "autor_documento", isMulti: true },
+        {
+          name: "descripcion_documento",
+          dbField: "descripcion_documento",
+          type: "string",
+        },
+        { name: "fecha_documento", dbField: "fecha_documento", type: "date" },
+        {
+          name: "id_categoria_cendoc",
+          dbField: "id_categoria_cendoc",
+          type: "int",
+        },
+        {
+          name: "archivo_documento",
+          dbField: "archivo_documento",
+          type: "string",
+        },
+        {
+          name: "estatus_documento",
+          dbField: "estatus_documento",
+          isMulti: true,
+        },
+        {
+          name: "fecha_modificacion",
+          dbField: "fecha_modificacion",
+          type: "date",
+        },
+        { name: "palabras_clave", dbField: "palabras_clave", type: "string" },
+        {
+          name: "nombre_categoria",
+          dbField: "m.nombre_categoria_cendoc",
+          isMulti: true,
+        },
       ];
 
-      // Construir condiciones
+      // 🔧 construir condiciones
       const conditions = buildConditions(params, request, filterConfig);
 
-      // Búsqueda global
+      // 🔍 búsqueda global
       if (params.busqueda) {
-        const searchFields = ["a.nombre_documento","a.autor_documento","a.descripcion_documento"];
-        
-        const searchConditions = searchFields.map(field => `${field} LIKE @busqueda`).join(' OR ');
-        if (searchConditions) {
-          conditions.push(`(${searchConditions})`);
-          request.input("busqueda", mssql.NVarChar, `%${params.busqueda}%`);
-        }
+        conditions.push(`(
+          nombre_documento LIKE @busqueda OR 
+          autor_documento LIKE @busqueda
+        )`);
+        request.input("busqueda", mssql.NVarChar, `%${params.busqueda}%`);
       }
 
       if (conditions.length > 0) query += " AND " + conditions.join(" AND ");
 
-      // Ordenamiento
+      // 🔽 Ordenamiento
       if (params.sortField) {
         const direction = params.sortOrder === -1 ? "DESC" : "ASC";
-        const sortField = params.sortField.includes('.') ? params.sortField : `a.${params.sortField}`;
-        query += ` ORDER BY ${sortField} ${direction}`;
+        query += ` ORDER BY ${params.sortField} ${direction}`;
       } else {
-        query += ` ORDER BY a.fecha_modificacion DESC`;
+        query += " ORDER BY id_documento DESC";
       }
 
-      // Paginación
+      // 📄 Paginación
       const offset = (params.pagina - 1) * params.limite;
       query += ` OFFSET ${offset} ROWS FETCH NEXT ${params.limite} ROWS ONLY`;
 
-      // Contar total
+      //console.log("query ", query);
+
+      // 🧮 Contar total
       const countQuery = `
-        SELECT COUNT(*) AS total FROM documentos_cendoc a
+        SELECT COUNT(*) AS total 
+        FROM documentos_cendoc a
         INNER JOIN categorias_cendoc m ON a.id_categoria_cendoc = m.id_categoria_cendoc
         WHERE 1=1
         ${conditions.length > 0 ? " AND " + conditions.join(" AND ") : ""}
       `;
+
+      //console.log("countQuery ", countQuery)
 
       const result = await request.query(query);
       const totalResult = await request.query(countQuery);
@@ -93,6 +133,7 @@ class DocumentosCendocModel {
       const total = totalResult.recordset[0].total;
       const totalPaginas = Math.ceil(total / params.limite);
 
+      // ✅ Retornar datos en formato consistente
       return {
         data: result.recordset,
         total,
@@ -100,46 +141,31 @@ class DocumentosCendocModel {
         totalPaginas,
       };
     } catch (error) {
-      throw new Error(`Error en getFiltrados: ${error.message}`);
+      throw new Error(`Error en getArchivosFiltrados: ${error.message}`);
     }
   }
 
-  // Obtener valores únicos para filtros multiselect
-  static async getValoresUnicos() {
+  // ✅ NUEVO - Obtener conteos por municipio
+  static async getConteosPorDocumentos_cendoc() {
     try {
       const pool = await getConnection();
-      const valores = {};
+      const query = `
+        SELECT 
+          m.id_categoria_cendoc,
+          m.nombre_categoria_cendoc,
+          COUNT(a.id_categoria_cendoc) as contador
+        FROM categorias_cendoc m
+        LEFT JOIN documentos_cendoc a ON m.id_categoria_cendoc = a.id_categoria_cendoc
+        GROUP BY m.id_categoria_cendoc, m.nombre_categoria_cendoc
+        ORDER BY m.nombre_categoria_cendoc ASC
+      `;
 
-      const filterConfig = [
-    { name: "nombre_documento", dbField: "a.nombre_documento", type: "string" },
-    { name: "autor_documento", dbField: "a.autor_documento", type: "string", isMulti: true },
-    { name: "descripcion_documento", dbField: "a.descripcion_documento", type: "string" },
-    { name: "fecha_documento", dbField: "a.fecha_documento", type: "date" },
-    { name: "id_categoria_cendoc", dbField: "a.id_categoria_cendoc", type: "int", isMulti: true },
-    { name: "estatus_documento", dbField: "a.estatus_documento", type: "string", isMulti: true },
-    { name: "fecha_modificacion", dbField: "a.fecha_modificacion", type: "date" },
-    { name: "palabras_clave", dbField: "a.palabras_clave", type: "string" }
-      ];
-
-      const camposMultiselect = filterConfig
-        .filter(f => f.isMulti)
-        .map(f => ({ name: f.name, dbField: f.dbField }));
-
-      for (const campo of camposMultiselect) {
-        const query = `
-          SELECT DISTINCT ${campo.dbField} as valor
-          FROM documentos_cendoc a
-          INNER JOIN categorias_cendoc m ON a.id_categoria_cendoc = m.id_categoria_cendoc
-          WHERE ${campo.dbField} IS NOT NULL AND ${campo.dbField} != ''
-          ORDER BY ${campo.dbField}
-        `;
-        const result = await pool.request().query(query);
-        valores[campo.name] = result.recordset.map(r => r.valor);
-      }
-
-      return valores;
+      const result = await pool.request().query(query);
+      return result.recordset;
     } catch (error) {
-      throw new Error(`Error al obtener valores únicos: ${error.message}`);
+      throw new Error(
+        `Error al obtener conteos por municipio: ${error.message}`
+      );
     }
   }
 
@@ -154,6 +180,7 @@ class DocumentosCendocModel {
 
       const request = pool.request();
 
+      // Agregar parámetros dinámicamente
       Object.keys(data).forEach((key) => {
         request.input(key, data[key]);
       });
@@ -178,6 +205,7 @@ class DocumentosCendocModel {
       const request = pool.request();
       request.input("id", mssql.Int, id);
 
+      // Agregar parámetros dinámicamente
       Object.keys(data).forEach((key) => {
         request.input(key, data[key]);
       });
@@ -207,4 +235,4 @@ class DocumentosCendocModel {
   }
 }
 
-module.exports = DocumentosCendocModel;
+module.exports = Documentos_cendocModel;

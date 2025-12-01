@@ -16,11 +16,11 @@ import { Consejo } from './pages/consejo/consejo';
 export const publicRoutes: Routes = [
   { path: '', component: Home },
   { path: 'sistema', component: SistemaJuventudes },
-  { path: 'estadisticas', component: Estadisticas },
+  { path: 'estadisticas', component: Estadisticas, data: { ocultarDiv: true } },
   { path: 'revista', component: RevistaVoces },
   { path: 'revista/:id', component: RevistaDetalle },
   { path: 'revista/:id/articulo', component: Articulos, children: ARTICULOS_CHILD_ROUTES },
-  { path: 'centro-documental', component: CentroDocumental },
+  //{ path: 'centro-documental', component: CentroDocumental },
   // { path: 'informacion', component: InformacionInteres },
   { path: 'contactanos', component: Contactanos },
   { path: 'directorio', component: Directorio },

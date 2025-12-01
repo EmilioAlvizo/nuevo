@@ -26,6 +26,7 @@ const PORT = 3000;
 // ⚠️ IMPORTANTE: CORS debe ser lo primero y con configuración correcta
 app.use(cors({
   origin: "http://localhost:4200", // tu frontend Angular
+  //origin: "https://hnd2r2hj-4200.usw3.devtunnels.ms", // tu frontend Angular
   credentials: true, // ⚠️ CRÍTICO para que las cookies funcionen
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -82,7 +83,7 @@ app.get("/", (req, res) => {
 
 // Rutas del API
 app.use("/api/auth", authRoutes);
-app.use("/api", documentos_cendocRoutes);
+app.use("/api/documentos_cendoc", documentos_cendocRoutes);
 app.use("/api/archivos_municipio", archivos_municipioRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", categorias_cendocRoutes);

@@ -7,9 +7,109 @@
   </div>
 </div>
 
+<!-- <div>
+  <p-menubar pt="{
+    item: {class: 'container-xxl'}
+}" [model]="items" breakpoint="200px" [dt]="menuDesignTokens" />
+</div> -->
+
+<div class="card">
+  <p-tabs value="0" [dt]="tabDesignTokens" [lazy]="true">
+    <p-tablist class="container-xxl">
+      <p-tab value="0">Archivos municipio</p-tab>
+      <p-tab value="1">Documentos Cendoc</p-tab>
+      <p-tab value="2">Header III</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <ng-template #content
+          ><app-tabla-dinamica [strategy]="archivosStrategy"></app-tabla-dinamica
+        ></ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="1">
+        <ng-template #content>
+          <p class="m-0">
+            tengo una pagina web usa una bd sql server y esta hecha con nodejs en el back y angular
+            20 en el front (y tambien uso primeng 20) y me gustaria agregar en mi pagina la opcion
+            para que un administrador pueda agregar una encuesta, y dicha encuesta asi como el
+            resultado actual salga en la pagina de inicio, cual es la mejor forma de hacerlo?
+          </p>
+          <div class="container mt-5">
+            <h2 style="font-size: 30px; text-transform: none;">
+              <b>¿Qué es el Centro Documental?</b>
+            </h2>
+            <br>
+            <h2 class="animate__animated animate_fadeIn"
+              style="font-size: 20px; text-transform: none; margin-top: -20px;">
+              El Centro Documental es la unidad especializada en la recopilación, preservación y
+              difusión de información sobre diagnósticos, artículos científicos, investigaciones y
+              política pública resultado de actividades realizadas por instituciones públicas y
+              privadas locales, nacionales e internacionales, con el objetivo de ser consultadas,
+              referenciadas y usadas, para la reflexión o generación de nuevo conocimiento.
+              <br>
+              El Sistema de Información e Investigación pone a disposición el Cendoc, que
+              proporciona información oportuna y actualizada en materia de juventud a todos los
+              usuarios interesados en realizar investigación sobre la temática y la realidad de la
+              juventud en sus diversos contextos.
+            </h2>
+      
+          </div>
+          <app-tabla-dinamica [strategy]="docStrategy"></app-tabla-dinamica
+        ></ng-template>
+      </p-tabpanel>
+      <p-tabpanel value="2">
+        <ng-template #content
+          ><div
+            style="
+              position: relative;
+              width: 100%;
+              height: 0;
+              padding-top: 129.4118%;
+              padding-bottom: 0;
+              box-shadow: 0 2px 8px 0 rgba(63, 69, 81, 0.16);
+              margin-top: 1.6em;
+              margin-bottom: 0.9em;
+              overflow: hidden;
+              border-radius: 8px;
+              will-change: transform;
+            "
+          >
+            <iframe
+              loading="lazy"
+              style="
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                border: none;
+                padding: 0;
+                margin: 0;
+              "
+              src="https://www.canva.com/design/DAG6MzGo6Fw/6SUwgkNcAizVRipUn4ojdA/view?embed"
+              allowfullscreen="allowfullscreen"
+              allow="fullscreen"
+            >
+            </iframe>
+          </div>
+          <a
+            href="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAG6MzGo6Fw&#x2F;6SUwgkNcAizVRipUn4ojdA&#x2F;view?utm_content=DAG6MzGo6Fw&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link"
+            target="_blank"
+            rel="noopener"
+            >Diseño</a
+          >
+          de Emilio Alvizo Velazquez</ng-template
+        >
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>
+
+<!-- @switch (selectedTable()) { @case ('archMunicipios'){
 <app-tabla-dinamica [strategy]="archivosStrategy"></app-tabla-dinamica>
+} @case ('docCendoc'){ } @default{
+<div>Welcome, Guest!</div>
+} } -->
 
 <!-- <app-navbar-documentos (tipoCambio)="onTipoCambio($event)"></app-navbar-documentos>
 <app-tabla [tipoDocumento]="mostrarTabla"></app-tabla> -->
-
-

@@ -1,27 +1,20 @@
 //nuevo/backend/controllers/documentos_cendocController.js
-const Documentos_cendocModel = require("../models/documentos_cendocModel");
-const {
-  parseArrayParam,
-  validarCamposRequeridos,
-} = require("../utils/filters");
+const DocumentosCendocModel = require("../models/documentos_cendocModel");
+const { parseArrayParam, validarCamposRequeridos } = require("../utils/filters");
 
-// Nombre de la tabla (cámbialo según tu tabla)
-const TABLE_NAME = "documentos_cendoc"; // 👈 CAMBIAR POR EL NOMBRE DE TU TABLA
-const ID_COLUMN = "id_documento"; // 👈 CAMBIAR SI TU COLUMNA ID TIENE OTRO NOMBRE
 
-const path = require("path");
-const fs = require("fs");
-const backendPublicPath = path.join(__dirname, "../public");
+const TABLE_NAME = "documentos_cendoc";
+const ID_COLUMN = "id_documento";
 
-class Documentos_cendocController {
+class DocumentosCendocController {
   // GET - Obtener todos los registros
   static async getAll(req, res) {
     try {
-      const municipio = await Documentos_cendocModel.getAll(TABLE_NAME);
+      const data = await DocumentosCendocModel.getAll(TABLE_NAME);
       res.status(200).json({
         success: true,
-        data: municipio,
-        count: municipio.length,
+        data: data,
+        count: data.length,
       });
     } catch (error) {
       res.status(500).json({
@@ -35,13 +28,9 @@ class Documentos_cendocController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const revistas = await Documentos_cendocModel.getById(
-        TABLE_NAME,
-        id,
-        ID_COLUMN
-      );
+      const registro = await DocumentosCendocModel.getById(TABLE_NAME, id, ID_COLUMN);
 
-      if (!revistas) {
+      if (!registro) {
         return res.status(404).json({
           success: false,
           message: "Registro no encontrado",
@@ -50,7 +39,7 @@ class Documentos_cendocController {
 
       res.status(200).json({
         success: true,
-        data: revistas,
+        data: registro,
       });
     } catch (error) {
       res.status(500).json({
@@ -60,115 +49,81 @@ class Documentos_cendocController {
     }
   }
 
-  // ✅ NUEVO - GET con filtros
+  // GET - Obtener registros con filtros
   static async getFiltrados(req, res) {
     try {
       const {
         // Paginación
         limite,
         pagina,
-
+        
         // Búsqueda global
         busqueda,
-
-        // Filtros de columna con matchMode
-        id_documento,
-        id_documento_matchMode,
-
-        nombre_documento,
-        nombre_documento_matchMode,
-
-        autor_documento,
-        autor_documento_matchMode,
-
-        descripcion_documento,
-        descripcion_documento_matchMode,
-
-        id_categoria_cendoc,
-        id_categoria_cendoc_matchMode,
-
-        archivo_documento,
-        archivo_documento_matchMode,
-
-        palabras_clave,
-        palabras_clave_matchMode,
-
-        fecha_documento,
-        fecha_documento_matchMode,
-
-        fecha_modificacion,
-        fecha_modificacion_matchMode,
-
-        // Filtros multiselect (separados por coma)
-        estatus_documento,
-        nombre_categoria,
-
+        
         // Ordenamiento
         sortField,
         sortOrder,
+
+        // Filtros de columna
+        // id_documento
+        id_documento,
+        id_documento_matchMode,
+        // nombre_documento
+        nombre_documento,
+        nombre_documento_matchMode,
+        // autor_documento
+        autor_documento,
+        autor_documento_matchMode,
+        // descripcion_documento
+        descripcion_documento,
+        descripcion_documento_matchMode,
+        // fecha_documento
+        fecha_documento,
+        fecha_documento_matchMode,
+        // id_categoria_cendoc
+        id_categoria_cendoc,
+        id_categoria_cendoc_matchMode,
+        // archivo_documento
+        archivo_documento,
+        archivo_documento_matchMode,
+        // estatus_documento
+        estatus_documento,
+        estatus_documento_matchMode,
+        // fecha_modificacion
+        fecha_modificacion,
+        fecha_modificacion_matchMode,
+        // palabras_clave
+        palabras_clave,
+        palabras_clave_matchMode,
       } = req.query;
 
-      // Procesar parámetros
       const params = {
-        // Paginación
         limite: parseInt(limite) || 10,
         pagina: parseInt(pagina) || 1,
-
-        // Búsqueda global
         busqueda: busqueda || null,
-
-        // Filtros simples con matchMode
-        id_documento: id_documento || null,
-        id_documento_matchMode: id_documento_matchMode || "contains",
-
-        nombre_documento: nombre_documento || null,
-        nombre_documento_matchMode: nombre_documento_matchMode || "contains",
-
-        autor_documento: autor_documento || null,
-        autor_documento_matchMode: autor_documento_matchMode || "contains",
-
-        descripcion_documento: descripcion_documento || null,
-        descripcion_documento_matchMode:
-          descripcion_documento_matchMode || "contains",
-
-        id_categoria_cendoc: id_categoria_cendoc || null,
-        id_categoria_cendoc_matchMode:
-          id_categoria_cendoc_matchMode || "contains",
-
-        archivo_documento: archivo_documento || null,
-        archivo_documento_matchMode: archivo_documento_matchMode || "contains",
-
-        palabras_clave: palabras_clave || null,
-        palabras_clave_matchMode: palabras_clave_matchMode || "contains",
-
-        /* nombre_categoria: nombre_categoria || null,
-        nombre_categoria_matchMode: nombre_categoria_matchMode || "contains", */
-
-        // Filtros de fecha con matchMode
-        fecha_documento: fecha_documento || null,
-        fecha_documento_matchMode: fecha_documento_matchMode || "dateIs",
-
-        fecha_modificacion: fecha_modificacion || null,
-        fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs",
-
-        // Filtros multiselect - convertir strings separadas por coma a arrays
-        estatus_documento: estatus_documento
-          ? parseArrayParam(estatus_documento, "string")
-          : [],
-        nombre_categoria: nombre_categoria
-          ? parseArrayParam(nombre_categoria, "string")
-          : [],
-
-        // Ordenamiento
         sortField: sortField || null,
         sortOrder: sortOrder ? parseInt(sortOrder) : null,
+
+        id_documento: id_documento || null,
+        id_documento_matchMode: id_documento_matchMode || "contains",
+        nombre_documento: nombre_documento || null,
+        nombre_documento_matchMode: nombre_documento_matchMode || "contains",
+        autor_documento: autor_documento ? parseArrayParam(autor_documento, "string") : [],
+        descripcion_documento: descripcion_documento || null,
+        descripcion_documento_matchMode: descripcion_documento_matchMode || "contains",
+        fecha_documento: fecha_documento || null,
+        fecha_documento_matchMode: fecha_documento_matchMode || "dateIs",
+        id_categoria_cendoc: id_categoria_cendoc ? parseArrayParam(id_categoria_cendoc, "int") : [],
+        archivo_documento: archivo_documento || null,
+        archivo_documento_matchMode: archivo_documento_matchMode || "contains",
+        estatus_documento: estatus_documento ? parseArrayParam(estatus_documento, "string") : [],
+        fecha_modificacion: fecha_modificacion || null,
+        fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs",
+        palabras_clave: palabras_clave || null,
+        palabras_clave_matchMode: palabras_clave_matchMode || "contains",
       };
 
-      const resultado = await Documentos_cendocModel.getArchivosFiltrados(
-        params
-      );
-
-      //console.log("resultados ", resultado)
+      const resultado = await DocumentosCendocModel.getFiltrados(params);
 
       res.status(200).json({
         success: true,
@@ -187,18 +142,16 @@ class Documentos_cendocController {
     }
   }
 
-  /// ✅ NUEVO - GET conteos por municipio
-  static async getConteosDocumentos_cendoc(req, res) {
+  // GET - Obtener valores únicos para filtros
+  static async getValoresUnicos(req, res) {
     try {
-      const conteos =
-        await Documentos_cendocModel.getConteosPorDocumentos_cendoc();
+      const valores = await DocumentosCendocModel.getValoresUnicos();
       res.status(200).json({
         success: true,
-        data: conteos,
-        count: conteos.length,
+        data: valores,
       });
     } catch (error) {
-      console.error("Error en getConteosDocumentos_cendoc:", error);
+      console.error("Error en getValoresUnicos:", error);
       res.status(500).json({
         success: false,
         message: error.message,
@@ -209,98 +162,36 @@ class Documentos_cendocController {
   // POST - Crear un nuevo registro
   static async create(req, res) {
     try {
-      const {
-        nombre_documento,
-        autor_documento,
-        descripcion_documento,
-        id_categoria_cendoc,
-        palabras_clave,
-        fecha_documento,
-        estatus_documento,
-      } = req.body;
+      const data = req.body;
 
-      // ✅ Validar campos requeridos
-      validarCamposRequeridos(req.body, [
-        "nombre_documento",
-        "autor_documento",
-        "descripcion_documento",
-        "id_categoria_cendoc",
-        "fecha_documento",
-        //"palabras_clave",
-        "estatus_documento",
-      ]);
+      // Validar campos requeridos
+      validarCamposRequeridos(data, []);
 
-      // 🕓 Convertir fecha a horario local (CDMX)
-
-      // Crear registro en BD
-      const nuevoDoc = await Documentos_cendocModel.create(TABLE_NAME, {
-        nombre_documento,
-        autor_documento,
-        descripcion_documento,
-        id_categoria_cendoc,
-        palabras_clave,
-        fecha_documento,
-        estatus_documento,
-      });
-
-      const id = nuevoDoc.id;
-
-      // 2️⃣ Definir carpetas
-      const tempPath = `${backendPublicPath}/documentos_cendoc/temp`;
-      const baseFolder = `${backendPublicPath}/documentos_cendoc/${id}`;
-
-      // const archivoFolder = path.join(baseFolder, 'archivo');
-      fs.mkdirSync(baseFolder, { recursive: true });
-
-      // 3️⃣ Mover archivo
-      let archivoFinal = null;
-      if (req.files && req.files.archivo && req.files.archivo[0]) {
-        const archivo = req.files.archivo[0];
-        const oldPath = path.join(tempPath, archivo.filename);
-        const newPath = path.join(baseFolder, archivo.filename);
-        fs.renameSync(oldPath, newPath);
-        archivoFinal = archivo.filename;
-        console.log("📂 Archivo movido a:", newPath);
-      } else {
-        console.warn("⚠️ No se recibió archivo en req.files.archivo");
-      }
-
-      // 4️⃣ Actualizar registro
-      if (archivoFinal) {
-        await Documentos_cendocModel.update(
-          TABLE_NAME,
-          id,
-          { archivo_documento: archivoFinal },
-          ID_COLUMN
-        );
-      }
+      const nuevoRegistro = await DocumentosCendocModel.create(TABLE_NAME, data);
 
       res.status(201).json({
         success: true,
-        message: "Documento creado correctamente",
-        data: { id, archivo_documento: archivoFinal },
+        message: "Registro creado correctamente",
+        data: nuevoRegistro,
       });
     } catch (err) {
-      console.error(err);
+      console.error(err, err);
       res.status(500).json({
         success: false,
-        message: "Error al crear documento",
+        message: "Error al crear registro",
         error: err.message,
       });
     }
   }
 
-  // 📌 PUT - Actualizar documento existente
+  // PUT - Actualizar un registro
   static async update(req, res) {
     try {
-      const id = req.params.id;
+      const { id } = req.params;
       const data = req.body;
 
-      const registroActual = await Documentos_cendocModel.getById(
-        TABLE_NAME,
-        id,
-        ID_COLUMN
-      );
+
+      const registroActual = await DocumentosCendocModel.getById(TABLE_NAME, id, ID_COLUMN);
 
       if (!registroActual) {
         return res.status(404).json({
@@ -309,79 +200,29 @@ class Documentos_cendocController {
         });
       }
 
-      // 🧾 Campos actualizables
-      const camposActualizados = {
-        nombre_documento: data.nombre_documento,
-        id_categoria_cendoc: data.id_categoria_cendoc,
-        autor_documento: data.autor_documento,
-        estatus_documento: data.estatus_documento,
-        palabras_clave: data.palabras_clave,
-        fecha_documento: data.fecha_documento,
-        descripcion_documento: data.descripcion_documento,
-      };
-
-      // Actualizar campos de texto
-      await Documentos_cendocModel.update(
-        TABLE_NAME,
-        id,
-        camposActualizados,
-        ID_COLUMN
-      );
-
-      // 🗃️ Manejar archivo nuevo solo si se subió
-      if (req.files?.archivo) {
-        const tempPath = `${backendPublicPath}/documentos_cendoc/temp`;
-        const baseFolder = `${backendPublicPath}/documentos_cendoc/${id}`;
-        fs.mkdirSync(baseFolder, { recursive: true });
-
-        const archivo = req.files.archivo[0];
-        const oldPath = path.join(tempPath, archivo.filename);
-        const newPath = path.join(baseFolder, archivo.filename);
-
-        // 🧹 Eliminar archivo anterior si existía
-        if (registroActual.archivo_documento) {
-          const archivoAnterior = path.join(
-            baseFolder,
-            registroActual.archivo_documento
-          );
-          if (fs.existsSync(archivoAnterior)) fs.unlinkSync(archivoAnterior);
-        }
-
-        fs.renameSync(oldPath, newPath);
-        await Documentos_cendocModel.update(
-          TABLE_NAME,
-          id,
-          {
-            archivo_documento: archivo.filename,
-          },
-          ID_COLUMN
-        );
-      }
+      await DocumentosCendocModel.update(TABLE_NAME, id, data, ID_COLUMN);
 
       res.json({
         success: true,
-        message: "Documento actualizado correctamente",
+        message: "Registro actualizado correctamente",
       });
     } catch (err) {
-      console.error(err);
+      console.error(err, err);
       res.status(500).json({
         success: false,
-        message: "Error al actualizar documento",
+        message: "Error al actualizar registro",
         error: err.message,
       });
     }
   }
 
-  // 📌 DELETE - Eliminar documento y archivo
+  // DELETE - Eliminar un registro
   static async delete(req, res) {
     try {
       const { id } = req.params;
 
-      const registro = await Documentos_cendocModel.getById(
-        TABLE_NAME,
-        id,
-        ID_COLUMN
-      );
+      // 🔍 Verificar existencia
+      const registro = await DocumentosCendocModel.getById(TABLE_NAME, id, ID_COLUMN);
 
       if (!registro) {
         return res.status(404).json({
@@ -390,42 +231,41 @@ class Documentos_cendocController {
         });
       }
 
-      const deleted = await Documentos_cendocModel.delete(
-        TABLE_NAME,
-        id,
-        ID_COLUMN
-      );
 
-      if (!deleted) {
-        return res.status(404).json({
-          success: false,
-          message: "Error al eliminar registro",
-        });
-      }
-
-      const carpeta = path.join(
-        backendPublicPath,
-        "documentos_cendoc",
-        id.toString()
-      );
-      if (fs.existsSync(carpeta)) {
-        fs.rmSync(carpeta, { recursive: true, force: true });
-        console.log(`🗑️ Carpeta eliminada: ${carpeta}`);
-      }
+      // 🧾 Eliminar registro en la BD
+      await DocumentosCendocModel.delete(TABLE_NAME, id, ID_COLUMN);
 
       res.json({
         success: true,
-        message: "Documento y archivo eliminados correctamente",
+        message: "Registro eliminado correctamente",
         id,
       });
     } catch (err) {
-      console.error("Error al eliminar documento:", err);
+      console.error("Error al eliminar registro:", err);
       res.status(500).json({
         success: false,
         message: err.message,
       });
     }
   }
+
+  // 🛠️ Utilidad para parsear parámetros de array
+  static parseArrayParam(param, type = "string") {
+    if (!param) return [];
+
+    // Si ya es un array, devolverlo
+    if (Array.isArray(param)) {
+      return type === "int" ? param.map(Number) : param;
+    }
+
+    // Si es un string, dividirlo por comas
+    const arr = param
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return type === "int" ? arr.map(Number) : arr;
+  }
 }
 
-module.exports = Documentos_cendocController;
+module.exports = DocumentosCendocController;

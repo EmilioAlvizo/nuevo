@@ -8,7 +8,239 @@ const path = require("path");
 const fs = require("fs");
 const backendPublicPath = path.join(__dirname, '../public');
 
+// ========================================
+// 🛡️ FUNCIONES DE VALIDACIÓN Y SANITIZACIÓN
+// ========================================
+
+/**
+ * Sanitiza un string eliminando caracteres peligrosos
+ */
+function sanitizeString(str, maxLength = 500) {
+  if (!str) return '';
+  
+  return str
+    .toString()
+    .trim()
+    .slice(0, maxLength)
+    // Eliminar HTML tags
+    .replace(/<[^>]*>/g, '')
+    // Eliminar caracteres especiales peligrosos
+    .replace(/[<>\"']/g, '')
+    // Normalizar espacios múltiples
+    .replace(/\s+/g, ' ');
+}
+
+/**
+ * Valida email con regex
+ */
+function validarEmail(email) {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+}
+
+/**
+ * Valida teléfono (solo números, espacios, guiones, paréntesis)
+ */
+function validarTelefono(telefono) {
+  const regex = /^[\d\s\-\(\)\+]+$/;
+  return regex.test(telefono) && telefono.replace(/\D/g, '').length >= 10;
+}
+
+/**
+ * Valida y sanitiza los datos del testimonio público
+ */
+function validarTestimonioPublico(data) {
+  const errores = [];
+
+  // Validar nombre
+  if (!data.nombreM || data.nombreM.trim().length < 3) {
+    errores.push('El nombre debe tener al menos 3 caracteres');
+  }
+  if (data.nombreM && data.nombreM.length > 100) {
+    errores.push('El nombre no puede exceder 100 caracteres');
+  }
+
+  // Validar correo
+  if (!data.correo || !validarEmail(data.correo)) {
+    errores.push('Debe proporcionar un correo electrónico válido');
+  }
+
+  // Validar teléfono
+  if (!data.telefono || !validarTelefono(data.telefono)) {
+    errores.push('Debe proporcionar un teléfono válido (mínimo 10 dígitos)');
+  }
+
+  // Validar descripción
+  if (!data.descripcion || data.descripcion.trim().length < 10) {
+    errores.push('La descripción debe tener al menos 10 caracteres');
+  }
+  if (data.descripcion && data.descripcion.length > 500) {
+    errores.push('La descripción no puede exceder 500 caracteres');
+  }
+
+  // Validar municipio
+  if (!data.id_municipio || isNaN(parseInt(data.id_municipio))) {
+    errores.push('Debe seleccionar un municipio válido');
+  }
+
+  return {
+    valido: errores.length === 0,
+    errores
+  };
+}
+
 class TestimoniosController {
+
+  // ========================================
+  // 🌐 MÉTODOS PÚBLICOS (sin autenticación)
+  // ========================================
+
+  /**
+   * GET - Obtener solo testimonios activos (para mostrar públicamente)
+   */
+  static async getPublicos(req, res) {
+    try {
+      const testimonios = await TestimoniosModel.getActivos(TABLE_NAME);
+      res.status(200).json({
+        success: true,
+        data: testimonios,
+        count: testimonios.length,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error al obtener testimonios',
+      });
+    }
+  }
+
+  /**
+   * POST - Crear testimonio público (CON VALIDACIONES ESTRICTAS)
+   */
+  static async createPublico(req, res) {
+    try {
+      const { nombreM, id_municipio, correo, telefono, descripcion } = req.body;
+
+      // 1. Validar y sanitizar datos
+      const datosLimpios = {
+        nombreM: sanitizeString(nombreM, 100),
+        id_municipio: parseInt(id_municipio),
+        correo: sanitizeString(correo, 100).toLowerCase(),
+        telefono: sanitizeString(telefono, 20),
+        descripcion: sanitizeString(descripcion, 500)
+      };
+
+      const validacion = validarTestimonioPublico(datosLimpios);
+      
+      if (!validacion.valido) {
+        return res.status(400).json({
+          success: false,
+          message: 'Datos inválidos',
+          errores: validacion.errores
+        });
+      }
+
+      // 2. Validar tamaño de imagen si existe
+      if (req.files?.imagenT) {
+        const imagen = req.files.imagenT[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        
+        if (imagen.size > maxSize) {
+          // Eliminar archivo temporal
+          fs.unlinkSync(imagen.path);
+          return res.status(400).json({
+            success: false,
+            message: 'La imagen no debe exceder 2MB'
+          });
+        }
+
+        // Validar tipo de archivo
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!allowedTypes.includes(imagen.mimetype)) {
+          fs.unlinkSync(imagen.path);
+          return res.status(400).json({
+            success: false,
+            message: 'Solo se permiten imágenes JPG, PNG o WebP'
+          });
+        }
+      }
+
+      // 3. Crear testimonio con estatus INACTIVO por defecto
+      const nuevoTestimonio = await TestimoniosModel.create(TABLE_NAME, {
+        ...datosLimpios,
+        estatus: 'I' // ⚠️ INACTIVO por defecto para moderación
+      });
+
+      const id =
+        nuevoTestimonio.insertId ||
+        nuevoTestimonio.id_testimonios ||
+        nuevoTestimonio.id ||
+        (Array.isArray(nuevoTestimonio) ? nuevoTestimonio[0]?.id_testimonios : undefined);
+
+      if (!id) {
+        throw new Error('No se pudo obtener el ID del nuevo testimonio');
+      }
+
+      // 4. Manejar imagen si existe
+      const tempPath = `${backendPublicPath}/testimonios/temp`;
+      const imagenFolder = `${backendPublicPath}/testimonios/${id}`;
+      fs.mkdirSync(imagenFolder, { recursive: true });
+
+      let imagenFilename = null;
+
+      if (req.files?.imagenT) {
+        const imagen = req.files.imagenT[0];
+        const oldPath = path.join(tempPath, imagen.filename);
+        const newPath = path.join(imagenFolder, imagen.filename);
+        fs.renameSync(oldPath, newPath);
+        imagenFilename = imagen.filename;
+
+        await TestimoniosModel.update(
+          TABLE_NAME,
+          id,
+          { imagenT: imagenFilename },
+          ID_COLUMN
+        );
+      }
+
+      res.status(201).json({
+        success: true,
+        message: 'Testimonio enviado correctamente. Será revisado por un administrador.',
+        data: {
+          id,
+          mensaje: 'Tu testimonio está pendiente de aprobación'
+        }
+      });
+
+    } catch (err) {
+      console.error('Error al crear testimonio público:', err);
+      
+      // Limpiar archivos temporales en caso de error
+      if (req.files?.imagenT) {
+        try {
+          const tempPath = `${backendPublicPath}/testimonios/temp`;
+          const imagen = req.files.imagenT[0];
+          const filePath = path.join(tempPath, imagen.filename);
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (cleanupError) {
+          console.error('Error al limpiar archivo temporal:', cleanupError);
+        }
+      }
+      
+      res.status(500).json({
+        success: false,
+        message: 'Error al enviar testimonio',
+      });
+    }
+  }
+
+  // ========================================
+  // 🔒 MÉTODOS PROTEGIDOS (solo admin)
+  // ========================================
+
+
   // GET - Obtener todos los testimonios
   static async getAll(req, res) {
     try {

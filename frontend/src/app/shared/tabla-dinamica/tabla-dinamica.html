@@ -1,5 +1,4 @@
 <!-- // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.html -->
-<!-- // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.html -->
 <div class="container">
   <!-- === PANEL DE FILTROS (Solo en vista GRID) === -->
   @if (viewMode === 'grid') {
@@ -318,166 +317,19 @@
       } }
     </div>
 
-    <!-- === PAGINACIÓN === -->
-    @if (totalPaginas > 1 && viewMode === 'grid') {
-    <div class="contenedor-paginacion">
-      <div class="info-paginacion">
-        <p class="texto-info">
-          Mostrando
-          <strong>{{ (paginaActual - 1) * limite + 1 }}</strong>
-          a
-          <strong>{{ Math.min(paginaActual * limite, totalResultados) }}</strong>
-          de
-          <strong>{{ totalResultados }}</strong>
-          resultados
-        </p>
+    <!-- === PAGINACIÓN PRIME NG === -->
+    @if (viewMode === 'grid') {
+      <div class="flex justify-center mt-4">
+        <p-paginator
+          [first]="(paginaActual - 1) * limite"
+          [rows]="limite"
+          [totalRecords]="totalResultados"
+          [rowsPerPageOptions]="[10, 25, 50, 100]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
+        />
       </div>
-
-      <nav class="navegacion-paginacion" aria-label="Paginación">
-        <button
-          type="button"
-          class="boton-paginacion"
-          [disabled]="paginaActual === 1"
-          (click)="cambiarPagina(1)"
-          aria-label="Ir a la primera página"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M11 2L5 8L11 14"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M8 2L2 8L8 14"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          class="boton-paginacion"
-          [disabled]="paginaActual === 1"
-          (click)="cambiarPagina(paginaActual - 1)"
-          aria-label="Página anterior"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10 2L4 8L10 14"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-
-        <!-- Números de página -->
-        <div class="numeros-pagina">
-          @for (pagina of obtenerPaginasVisibles(); track pagina) { @if (pagina === '...') {
-          <span class="puntos-suspensivos">...</span>
-          } @else {
-          <button
-            type="button"
-            class="boton-numero-pagina"
-            [class.activo]="pagina === paginaActual"
-            (click)="cambiarPagina(+pagina)"
-            [attr.aria-current]="pagina === paginaActual ? 'page' : null"
-          >
-            {{ pagina }}
-          </button>
-          } }
-        </div>
-
-        <button
-          type="button"
-          class="boton-paginacion"
-          [disabled]="paginaActual === totalPaginas"
-          (click)="cambiarPagina(paginaActual + 1)"
-          aria-label="Página siguiente"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M6 2L12 8L6 14"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          class="boton-paginacion"
-          [disabled]="paginaActual === totalPaginas"
-          (click)="cambiarPagina(totalPaginas)"
-          aria-label="Ir a la última página"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M5 2L11 8L5 14"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M8 2L14 8L8 14"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-      </nav>
-
-      <!-- Selector de items por página -->
-      <div class="selector-limite">
-        <label for="items-por-pagina" class="etiqueta-limite">Items por página:</label>
-        <select
-          id="items-por-pagina"
-          class="select-limite"
-          [(ngModel)]="limite"
-          (change)="cambiarLimite($event)"
-        >
-          <option [value]="10">10</option>
-          <option [value]="25">25</option>
-          <option [value]="50">50</option>
-          <option [value]="100">100</option>
-        </select>
-      </div>
-    </div>
-    }
+      }
   </main>
 </div>

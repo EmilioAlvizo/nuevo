@@ -14,8 +14,8 @@ import { provideClientHydration } from '@angular/platform-browser';
 
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-//import MyPreset from './shared/mypreset';
-import Lara from '@primeuix/themes/lara';
+import MyPreset from './stylePrimeng';
+//import Lara from '@primeuix/themes/lara';
 
 // ✅ Variable global para asegurar una sola ejecución
 let authInitialized = false;
@@ -26,39 +26,14 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Lara,
-      },
-      translation: {
-        matchAll: 'Coincide con todos',
-        matchAny: 'Coincide con cualquiera',
-        dateAfter: 'Fecha posterior a',
-        dateBefore: 'Fecha anterior a',
-        startsWith: 'Comienza con',
-        contains: 'Contiene',
-        notContains: 'No contiene',
-        endsWith: 'Termina con',
-        equals: 'Igual a',
-        notEquals: 'No es igual a',
-        noFilter: 'Sin filtro',
-        clear: 'Limpiar',
-        apply: 'Aplicar',
-        //matchMode: 'Modo de coincidencia',
-        //first: 'Primero',
-        //last: 'Último',
-        //next: 'Siguiente',
-        //previous: 'Anterior',
-        emptyMessage: 'No hay resultados',
-        emptyFilterMessage: 'Sin datos',
-        //filter: 'Filtrar',
-        //add: 'Añadir',
-        //remove: 'Eliminar',
-        cancel: 'Cancelar',
+        preset: MyPreset,
       },
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withInMemoryScrolling({
+    provideRouter(routes),
+    /* provideRouter(routes, withInMemoryScrolling({
       scrollPositionRestoration: 'enabled',
-    }),),
+    }),), */
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAppInitializer(() => {
       if (authInitialized) {

@@ -91,7 +91,7 @@ export class ArchMunicipioPublic implements TableStrategy {
             key: 'categoria_archivo',
             label: 'Categoría',
             type: 'checkbox',
-            expandido: true,
+            expandido: false,
             opciones: (data.categoria_archivo || []).map((cat: string) => ({
               label: cat,
               value: cat,

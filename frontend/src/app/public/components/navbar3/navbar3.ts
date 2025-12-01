@@ -122,7 +122,7 @@ export class Navbar3 implements OnInit, OnDestroy {
       const HIDE_POINT = threshold + 80; // punto donde se oculta
       const SHOW_POINT = threshold + 20; // punto donde vuelve a mostrarse
 
-      console.log('scrollTop ', scrollTop);
+      //console.log('scrollTop ', scrollTop);
       // Solo ocultar si estaba visible
       if (scrollTop > HIDE_POINT && this.showTopBar()) {
         this.showTopBar.set(false);

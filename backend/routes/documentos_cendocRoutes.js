@@ -1,38 +1,28 @@
-// nuevo/backend/routes/documentos_cendocRoutes.js
-
-const express = require("express");
+//nuevo/backend/routes/documentos_cendocRoutes.js
+const express = require('express');
 const router = express.Router();
-const Documentos_cendocController = require("../controllers/documentos_cendocController");
-const { crearUpload } = require("../middleware/uploadMiddleware");
-//autenticacion
-const { authMiddleware, checkRole } = require("../middleware/authMiddleware");
+const DocumentosCendocController = require('../controllers/documentos_cendocController');
+const { crearUpload } = require('../middleware/uploadMiddleware');
 
-// Crear middleware específico para revistas
-const upload = crearUpload('documentos_cendoc', {
-    archivo: ['application/pdf']
-  });
+// Configurar upload para esta tabla
+const uploadDocumentosCendoc = crearUpload('documentos_cendoc', {
+  'archivo': [
+    'application/pdf'
+  ]
+});
 
-// Rutas del API REST
+// Rutas generadas automáticamente para: documentos_cendoc
 
-// ✅ NUEVO - GET con filtros (DEBE IR ANTES de /:id)
-router.get("/documentos_cendoc/filtrados", Documentos_cendocController.getFiltrados);
-
-// ✅ NUEVO - GET conteos por municipio
-router.get("/documentos_cendoc/conteos-documentos_cendoc", Documentos_cendocController.getConteosDocumentos_cendoc);
-
-// GET - Obtener todos los registros
-router.get("/documentos_cendoc", Documentos_cendocController.getAll);
-
-// GET - Obtener un registro por ID
-router.get("/documentos_cendoc/:id", Documentos_cendocController.getById);
-
-// POST - Crear un nuevo registro
-router.post("/documentos_cendoc", upload.fields([{ name: "archivo", maxCount: 1 }]), Documentos_cendocController.create);
-
-// PUT - Actualizar un registro
-router.put("/documentos_cendoc/:id", upload.fields([{ name: "archivo", maxCount: 1 }]), Documentos_cendocController.update);
-
-// DELETE - Eliminar un registro
-router.delete("/documentos_cendoc/:id", Documentos_cendocController.delete);
+router.get('/', DocumentosCendocController.getAll);
+router.get('/filtrados', DocumentosCendocController.getFiltrados);
+router.get('/valores-unicos', DocumentosCendocController.getValoresUnicos);
+router.get('/:id', DocumentosCendocController.getById);
+router.post('/', uploadDocumentosCendoc.fields([
+    { name: 'archivo', maxCount: 1 }
+]), DocumentosCendocController.create);
+router.put('/:id', uploadDocumentosCendoc.fields([
+    { name: 'archivo', maxCount: 1 }
+]), DocumentosCendocController.update);
+router.delete('/:id', DocumentosCendocController.delete);
 
 module.exports = router;

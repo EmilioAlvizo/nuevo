@@ -54,11 +54,16 @@ module.exports = {
 
   // Configuración para documentos_cendoc
   documentos_cendoc: {
-    multiselect: ["estatus_documento", "nombre_categoria", "autor_documento"],
+    multiselect: ["estatus_documento", "id_categoria_cendoc", "autor_documento"],
 
     dateFilters: ["fecha_documento", "fecha_modificacion"],
 
     excludeFromFilters: ["archivo_documento"],
+
+    // 📁 Configuración de tipos de archivo permitidos
+    uploadConfig: {
+      archivo: ['application/pdf']  // Solo PDFs
+    },
 
     joins: [
       {
@@ -76,7 +81,7 @@ module.exports = {
     ],
 
     defaultSort: {
-      field: "id_documento",
+      field: "fecha_modificacion",
       order: "DESC",
     },
   },

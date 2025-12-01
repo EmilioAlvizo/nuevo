@@ -11,7 +11,10 @@
       [scrollThreshold]="100" class="" style="position: fixed; z-index: 1000; width: 100%;"
     >
     </app-navbar3>
-    <div style="height: 150px;"></div>
+    @if (mostrarDiv) {
+      <div style="height: 160px">
+        <!-- ESTE DIV APARECE EN TODAS MENOS LAS QUE DEFINAS -->
+      </div>}
     <router-outlet></router-outlet>
     
   </main>

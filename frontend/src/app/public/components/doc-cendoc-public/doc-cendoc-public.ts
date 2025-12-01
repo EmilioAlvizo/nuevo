@@ -2,7 +2,7 @@
 import { Injectable, inject, signal, computed, ViewChild } from '@angular/core';
 import { map, Observable, forkJoin } from 'rxjs';
 import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
-import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
+import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
 import { environment } from '../../../../environments/environment';
 import {
   TableStrategy,
@@ -19,39 +19,38 @@ import { Table } from 'primeng/table';
   providedIn: 'root',
 })
 export class DocCendocPublic implements TableStrategy {
-  constructor(
-    private archivosService: ApiDocumentos_cendoc,
-    private municipiosService: ApiMunicipio
-  ) {}
+  publicUrl = environment.publicUrl;
+  private categoria_cendocService = inject(ApiCategoriaCendoc);
+  private archivosService = inject(ApiDocumentos_cendoc);
 
   // 1. CONFIGURACIÓN VISUAL DE LA TARJETA
   getColumns(): TableColumn[] {
     return [
       {
-        key: 'nombre_archivo',
+        key: 'nombre_documento',
         label: 'Nombre',
         role: 'title', // ESTE SERÁ EL ENCABEZADO DE LA CARD
       },
       {
-        key: 'categoria_archivo',
+        key: 'nombre_categoria',
         label: 'Categoría',
         type: 'badge',
         role: 'subtitle',
       },
       {
-        key: 'nombre_municipio', // Ojo: Asegúrate que tu back devuelva esto o haz join aquí
-        label: 'Municipio',
+        key: 'autor_documento', // Ojo: Asegúrate que tu back devuelva esto o haz join aquí
+        label: 'Autor',
         role: 'body',
       },
       {
-        key: 'fecha_archivo',
+        key: 'fecha_documento',
         label: 'Publicado',
         type: 'date',
         role: 'body',
       },
       {
-        key: 'tipo_archivo',
-        label: 'Tipo',
+        key: 'palabras_clave',
+        label: 'Palabras Clave',
         type: 'badge',
         role: 'footer',
       },
@@ -69,32 +68,34 @@ export class DocCendocPublic implements TableStrategy {
   initFilters(): Observable<FilterConfig[]> {
     return forkJoin({
       unicos: this.archivosService.getValoresUnicos(),
-      municipios: this.municipiosService.getMessage(),
+      categorias: this.categoria_cendocService.get(),
     }).pipe(
-      map(({ unicos, municipios }) => {
+      map(({ unicos, categorias }) => {
         const data = unicos.data;
-        const listaMunicipios = municipios.data;
+        const listaCategorias = categorias.data;
+        //console.log("data ",data)
+        //console.log("listaCategorias ",listaCategorias)
 
         return [
           {
-            key: 'categoria_archivo',
-            label: 'Categoría',
+            key: 'autor_documento',
+            label: 'Autor',
             type: 'checkbox',
-            expandido: true,
-            opciones: (data.categoria_archivo || []).map((cat: string) => ({
+            expandido: false,
+            opciones: (data.autor_documento || []).map((cat: string) => ({
               label: cat,
               value: cat,
             })),
           },
           {
-            key: 'id_municipio',
-            label: 'Municipio',
+            key: 'id_categoria_cendoc',
+            label: 'Categoría',
             type: 'checkbox',
             expandido: false,
             busquedaInterna: '',
-            opciones: (data.id_municipio || []).map((id: number) => {
-              const m = listaMunicipios.find((mu: any) => mu.id_municipio === id);
-              return { label: m ? m.nombre : `ID ${id}`, value: id };
+            opciones: (data.id_categoria_cendoc || []).map((id: number) => {
+              const m = listaCategorias.find((mu: any) => mu.id_categoria_cendoc === id);
+              return { label: m ? m.nombre_categoria_cendoc : `ID ${id}`, value: id };
             }),
           },
         ];
@@ -118,11 +119,11 @@ export class DocCendocPublic implements TableStrategy {
         sortOrder = 1; // Ascendente
         break;
       case 'AZ':
-        sortField = 'nombre_archivo';
+        sortField = 'nombre_documento';
         sortOrder = 1; // A-Z
         break;
       case 'ZA':
-        sortField = 'nombre_archivo';
+        sortField = 'nombre_documento';
         sortOrder = -1; // Z-A
         break;
       case 'masRelevante':
@@ -152,7 +153,7 @@ export class DocCendocPublic implements TableStrategy {
         const dataConUrl = res.data.map((item: any) => ({
           ...item,
           // Construcción de la ruta: publicUrl + carpeta + id + nombre_archivo
-          url_descarga: `${environment.publicUrl}/archivos_municipio/${item.id_archivo}/${item.archivo}`,
+          url_descarga: `${environment.publicUrl}/documentos_cendoc/${item.id_documento}/${item.archivo_documento}`,
         }));
 
         return {
@@ -169,14 +170,10 @@ export class DocCendocPublic implements TableStrategy {
   }
 
   getDataService(): any {
-    return this.apiArchivos_municipio;
+    return this.archivosService;
   }
 
-  publicUrl = environment.publicUrl;
-  private apiMunicipio = inject(ApiMunicipio);
-  apiArchivos_municipio = inject(ApiDocumentos_cendoc);
-
-  readonly municipios = signal<Municipio[]>([]);
+  readonly categorias = signal<Categoria_cendoc[]>([]);
 
   revistaToEdit: Documentos_cendoc | null = null;
   refrescarTabla = signal(0);
@@ -186,30 +183,10 @@ export class DocCendocPublic implements TableStrategy {
 
   @ViewChild('dt') table!: Table;
 
-  /* constructor() {
-    // Cargar municipios al iniciar (para casos especiales)
-    this.apiMunicipio.getMessage().subscribe({
-      next: (resp) => {
-        if (resp.success && resp.data) {
-          this.municipios.set(resp.data);
-        }
-      },
-      error: (err) => console.error('Error cargando municipios:', err),
-    });
-  } */
-
-  // 🧠 Computed: opciones de municipios
-  readonly municipiosOptions = computed(() =>
-    this.municipios().map((m) => ({
-      label: m.nombre,
-      value: m.id_municipio,
-    }))
-  );
-
   readonly columns = computed<ColumnConfig[]>(() => [
     {
-      field: 'nombre_archivo',
-      header: 'Nombre Archivo',
+      field: 'nombre_documento',
+      header: 'Nombre',
       width: '200px',
       sortable: true,
       filterable: true,
@@ -217,31 +194,25 @@ export class DocCendocPublic implements TableStrategy {
       tooltip: true,
     },
     {
-      field: 'nombre_municipio',
-      header: 'Municipio',
+      field: 'autor_documento',
+      header: 'Autor',
+      width: '200px',
       sortable: true,
       filterable: true,
-      filterType: 'multiselect',
       tooltip: false,
-      renderAs: 'tag',
-      // ✅ agrega opciones aquí
-      options: this.municipiosOptions(),
-      backendField: 'id_municipio',
+      loadOptionsFromBackend: true,
     },
     {
-      field: 'tipo_archivo',
-      header: 'Tipo',
+      field: 'descripcion_documento',
+      header: 'Descripción',
       sortable: true,
       filterable: true,
-      filterType: 'multiselect',
-      tooltip: false,
-      renderAs: 'tag',
-      // ✅ agrega opciones aquí
-      loadOptionsFromBackend: true, // 👈 Carga opciones desde backend
-      optionsField: 'tipo_archivo',
+      filterType: 'text',
+      width: '200px',
+      tooltip: true,
     },
     {
-      field: 'categoria_archivo',
+      field: 'nombre_categoria',
       header: 'Categoria',
       sortable: true,
       filterable: true,
@@ -249,23 +220,19 @@ export class DocCendocPublic implements TableStrategy {
       tooltip: false,
       renderAs: 'tag',
       // ✅ agrega opciones aquí
-      loadOptionsFromBackend: true, // 👈 Carga opciones desde backend
-      optionsField: 'categoria_archivo',
+      loadOptionsFromBackend: true,
     },
     {
-      field: 'subcategoria_archivo',
-      header: 'Subcategoria',
+      field: 'palabras_clave',
+      header: 'Palabra Clave',
+      width: '200px',
       sortable: true,
       filterable: true,
-      filterType: 'multiselect',
-      tooltip: false,
-      renderAs: 'tag',
-      // ✅ agrega opciones aquí
-      loadOptionsFromBackend: true, // 👈 Carga opciones desde backend
-      optionsField: 'subcategoria_archivo',
+      filterType: 'text',
+      tooltip: true,
     },
     {
-      field: 'fecha_modificacion',
+      field: 'fecha_documento',
       header: 'Fecha',
       sortable: true,
       filterable: true,
@@ -275,7 +242,7 @@ export class DocCendocPublic implements TableStrategy {
     },
 
     {
-      field: 'estatus_archivo',
+      field: 'estatus_documento',
       header: 'Estatus',
       sortable: true,
       filterable: true,
@@ -287,20 +254,20 @@ export class DocCendocPublic implements TableStrategy {
       // ✅ agrega opciones aquí
       options: [
         { label: 'Activo', value: 'A' },
-        { label: 'Inactivo', value: 'B' },
+        { label: 'Inactivo', value: 'I' },
       ],
     },
   ]);
 
   // 👇 NUEVO: Implementación de acciones para tabla-dinamica
   onView(item: any) {
-    if (!item || !item.id_archivo) {
+    if (!item || !item.id_documento) {
       console.warn('No se encontró el documento seleccionado.');
       return;
     }
 
     // 📁 Ruta al archivo (ajusta según tu estructura)
-    const fileUrl = `${this.publicUrl}/documentos_cendoc/${item.id_archivo}/${item.archivo}`;
+    const fileUrl = `${this.publicUrl}/documentos_cendoc/${item.id_documento}/${item.archivo_documento}`;
 
     // 🔍 Abrir el archivo en una nueva pestaña
     window.open(fileUrl, '_blank');

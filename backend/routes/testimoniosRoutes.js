@@ -21,8 +21,6 @@ const publicTestimonioLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Identificar por IP
-  keyGenerator: (req) => req.ip,
 });
 
 // Rate limiter para lectura (más permisivo)

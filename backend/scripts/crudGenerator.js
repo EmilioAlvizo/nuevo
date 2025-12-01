@@ -157,6 +157,34 @@ function hasFileColumn(columns) {
 }
 
 /**
+ * 🔧 Obtiene el nombre de columna desde un alias de JOIN
+ * Busca en los JOINs si el campo es un alias y retorna el campo real de la BD
+ */
+function getDbFieldFromAlias(fieldName, config, mainAlias) {
+  if (!config.joins || config.joins.length === 0) {
+    return `${mainAlias ? mainAlias + '.' : ''}${fieldName}`;
+  }
+
+  // Buscar si el fieldName es un alias definido en los JOINs
+  for (const join of config.joins) {
+    for (const selectField of join.selectFields) {
+      // selectField tiene formato: "m.nombre_categoria_cendoc as nombre_categoria"
+      const match = selectField.match(/^(\w+\.\w+)\s+as\s+(\w+)$/i);
+      if (match) {
+        const [, dbField, alias] = match;
+        if (alias === fieldName) {
+          // Encontramos el alias, retornar el campo real de la BD
+          return dbField;
+        }
+      }
+    }
+  }
+
+  // Si no se encontró en los JOINs, es un campo de la tabla principal
+  return `${mainAlias ? mainAlias + '.' : ''}${fieldName}`;
+}
+
+/**
  * 📝 Genera el archivo de modelo
  */
 function generateModel(schema) {
@@ -169,30 +197,75 @@ function generateModel(schema) {
   const mainAlias = hasJoins ? "a" : "";
   const tablePrefix = hasJoins ? `${mainAlias}.` : "";
 
-  // Construir configuración de filtros CON PREFIJO
-  const filterConfig = columns
-    .filter(
-      (col) => !col.isIdentity && !shouldExcludeFromFilters(col.name, tableName)
-    )
-    .map((col) => {
+  // Obtener todos los campos disponibles (tabla principal + aliases de JOINs)
+  const availableFields = [...columns.map(col => col.name)];
+  
+  if (hasJoins) {
+    config.joins.forEach(join => {
+      join.selectFields.forEach(selectField => {
+        const match = selectField.match(/as\s+(\w+)$/i);
+        if (match) {
+          availableFields.push(match[1]);
+        }
+      });
+    });
+  }
+
+  // Construir configuración de filtros
+  const filterConfigs = [];
+  
+  // Primero agregar campos de la tabla principal
+  columns
+    .filter(col => !col.isIdentity && !shouldExcludeFromFilters(col.name, tableName))
+    .forEach(col => {
       const filterType = getFilterType(col.type);
       const isMulti = isMultiselectColumn(col.name, tableName);
-
-      // 🔥 AGREGAR PREFIJO AL dbField
       const dbField = `${tablePrefix}${col.name}`;
 
-      const config = {
+      filterConfigs.push({
         name: col.name,
         dbField: dbField,
         type: filterType,
-        ...(isMulti && { isMulti: true }),
-      };
+        isMulti: isMulti
+      });
+    });
 
-      return `    { name: "${config.name}", dbField: "${
-        config.dbField
-      }", type: "${config.type}"${isMulti ? ", isMulti: true" : ""} }`;
+  // Luego agregar campos de multiselect que vienen de JOINs
+  if (config.multiselect && hasJoins) {
+    config.multiselect.forEach(multiselectField => {
+      // Verificar si este campo NO está en las columnas de la tabla principal
+      const isFromMainTable = columns.some(col => col.name === multiselectField);
+      
+      if (!isFromMainTable && availableFields.includes(multiselectField)) {
+        // Este campo viene de un JOIN
+        const dbField = getDbFieldFromAlias(multiselectField, config, mainAlias);
+        
+        filterConfigs.push({
+          name: multiselectField,
+          dbField: dbField,
+          type: 'string',
+          isMulti: true
+        });
+      }
+    });
+  }
+
+  // Generar el código de filterConfig
+  const filterConfig = filterConfigs
+    .map(config => {
+      const parts = [
+        `name: "${config.name}"`,
+        `dbField: "${config.dbField}"`,
+        `type: "${config.type}"`
+      ];
+      
+      if (config.isMulti) {
+        parts.push('isMulti: true');
+      }
+      
+      return `    { ${parts.join(', ')} }`;
     })
-    .join(",\n");
+    .join(',\n');
 
   // Obtener campos de búsqueda CON PREFIJO
   const searchFields =
@@ -338,23 +411,24 @@ ${filterConfig}
       const pool = await getConnection();
       const valores = {};
 
-      const camposMultiselect = ${JSON.stringify(
-        columns
-          .filter(
-            (col) => isMultiselectColumn(col.name, tableName) && !col.isIdentity
-          )
-          .map((col) => col.name)
-      )};
+      const filterConfig = [
+${filterConfig}
+      ];
+
+      const camposMultiselect = filterConfig
+        .filter(f => f.isMulti)
+        .map(f => ({ name: f.name, dbField: f.dbField }));
 
       for (const campo of camposMultiselect) {
         const query = \`
-          SELECT DISTINCT \${campo} 
-          FROM ${tableName} 
-          WHERE \${campo} IS NOT NULL AND \${campo} != ''
-          ORDER BY \${campo}
+          SELECT DISTINCT \${campo.dbField} as valor
+          FROM ${tableName}${hasJoins ? ' ' + mainAlias : ''}
+          ${hasJoins ? config.joins.map(j => `INNER JOIN ${j.table} ${j.alias} ON ${j.on}`).join('\n          ') : ''}
+          WHERE \${campo.dbField} IS NOT NULL AND \${campo.dbField} != ''
+          ORDER BY \${campo.dbField}
         \`;
         const result = await pool.request().query(query);
-        valores[campo] = result.recordset.map(r => r[campo]);
+        valores[campo.name] = result.recordset.map(r => r.valor);
       }
 
       return valores;

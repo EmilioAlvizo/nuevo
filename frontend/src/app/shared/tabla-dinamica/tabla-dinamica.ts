@@ -1,5 +1,4 @@
 // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.ts
-// nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.ts
 import { Component, Input, OnInit, OnChanges, SimpleChanges, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +8,7 @@ import { Observable } from 'rxjs';
 // Importar TablaGenerica y su interfaz
 import { TablaGenerica, ColumnConfig } from '../../admin/shared/tabla-generica/tabla-generica';
 
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 // --- CONFIGURACIÓN VISUAL ---
 
 export interface TableColumn {
@@ -68,7 +68,7 @@ export interface TableStrategy {
 @Component({
   selector: 'app-tabla-dinamica',
   standalone: true,
-  imports: [CommonModule, FormsModule, TablaGenerica],
+  imports: [CommonModule, FormsModule, TablaGenerica, PaginatorModule],
   templateUrl: './tabla-dinamica.html',
   styleUrl: './tabla-dinamica.css',
 })
@@ -189,13 +189,6 @@ export class TablaDinamica implements OnInit, OnChanges {
     this.cargarDatos();
   }
 
-  cambiarLimite(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    this.limite = +select.value;
-    this.paginaActual = 1;
-    this.cargarDatos();
-  }
-
   toggleFilterGroup(f: FilterConfig) {
     f.expandido = !f.expandido;
   }
@@ -230,39 +223,6 @@ export class TablaDinamica implements OnInit, OnChanges {
     this.cargarDatos();
   }
 
-  cambiarPagina(p: number) {
-    if (p >= 1 && p <= this.totalPaginas) {
-      this.paginaActual = p;
-      this.cargarDatos();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
-  obtenerPaginasVisibles(): (number | string)[] {
-    const paginas: (number | string)[] = [];
-    const total = this.totalPaginas;
-    const current = this.paginaActual;
-
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-
-    paginas.push(1);
-    if (current > 3) paginas.push('...');
-
-    const start = Math.max(2, current - 1);
-    const end = Math.min(total - 1, current + 1);
-
-    for (let i = start; i <= end; i++) paginas.push(i);
-
-    if (current < total - 2) paginas.push('...');
-    paginas.push(total);
-
-    return paginas;
-  }
-
-  onSearch(val: string) {
-    this.searchSubject.next(val);
-  }
-
   // 👇 NUEVOS MÉTODOS: Delegan a la estrategia
   onView(item: any) {
     if (this.strategy?.onView) {
@@ -270,5 +230,11 @@ export class TablaDinamica implements OnInit, OnChanges {
     } else {
       console.log('Ver:', item);
     }
+  }
+
+  onPageChange(event: PaginatorState) {
+    this.paginaActual = (event.first! / event.rows!) + 1;
+    this.limite = event.rows!;
+    this.cargarDatos();
   }
 }
