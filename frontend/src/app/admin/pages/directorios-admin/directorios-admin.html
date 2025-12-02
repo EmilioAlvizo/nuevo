@@ -1,0 +1,219 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="directorios-admin-container">
+  <!-- Header con Toolbar -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Directorios</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button 
+        label="Nuevo Directorio" 
+        icon="pi pi-plus" 
+        (onClick)="abrirModal()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabla de Directorios -->
+  <p-card>
+    <p-table 
+      [value]="directorios" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} directorios"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 20%">Descripción</th>
+          <th style="width: 10%">Estatus</th>
+          <th style="width: 15%">Archivo</th>
+          <th style="width: 25%">Descripción Adicional</th>
+          <th style="width: 15%">Fecha Modificación</th>
+          <th style="width: 10%">Acciones</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-directorio>
+        <tr>
+          <td>{{ directorio.id_directorio }}</td>
+          <td>
+            <span pTooltip="{{ directorio.descripcion }}" tooltipPosition="top">
+              {{ directorio.descripcion | slice:0:50 }}{{ directorio.descripcion?.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            <span 
+              [class]="directorio.estatus === 'A' ? 'status-badge status-active' : 'status-badge status-inactive'">
+              {{ getEstatusLabel(directorio.estatus) }}
+            </span>
+          </td>
+          <td>
+            <a *ngIf="directorio.link" 
+              [href]="getFileUrl(directorio)" 
+              target="_blank" 
+              class="file-link"
+              pTooltip="Descargar archivo"
+              tooltipPosition="top">
+              <i [class]="getFileIcon(directorio)" style="font-size: 1.2rem;"></i>
+              {{ directorio.link | slice:0:20 }}{{ directorio.link?.length > 20 ? '...' : '' }}
+            </a>
+            <span *ngIf="!directorio.link" class="text-muted">Sin archivo</span>
+          </td>
+          <td>
+            <span pTooltip="{{ directorio.descripcionMas }}" tooltipPosition="top">
+              {{ directorio.descripcionMas | slice:0:60 }}{{ directorio.descripcionMas?.length > 60 ? '...' : '' }}
+            </span>
+          </td>
+          <td>
+            {{ directorio.fecha_modificacion | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
+          </td>
+          <td>
+            <p-button 
+              icon="pi pi-pencil" 
+              [rounded]="true" 
+              [text]="true" 
+              severity="info"
+              pTooltip="Editar directorio" 
+              tooltipPosition="top"
+              (onClick)="abrirModal(directorio)">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay directorios registrados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Modal de Crear/Editar -->
+<p-dialog 
+  [(visible)]="modalVisible" 
+  [header]="editMode ? 'Editar Directorio' : 'Nuevo Directorio'"
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '600px' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+  (onHide)="vaciarFormulario()">
+  
+  <form [formGroup]="formDirectorio" (ngSubmit)="submitForm()">
+    <!-- Descripción -->
+    <div class="form-field">
+      <label for="descripcion" class="form-label">
+        Descripción <span class="required">*</span>
+      </label>
+      <input 
+        id="descripcion"
+        type="text" 
+        pInputText 
+        formControlName="descripcion"
+        placeholder="Ingrese la descripción del directorio"
+        class="w-full"
+        [class.ng-invalid]="hasError('descripcion')"
+        [class.ng-dirty]="hasError('descripcion')">
+      <small *ngIf="hasError('descripcion')" class="p-error">
+        {{ getErrorMessage('descripcion') }}
+      </small>
+    </div>
+
+    <!-- Estatus -->
+    <div class="form-field">
+      <label for="estatus" class="form-label">
+        Estatus <span class="required">*</span>
+      </label>
+      <p-select 
+        id="estatus"
+        [options]="estatusOptions" 
+        formControlName="estatus"
+        optionLabel="label" 
+        optionValue="value"
+        placeholder="Seleccione el estatus"
+        [style]="{ width: '100%' }"
+        [class.ng-invalid]="hasError('estatus')"
+        [class.ng-dirty]="hasError('estatus')">
+      </p-select>
+      <small *ngIf="hasError('estatus')" class="p-error">
+        {{ getErrorMessage('estatus') }}
+      </small>
+    </div>
+
+    <!-- Descripción Adicional -->
+    <div class="form-field">
+      <label for="descripcionMas" class="form-label">Descripción Adicional</label>
+      <textarea 
+        id="descripcionMas"
+        pInputTextarea 
+        formControlName="descripcionMas"
+        [rows]="4"
+        placeholder="Ingrese información adicional..."
+        class="w-full"
+        [class.ng-invalid]="hasError('descripcionMas')"
+        [class.ng-dirty]="hasError('descripcionMas')">
+      </textarea>
+      <small *ngIf="hasError('descripcionMas')" class="p-error">
+        {{ getErrorMessage('descripcionMas') }}
+      </small>
+    </div>
+
+    <!-- Archivo -->
+    <div class="form-field">
+      <label for="archivo" class="form-label">
+        Archivo <span *ngIf="!editMode" class="required">*</span>
+      </label>
+      <input 
+        #fileInput
+        id="archivo"
+        type="file" 
+        accept=".pdf,.xls,.xlsx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        (change)="onFileSelected($event)"
+        class="w-full file-input">
+      <small class="help-text">
+        Formatos permitidos: PDF, XLS, XLSX. Tamaño máximo: 10MB
+      </small>
+      <small *ngIf="selectedFile" class="selected-file">
+        <i class="pi pi-check-circle"></i> {{ selectedFile.name }}
+      </small>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (onClick)="cerrarModal()"
+        [disabled]="submitting">
+      </p-button>
+      <p-button 
+        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        icon="pi pi-check"
+        type="submit"
+        [loading]="submitting"
+        [disabled]="formDirectorio.invalid || submitting">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>

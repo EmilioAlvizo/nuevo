@@ -14,6 +14,9 @@ import { FileManagerComponent } from './pages/file-manager.component/file-manage
 import { ArchivosMunicipiosAdmin } from './pages/archivos-municipios-admin/archivos-municipios-admin';
 import { DocumentosCendocAdmin } from './pages/documentos-cendoc-admin/documentos-cendoc-admin';
 import { ConsejoAdmin  } from './pages/consejo-admin/consejo-admin';
+import { DirectoriosAdmin } from './pages/directorios-admin/directorios-admin';
+import { ApoyosServiciosAdmin } from './pages/apoyos-servicios-admin/apoyos-servicios-admin';
+import { AuthorizedEmailsAdmin } from './pages/authorized-emails-admin/authorized-emails-admin';
 
 
 export const adminRoutes: Routes = [
@@ -30,6 +33,8 @@ export const adminRoutes: Routes = [
   { path: 'file-manager', component: FileManagerComponent},
   { path: 'archivos-municipio', component: ArchivosMunicipiosAdmin},
   { path: 'documentos-cendoc', component: DocumentosCendocAdmin},
-
-  { path: 'consejo', component: ConsejoAdmin }
+  { path: 'consejo', component: ConsejoAdmin },
+  { path: 'directorios', component: DirectoriosAdmin},
+  { path: 'apoyos', component: ApoyosServiciosAdmin},
+  { path: 'usuarios-autorizados', component: AuthorizedEmailsAdmin}
 ];

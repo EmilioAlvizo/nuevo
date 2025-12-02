@@ -1,0 +1,183 @@
+<!-- authorized-emails-admin.component.html -->
+
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="emails-admin-container">
+  <!-- Header con Toolbar -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <h2 class="m-0">Emails autorizados para registro</h2>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <p-button 
+        label="Nuevo Email" 
+        icon="pi pi-plus" 
+        (onClick)="abrirModal()"
+        [disabled]="loading">
+      </p-button>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabla de Emails Autorizados -->
+  <p-card>
+    <p-table 
+      [value]="emails" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} emails"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 25%">Email</th>
+          <th style="width: 12%">Autorizado por</th>
+          <th style="width: 15%">Fecha Autorización</th>
+          <th style="width: 10%">Estado</th>
+          <th style="width: 15%">Fecha Uso</th>
+          <th style="width: 10%">Acciones</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-email>
+        <tr>
+          <td>{{ email.id }}</td>
+          <td>
+            <span class="email-text">{{ email.email }}</span>
+          </td>
+          <td>
+            <span class="authorized-by-badge">
+              <i class="pi pi-user"></i> {{ email.authorized_by }}
+            </span>
+          </td>
+          <td>
+            {{ email.authorized_at | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
+          </td>
+          <td>
+            <p-tag 
+              [value]="email.used ? 'Usado' : 'Disponible'" 
+              [severity]="email.used ? 'danger' : 'success'">
+            </p-tag>
+          </td>
+          <td>
+            <span *ngIf="email.used_at">
+              {{ email.used_at | date:'dd/MM/yyyy HH:mm' : 'UTC' }}
+            </span>
+            <span *ngIf="!email.used_at" class="text-muted">
+              -
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <p-button 
+                icon="pi pi-pencil" 
+                [rounded]="true" 
+                [text]="true" 
+                severity="info"
+                pTooltip="Editar email" 
+                tooltipPosition="top"
+                (onClick)="abrirModal(email)">
+              </p-button>
+              <!-- <p-button 
+                icon="pi pi-trash" 
+                [rounded]="true" 
+                [text]="true" 
+                severity="danger"
+                pTooltip="Eliminar email" 
+                tooltipPosition="top"
+                (onClick)="confirmarEliminar(email)">
+              </p-button> -->
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center">
+            <div class="empty-message">
+              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+              <p>No hay emails autorizados registrados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Modal de Crear/Editar -->
+<p-dialog 
+  [(visible)]="modalVisible" 
+  [header]="editMode ? 'Editar Email Autorizado' : 'Nuevo Email Autorizado'"
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '500px' }"
+  [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
+  (onHide)="vaciarFormulario()">
+  
+  <form [formGroup]="formEmail" (ngSubmit)="submitForm()">
+    <!-- Email -->
+    <div class="form-field">
+      <label for="email" class="form-label">
+        Email <span class="required">*</span>
+      </label>
+      <input 
+        id="email"
+        type="email" 
+        pInputText 
+        formControlName="email"
+        placeholder="usuario@ejemplo.com"
+        class="w-full"
+        [class.ng-invalid]="hasError('email')"
+        [class.ng-dirty]="hasError('email')">
+      <small *ngIf="hasError('email')" class="p-error">
+        {{ getErrorMessage('email') }}
+      </small>
+    </div>
+
+    <!-- Estado de Uso (solo en modo edición) -->
+    <div class="form-field" *ngIf="editMode">
+      <div class="checkbox-container">
+        <p-checkbox 
+          formControlName="used" 
+          [binary]="true" 
+          inputId="used"
+          label="Marcar como usado">
+        </p-checkbox>
+      </div>
+      <small class="help-text">
+        <i class="pi pi-info-circle"></i>
+        Si marca como usado, se registrará la fecha actual de uso (si no existe una previa).
+      </small>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <p-button 
+        label="Cancelar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (onClick)="cerrarModal()"
+        [disabled]="submitting">
+      </p-button>
+      <p-button 
+        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        icon="pi pi-check"
+        type="submit"
+        [loading]="submitting"
+        [disabled]="formEmail.invalid || submitting">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>

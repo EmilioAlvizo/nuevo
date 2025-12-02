@@ -16,6 +16,9 @@ const temas_interesRoutes = require("./routes/temas_interesRoutes");
 const propuesta_accionRoutes = require("./routes/propuestas_accionRoutes");
 const banco_datosRoutes = require("./routes/banco_datosRoutes");
 const consejoRoutes = require("./routes/consejoRoutes");
+const directoriosRoutes = require("./routes/directoriosRoutes");
+const apoyos_serviciosRoutes = require("./routes/apoyos_serviciosRoutes");
+const authorized_emailsRoutes = require("./routes/authorized_emailsRoutes");
 
 const { startCleanupScheduler } = require("./scripts/cleanup");
 const Propuestas_accionController = require("./controllers/propuestas_accionController");
@@ -95,6 +98,9 @@ app.use("/api", temas_interesRoutes);
 app.use("/api", propuesta_accionRoutes);
 app.use("/api", banco_datosRoutes);
 app.use("/api", consejoRoutes);
+app.use("/api", directoriosRoutes);
+app.use("/api", apoyos_serviciosRoutes);
+app.use("/api/authorized-emails", authorized_emailsRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 // Manejo de rutas no encontradas

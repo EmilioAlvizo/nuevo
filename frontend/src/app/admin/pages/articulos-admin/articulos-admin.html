@@ -27,9 +27,16 @@
     <p-accordion-panel [value]="idx">
 
       <!-- HEADER -->
-      <p-accordion-header>
+      <!-- <p-accordion-header>
         <strong>
           Vol. {{ grupo.revista.volumen }} - Núm. {{ grupo.revista.numero_year }} ({{ grupo.revista.fecha | date:'dd/MM/yyyy' : 'UTC' }})
+        </strong>
+      </p-accordion-header> -->
+      <p-accordion-header>
+        <strong>
+          {{ grupo.revista 
+            ? ('Vol. ' + grupo.revista.volumen + ' - Núm. ' + grupo.revista.numero_year + ' (' + (grupo.revista.fecha | date:'dd/MM/yyyy':'UTC') + ')') 
+            : 'Artículos sin revista' }}
         </strong>
       </p-accordion-header>
 
@@ -44,6 +51,7 @@
               <th>ID</th>
               <th>Título</th>
               <th>Autor</th>
+              <th>Pagina en PDf</th>
               <th>Imagen</th>
               <th>Estatus</th>
               <th>Modificación</th>
@@ -56,6 +64,7 @@
               <td>{{ articulo.id_articulo }}</td>
               <td>{{ articulo.titulo }}</td>
               <td>{{ articulo.autor }}</td>
+              <td>{{ articulo.pagina }}</td>
 
               <td>
                 <img 
@@ -100,7 +109,7 @@
           <!-- Si la revista no tiene artículos -->
           <ng-template pTemplate="emptymessage">
             <tr>
-              <td colspan="7" class="text-center">No hay artículos para esta revista</td>
+              <td colspan="7" class="text-center">No hay artículos para esta sección.</td>
             </tr>
           </ng-template>
 
@@ -130,12 +139,13 @@
     <div class="form-field">
       <label class="form-label">Revista</label>
       <p-select 
-        [options]="revistasOptions"
+        [options]="revistasOptionsConNulo"
         optionLabel="label"
         optionValue="value"
         formControlName="id_revista"
         class="w-full">
       </p-select>
+
     </div>
 
     <div class="form-field">
@@ -146,6 +156,18 @@
     <div class="form-field">
       <label>Autor</label>
       <input type="text" pInputText class="w-full" formControlName="autor">
+    </div>
+
+    <!-- <div class="form-field">
+      <label>Página en PDF</label>
+      <input type="number" pInputText class="w-full" formControlName="pagina">
+    </div> -->
+    <div class="form-field">
+      <label>Página en PDF</label>
+      <input type="number" pInputText class="w-full" formControlName="pagina">
+      <small class="p-error" *ngIf="formArticulo.get('pagina')?.touched && formArticulo.get('pagina')?.invalid">
+        La página es obligatoria si se selecciona una revista.
+      </small>
     </div>
 
     <div class="form-field">
@@ -172,7 +194,9 @@
 
     <div class="form-actions">
       <p-button label="Cancelar" severity="secondary" type="button" (click)="cerrarModal()"></p-button>
-      <p-button label="Guardar" [loading]="submitting"></p-button>
+      <!-- <p-button label="Guardar" [loading]="submitting"></p-button> -->
+       <button pButton label="Guardar" type="submit" [loading]="submitting"></button>
+
     </div>
 
   </form>

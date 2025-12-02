@@ -121,15 +121,6 @@
                 >Gráficas</a
               >
             </li>
-            <li>
-              <a
-                routerLink="/admin/temas-interes"
-                (click)="closeAdminMenu()"
-                routerLinkActive="active"
-                [routerLinkActiveOptions]="{ exact: true }"
-                >Temas de interés</a
-              >
-            </li>
           </ul>
         </div>
 
@@ -217,15 +208,16 @@
           <ul>
             <li>
               <a
-                routerLink="/admin/informacion-interes"
+                routerLink="/admin/temas-interes"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
-                >Información Principal</a
+                [routerLinkActiveOptions]="{ exact: true }"
+                >Temas de interés</a
               >
             </li>
             <li>
               <a
-                routerLink="/admin/informacion-interes/apoyos"
+                routerLink="/admin/apoyos"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
                 >Apoyos y servicios</a
@@ -233,7 +225,7 @@
             </li>
             <li>
               <a
-                routerLink="/admin/informacion-interes/directorios"
+                routerLink="/admin/directorios"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
                 >Directorios</a
@@ -257,7 +249,7 @@
             </li>
             <li>
               <a
-                routerLink="/admin/"
+                routerLink="/admin/usuarios-autorizados"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
                 [routerLinkActiveOptions]="{ exact: true }"

@@ -26,25 +26,38 @@
     </button>
 
     <!-- Artículos -->
-    <div *ngIf="articulos.length > 0" class="articulos-list">
-      <h2 class="titulo-articulos">Artículos de la revista</h2>
+<!-- Artículos -->
+<div *ngIf="articulos.length > 0" class="articulos-list">
+  <h2 class="titulo-articulos">Artículos</h2>
 
-      <div *ngFor="let articulo of articulos" class="articulo-card">
-        <h3>{{ articulo.titulo }}</h3>
-        <p class="autor"><strong>Autor:</strong> {{ articulo.autor }}</p>
-        <p class="contenido">{{ articulo.contenido | slice:0:200 }}...</p>
-        <!-- <button [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn-leer">Leer más -->
+  <div *ngFor="let articulo of articulos" class="articulo-card">
 
-         <!--  <a [routerLink]="['/revista', articulo.id_revista,'articulo',articulo.id_articulo]" class="btn btn-secondary mb-4">
-    ← Regresar a la revista
-  </a> -->
-
-        <button (click)="abrirFlipbookEnPagina(articulo.pagina)" class="btn-leer">
-          Leer más
-        </button>
-
-
-      </div>
+    <div class="articulo-image">
+      <img 
+        *ngIf="articulo.imagen"
+        [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen"
+        alt="{{ articulo.titulo }}"
+      >
     </div>
+
+    <div class="articulo-content">
+      <h3>{{ articulo.titulo }}</h3>
+
+      <p class="autor">
+        <strong>Autor:</strong> {{ articulo.autor }}
+      </p>
+
+      <p class="contenido">
+        {{ articulo.contenido | slice:0:200 }}...
+      </p>
+
+      <button (click)="abrirFlipbookEnPagina(articulo.pagina)" class="btn-leer">
+        Leer más
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
 </div>

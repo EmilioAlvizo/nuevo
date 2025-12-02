@@ -46,10 +46,9 @@ export class Navbar3 implements OnInit, OnDestroy {
   private routeChanged = signal(0);
 
   // 🆕 Mapa de rutas por dropdown
-  private dropdownRoutes = {
-    juventudes: ['/sistema-juventudes', '/consejo'],
-    informacion: ['/directorio'],
-  };
+private dropdownRoutes = {
+  juventudes: ['/sistema-juventudes', '/consejo'],
+};
 
   // Internos
   private clickOutsideHandler?: () => void;
