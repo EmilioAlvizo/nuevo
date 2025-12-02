@@ -1,0 +1,112 @@
+<p-dialog
+  [header]="isEditMode() ? 'Editar Encuesta' : 'Agregar Encuesta'"
+  [(visible)]="visible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [style]="{ width: '650px' }"
+  (onHide)="handleDialogHide()"
+>
+  <form [formGroup]="encuestaForm">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Pregunta *</label>
+      <input pInputText formControlName="pregunta" class="form-control" />
+      @if (isFieldInvalid('pregunta')) {
+      <small class="text-danger">Campo requerido</small>
+      }
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Fecha inicio *</label>
+        <p-datepicker
+          formControlName="fechaInicio"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          iconDisplay="input"
+          placeholder="Seleccionar fecha"
+          [appendTo]="'body'"
+          fluid
+        ></p-datepicker>
+        @if (isFieldInvalid('fechaInicio')) {
+        <small class="text-danger">Campo requerido</small>
+        }
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Fecha fin *</label>
+        <p-datepicker
+          formControlName="fechaFin"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          iconDisplay="input"
+          placeholder="Seleccionar fecha"
+          [appendTo]="'body'"
+          fluid
+        ></p-datepicker>
+        @if (isFieldInvalid('fechaFin')) {
+        <small class="text-danger">Campo requerido</small>
+        }
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Estatus *</label>
+      <p-select
+        formControlName="activa"
+        [options]="estatusOptions"
+        optionLabel="label"
+        optionValue="value"
+        class="w-100"
+      ></p-select>
+    </div>
+
+    <!-- Opciones -->
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Opciones *</label>
+
+      <div class="d-flex flex-column gap-2">
+        @for (opc of opcionesArray.controls; track $index) {
+        <div class="d-flex gap-2">
+          <input
+            pInputText
+            placeholder="Texto de opción"
+            class="form-control"
+            [formControl]="opc"
+          />
+
+          <button
+            pButton
+            icon="pi pi-times"
+            severity="danger"
+            (click)="removeOpcion($index)"
+          ></button>
+        </div>
+
+        @if (opc.invalid && (opc.touched || formSubmitted())) {
+        <small class="text-danger">Texto requerido (máx 300)</small>
+        } }
+
+        <button
+          pButton
+          icon="pi pi-plus"
+          label="Agregar opción"
+          severity="secondary"
+          (click)="addOpcion()"
+        ></button>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="d-flex justify-content-end gap-2">
+      <p-button label="Cancelar" icon="pi pi-times" (onClick)="handleCancel()" />
+      <p-button
+        label="Guardar"
+        icon="pi pi-check"
+        severity="success"
+        (onClick)="handleSubmit()"
+        [loading]="isSaving()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

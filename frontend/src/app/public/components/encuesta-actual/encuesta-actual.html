@@ -1,0 +1,42 @@
+<div class="card">
+  @if (cargando()) {
+    <p>Cargando encuesta...</p>
+  }
+
+  @if (!cargando() && !encuesta()) {
+    <p>No hay encuesta activa.</p>
+  }
+
+  @if (!cargando() && encuesta()) {
+    <h2 class="text-xl font-bold mb-3">
+      {{ encuesta()!.pregunta }}
+    </h2>
+
+    <!-- SI YA VOTÓ -->
+    @if (yaVoto()) {
+      <p class="mb-3 text-green-600">Gracias por votar.</p>
+
+      <p-chart
+        type="pie"
+        [data]="chartData"
+        [options]="chartOptions"
+        style="max-width: 400px; margin: auto"
+      />
+    }
+
+    <!-- SI NO HA VOTADO -->
+    @if (!yaVoto()) {
+      <div class="grid gap-2">
+        @for (opcion of encuesta()!.opciones; track opcion.idOpcion) {
+          <button
+            pButton
+            label="{{ opcion.textoOpcion }}"
+            class="p-button-outlined w-full"
+            (click)="votar(opcion.idOpcion)"
+          ></button>
+        }
+      </div>
+    }
+  }
+</div>
+

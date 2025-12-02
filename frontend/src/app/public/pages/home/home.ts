@@ -11,6 +11,7 @@ import { environment } from '../../../../environments/environment';
 import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 import { FormTestimonios } from '../../components/form-testimonios/form-testimonios';
 import { FormPropuesta } from '../../components/form-propuesta/form-propuesta';
+import { EncuestaActual } from '../../components/encuesta-actual/encuesta-actual';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -28,6 +29,7 @@ import { ButtonModule } from 'primeng/button';
     ToastModule,
     FormPropuesta,
     ButtonModule,
+    EncuestaActual,
   ],
   providers: [MessageService],
   templateUrl: './home.html',

@@ -151,7 +151,7 @@ export class TablaArchMunicipios {
   agregar() {
     this.revistaToEdit = null;
     this.showDialog.set(true);
-    console.log('asdasd ', this.municipiosOptions());
+    //console.log('asdasd ', this.municipiosOptions());
   }
 
   editar(doc: any) {

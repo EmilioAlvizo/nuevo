@@ -14,3 +14,14 @@
 a:hover {
     color: aliceblue;
 }
+
+:host {
+  display: block;
+  min-height: 100vh; /* Previene cambios de altura durante carga */
+}
+
+/* Para las tablas */
+app-tabla-dinamica {
+  min-height: 1600px; /* Reserva espacio antes de cargar */
+  display: block;
+}

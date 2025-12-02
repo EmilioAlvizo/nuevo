@@ -59,7 +59,14 @@ export class NuevoArchivoForm {
   private fb = new FormBuilder().nonNullable;
   private messageService = MessageService;
 
-  constructor(private cdr: ChangeDetectorRef) {}  // ✅ Inyectamos ChangeDetectorRef
+  constructor(private cdr: ChangeDetectorRef) {
+    /* effect(() => {
+      const archivo = this.archivoToEdit();
+      if (archivo && this.isEditMode()) {
+        this.loadArchivoData(archivo);
+      }
+    }); */
+  }  // ✅ Inyectamos ChangeDetectorRef
 
   @ViewChild('fileUploader') fileUploader: any;
 

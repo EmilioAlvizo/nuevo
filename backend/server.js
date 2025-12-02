@@ -19,6 +19,7 @@ const consejoRoutes = require("./routes/consejoRoutes");
 const directoriosRoutes = require("./routes/directoriosRoutes");
 const apoyos_serviciosRoutes = require("./routes/apoyos_serviciosRoutes");
 const authorized_emailsRoutes = require("./routes/authorized_emailsRoutes");
+const encuestaRoutes = require("./routes/encuestaRoutes");
 
 const { startCleanupScheduler } = require("./scripts/cleanup");
 const Propuestas_accionController = require("./controllers/propuestas_accionController");
@@ -88,6 +89,7 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/documentos_cendoc", documentos_cendocRoutes);
 app.use("/api/archivos_municipio", archivos_municipioRoutes);
+app.use("/api/encuestas", encuestaRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", categorias_cendocRoutes);
 app.use("/api", testimoniosRoutes);

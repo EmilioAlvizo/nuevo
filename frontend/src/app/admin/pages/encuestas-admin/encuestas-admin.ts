@@ -1,36 +1,35 @@
-// nuevo/frontend/src/app/admin/components/tabla-doc-cendoc/tabla-doc-cendoc.ts
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { Component, inject, signal, WritableSignal, computed, effect } from '@angular/core';
-import { ApiDocumentos_cendoc, Documentos_cendoc } from '../../../core/services/documentos_cendoc';
+import { ApiEncuestas, Encuesta } from '../../../core/services/encuestas';
 import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
-import { FormDocCendoc } from '../../../admin/components/form-doc-cendoc/form-doc-cendoc';
+import { FormEncuestas } from '../../../admin/components/form-encuestas/form-encuestas';
 import { environment } from '../../../../environments/environment';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-tabla-doc-cendoc',
-  imports: [TablaGenerica, FormDocCendoc, ConfirmDialogModule, ToastModule],
+  selector: 'app-encuestas-admin',
+  imports: [TablaGenerica, FormEncuestas, ConfirmDialogModule, ToastModule],
   providers: [MessageService, ConfirmationService],
-  templateUrl: './tabla-doc-cendoc.html',
-  styleUrl: './tabla-doc-cendoc.css',
+  templateUrl: './encuestas-admin.html',
+  styleUrl: './encuestas-admin.css',
 })
-export class TablaDocCendoc {
+export class EncuestasAdmin {
   publicUrl = environment.publicUrl;
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
-  documentosCendocService: ApiDocumentos_cendoc = inject(ApiDocumentos_cendoc);
-  
+  documentosCendocService: ApiEncuestas = inject(ApiEncuestas);
+
   // ✅ INYECTAR el servicio de categorías
   private apiCategoriaCendoc = inject(ApiCategoriaCendoc);
 
   readonly categorias = signal<Categoria_cendoc[]>([]);
 
   showDialog: WritableSignal<boolean> = signal(false);
-  revistaToEdit: Documentos_cendoc | null = null;
+  encuestaToEdit: Encuesta | null = null;
   refrescarTabla = signal(0);
 
   // 🧠 Computed: opciones de municipios
@@ -43,41 +42,23 @@ export class TablaDocCendoc {
 
   columns: ColumnConfig[] = [
     {
-      field: 'id_documento',
-      header: 'Id',
-      sortable: true,
-      filterable: true,
-      filterType: 'numeric',
-      tooltip: false,
-    },
-    {
-      field: 'nombre_documento',
-      header: 'Nombre',
-      width: '200px',
+      field: 'pregunta',
+      header: 'Pregunta',
       sortable: true,
       filterable: true,
       filterType: 'text',
-      tooltip: true,
-    },
-    {
-      field: 'autor_documento',
-      header: 'Autor',
-      width: '200px',
-      sortable: true,
-      filterable: true,
       tooltip: false,
     },
-
     {
-      field: 'descripcion_documento',
-      header: 'Descripción',
+      field: 'fechaInicio',
+      header: 'Fecha inicio',
       sortable: true,
       filterable: true,
-      filterType: 'text',
-      width: '200px',
-      tooltip: true,
+      filterType: 'date',
+      tooltip: false,
+      dateFormat: 'long',
     },
-    {
+    /* {
       field: 'nombre_categoria',
       header: 'Categoria',
       sortable: true,
@@ -90,19 +71,28 @@ export class TablaDocCendoc {
         { label: 'Discriminación y DH', value: 'Discriminación y DH' },
         { label: 'Economía', value: 'Economía' },
       ],
-    },
+    }, */
     {
-      field: 'palabras_clave',
-      header: 'Palabra Clave',
-      width: '200px',
+      field: 'fechaFin',
+      header: 'Fecha fin',
       sortable: true,
       filterable: true,
-      filterType: 'text',
-      tooltip: true,
+      filterType: 'date',
+      tooltip: false,
+      dateFormat: 'long',
     },
     {
-      field: 'fecha_documento',
-      header: 'Fecha',
+      field: 'fechaCreacion',
+      header: 'Fecha creacion',
+      sortable: true,
+      filterable: true,
+      filterType: 'date',
+      tooltip: false,
+      dateFormat: 'long',
+    },
+    {
+      field: 'fechaModificacion',
+      header: 'Fecha modificacion',
       sortable: true,
       filterable: true,
       filterType: 'date',
@@ -111,19 +101,19 @@ export class TablaDocCendoc {
     },
 
     {
-      field: 'estatus_documento',
+      field: 'activa',
       header: 'Estatus',
       sortable: true,
       filterable: true,
       filterType: 'multiselect',
       tooltip: false,
       renderAs: 'tag',
-      getLabel: (row, field) => (row[field] === 'A' ? 'Activo' : 'Inactivo'),
-      getSeverity: (row, field) => (row[field] === 'A' ? 'success' : 'secondary'),
+      getLabel: (row, field) => (row[field] === true ? 'Activo' : 'Inactivo'),
+      getSeverity: (row, field) => (row[field] === true ? 'success' : 'secondary'),
       // ✅ agrega opciones aquí
       options: [
-        { label: 'Activo', value: 'A' },
-        { label: 'Inactivo', value: 'I' },
+        { label: 'Activo', value: true },
+        { label: 'Inactivo', value: false },
       ],
     },
   ];
@@ -138,16 +128,16 @@ export class TablaDocCendoc {
     this.apiCategoriaCendoc.get().subscribe({
       next: (res) => {
         this.categorias.set(res.data);
-        
+
         // ✅ Actualizar las opciones del filtro de categorías dinámicamente
-        const categoriaColumn = this.columns.find(c => c.field === 'nombre_categoria');
+        const categoriaColumn = this.columns.find((c) => c.field === 'nombre_categoria');
         if (categoriaColumn) {
-          categoriaColumn.options = res.data.map(cat => ({
+          categoriaColumn.options = res.data.map((cat) => ({
             label: cat.nombre_categoria_cendoc,
-            value: cat.nombre_categoria_cendoc
+            value: cat.nombre_categoria_cendoc,
           }));
         }
-        
+
         //console.log('✅ Categorías cargadas:', res.data);
       },
       error: (err) => {
@@ -162,19 +152,25 @@ export class TablaDocCendoc {
   }
 
   agregar() {
-    this.revistaToEdit = null;
+    this.encuestaToEdit = null;
     this.showDialog.set(true);
   }
 
   editar(doc: any) {
-    console.log('Editar doc:', doc);
-    this.revistaToEdit = doc; // 📌 Guarda la doc seleccionada
-    this.showDialog.set(true); // 📌 Abre el diálogo
+    console.log('Editar encuesta:', doc);
+
+    // 🔥 AQUÍ HACEMOS LA PETICIÓN COMPLETA
+    this.documentosCendocService.getPorId(doc.idEncuesta).subscribe((encuestaCompleta) => {
+      console.log('Encuesta con opciones:', encuestaCompleta);
+
+      this.encuestaToEdit = encuestaCompleta; // ← ahora SÍ trae opciones
+      this.showDialog.set(true);
+    });
   }
 
-  eliminar(doc: Documentos_cendoc) {
+  eliminar(doc: Encuesta) {
     this.confirmationService.confirm({
-      message: `¿Está seguro de eliminar el archivo "${doc.id_documento}"?`,
+      message: `¿Está seguro de eliminar el elemento "${doc.idEncuesta}"?`,
       header: 'Confirmar Eliminación',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
@@ -182,7 +178,7 @@ export class TablaDocCendoc {
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-text',
       accept: () => {
-        this.documentosCendocService.eliminar(doc.id_documento).subscribe({
+        this.documentosCendocService.eliminar(doc.idEncuesta).subscribe({
           next: (resp) => {
             //console.error(resp);
             this.messageService.add({
@@ -234,10 +230,10 @@ export class TablaDocCendoc {
   }
 
   guardar(formData: FormData) {
-    const isEdit = !!this.revistaToEdit;
+    const isEdit = !!this.encuestaToEdit;
 
     const request = isEdit
-      ? this.documentosCendocService.actualizar(this.revistaToEdit!.id_documento, formData)
+      ? this.documentosCendocService.actualizar(this.encuestaToEdit!.idEncuesta, formData)
       : this.documentosCendocService.crear(formData);
 
     request.subscribe({

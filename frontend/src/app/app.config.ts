@@ -30,10 +30,10 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-    /* provideRouter(routes, withInMemoryScrolling({
+    //provideRouter(routes),
+    provideRouter(routes, withInMemoryScrolling({
       scrollPositionRestoration: 'enabled',
-    }),), */
+    }),),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAppInitializer(() => {
       if (authInitialized) {

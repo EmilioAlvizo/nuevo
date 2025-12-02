@@ -7,43 +7,18 @@ import { TablaDinamica } from '../../../shared/tabla-dinamica/tabla-dinamica';
 import { ArchMunicipioPublic } from '../../../public/components/arch-municipio-public/arch-municipio-public';
 import { DocCendocPublic } from '../../../public/components/doc-cendoc-public/doc-cendoc-public';
 
-import { MenuItem } from 'primeng/api';
 import { MenubarModule } from 'primeng/menubar';
 import { TabsModule } from 'primeng/tabs';
 
 @Component({
   selector: 'app-estadisticas',
-  imports: [/* Tabla, NavbarDocumentos, */ TablaDinamica, MenubarModule, TabsModule ],
+  imports: [TablaDinamica, MenubarModule, TabsModule ],
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css'
 })
 export class Estadisticas {
   protected archivosStrategy = inject(ArchMunicipioPublic);
   protected docStrategy = inject(DocCendocPublic);
-
-  mostrarTabla: string = 'archivos_municipio';
-
-  onTipoCambio(idTabla: string) {
-    this.mostrarTabla = idTabla;
-  }
-
-  items: MenuItem[] = [];
-  selectedTable = signal<'archMunicipios' | 'docCendoc'>('archMunicipios'); // estado reactivo
-
-  ngOnInit() {
-    this.items = [
-      {
-        label: 'Archivos municipio',
-        icon: 'pi pi-table',
-        command: () => this.selectedTable.set('archMunicipios'),
-      },
-      {
-        label: 'Documentos Cendoc',
-        icon: 'pi pi-file',
-        command: () => this.selectedTable.set('docCendoc'),
-      },
-    ];
-  }
 
   // Personalización con Design Tokens de PrimeNG
   menuDesignTokens = {

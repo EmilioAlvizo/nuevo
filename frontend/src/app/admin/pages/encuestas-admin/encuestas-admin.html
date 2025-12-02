@@ -1,8 +1,8 @@
-<!-- // nuevo/frontend/src/app/admin/components/tabla-arch-municipios/tabla-arch-municipios.html -->
+<!-- /nuevo/frontend/src/app/admin/pages/encuestas-admin/encuestas-admin.html -->
 <app-tabla-generica
-  [dataService]="apiArchivos_municipio"
-  [columns]="columns()"
-  [title]="'Archivos Municipios'"
+  [dataService]="documentosCendocService"
+  [columns]="columns"
+  [title]="'Gestión de Encuestas'"
   [entityName]="'documento'"
   [showSelection]="false"
   [showViewButton]="true"
@@ -10,8 +10,8 @@
   [showDeleteButton]="true"
   (add)="agregar()"
   (edit)="editar($event)"
-  (view)="ver($event)"
   (remove)="eliminar($event)"
+  (view)="ver($event)"
   [refreshSignal]="refrescarTabla"
 />
 
@@ -23,13 +23,14 @@
   (save)="guardar($event)"
   (visibleChange)="showDialog.set($event)"
 /> -->
-<app-nuevo-archivo-form
-    [(visible)]="showDialog"
-    [municipios]="municipios()"
-    [isEditMode]="!!revistaToEdit"
-    [archivoToEdit]="revistaToEdit"
-    (save)="handleSave($event)"
-  />
+
+<app-form-encuestas
+  [visible]="showDialog()"
+  [isEditMode]="!!encuestaToEdit"
+  [encuestaToEdit]="encuestaToEdit"
+  (save)="guardar($event)"
+  (visibleChange)="showDialog.set($event)"
+/>
 
 <!-- mensajes -->
 <p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000" />

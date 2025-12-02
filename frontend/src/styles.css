@@ -1,10 +1,15 @@
 @import "../node_modules/primeicons/primeicons.css";
 
 /* You can add global styles to this file, and also import other style files */
+html {
+  scrollbar-gutter: stable;
+}
 
 :host {
   will-change: transform;
   transition: transform 0.25s ease, opacity 0.25s ease;
+  display: block;
+  min-height: 100vh; /* Previene cambios de altura durante carga */
 }
 
 body {

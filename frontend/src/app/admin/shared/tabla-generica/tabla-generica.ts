@@ -267,7 +267,7 @@ export class TablaGenerica {
     service.getValoresUnicos().subscribe({
       next: (resp: any) => {
         if (resp.success && resp.data) {
-          console.log('✅ Valores únicos cargados del backend:', resp.data);
+          //console.log('✅ Valores únicos cargados del backend:', resp.data);
           this.backendOptions.set(resp.data);
         }
         this.loadingOptions.set(false);
@@ -324,7 +324,7 @@ export class TablaGenerica {
       .subscribe({
         next: (resp: any) => {
           this.data.set(resp.data);
-          //console.log(this.data());
+          console.log("tabala generica ",this.data());
           this.totalRecords.set(resp.total || 0);
           this.loading.set(false);
         },
