@@ -37,39 +37,11 @@
     (save)="guardarTestimonio($event)"
   />
 
-  <app-encuesta-actual></app-encuesta-actual>
+  
 
   <!-- Sección 3: Encuestas -->
   <section class="home-section mb-4">
-    <div class="row">
-      <div class="col-md-6 mb-3 mb-md-0">
-        <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
-          <h5>¿Qué tema te interesa más?</h5>
-          <form>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encuesta" id="opcion1" />
-              <label class="form-check-label" for="opcion1">Educación</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="encuesta" id="opcion2" />
-              <label class="form-check-label" for="opcion2">Empleo</label>
-            </div>
-            <button class="btn btn-primary mt-3">Votar</button>
-          </form>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
-          <h5>Resultados</h5>
-          <!-- Aquí va el gráfico, puedes usar una imagen o integrar una librería de gráficos -->
-          <img
-            src="{{ publicUrl }}/provisionales/grafica.png"
-            alt="Gráfico de resultados"
-            class="img-fluid"
-          />
-        </div>
-      </div>
-    </div>
+    <app-encuesta-actual></app-encuesta-actual>
   </section>
 
   <!-- Sección 4: Temas de interés -->

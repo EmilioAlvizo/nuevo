@@ -8,7 +8,7 @@ import { ArchMunicipioPublic } from '../../../public/components/arch-municipio-p
 import { DocCendocPublic } from '../../../public/components/doc-cendoc-public/doc-cendoc-public';
 
 import { MenubarModule } from 'primeng/menubar';
-import { TabsModule } from 'primeng/tabs';
+import { TabPanel, TabsModule } from 'primeng/tabs';
 
 @Component({
   selector: 'app-estadisticas',
@@ -39,6 +39,14 @@ export class Estadisticas {
     tab: {
       borderWidth: '0 0 2px 0',
       background: '#ecf0f0'
+    },
+    tabpanel: {
+      background: '#ecf0f0'
+    },
+    tablist: {
+      background: '#ecf0f0',
+      borderWidth: '0 0 2px 0'
+
     }
   };
 }

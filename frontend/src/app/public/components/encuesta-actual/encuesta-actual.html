@@ -1,42 +1,82 @@
-<div class="card">
-  @if (cargando()) {
-    <p>Cargando encuesta...</p>
-  }
+<div class="encuesta-wrapper container-fluid p-0">
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <p-card>
+      <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
+        <small class="text-uppercase text-muted fw-bold ls-1" style="font-size: 0.7rem">
+          <i class="pi pi-chart-bar me-1"></i> Encuesta Activa
+        </small>
+      </div>
 
-  @if (!cargando() && !encuesta()) {
-    <p>No hay encuesta activa.</p>
-  }
+      <div class="card-body p-4">
+        @if (cargando() && !encuesta()) {
+        <div class="row g-4">
+          <div class="col-md-7">
+            <p-skeleton height="2rem" styleClass="mb-3"></p-skeleton>
+            <p-skeleton height="3rem" styleClass="mb-2"></p-skeleton>
+            <p-skeleton height="3rem" styleClass="mb-2"></p-skeleton>
+          </div>
+          <div class="col-md-5 d-flex justify-content-center">
+            <p-skeleton shape="circle" size="150px"></p-skeleton>
+          </div>
+        </div>
+        } @if (encuesta(); as enc) {
+        <div class="row g-4 align-items-center">
+          <div class="col-12 col-md-7">
+            <h4 class="fw-bold mb-4 text-dark">
+              {{ enc.pregunta }}
+            </h4>
 
-  @if (!cargando() && encuesta()) {
-    <h2 class="text-xl font-bold mb-3">
-      {{ encuesta()!.pregunta }}
-    </h2>
+            <div class="d-flex flex-column gap-3">
+              @for (opcion of enc.opciones; track opcion.idOpcion; let i = $index) {
+              <p-button
+                type="button"
+                class="btn btn-encuesta position-relative text-start p-3 shadow-sm"
+                [disabled]="yaVoto()"
+                (click)="votar(opcion.idOpcion)"
+                [style.border-left-color]="getColor(i)"
+              >
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="fw-medium">{{ opcion.textoOpcion }}</span>
 
-    <!-- SI YA VOTÓ -->
-    @if (yaVoto()) {
-      <p class="mb-3 text-green-600">Gracias por votar.</p>
+                  @if (yaVoto() || cargando()) {
+                  <span class="badge rounded-pill text-dark bg-light border">
+                    {{ opcion.votos }} votos
+                  </span>
+                  }
+                </div>
 
-      <p-chart
-        type="pie"
-        [data]="chartData"
-        [options]="chartOptions"
-        style="max-width: 400px; margin: auto"
-      />
-    }
+                <div class="btn-hover-bg" [style.background-color]="getColor(i)"></div>
+              </p-button>
+              }
+            </div>
 
-    <!-- SI NO HA VOTADO -->
-    @if (!yaVoto()) {
-      <div class="grid gap-2">
-        @for (opcion of encuesta()!.opciones; track opcion.idOpcion) {
-          <button
-            pButton
-            label="{{ opcion.textoOpcion }}"
-            class="p-button-outlined w-full"
-            (click)="votar(opcion.idOpcion)"
-          ></button>
+            @if (yaVoto()) {
+            <div class="mt-4 text-success fw-bold animate-fade-up">
+              <i class="pi pi-check-circle me-1"></i> ¡Gracias por participar!
+            </div>
+            }
+          </div>
+
+          <div class="col-12 col-md-5">
+            <div class="chart-container position-relative mx-auto">
+              <p-chart
+                type="doughnut"
+                [data]="chartData"
+                [options]="chartOptions"
+                height="220px"
+                width="100%"
+              >
+              </p-chart>
+            </div>
+          </div>
+        </div>
+        } @if (!cargando() && !encuesta()) {
+        <div class="text-center py-5 text-muted">
+          <i class="pi pi-inbox fs-1 mb-3"></i>
+          <p>No hay encuestas disponibles.</p>
+        </div>
         }
       </div>
-    }
-  }
+    </p-card>
+  </div>
 </div>
-

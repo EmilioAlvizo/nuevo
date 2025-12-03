@@ -29,14 +29,32 @@ class EncuestaModel {
   static async obtenerEncuestaActiva() {
     try {
       const pool = await getConnection();
-      const result = await pool.request().query(`
+
+      // Obtener encuesta activa
+      const encuesta = await pool.request().query(`
         SELECT *
         FROM Encuestas
         WHERE activa = 1
         AND fechaInicio <= SYSDATETIME()
         AND fechaFin >= SYSDATETIME()
       `);
-      return result.recordset[0];
+
+      if (encuesta.recordset.length === 0) return null;
+
+      const enc = encuesta.recordset[0];
+
+      // Obtener opciones de esa encuesta
+      const opciones = await pool
+        .request()
+        .input("idEncuesta", mssql.Int, enc.idEncuesta).query(`
+          SELECT *
+          FROM EncuestaOpciones
+          WHERE idEncuesta = @idEncuesta
+        `);
+
+      enc.opciones = opciones.recordset;
+
+      return enc;
     } catch (error) {
       throw new Error("Error al obtener la encuesta activa: " + error.message);
     }

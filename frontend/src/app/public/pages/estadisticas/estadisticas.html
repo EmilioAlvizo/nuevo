@@ -9,10 +9,12 @@
 
 <div class="card">
   <p-tabs value="0" [dt]="tabDesignTokens" [lazy]="true">
-    <p-tablist class="container-xxl">
-      <p-tab value="0">Archivos municipio</p-tab>
+    <p-tablist >
+      <div class="container-xxl" style="position: relative; display: flex;">
+        <p-tab value="0">Archivos municipio</p-tab>
       <p-tab value="1">Documentos Cendoc</p-tab>
       <p-tab value="2">Header III</p-tab>
+      </div>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="0">
@@ -22,12 +24,6 @@
       </p-tabpanel>
       <p-tabpanel value="1">
         <ng-template #content>
-          <p class="m-0">
-            tengo una pagina web usa una bd sql server y esta hecha con nodejs en el back y angular
-            20 en el front (y tambien uso primeng 20) y me gustaria agregar en mi pagina la opcion
-            para que un administrador pueda agregar una encuesta, y dicha encuesta asi como el
-            resultado actual salga en la pagina de inicio, cual es la mejor forma de hacerlo?
-          </p>
           <div class="container mt-5">
             <h2 style="font-size: 30px; text-transform: none;">
               <b>¿Qué es el Centro Documental?</b>

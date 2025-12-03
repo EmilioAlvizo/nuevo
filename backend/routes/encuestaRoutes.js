@@ -11,15 +11,15 @@ const encuestaLimiter = rateLimit({
   max: 20, // máximo 20 votos por minuto desde la misma IP
 });
 
+// Encuesta activa
+router.get("/activa", EncuestaController.obtenerActiva);
+
 // CRUD
 router.get("/", EncuestaController.listar);
 router.get("/:id", EncuestaController.obtener);
 router.post("/", upload.none(), EncuestaController.crear);
 router.put("/:id", upload.none(), EncuestaController.actualizar);
 router.delete("/:id", EncuestaController.eliminar);
-
-// Encuesta activa
-router.get("/activa", EncuestaController.obtenerActiva);
 
 // Votar
 router.post("/:idEncuesta/votar/:idOpcion", encuestaLimiter, EncuestaController.votar);
