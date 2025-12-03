@@ -3,8 +3,9 @@
 import { Injectable, inject } from '@angular/core';
 //esto es para comunicarse con el backend
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
 // usar Observable<any> es una mala practica, por ello usamos interfaces (ejemplo para municipio)
 export interface Revistas {
@@ -19,21 +20,6 @@ export interface Revistas {
   fecha_modificacion: string;
 }
 
-// Agrega esta nueva interfaz para la respuesta de la API
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T[];
-  total?: number;
-}
-
-export interface ApiResponsePaginated<T> {
-  success: boolean;
-  data: T[];
-  total: number;
-  pagina: number;
-  totalPaginas: number;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -43,6 +29,9 @@ export class ApiRevistas {
   //url del backend
   private apiUrl = `${environment.apiUrl}/revistas`;
   private http = inject(HttpClient);
+
+  private revistasSubject = new BehaviorSubject<Revistas[]>([]);
+  revistas$ = this.revistasSubject.asObservable();
 
   //PETICIÓN GET
   getRevistas(): Observable<ApiResponse<Revistas>> {
@@ -54,9 +43,7 @@ export class ApiRevistas {
   }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
-  getFiltrados(
-    filtros: any
-  ): Observable<ApiResponse<Revistas>> {
+  getFiltrados(filtros: any): Observable<ApiResponse<Revistas>> {
     let params = new HttpParams();
 
     // Agregar todos los parámetros dinámicamente

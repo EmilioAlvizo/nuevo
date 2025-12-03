@@ -1,82 +1,105 @@
-<div class="encuesta-wrapper container-fluid p-0">
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-    <p-card>
-      <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
-        <small class="text-uppercase text-muted fw-bold ls-1" style="font-size: 0.7rem">
-          <i class="pi pi-chart-bar me-1"></i> Encuesta Activa
-        </small>
+<!-- // nuevo/frontend/src/app/public/components/encuesta-actual/encuesta-actual.html -->
+<div class="encuesta-section container-fluid py-5">
+  <div class="text-center mb-5 animate-fade-down">
+    <h1 class="display-5 fw-bold text-dark text-uppercase mb-2">Participación en vivo</h1>
+    <p class="text-muted lead mx-auto" style="max-width: 600px">
+      Selecciona una opción a la izquierda para ver los resultados reflejados en la pantalla.
+    </p>
+  </div>
+
+  <div class="row align-items-center g-5">
+    <div class="col-12 col-lg-4 ps-lg-5">
+      @if (cargando() && !encuesta()) {
+      <div class="d-flex flex-column gap-3">
+        <p-skeleton height="4rem" class="mb-2"></p-skeleton>
+        <p-skeleton height="4rem" class="mb-2"></p-skeleton>
+        <p-skeleton height="4rem" class="mb-2"></p-skeleton>
       </div>
+      } @if (encuesta(); as enc) {
+      <div class="d-flex flex-column gap-0 voting-list">
+        <h5 class="fw-bold text-muted mb-4 ps-3">Opciones disponibles:</h5>
 
-      <div class="card-body p-4">
-        @if (cargando() && !encuesta()) {
-        <div class="row g-4">
-          <div class="col-md-7">
-            <p-skeleton height="2rem" styleClass="mb-3"></p-skeleton>
-            <p-skeleton height="3rem" styleClass="mb-2"></p-skeleton>
-            <p-skeleton height="3rem" styleClass="mb-2"></p-skeleton>
+        @for (opcion of enc.opciones; track opcion.idOpcion; let i = $index) {
+        <button
+          type="button"
+          class="btn btn-vote-item text-start p-3 position-relative"
+          [class.active-vote]="yaVoto()"
+          [disabled]="yaVoto()"
+          (click)="votar(opcion.idOpcion)"
+        >
+          <div class="d-flex align-items-center">
+            <i
+              class="pi fs-4 me-3 text-secondary"
+              
+            ></i>
+
+            <div class="d-flex flex-column">
+              <span class="fw-bold fs-6 text-dark">{{ opcion.textoOpcion }}</span>
+              <small class="text-muted">Haz clic para votar esta opción</small>
+            </div>
           </div>
-          <div class="col-md-5 d-flex justify-content-center">
-            <p-skeleton shape="circle" size="150px"></p-skeleton>
-          </div>
+
+          <div class="hover-indicator" [style.background-color]="getColor(i)"></div>
+        </button>
+        <hr class="m-0 border-light" />
+        } @if (yaVoto()) {
+        <div class="mt-4 ps-3 text-success fw-bold animate-fade-up">
+          <i class="pi pi-check-circle me-2"></i> ¡Voto registrado! Mira la pantalla.
         </div>
-        } @if (encuesta(); as enc) {
-        <div class="row g-4 align-items-center">
-          <div class="col-12 col-md-7">
-            <h4 class="fw-bold mb-4 text-dark">
+        }
+      </div>
+      }
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="tablet-backdrop p-4 p-md-5 rounded-5">
+        <div class="tablet-device bg-white mx-auto shadow-lg overflow-hidden position-relative">
+          <div
+            class="card-body p-4 d-flex flex-column align-items-center justify-content-center h-100"
+          >
+            @if (cargando()) {
+            <p-skeleton shape="circle" size="180px"></p-skeleton>
+            } @if (encuesta(); as enc) {
+            <h3 class="text-center fw-bold mb-4 w-100" style="font-family: 'Inter', sans-serif">
               {{ enc.pregunta }}
-            </h4>
+            </h3>
 
-            <div class="d-flex flex-column gap-3">
-              @for (opcion of enc.opciones; track opcion.idOpcion; let i = $index) {
-              <p-button
-                type="button"
-                class="btn btn-encuesta position-relative text-start p-3 shadow-sm"
-                [disabled]="yaVoto()"
-                (click)="votar(opcion.idOpcion)"
-                [style.border-left-color]="getColor(i)"
-              >
-                <div class="d-flex align-items-center justify-content-between">
-                  <span class="fw-medium">{{ opcion.textoOpcion }}</span>
-
-                  @if (yaVoto() || cargando()) {
-                  <span class="badge rounded-pill text-dark bg-light border">
-                    {{ opcion.votos }} votos
-                  </span>
-                  }
-                </div>
-
-                <div class="btn-hover-bg" [style.background-color]="getColor(i)"></div>
-              </p-button>
-              }
-            </div>
-
-            @if (yaVoto()) {
-            <div class="mt-4 text-success fw-bold animate-fade-up">
-              <i class="pi pi-check-circle me-1"></i> ¡Gracias por participar!
-            </div>
-            }
-          </div>
-
-          <div class="col-12 col-md-5">
-            <div class="chart-container position-relative mx-auto">
+            <div class="chart-wrapper position-relative">
               <p-chart
                 type="doughnut"
                 [data]="chartData"
                 [options]="chartOptions"
-                height="220px"
-                width="100%"
+                height="280px"
+                width="280px"
               >
               </p-chart>
+
+              
             </div>
+
+            <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+              @for (opcion of enc.opciones; track opcion.idOpcion; let i = $index) {
+              <div class="d-flex align-items-center gap-1 small">
+                <span class="legend-dot" [style.background-color]="getColor(i)"></span>
+                <span class="text-muted">{{ opcion.votos }}</span>
+              </div>
+              }
+            </div>
+            } @else {
+            <div class="text-center text-muted opacity-50">
+              <i class="pi pi-desktop fs-1 mb-2"></i>
+              <p>Esperando contenido...</p>
+            </div>
+            }
+          </div>
+
+          <div
+            class="page-indicator badge bg-black text-white rounded-pill position-absolute bottom-0 end-0 m-3"
+          >
+            Live
           </div>
         </div>
-        } @if (!cargando() && !encuesta()) {
-        <div class="text-center py-5 text-muted">
-          <i class="pi pi-inbox fs-1 mb-3"></i>
-          <p>No hay encuestas disponibles.</p>
-        </div>
-        }
       </div>
-    </p-card>
+    </div>
   </div>
 </div>

@@ -1,5 +1,5 @@
 // frontend/src/app/public/components/carrusel-testimonios/carrusel-testimonios.ts
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
@@ -10,6 +10,7 @@ import { Testimonios } from '../../../core/services/testimonios';
   imports: [CommonModule, CarouselModule, ButtonModule],
   templateUrl: './carrusel-testimonios.html',
   styleUrl: './carrusel-testimonios.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class CarruselTestimonios {
   @Input() testimonios: Testimonios[] = [];
@@ -18,12 +19,12 @@ export class CarruselTestimonios {
   responsiveOptions = [
     {
       breakpoint: '1400px',
-      numVisible: 2,
+      numVisible: 4,
       numScroll: 1,
     },
     {
       breakpoint: '1199px',
-      numVisible: 1,
+      numVisible: 2,
       numScroll: 1,
     },
     {

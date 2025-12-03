@@ -3,6 +3,16 @@
   margin-bottom: 3rem;
 }
 
+.home-section-1 {
+  margin-bottom: 3rem;
+  background: white;
+}
+
+.home-section-2 {
+  margin-bottom: 3rem;
+  background: #F3EDE7;
+}
+
 .espacio-25 {
   width: 25%;
   vertical-align: top;

@@ -23,6 +23,10 @@ body {
   /* padding-right: 0 !important; */
 }
 
+.card {
+  border: none;
+}
+
 body.mobile-menu-open {
   overflow: hidden;
   touch-action: none;

@@ -1,85 +1,122 @@
-/* Wrapper principal con limitador de ancho para pantallas gigantes */
-.encuesta-wrapper {
-    max-width: 900px;
-    margin: 0 auto;
+/* --- TÍTULO GENERAL --- */
+.encuesta-section h1 {
+  letter-spacing: -1px;
+}
+
+/* --- LISTA DE VOTACIÓN (IZQUIERDA) --- */
+.voting-list {
+  max-width: 400px;
+}
+
+.btn-vote-item {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  transition: all 0.2s ease;
+  overflow: hidden; /* Para contener la barra de color */
+}
+
+.btn-vote-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.btn-vote-item:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Barra de color que aparece al hover a la izquierda */
+.hover-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
+.btn-vote-item:hover .hover-indicator {
+  transform: scaleY(1);
+}
+
+/* --- ESTILO DE LA TABLET (DERECHA) --- */
+
+/* El fondo beige detrás de la tablet */
+.tablet-backdrop {
+  background-color: #f3efe9; /* Color beige/arena similar a la imagen */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 450px;
+}
+
+/* La pantalla con borde negro */
+.tablet-device {
+  width: 100%;
+  max-width: 650px;       /* Ancho máximo para parecer pantalla rectangular */
+  min-height: 380px;      /* Altura de la pantalla */
+  border: 6px solid #000; /* Borde negro grueso */
+  border-radius: 24px;    /* Esquinas redondeadas */
+  background-color: #fff;
+  transition: transform 0.3s ease;
+}
+
+.tablet-device:hover {
+  transform: scale(1.01); /* Efecto sutil al pasar mouse por la pantalla */
+}
+
+/* Gráfico */
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart-center-icon {
+  position: absolute;
+  pointer-events: none;
+}
+
+.legend-dot {
+   width: 8px;
+   height: 8px;
+   border-radius: 50%;
+   display: inline-block;
+}
+
+/* Animaciones */
+.animate-fade-down {
+  animation: fadeDown 0.6s ease-out;
+}
+
+.animate-fade-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  /* En tablets/móviles, centrar la lista de votación también */
+  .voting-list {
+    margin: 0 auto 2rem auto;
   }
   
-  /* Tipografía bonita */
-  .ls-1 {
-    letter-spacing: 1px;
+  .tablet-backdrop {
+    padding: 1rem;
   }
-  
-  /* --- ESTILO DE BOTONES --- */
-  .btn-encuesta {
-    background-color: #fff;
-    border: 1px solid #e9ecef; /* Borde gris sutil */
-    border-left-width: 5px; /* Borde grueso de color a la izquierda */
-    border-radius: 8px;
-    transition: all 0.2s ease-in-out;
-    overflow: hidden; /* Para el efecto hover */
-    z-index: 1;
+
+  .row {
+    flex-direction: column-reverse;
   }
-  
-  .btn-encuesta:hover {
-    transform: translateX(5px); /* Desplaza a la derecha ligeramente */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-    border-color: #dee2e6;
-  }
-  
-  .btn-encuesta:disabled {
-    opacity: 0.8;
-    cursor: default;
-    transform: none;
-  }
-  
-  /* Fondo sutil al hacer hover usando opacidad */
-  .btn-hover-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    z-index: -1;
-    transition: opacity 0.2s;
-  }
-  
-  .btn-encuesta:hover .btn-hover-bg {
-    opacity: 0.05; /* Muy sutil tinte del color del botón */
-  }
-  
-  /* --- CHART --- */
-  .chart-container {
-    max-width: 300px; /* Evita que el gráfico sea gigante en PC */
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* Icono en el centro de la dona */
-  .center-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    opacity: 0.5;
-  }
-  
-  /* Animación simple */
-  .animate-fade-up {
-    animation: fadeInUp 0.5s ease-out;
-  }
-  
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* Ajustes Responsivos manuales si Bootstrap no es suficiente */
-  @media (max-width: 768px) {
-    .chart-container {
-      margin-top: 2rem; /* Separar gráfico de botones en móvil */
-    }
-  }
+}

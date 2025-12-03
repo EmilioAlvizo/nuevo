@@ -1,114 +1,123 @@
 /* nuevo/frontend/src/app/public/components/testimonios-carousel/testimonios-carousel.component.css */
 
-/* Contenedor del testimonio */
-.testimonial-item {
-  background: #fff;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin: 10px;
-  min-height: 350px;
+/* 1. CONFIGURACIÓN DEL EFECTO FADE (MENTIMETER) */
+/* Aplicamos la máscara SOLO al viewport donde se mueven las tarjetas.
+   De esta forma, las flechas NO se ven afectadas por el desvanecimiento. */
+.mentimeter-carousel .p-carousel-viewport {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+  padding: 20px 0; /* Espacio arriba/abajo para sombras */
 }
 
-/* Imagen del testimonio */
-.testimonial-img {
-  border-radius: 50%;
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border: 4px solid #f0f0f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* 2. MOVER FLECHAS A LA PARTE INFERIOR */
+/* Forzamos al contenedor a tener espacio abajo para las flechas */
+.mentimeter-carousel .p-carousel-content {
+  padding-bottom: 60px; /* Espacio reservado para las flechas */
+  position: relative;
 }
 
-/* Nombre del cliente */
-.client-name {
-  font-weight: 600;
+/* Estilo y posición de los botones Prev/Next */
+.mentimeter-carousel .p-carousel-prev-button,
+.mentimeter-carousel .p-carousel-next-button {
+  position: absolute;
+  bottom: 0; /* Los pegamos al fondo del contenedor */
+  z-index: 10;
+  background-color: #f3f4f6; /* Color gris claro */
   color: #333;
-  margin: 5px 0;
-  font-size: 1rem;
-}
-
-/* Texto del testimonio */
-.testimonial-text {
-  display: flex;
-  align-items: center;
-  min-height: 200px;
-}
-
-/* Personalización de los controles de navegación de PrimeNG */
-::ng-deep .p-carousel .p-carousel-content .p-carousel-prev,
-::ng-deep .p-carousel .p-carousel-content .p-carousel-next {
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
   border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0;
   transition: all 0.3s ease;
 }
 
-::ng-deep .p-carousel .p-carousel-content .p-carousel-prev:hover,
-::ng-deep .p-carousel .p-carousel-content .p-carousel-next:hover {
-  background: rgba(0, 0, 0, 0.7);
+.mentimeter-carousel .p-carousel-prev-button:hover,
+.mentimeter-carousel .p-carousel-next-button:hover {
+  background-color: #e5e7eb;
   transform: scale(1.1);
 }
 
-/* Indicadores del carrusel */
-::ng-deep .p-carousel .p-carousel-indicators .p-carousel-indicator button {
-  background-color: #d1d5db;
-  width: 1rem;
-  height: 1rem;
+/* Ubicación exacta: Centrados o separados */
+.mentimeter-carousel .p-carousel-prev-button {
+  left: calc(50% - 4rem); /* Un poco a la izquierda del centro */
+}
+
+.mentimeter-carousel .p-carousel-next-button {
+  right: calc(50% - 4rem); /* Un poco a la derecha del centro */
+}
+
+/* 3. ESTILOS DE LA TARJETA */
+.testimonial-wrapper {
+  padding: 10px; /* Espacio entre tarjetas */
+  height: 100%;
+}
+
+.testimonial-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.description-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-style: italic;
+  color: #555;
+  /* Limitar texto si es muy largo */
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.quote-symbol {
+  font-size: 4rem;
+  color: #d1d5db;
+  line-height: 1rem;
+  display: block;
+  margin-bottom: 1.5rem;
+  font-family: serif;
+}
+
+.user-profile {
+  margin-top: auto; /* Empuja esto al fondo de la tarjeta */
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  object-fit: cover;
 }
 
-::ng-deep .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
-  background-color: #3b82f6;
-  transform: scale(1.2);
-}
-
-/* Responsividad para tablets */
-@media (max-width: 991px) {
-  .testimonial-item {
-    min-height: 320px;
-  }
-  
-  .testimonial-img {
-    width: 130px;
-    height: 130px;
-  }
-}
-
-/* Responsividad para móviles */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  .testimonial-item {
-    min-height: auto;
-    padding: 15px;
+  /* En móvil quitamos el efecto fade porque solo se ve 1 */
+  .mentimeter-carousel .p-carousel-viewport {
+    mask-image: none;
+    -webkit-mask-image: none;
   }
-  
-  .testimonial-text {
-    min-height: auto;
-    padding: 10px !important;
-  }
-  
-  .testimonial-img {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .client-name {
-    font-size: 0.9rem;
-  }
-}
 
-/* Para pantallas muy pequeñas */
-@media (max-width: 575px) {
-  .testimonial-item {
-    margin: 5px;
-    padding: 10px;
+  /* En móvil separamos más las flechas */
+  /* .mentimeter-carousel .p-carousel-prev-button {
+    left: 20px;
   }
-  
-  .testimonial-img {
-    width: 100px;
-    height: 100px;
-  }
+  .mentimeter-carousel .p-carousel-next-button {
+    right: 20px;
+  } */
 }

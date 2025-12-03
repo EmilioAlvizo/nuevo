@@ -1,34 +1,44 @@
 <!-- // frontend/src/app/public/components/carrusel-testimonios/carrusel-testimonios.html -->
-<p-carousel 
-  [value]="testimonios" 
-  [numVisible]="1" 
-  [numScroll]="1" 
+<div class="text-center mb-5 animate-fade-down">
+  <h1 class="display-5 fw-bold text-dark text-uppercase mb-2">Testimonios</h1>
+  <p class="text-muted lead mx-auto" style="max-width: 600px">
+    Testimonios de quienes han participado en programas y actividades de Juventudes Guanajuato.
+  </p>
+</div>
+
+<p-carousel
+  class="mentimeter-carousel"
+  [value]="testimonios"
+  [numVisible]="4"
+  [numScroll]="1"
   [circular]="true"
   [responsiveOptions]="responsiveOptions"
   [autoplayInterval]="5000"
   [showNavigators]="true"
   [showIndicators]="true"
-  [dt]="carouselDesignTokens">
-  
-  <ng-template let-testimonio #item>
-    <div class="testimonial-item align-content-center">
-      <div class="row">
-        <div class="col-md-4 text-center" style="padding: 10px">
-          <img
-            class="img-fluid testimonial-img"
-            [src]="publicUrl + '/testimonios/' + testimonio.id_testimonios + '/' + testimonio.imagenT"
-            [alt]="testimonio.nombreM"
-          />
-          <p class="client-name mt-2">
-            {{ testimonio.nombreM }}
+  [dt]="carouselDesignTokens"
+>
+  <ng-template let-testimonio pTemplate="item">
+    <div class="testimonial-wrapper">
+      <div class="testimonial-card">
+        <div class="card-body">
+          <span class="quote-symbol">“</span>
+          <p class="mb-4 text-muted description-text">
+            {{ testimonio.descripcion }}
           </p>
-          <p class="client-name mt-1">Municipio de {{ testimonio.nombreMunicipio }}</p>
-        </div>
-        <div class="col-md-8 align-content-center">
-          <div class="testimonial-text" style="padding: 20px">
-            <p style="text-align: justify; font-size: medium">
-              {{ testimonio.descripcion }}
-            </p>
+
+          <div class="user-profile">
+            <img
+              [src]="
+                publicUrl + '/testimonios/' + testimonio.id_testimonios + '/' + testimonio.imagenT
+              "
+              [alt]="testimonio.nombreM"
+              class="avatar-img"
+            />
+            <div class="user-info">
+              <h6 class="mb-0 font-bold">{{ testimonio.nombreM }}</h6>
+              <small class="text-muted">Municipio de {{ testimonio.nombreMunicipio }}</small>
+            </div>
           </div>
         </div>
       </div>

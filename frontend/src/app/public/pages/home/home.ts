@@ -12,6 +12,7 @@ import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 import { FormTestimonios } from '../../components/form-testimonios/form-testimonios';
 import { FormPropuesta } from '../../components/form-propuesta/form-propuesta';
 import { EncuestaActual } from '../../components/encuesta-actual/encuesta-actual';
+import { CarruselRevista } from '../../components/carrusel-revista/carrusel-revista';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -30,6 +31,7 @@ import { ButtonModule } from 'primeng/button';
     FormPropuesta,
     ButtonModule,
     EncuestaActual,
+    CarruselRevista,
   ],
   providers: [MessageService],
   templateUrl: './home.html',

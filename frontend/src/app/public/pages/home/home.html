@@ -1,11 +1,17 @@
 <!-- nuevo/frontend/src/app/public/pages/home/home.html -->
 <p-toast />
 
-<div class="container">
+<div>
   <div style="height: 100px"></div>
   <!-- Sección 1: Vídeo -->
-  <section class="home-section mb-4">
-    <div class="video-container">
+   <section class="home-section-2 p-5">
+    <div class="container">
+      <app-carrusel-revista></app-carrusel-revista>
+    </div>
+  </section>
+
+  <section class="home-section-2 mb-4">
+    <div class="video-container container">
       <video controls width="100%" style="border-radius: 20px">
         <source
           src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4"
@@ -17,35 +23,48 @@
   </section>
 
   <!-- Sección 2: Testimonios -->
-  <app-carrusel-testimonios *ngIf="isBrowser" [testimonios]="testimonios" [publicUrl]="publicUrl">
-  </app-carrusel-testimonios>
+  <section class="home-section mb-4">
+    <app-carrusel-testimonios *ngIf="isBrowser" [testimonios]="testimonios" [publicUrl]="publicUrl">
+    </app-carrusel-testimonios>
 
-  <div
-    class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
-  >
-    <div class="p-4 bg-light rounded">
-      <h5>¿Quieres compartir tu experiencia?</h5>
-      <button class="btn btn-primary mt-2" (click)="abrirDialogo()">Deja tu testimonio</button>
+    <div
+      class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
+    >
+      <div class="p-4 bg-light rounded">
+        <h5>¿Quieres compartir tu experiencia?</h5>
+        <button class="btn btn-primary mt-2" (click)="abrirDialogo()">Deja tu testimonio</button>
+      </div>
     </div>
-  </div>
+
+    <app-form-testimonios
+      [visible]="showDialog"
+      (visibleChange)="showDialog = $event"
+      (save)="guardarTestimonio($event)"
+    />
+
+  </section>
 
   <!-- Modal agregar testimonio -->
 
-  <app-form-testimonios
-    [visible]="showDialog"
-    (visibleChange)="showDialog = $event"
-    (save)="guardarTestimonio($event)"
-  />
+  <section class="home-section mb-4 container"></section>
 
-  
+  <!-- <section class="home-section mb-4 container">
+    <app-form-testimonios
+      [visible]="showDialog"
+      (visibleChange)="showDialog = $event"
+      (save)="guardarTestimonio($event)"
+    />
+  </section> -->
 
   <!-- Sección 3: Encuestas -->
-  <section class="home-section mb-4">
-    <app-encuesta-actual></app-encuesta-actual>
+  <section class="home-section-1 p-5">
+    <div class="container">
+      <app-encuesta-actual></app-encuesta-actual>
+    </div>
   </section>
 
   <!-- Sección 4: Temas de interés -->
-  <section class="home-section mb-4">
+  <section class="home-section mb-4 container">
     <div class="row align-items-center justify-content-center">
       <!-- Columna izquierda -->
       <div
@@ -53,7 +72,11 @@
       >
         <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
-          <p-button label="Regístrala aquí" severity="success" (onClick)="abrirDialogoPropuesta()" />
+          <p-button
+            label="Regístrala aquí"
+            severity="success"
+            (onClick)="abrirDialogoPropuesta()"
+          />
         </div>
       </div>
 
@@ -120,144 +143,3 @@
 
   <app-form-propuesta [visible]="showPropuesta" (visibleChange)="showPropuesta = $event" />
 </div>
-
-<!-- Modal propuesta de acción -->
-<!-- <div
-    class="modal fade"
-    id="agregarPropuesta"
-    tabindex="-1"
-    aria-labelledby="publicacionTitle"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-lg">
-      <form method="POST" enctype="multipart/form-data" class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Propuesta de acción</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Cerrar"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group mb-3">
-            <label class="col-form-label">Nombre completo:</label>
-            <input type="text" class="form-control" name="nombre" id="nombre" required />
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Sexo:</label>
-            <select class="form-select form-control" id="sexo" name="sexo" required>
-              <option selected disabled value="">Seleccione un opción</option>
-              <option value=" Mujer">Mujer</option>
-              <option value="Hombre">Hombre</option>
-            </select>
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Edad:</label>
-            <input
-              type="numeric"
-              maxlength="2"
-              class="form-control"
-              name="edad"
-              id="edad"
-              required
-            />
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Actividad principal:</label>
-            <select class="form-select form-control" id="actividad" name="actividad" required>
-              <option selected disabled value="">Seleccione un opción</option>
-              <option value=" Investigador">Investigador</option>
-              <option value="Ama de casa">Ama de casa</option>
-              <option value="Estudiante">Estudiante</option>
-              <option value="Empleado">Empleado</option>
-              <option value="Servidor público">Servidor público</option>
-              <option value="Docente">Docente</option>
-              <option value="Ciudadano">Ciudadano</option>
-              <option value="1">Otro</option>
-            </select>
-            <input
-              type="text"
-              class="form-control"
-              style="margin-top: 5px"
-              name="especifica"
-              id="especifica"
-              placeholder="Especifica: "
-            />
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Correo electrónico:</label>
-            <input type="email" class="form-control" name="correo" id="correo" required />
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Municipio:</label>
-            <select class="form-select" name="municipioP" required>
-              <option selected disabled value="">Seleccione una opción</option>
-              @for (m of municipios; track m.id_municipio) {
-              <option [value]="m.id_municipio">
-                {{ m.nombre }}
-              </option>
-              }
-            </select>
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">Zona:</label>
-            <select class="form-select form-control" id="zona" name="zona" required>
-              <option selected disabled value="">Seleccione un opción</option>
-              <option value=" Urbana">Urbana</option>
-              <option value="Rural">Rural</option>
-              <option value="Semiurbana">Semiurbana</option>
-            </select>
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label"
-              >Detalla tu acción o propuesta en favor de las juventudes:</label
-            >
-            <textarea
-              class="form-control"
-              name="detalle"
-              id="detalle"
-              cols="30"
-              rows="10"
-              required
-            ></textarea>
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label"
-              >Justifica tu acción o propuesta: ¿Por qué consideras que es importante?, ¿cuál es el
-              problema que viste para hacer la propuesta?</label
-            >
-            <textarea
-              class="form-control"
-              name="justificacion"
-              id="justificacion"
-              cols="30"
-              rows="10"
-              required
-            ></textarea>
-          </div>
-          <div class="form-group mb-3">
-            <label class="col-form-label">
-              Comenta ¿de qué y/o de quien necesitas para lograrlo?
-            </label>
-            <textarea
-              class="form-control"
-              name="necesidades"
-              id="necesidades"
-              cols="30"
-              rows="10"
-              required
-            >
-            </textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="submit" class="btn btn-success">Enviar propuesta</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  
-</div> -->

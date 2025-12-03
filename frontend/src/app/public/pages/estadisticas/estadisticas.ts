@@ -2,7 +2,6 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { Tabla } from '../../components/tabla/tabla';
-import { NavbarDocumentos } from '../../components/navbar-documentos/navbar-documentos';
 import { TablaDinamica } from '../../../shared/tabla-dinamica/tabla-dinamica';
 import { ArchMunicipioPublic } from '../../../public/components/arch-municipio-public/arch-municipio-public';
 import { DocCendocPublic } from '../../../public/components/doc-cendoc-public/doc-cendoc-public';
