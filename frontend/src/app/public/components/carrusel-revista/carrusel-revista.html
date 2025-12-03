@@ -23,13 +23,13 @@
       <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
       <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
       <div class="col-12 col-md-5 mb-4 mb-md-0 px-4">
-        <div class="position-relative">
+        <div class="position-relative" style="width: fit-content;">
           <!-- Marco rojo característico o sombra de la revista -->
           <img
             [src]="baseImageUrl + '/' + revista.id_revista + '/portada/' + revista.portada"
             [alt]="revista.descripcion"
             class="w-100 h-auto d-block cover-image"
-            style="max-height: 550px; object-fit: contain"
+            style="max-height: 550px; object-fit: contain; border-radius: 20px;"
             (error)="revista.portada = null"
           />
         </div>
