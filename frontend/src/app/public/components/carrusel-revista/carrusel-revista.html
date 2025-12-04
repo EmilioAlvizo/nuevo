@@ -21,10 +21,10 @@
   <!-- Ocultamos indicadores predeterminados -->
 
   <ng-template let-revista pTemplate="item">
-    <div class="row align-items-center py-4 mx-0">
+    <div class="row align-items-center py-4 mx-0 kk" style="min-height: fit-content;">
       <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
       <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
-      <div class="col-12 col-md-5 mb-4 mb-md-0 px-4">
+      <div class="col-12 col-lg-5 mb-4 mb-lg-0 px-4 d-flex justify-content-center">
         <div class="position-relative" style="width: fit-content">
           <!-- Marco rojo característico o sombra de la revista -->
           <img
@@ -44,7 +44,7 @@
           <div class="meta-label mb-2">
             <span>EDICIÓN:</span> {{ revista.fecha | date : 'longDate' | uppercase }}
           </div>
-          <h1 class="font-serif cover-headline mb-4">
+          <h1 class="font-serif cover-headline mb-4 fs-1">
             {{ revista.descripcion }}
           </h1>
         </div>
@@ -57,17 +57,17 @@
           <li class="col-12 col-lg-6">
             <p-divider [dt]="dividerDesignTokens" class="divisor"></p-divider>
             <div class="article-item font-sans">
-              <div class="article-title font-serif cursor-pointer hover-text-primary">
+              <h3 class="article-title font-serif cursor-pointer hover-text-primary fs-5">
                 {{ articulo.titulo }}
-              </div>
-              <div class="article-excerpt">
+              </h3>
+              <p class="article-excerpt">
                 <!-- Usamos el contenido o un texto genérico si no hay -->
                 {{
                   articulo.contenido
                     ? (articulo.contenido | slice : 0 : 90) + '...'
                     : 'Un análisis profundo sobre este tema en la edición actual.'
                 }}
-              </div>
+              </p>
               <!-- Autor pequeño opcional -->
               <div class="text-muted small mt-2 fw-bold" style="font-size: 0.75rem">
                 {{ articulo.autor }}

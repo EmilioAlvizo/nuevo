@@ -19,13 +19,13 @@ ul {
   padding: 0;
 }
 
-.col-derecha li:nth-of-type(2) .divisor{
-  display: none;
-}
+/* .col-derecha li:nth-of-type(2) .divisor {
+  display: block;
+} */
 
-.col-derecha li:first-of-type .divisor{
-  display: none;
-}
+/* .col-derecha li:first-of-type .divisor {
+  display: block;
+} */
 
 /* Tipografía Sans para UI y metadatos */
 /* .font-sans {
@@ -34,7 +34,7 @@ ul {
 
 /* Título principal de la revista */
 .cover-headline {
-  font-size: 2.5rem;
+  /* font-size: 2.5rem; */
   line-height: 1.1;
   color: #000;
   font-weight: 700;
@@ -68,7 +68,7 @@ ul {
 }
 
 .article-title {
-  font-size: 1.1rem;
+  /* font-size: 1.1rem; */
   font-weight: 700;
   color: #000;
   margin-bottom: 0.5rem;
@@ -100,14 +100,13 @@ ul {
   text-decoration: underline;
 }
 
-
 /* i:hover {
   text-decoration: none;
 } */
 
 /* Imagen de portada */
 .cover-image {
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* Sombra suave solo en la revista */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Sombra suave solo en la revista */
   transition: transform 0.3s ease;
 }
 
@@ -125,5 +124,45 @@ ul {
   .cover-headline {
     font-size: 1.8rem;
   }
-
 }
+
+/* Forzar una columna hasta el punto exacto que tú decidas */
+@media (max-width: 991px) {
+  /* Cambia este valor al que necesites */
+  .col-derecha {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .col-izquierda {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+
+  .col-derecha li:first-of-type .divisor {
+    display: none;
+  }
+}
+
+/* Dos columnas desde este punto en adelante */
+@media (min-width: 992px) {
+  .col-izquierda {
+    flex: 0 0 41.666667%; /* equivalente a col-5 */
+    max-width: 41.666667%;
+  }
+
+  .col-derecha {
+    flex: 0 0 58.333333%; /* equivalente a col-7 */
+  }
+
+  .col-derecha li:nth-of-type(2) .divisor {
+    display: none;
+  }
+
+  .col-derecha li:first-of-type .divisor {
+    display: none;
+  }
+}
+
+
