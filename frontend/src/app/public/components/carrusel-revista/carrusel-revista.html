@@ -1,10 +1,11 @@
 <!-- Contenedor principal con el fondo crema -->
 <!-- Spinner de carga -->
-<div *ngIf="loading" class="text-center py-5">
+ @if (loading) {
+<div class="text-center py-5">
   <div class="spinner-border text-dark" role="status">
     <span class="visually-hidden">Cargando...</span>
   </div>
-</div>
+</div>}
 
 <!-- Carrusel -->
 <p-carousel
@@ -15,42 +16,46 @@
   [showNavigators]="true"
   [responsiveOptions]="responsiveOptions"
   [showIndicators]="true"
+  [dt]="carouselDesignTokens"
 >
   <!-- Ocultamos indicadores predeterminados -->
 
   <ng-template let-revista pTemplate="item">
-    <div class="row align-items-start py-4 mx-0">
+    <div class="row align-items-center py-4 mx-0">
       <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
       <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
       <div class="col-12 col-md-5 mb-4 mb-md-0 px-4">
-        <div class="position-relative" style="width: fit-content;">
+        <div class="position-relative" style="width: fit-content">
           <!-- Marco rojo característico o sombra de la revista -->
           <img
             [src]="baseImageUrl + '/' + revista.id_revista + '/portada/' + revista.portada"
             [alt]="revista.descripcion"
             class="w-100 h-auto d-block cover-image"
-            style="max-height: 550px; object-fit: contain; border-radius: 20px;"
+            style="max-height: 550px; object-fit: contain; border-radius: 20px"
             (error)="revista.portada = null"
           />
         </div>
       </div>
 
       <!-- COLUMNA DERECHA: Contenido Editorial -->
-      <div class="col-12 col-md-7 px-4">
+      <div class="col-12 col-md-7 px-4 col-derecha">
         <!-- Header de la Edición -->
         <div class="mb-4">
           <div class="meta-label mb-2">
-            EDICIÓN: {{ revista.fecha | date : 'longDate' | uppercase }}
+            <span>EDICIÓN:</span> {{ revista.fecha | date : 'longDate' | uppercase }}
           </div>
           <h1 class="font-serif cover-headline mb-4">
-            {{ revista.descripcion }} la impo
+            {{ revista.descripcion }}
           </h1>
         </div>
+        <p-divider [dt]="dividerDesignTokens"></p-divider>
 
         <!-- Grid de Artículos con líneas divisorias -->
-        <div class="row g-4">
+        <ul class="row g-4 col-derecha">
           <!-- Iteramos sobre los artículos -->
-          <div class="col-12 col-lg-6" *ngFor="let articulo of revista.articulos">
+          @for (articulo of revista.articulos; track $index) {
+          <li class="col-12 col-lg-6">
+            <p-divider [dt]="dividerDesignTokens" class="divisor"></p-divider>
             <div class="article-item font-sans">
               <div class="article-title font-serif cursor-pointer hover-text-primary">
                 {{ articulo.titulo }}
@@ -65,27 +70,35 @@
               </div>
               <!-- Autor pequeño opcional -->
               <div class="text-muted small mt-2 fw-bold" style="font-size: 0.75rem">
-                {{ articulo.autor | uppercase }}
+                {{ articulo.autor }}
               </div>
             </div>
-          </div>
+          </li>
+          
+          }
 
           <!-- Si no hay artículos, rellenamos visualmente (Opcional) -->
-          <div class="col-12 col-lg-6" *ngIf="!revista.articulos || revista.articulos.length === 0">
+          @if (!revista.articulos || revista.articulos.length === 0) {
+          <li class="col-12 col-lg-6">
             <div class="article-item font-sans">
               <div class="article-title font-serif">Contenido Destacado</div>
               <div class="article-excerpt">
                 Explore los temas principales de esta edición descargando el PDF completo.
               </div>
             </div>
-          </div>
-        </div>
+          </li>
+          }
+        </ul>
 
         <!-- Enlace "Read full edition" al final -->
         <div class="mt-5 pt-3">
-          <a [href]="baseImageUrl + '/' + revista.id_revista + '/archivo/' + revista.archivo" target="_blank" class="read-link">
+          <a
+            [href]="baseImageUrl + '/' + revista.id_revista + '/archivo/' + revista.archivo"
+            target="_blank"
+            class="read-link"
+          >
             <i class="pi pi-arrow-circle-right" style="font-size: 1.2rem"></i>
-            Leer edición completa
+            <span>Leer edición completa</span>
           </a>
         </div>
       </div>

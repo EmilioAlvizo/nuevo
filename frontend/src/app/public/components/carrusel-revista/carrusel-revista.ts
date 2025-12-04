@@ -99,4 +99,28 @@ export class CarruselRevista implements OnInit {
   getSeverity(estatus: string) {
     return estatus === 'A' ? 'success' : 'secondary';
   }
+
+  dividerDesignTokens = {
+    root: {
+      borderColor: '#D9D9D9',
+    },
+    horizontal: {
+      margin: '0 0 1.125rem 0'
+    }
+  };
+
+  carouselDesignTokens = {
+    indicator: {
+      width: '2rem',
+      height: '0.5rem',
+      borderRadius: '1rem',
+      background: '#d1d5db',
+      hoverBackground: '#9ca3af',
+      activeBackground: '#3b82f6',
+      focusRing: {
+        width: '2px',
+        color: '#3b82f680'
+      }
+    }
+  };
 }

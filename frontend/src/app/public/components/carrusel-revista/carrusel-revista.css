@@ -6,14 +6,31 @@
 }
 
 /* Tipografía Serif para Títulos (Intenta usar Georgia o similar) */
-.font-serif {
+/* .font-serif {
   font-family: 'Georgia', 'Times New Roman', Times, serif;
+} */
+
+span {
+  font-weight: bolder;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+.col-derecha li:nth-of-type(2) .divisor{
+  display: none;
+}
+
+.col-derecha li:first-of-type .divisor{
+  display: none;
 }
 
 /* Tipografía Sans para UI y metadatos */
-.font-sans {
-  font-family: 'Arial', sans-serif; /* O la fuente de sistema que prefieras */
-}
+/* .font-sans {
+  font-family: 'Arial', sans-serif; 
+} */
 
 /* Título principal de la revista */
 .cover-headline {
@@ -44,7 +61,7 @@
 
 /* Estilo de cada bloque de artículo */
 .article-item {
-  border-top: 1px solid #d3d3d3; /* Línea gris fina superior */
+  /* border-top: 1px solid #d3d3d3; */ /* Línea gris fina superior */
   padding-top: 1rem;
   padding-bottom: 1rem;
   height: 100%;
@@ -75,9 +92,18 @@
   gap: 0.5rem;
 }
 
-.read-link:hover {
+/* .read-link:hover {
+  text-decoration: underline;
+} */
+
+.read-link:hover > span:last-child {
   text-decoration: underline;
 }
+
+
+/* i:hover {
+  text-decoration: none;
+} */
 
 /* Imagen de portada */
 .cover-image {
@@ -99,4 +125,5 @@
   .cover-headline {
     font-size: 1.8rem;
   }
+
 }
