@@ -1,4 +1,5 @@
 <!-- // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.html -->
+ @defer (on viewport) {
 <div class="container">
   <!-- === PANEL DE FILTROS (Solo en vista GRID) === -->
   @if (viewMode === 'grid') {
@@ -332,4 +333,7 @@
       </div>
       }
   </main>
-</div>
+</div>}
+  @placeholder {
+    <div>Cargando tabla dinámica...</div>
+  }

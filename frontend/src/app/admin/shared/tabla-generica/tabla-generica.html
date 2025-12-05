@@ -1,4 +1,5 @@
 <!-- nuevo/frontend/src/app/admin/shared/tabla-generica/tabla-generica.html -->
+ @defer (on viewport) {
 <div class="container-xxl border-round border-1 surface-border shadow-2">
   <!-- 🔹 Toolbar principal -->
   @if (platform.isBrowser) {
@@ -214,4 +215,6 @@
     </ng-template>
   </p-table>
   }
-</div>
+</div>} @placeholder {
+  <div>Cargando tabla generica...</div>
+}

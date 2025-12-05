@@ -1,13 +1,14 @@
 // frontend/src/app/public/components/carrusel-testimonios/carrusel-testimonios.ts
 import { Component, Input, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
 import { Testimonios } from '../../../core/services/testimonios';
 
+
 @Component({
   selector: 'app-carrusel-testimonios',
-  imports: [CommonModule, CarouselModule, ButtonModule],
+  imports: [CommonModule, NgOptimizedImage, CarouselModule, ButtonModule],
   templateUrl: './carrusel-testimonios.html',
   styleUrl: './carrusel-testimonios.css',
   encapsulation: ViewEncapsulation.None
@@ -15,6 +16,9 @@ import { Testimonios } from '../../../core/services/testimonios';
 export class CarruselTestimonios {
   @Input() testimonios: Testimonios[] = [];
   @Input() publicUrl: string = '';
+
+  // 1. Creamos 4 items falsos para rellenar la vista desktop
+  skeletonItems = new Array(4).fill({ id_testimonios: -1 });
 
   responsiveOptions = [
     {

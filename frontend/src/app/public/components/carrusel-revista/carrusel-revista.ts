@@ -1,6 +1,6 @@
 // nuevo/frontend/src/app/public/components/carrusel-revista/carrusel-revista.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, Input } from '@angular/core';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 // PrimeNG
 import { CarouselModule } from 'primeng/carousel';
@@ -23,7 +23,7 @@ export interface RevistaVisual extends Revistas {
 @Component({
   selector: 'app-carrusel-revista',
   standalone: true,
-  imports: [CommonModule, CarouselModule, ButtonModule, TagModule, DividerModule],
+  imports: [CommonModule, NgOptimizedImage, CarouselModule, ButtonModule, TagModule, DividerModule],
   templateUrl: './carrusel-revista.html',
   styleUrl: './carrusel-revista.css',
 })
@@ -32,16 +32,16 @@ export class CarruselRevista implements OnInit {
   private srvRevistas = inject(ApiRevistas);
   private srvArticulos = inject(ApiArticulos);
 
-  revistas: RevistaVisual[] = [];
+  @Input() revistas: RevistaVisual[] = [];
   responsiveOptions: any[] | undefined;
   loading: boolean = true;
 
   // AJUSTA ESTO: La ruta pública donde tu backend sirve las imágenes subidas
   // Ejemplo: si tu backend es Node/Express, suele ser 'http://localhost:3000/public/'
-  baseImageUrl = `${environment.publicUrl}/revistas`;
+  //baseImageUrl = `${environment.publicUrl}/revistas`;
 
   ngOnInit() {
-    this.configurarCarrusel();
+    //this.configurarCarrusel();
     this.cargarDatosReales();
   }
 
@@ -100,14 +100,6 @@ export class CarruselRevista implements OnInit {
     return estatus === 'A' ? 'success' : 'secondary';
   }
 
-  dividerDesignTokens = {
-    root: {
-      borderColor: '#D9D9D9',
-    },
-    horizontal: {
-      margin: '0 0 1.125rem 0'
-    }
-  };
 
   carouselDesignTokens = {
     indicator: {
@@ -121,6 +113,37 @@ export class CarruselRevista implements OnInit {
         width: '2px',
         color: '#3b82f680'
       }
+    }
+  }; 
+
+  /* carouselDesignTokens = {
+    indicator: {
+      width: '2rem',
+      height: '0.5rem',
+      borderRadius: '1rem',
+      
+      // Fondo inactivo: Un gris medio que funciona en ambos modos
+      background: 'var(--surface-300)', 
+      
+      // Hover: Un poco más oscuro/claro según el tema
+      hoverBackground: 'var(--surface-400)', 
+      
+      // Activo: El color primario de tu tema (azul, verde, etc.)
+      activeBackground: 'var(--primary-color)', 
+      
+      focusRing: {
+        width: '2px',
+        color: 'var(--primary-color-text)' // O una opacidad del primario
+      }
+    }
+  }; */
+
+  dividerDesignTokens = {
+    root: {
+      borderColor: 'var(--surface-border)', // Se adapta a gris claro u oscuro
+    },
+    horizontal: {
+      margin: '0 0 1.125rem 0'
     }
   };
 }

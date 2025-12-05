@@ -8,40 +8,65 @@
 
 <p-carousel
   class="mentimeter-carousel"
-  [value]="testimonios"
+  [value]="testimonios.length > 0 ? testimonios : skeletonItems"
   [numVisible]="4"
   [numScroll]="1"
-  [circular]="true"
+  [circular]="testimonios.length > 0" 
   [responsiveOptions]="responsiveOptions"
-  [autoplayInterval]="5000"
-  [showNavigators]="true"
-  [showIndicators]="true"
+  [autoplayInterval]="testimonios.length > 0 ? 5000 : 0"
+  [showNavigators]="testimonios.length > 0"
+  [showIndicators]="testimonios.length > 0"
   [dt]="carouselDesignTokens"
 >
   <ng-template let-testimonio pTemplate="item">
     <div class="testimonial-wrapper">
-      <div class="testimonial-card">
-        <div class="card-body">
-          <span class="quote-symbol">“</span>
-          <p class="mb-4 text-muted description-text">
-            {{ testimonio.descripcion }}
-          </p>
+      
+      @if (testimonio.id_testimonios === -1) {
+        <div class="testimonial-card skeleton-card">
+           <div class="card-body h-100 d-flex flex-column">
+              <div class="skeleton-block mb-4" style="width: 40px; height: 40px;"></div>
+              
+              <div class="skeleton-block w-100 mb-2" style="height: 10px;"></div>
+              <div class="skeleton-block w-100 mb-2" style="height: 10px;"></div>
+              <div class="skeleton-block w-75 mb-4" style="height: 10px;"></div>
 
-          <div class="user-profile">
-            <img
-              [src]="
-                publicUrl + '/testimonios/' + testimonio.id_testimonios + '/' + testimonio.imagenT
-              "
-              [alt]="testimonio.nombreM"
-              class="avatar-img"
-            />
-            <div class="user-info">
-              <h6 class="mb-0 font-bold">{{ testimonio.nombreM }}</h6>
-              <small class="text-muted">Municipio de {{ testimonio.nombreMunicipio }}</small>
+              <div class="mt-auto d-flex align-items-center gap-3 pt-3 border-top border-light">
+                 <div class="skeleton-block rounded-circle" style="width: 50px; height: 50px;"></div>
+                 <div class="flex-grow-1">
+                    <div class="skeleton-block w-75 mb-2" style="height: 12px;"></div>
+                    <div class="skeleton-block w-50" style="height: 10px;"></div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      }
+
+      @if (testimonio.id_testimonios !== -1) {
+        <div class="testimonial-card">
+          <div class="card-body">
+            <span class="quote-symbol">“</span>
+            <p class="mb-4 text-muted description-text">
+              {{ testimonio.descripcion }}
+            </p>
+
+            <div class="user-profile">
+              <div class="avatar-container" style="position: relative; width: 50px; height: 50px; display: block;">
+                <img
+                  [ngSrc]="'/testimonios/' + testimonio.id_testimonios + '/' + testimonio.imagenT"
+                  [alt]="testimonio.nombreM"
+                  class="avatar-img"
+                  fill
+                />
+              </div>
+              <div class="user-info">
+                <h6 class="mb-0 font-bold">{{ testimonio.nombreM }}</h6>
+                <small class="text-muted">Municipio de {{ testimonio.nombreMunicipio }}</small>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      }
+
     </div>
   </ng-template>
 </p-carousel>

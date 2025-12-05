@@ -1,14 +1,23 @@
 /* --- ESTILO TIPO "THE ECONOMIST" --- */
+/* Tu clase .kk (contenedor del item) */
+.kk {
+  min-height: auto !important; /* Quita el 550px fijo si lo tenías */
+  height: auto !important; /* Ocupar todo el espacio del slide */
+}
+/* Altura mínima basada en tu diseño (400px imagen + paddings) */
+.carousel-wrapper-fixed {
+  min-height: 600px; /* Ajusta este valor a la altura real promedio de tu carrusel */
+  contain: content; /* Propiedad moderna para evitar recálculos de layout externos */
+  display: block;
+}
+
+/* Opcional: transición suave de opacidad al cargar */
+/* El componente inicia invisible y aparece suavemente */
 
 /* Fondo crema característico */
 .bg-cream {
   background-color: #f9f7f1 !important;
 }
-
-/* Tipografía Serif para Títulos (Intenta usar Georgia o similar) */
-/* .font-serif {
-  font-family: 'Georgia', 'Times New Roman', Times, serif;
-} */
 
 span {
   font-weight: bolder;
@@ -19,22 +28,8 @@ ul {
   padding: 0;
 }
 
-/* .col-derecha li:nth-of-type(2) .divisor {
-  display: block;
-} */
-
-/* .col-derecha li:first-of-type .divisor {
-  display: block;
-} */
-
-/* Tipografía Sans para UI y metadatos */
-/* .font-sans {
-  font-family: 'Arial', sans-serif; 
-} */
-
 /* Título principal de la revista */
 .cover-headline {
-  /* font-size: 2.5rem; */
   line-height: 1.1;
   color: #000;
   font-weight: 700;
@@ -53,22 +48,19 @@ ul {
 /* Contenedor principal limpio, sin sombras fuertes */
 .magazine-card {
   min-height: 500px;
-  background-color: transparent; /* Se funde con el fondo crema */
-  border: none; /* Sin bordes de tarjeta */
+  background-color: transparent;
+  border: none;
 }
 
 /* --- ARTÍCULOS --- */
 
-/* Estilo de cada bloque de artículo */
 .article-item {
-  /* border-top: 1px solid #d3d3d3; */ /* Línea gris fina superior */
   padding-top: 1rem;
   padding-bottom: 1rem;
   height: 100%;
 }
 
 .article-title {
-  /* font-size: 1.1rem; */
   font-weight: 700;
   color: #000;
   margin-bottom: 0.5rem;
@@ -92,31 +84,39 @@ ul {
   gap: 0.5rem;
 }
 
-/* .read-link:hover {
-  text-decoration: underline;
-} */
-
 .read-link:hover > span:last-child {
   text-decoration: underline;
 }
 
-/* i:hover {
-  text-decoration: none;
-} */
-
-/* Imagen de portada */
+/* Imagen de portada - OPTIMIZADA PARA NgOptimizedImage */
 .cover-image {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Sombra suave solo en la revista */
-  transition: transform 0.3s ease;
+  width: 100%;
+  height: auto;
+  /* IMPORTANTE: Define la relación de aspecto explícita.
+     400 / 550 ≈ 0.727. Esto reserva el espacio exacto aunque la imagen no haya cargado. */
+  aspect-ratio: 400 / 550;
+  object-fit: cover; /* Cambié contain por cover para asegurar que llene el aspect-ratio */
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  display: block;
 }
 
 .cover-image:hover {
   transform: translateY(-5px);
 }
 
-/* Overrides de PrimeNG para integrar los controles */
-:host ::ng-deep .p-carousel-indicators {
-  display: none; /* Ocultamos indicadores si quieres el look limpio de la imagen */
+/* Overrides de PrimeNG */
+:host ::ng-deep .p-carousel-items-content,
+:host ::ng-deep .p-carousel-items-container {
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: flex-start !important; /* CRUCIAL: Evita que se estiren al más alto */
+  transition: height 0.3s ease-out; /* Opcional: Suaviza el cambio de altura */
+}
+
+/* Fuerza a los items a respetar el ancho inmediatamente */
+:host ::ng-deep .p-carousel-item {
+  flex: 1 0 100%; /* O el porcentaje según tu numVisible */
 }
 
 /* Ajuste responsive */
@@ -124,11 +124,14 @@ ul {
   .cover-headline {
     font-size: 1.8rem;
   }
+
+  .cover-image {
+    max-height: 450px;
+  }
 }
 
 /* Forzar una columna hasta el punto exacto que tú decidas */
 @media (max-width: 991px) {
-  /* Cambia este valor al que necesites */
   .col-derecha {
     flex: 0 0 100%;
     max-width: 100%;
@@ -148,12 +151,12 @@ ul {
 /* Dos columnas desde este punto en adelante */
 @media (min-width: 992px) {
   .col-izquierda {
-    flex: 0 0 41.666667%; /* equivalente a col-5 */
+    flex: 0 0 41.666667%;
     max-width: 41.666667%;
   }
 
   .col-derecha {
-    flex: 0 0 58.333333%; /* equivalente a col-7 */
+    flex: 0 0 58.333333%;
   }
 
   .col-derecha li:nth-of-type(2) .divisor {
@@ -164,5 +167,3 @@ ul {
     display: none;
   }
 }
-
-

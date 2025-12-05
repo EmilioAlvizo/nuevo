@@ -1,111 +1,110 @@
 <!-- Contenedor principal con el fondo crema -->
 <!-- Spinner de carga -->
- @if (loading) {
-<div class="text-center py-5">
-  <div class="spinner-border text-dark" role="status">
-    <span class="visually-hidden">Cargando...</span>
-  </div>
-</div>} 
+<div class="carousel-wrapper-fixed">
 
-<!-- Carrusel -->
- @if (!loading) {
-<p-carousel
-  [value]="revistas"
-  [numVisible]="1"
-  [numScroll]="1"
-  [circular]="true"
-  [showNavigators]="true"
-  [responsiveOptions]="responsiveOptions"
-  [showIndicators]="true"
-  [dt]="carouselDesignTokens"
->
-  <!-- Ocultamos indicadores predeterminados -->
 
-  <ng-template let-revista pTemplate="item">
-    <div class="row align-items-center py-4 mx-0 kk" style="min-height: fit-content;">
-      <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
-      <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
-      <div class="col-12 col-lg-5 mb-4 mb-lg-0 px-4 d-flex justify-content-center">
-        <div class="position-relative" style="width: fit-content">
-          <!-- Marco rojo característico o sombra de la revista -->
-          <img
-            [src]="baseImageUrl + '/' + revista.id_revista + '/portada/' + revista.portada"
-            [alt]="revista.descripcion"
-            class="w-100 h-auto d-block cover-image"
-            style="max-height: 550px; object-fit: contain; border-radius: 20px"
-            (error)="revista.portada = null"
-          />
-        </div>
-      </div>
+  <!-- Carrusel -->
 
-      <!-- COLUMNA DERECHA: Contenido Editorial -->
-      <div class="col-12 col-md-7 px-4 col-derecha">
-        <!-- Header de la Edición -->
-        <div class="mb-4">
-          <div class="meta-label mb-2">
-            <span>EDICIÓN:</span> {{ revista.fecha | date : 'longDate' | uppercase }}
+  <p-carousel
+    [value]="revistas"
+    [numVisible]="1"
+    [numScroll]="1"
+    [circular]="true"
+    [showNavigators]="true"
+    [showIndicators]="true"
+    [dt]="carouselDesignTokens"
+  >
+    <!-- Ocultamos indicadores predeterminados -->
+
+    <ng-template let-revista pTemplate="item">
+      <div class="row align-items-center py-4 mx-0 kk" >
+        <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
+        <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
+        <div class="col-12 col-lg-5 mb-4 mb-lg-0 px-4 d-flex justify-content-center">
+          <div class="position-relative" style="width: fit-content">
+            <!-- Marco rojo característico o sombra de la revista -->
+            <img
+              [ngSrc]="'/revistas/' + revista.id_revista + '/portada/' + revista.portada"
+              [alt]="revista.descripcion"
+              class="cover-image"
+              width="400"
+              height="550"
+              (error)="revista.portada = null"
+              priority
+              placeholder
+            />
           </div>
-          <h1 class="font-serif cover-headline mb-4 fs-1">
-            {{ revista.descripcion }}
-          </h1>
         </div>
-        <p-divider [dt]="dividerDesignTokens"></p-divider>
 
-        <!-- Grid de Artículos con líneas divisorias -->
-        <ul class="row g-4 col-derecha">
-          <!-- Iteramos sobre los artículos -->
-          @for (articulo of revista.articulos; track $index) {
-          <li class="col-12 col-lg-6">
-            <p-divider [dt]="dividerDesignTokens" class="divisor"></p-divider>
-            <div class="article-item font-sans">
-              <h3 class="article-title font-serif cursor-pointer hover-text-primary fs-5">
-                {{ articulo.titulo }}
-              </h3>
-              <p class="article-excerpt">
-                <!-- Usamos el contenido o un texto genérico si no hay -->
-                {{
-                  articulo.contenido
-                    ? (articulo.contenido | slice : 0 : 90) + '...'
-                    : 'Un análisis profundo sobre este tema en la edición actual.'
-                }}
-              </p>
-              <!-- Autor pequeño opcional -->
-              <div class="text-muted small mt-2 fw-bold" style="font-size: 0.75rem">
-                {{ articulo.autor }}
-              </div>
+        <!-- COLUMNA DERECHA: Contenido Editorial -->
+        <div class="col-12 col-md-7 px-4 col-derecha">
+          <!-- Header de la Edición -->
+          <div class="mb-4">
+            <div class="meta-label mb-2">
+              <span>EDICIÓN:</span> {{ revista.fecha | date : 'longDate' | uppercase }}
             </div>
-          </li>
-          
-          }
+            <h1 class="font-serif cover-headline mb-4 fs-1">
+              {{ revista.descripcion }}
+            </h1>
+          </div>
+          <p-divider [dt]="dividerDesignTokens"></p-divider>
 
-          <!-- Si no hay artículos, rellenamos visualmente (Opcional) -->
-          @if (!revista.articulos || revista.articulos.length === 0) {
-          <li class="col-12 col-lg-6">
-            <div class="article-item font-sans">
-              <div class="article-title font-serif">Contenido Destacado</div>
-              <div class="article-excerpt">
-                Explore los temas principales de esta edición descargando el PDF completo.
+          <!-- Grid de Artículos con líneas divisorias -->
+          <ul class="row g-4 col-derecha">
+            <!-- Iteramos sobre los artículos -->
+            @for (articulo of revista.articulos; track $index) {
+            <li class="col-12 col-lg-6">
+              <p-divider [dt]="dividerDesignTokens" class="divisor"></p-divider>
+              <div class="article-item font-sans">
+                <h3 class="article-title font-serif cursor-pointer hover-text-primary fs-5">
+                  {{ articulo.titulo }}
+                </h3>
+                <p class="article-excerpt">
+                  <!-- Usamos el contenido o un texto genérico si no hay -->
+                  {{
+                    articulo.contenido
+                      ? (articulo.contenido | slice : 0 : 90) + '...'
+                      : 'Un análisis profundo sobre este tema en la edición actual.'
+                  }}
+                </p>
+                <!-- Autor pequeño opcional -->
+                <div class="text-muted small mt-2 fw-bold" style="font-size: 0.75rem">
+                  {{ articulo.autor }}
+                </div>
               </div>
-            </div>
-          </li>
-          }
-        </ul>
+            </li>
 
-        <!-- Enlace "Read full edition" al final -->
-        <div class="mt-5 pt-3">
-          <a
-            [href]="baseImageUrl + '/' + revista.id_revista + '/archivo/' + revista.archivo"
-            target="_blank"
-            class="read-link"
-          >
-            <i class="pi pi-arrow-circle-right" style="font-size: 1.2rem"></i>
-            <span>Leer edición completa</span>
-          </a>
+            }
+
+            <!-- Si no hay artículos, rellenamos visualmente (Opcional) -->
+            @if (!revista.articulos || revista.articulos.length === 0) {
+            <li class="col-12 col-lg-6">
+              <div class="article-item font-sans">
+                <div class="article-title font-serif">Contenido Destacado</div>
+                <div class="article-excerpt">
+                  Explore los temas principales de esta edición descargando el PDF completo.
+                </div>
+              </div>
+            </li>
+            }
+          </ul>
+
+          <!-- Enlace "Read full edition" al final -->
+          <div class="mt-5 pt-3">
+            <a
+              [href]="'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo"
+              target="_blank"
+              class="read-link"
+            >
+              <i class="pi pi-arrow-circle-right" style="font-size: 1.2rem"></i>
+              <span>Leer edición completa</span>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-  </ng-template>
-</p-carousel>}
+    </ng-template> </p-carousel
+  >
 
-<!-- Navegación Manual Personalizada (Opcional, si quieres flechas fuera) -->
-<!-- PrimeNG pone las flechas a los lados por defecto, lo cual está bien -->
+  <!-- Navegación Manual Personalizada (Opcional, si quieres flechas fuera) -->
+  <!-- PrimeNG pone las flechas a los lados por defecto, lo cual está bien -->
+</div>

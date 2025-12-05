@@ -3,16 +3,19 @@ import {
   ApplicationConfig,
   provideAppInitializer,
   provideZoneChangeDetection,
+  inject,
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
+import { IMAGE_LOADER, ImageLoaderConfig, IMAGE_CONFIG } from '@angular/common';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { bootstrapApplication, provideClientHydration, withIncrementalHydration, } from '@angular/platform-browser';
+
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-import { inject } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
-import { provideClientHydration } from '@angular/platform-browser';
+import { environment } from '../environments/environment';
 
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import MyPreset from './stylePrimeng';
 //import Lara from '@primeuix/themes/lara';
@@ -22,7 +25,21 @@ let authInitialized = false;
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideClientHydration(),
+    {
+      provide: IMAGE_LOADER,
+      useValue: (config: ImageLoaderConfig) => {
+        // Tu URL base del servidor
+        const baseUrl = environment.publicUrl;
+        return `${baseUrl}${config.src}`;
+      },
+    },
+    {
+      provide: IMAGE_CONFIG,
+      useValue: {
+        placeholderResolution: 40, // Para placeholders de mejor calidad
+      }
+    },
+    provideClientHydration(withIncrementalHydration()),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {

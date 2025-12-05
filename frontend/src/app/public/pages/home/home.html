@@ -3,6 +3,7 @@
 
 <div>
   <!-- Sección 1: Vídeo -->
+   @defer (hydrate on immediate) {
    <section class="home-section pb-5" style="background: linear-gradient( 180deg, #1e40af 0%, #3b82f6 100% )">
     <div class="container">
       <app-carrusel-revista></app-carrusel-revista>
@@ -19,7 +20,9 @@
         Tu navegador no soporta el elemento de video
       </video>
     </div>
-  </section>
+  </section>} @placeholder {
+  <div>Large component placeholder</div>
+}
 
   <!-- Sección 2: Testimonios -->
   <section class="home-section mb-4">
@@ -56,11 +59,14 @@
   </section> -->
 
   <!-- Sección 3: Encuestas -->
+   @defer (hydrate on viewport) {
   <section class="home-section-1 p-5">
     <div class="container">
       <app-encuesta-actual></app-encuesta-actual>
     </div>
-  </section>
+  </section>} @placeholder {
+  <div>Large component placeholder Encuestas</div>
+}
 
   <!-- Sección 4: Temas de interés -->
   <section class="home-section mb-4 container">
