@@ -1,6 +1,8 @@
 /* Columnas que ocupan el 25% del espacio disponible */
 .home-section {
   margin-bottom: 3rem;
+  padding-top: 10rem;
+  color: blanchedalmond;
 }
 
 .home-section-1 {

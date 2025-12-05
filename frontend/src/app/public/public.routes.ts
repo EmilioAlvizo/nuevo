@@ -16,7 +16,7 @@ import { TemasInteres } from './pages/temas-interes/temas-interes';
 import { ApoyosServicios } from './pages/apoyos-servicios/apoyos-servicios';
 
 export const publicRoutes: Routes = [
-  { path: '', component: Home },
+  { path: '', component: Home, data: { ocultarDiv: true } },
   { path: 'sistema', component: SistemaJuventudes },
   { path: 'estadisticas', component: Estadisticas, data: { ocultarDiv: true } },
   { path: 'revista', component: RevistaVoces },
