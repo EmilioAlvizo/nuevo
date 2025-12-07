@@ -3,15 +3,23 @@
 
 <div>
   <!-- Sección 1: Vídeo -->
-   @defer (hydrate on immediate) {
-   <section class="home-section pb-5" style="background: linear-gradient( 180deg, #1e40af 0%, #3b82f6 100% )">
+  @defer (hydrate on immediate) {
+  <section
+    class="home-section pb-5"
+    style="background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%)"
+  >
     <div class="container">
       <app-carrusel-revista></app-carrusel-revista>
     </div>
   </section>
 
   <section class="home-section-2 mb-4">
-    <div class="video-container container">
+    <div
+      class="video-container container"
+      pAnimateOnScroll
+      enterClass="animate-fade-in animate-zoom-in"
+      once="true"
+    >
       <video controls width="100%" style="border-radius: 20px">
         <source
           src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4"
@@ -20,9 +28,10 @@
         Tu navegador no soporta el elemento de video
       </video>
     </div>
-  </section>} @placeholder {
+  </section>
+  } @placeholder {
   <div>Large component placeholder</div>
-}
+  }
 
   <!-- Sección 2: Testimonios -->
   <section class="home-section mb-4">
@@ -31,6 +40,10 @@
 
     <div
       class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
+      pAnimateOnScroll
+      
+      enterClass="animate-fade-in animate-slide-up"
+      once="true"
     >
       <div class="p-4 bg-light rounded">
         <h5>¿Quieres compartir tu experiencia?</h5>
@@ -43,30 +56,25 @@
       (visibleChange)="showDialog = $event"
       (save)="guardarTestimonio($event)"
     />
-
   </section>
-
-  <!-- Modal agregar testimonio -->
 
   <section class="home-section mb-4 container"></section>
 
-  <!-- <section class="home-section mb-4 container">
-    <app-form-testimonios
-      [visible]="showDialog"
-      (visibleChange)="showDialog = $event"
-      (save)="guardarTestimonio($event)"
-    />
-  </section> -->
-
   <!-- Sección 3: Encuestas -->
-   @defer (hydrate on viewport) {
+  @defer (hydrate on viewport) {
   <section class="home-section-1 p-5">
-    <div class="container">
+    <div
+      class="container"
+      pAnimateOnScroll
+      enterClass="animate-fade-in animate-slide-up"
+      once="true"
+    >
       <app-encuesta-actual></app-encuesta-actual>
     </div>
-  </section>} @placeholder {
+  </section>
+  } @placeholder {
   <div>Large component placeholder Encuestas</div>
-}
+  }
 
   <!-- Sección 4: Temas de interés -->
   <section class="home-section mb-4 container">
@@ -74,6 +82,9 @@
       <!-- Columna izquierda -->
       <div
         class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center"
+        pAnimateOnScroll
+        enterClass="animate-fade-in animate-slide-left"
+        once="true"
       >
         <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
@@ -86,7 +97,12 @@
       </div>
 
       <!-- Columna derecha: Carrusel -->
-      <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
+      <div
+        class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio"
+        pAnimateOnScroll
+        enterClass="animate-fade-in animate-slide-right"
+        once="true"
+      >
         <div id="temasCarousel" class="carousel slide h-100" data-bs-ride="carousel">
           <div class="carousel-inner">
             @for (t of temas; track t.id_tema; let i = $index) {

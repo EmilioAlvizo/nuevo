@@ -1,8 +1,6 @@
 <!-- Contenedor principal con el fondo crema -->
 <!-- Spinner de carga -->
 <div class="carousel-wrapper-fixed">
-
-
   <!-- Carrusel -->
 
   <p-carousel
@@ -17,22 +15,34 @@
     <!-- Ocultamos indicadores predeterminados -->
 
     <ng-template let-revista pTemplate="item">
-      <div class="row align-items-center py-4 mx-0 kk" >
+      <div class="row align-items-center py-4 mx-0 kk">
         <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
         <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
         <div class="col-12 col-lg-5 mb-4 mb-lg-0 px-4 d-flex justify-content-center">
           <div class="position-relative" style="width: fit-content">
             <!-- Marco rojo característico o sombra de la revista -->
-            <img
-              [ngSrc]="'/revistas/' + revista.id_revista + '/portada/' + revista.portada"
-              [alt]="revista.descripcion"
-              class="cover-image"
-              width="400"
-              height="550"
-              (error)="revista.portada = null"
-              priority
-              placeholder
-            />
+            @if (revista.portada) {
+            <picture>
+              <source
+                type="image/avif"
+                [attr.srcset]="
+                  baseImageUrl +
+                  '/' +
+                  revista.id_revista +
+                  '/portada/' +
+                  revista.portada.replace('.jpg', '.avif')
+                "
+              />
+              <img
+                [ngSrc]="'/revistas/' + revista.id_revista + '/portada/' + revista.portada"
+                [alt]="revista.descripcion"
+                class="cover-image"
+                width="400"
+                height="550"
+                priority
+                placeholder
+              /> </picture
+            >}
           </div>
         </div>
 
@@ -102,8 +112,8 @@
           </div>
         </div>
       </div>
-    </ng-template> </p-carousel
-  >
+    </ng-template>
+  </p-carousel>
 
   <!-- Navegación Manual Personalizada (Opcional, si quieres flechas fuera) -->
   <!-- PrimeNG pone las flechas a los lados por defecto, lo cual está bien -->

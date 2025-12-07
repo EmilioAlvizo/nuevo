@@ -510,42 +510,32 @@ module.exports = ${modelName};
  */
 
 // Función auxiliar para detectar si una columna es realmente un campo de archivo
-function isActualFileColumn(columnName, allColumns) {
+function isActualFileColumn(columnName, allColumns, config = {}) {
+  // 1️⃣ PRIORIDAD ABSOLUTA: Configuración manual explícita
+  // Si definiste 'fileColumns' en tu config, SOLO esas columnas son archivos.
+  if (config.fileColumns && Array.isArray(config.fileColumns)) {
+    return config.fileColumns.includes(columnName);
+  }
+
+  // 2️⃣ Si NO hay configuración manual, usamos la detección automática (tu lógica actual)
+  
+  // ... aquí va el resto de tu código existente de regex ...
   const lower = columnName.toLowerCase();
   
-  // Excluir campos que son claramente metadatos
+  // Excluir metadatos comunes
   const metadataPatterns = [
-    /^id_/,                    // id_archivo
-    /^nombre_/,                // nombre_archivo
-    /^fecha_/,                 // fecha_archivo
-    /estatus/,                 // estatus_archivo
-    /tipo_/,                   // tipo_archivo
-    /categoria_/,              // categoria_archivo
-    /subcategoria_/,           // subcategoria_archivo
-    /_id$/,                    // archivo_id
-    /_nombre$/,                // archivo_nombre
-    /_fecha$/,                 // archivo_fecha
-    /_tipo$/,                  // archivo_tipo
-    /_categoria$/,             // archivo_categoria
-    /_estatus$/,               // archivo_estatus
+    /^id_/, /^nombre_/, /^fecha_/, /estatus/, /tipo_/, 
+    /categoria_/, /subcategoria_/, /_id$/, /_nombre$/, 
+    /_fecha$/, /_tipo$/, /_categoria$/, /_estatus$/
   ];
   
-  // Si coincide con algún patrón de metadata, no es un archivo
   if (metadataPatterns.some(pattern => pattern.test(lower))) {
     return false;
   }
   
-  // Patrones que SÍ indican un campo de archivo
   const filePatterns = [
-    /^archivo$/,               // "archivo"
-    /^file$/,                  // "file"
-    /^imagen$/,                // "imagen"
-    /^portada$/,               // "portada"
-    /^foto$/,                  // "foto"
-    /^documento$/,             // "documento"
-    /^pdf$/,                   // "pdf"
-    /^attachment$/,            // "attachment"
-    /^adjunto$/,               // "adjunto"
+    /^archivo$/, /^file$/, /^imagen$/, /^portada$/, 
+    /^foto$/, /^documento$/, /^pdf$/, /^attachment$/, /^adjunto$/
   ];
   
   return filePatterns.some(pattern => pattern.test(lower));
@@ -558,7 +548,7 @@ function generateController(schema) {
   const config = getTableConfig(tableName);
   
   // Detectar columnas de archivo REALES
-  const fileColumns = columns.filter(col => isActualFileColumn(col.name, columns));
+  const fileColumns = columns.filter(col => isActualFileColumn(col.name, columns, config));
   const hasFiles = fileColumns.length > 0;
   
   console.log(`📂 Columnas de archivo detectadas para ${tableName}:`, fileColumns.map(c => c.name));
@@ -925,79 +915,94 @@ module.exports = ${controllerName};
 }
 
 /**
- * 🚀 Genera el archivo de rutas
+ * 🚀 Genera el archivo de rutas (Versión Final Pulida)
  */
 function generateRoutes(schema) {
   const { tableName, columns } = schema;
   const controllerName = toPascalCase(tableName) + 'Controller';
-  const hasFiles = hasFileColumn(columns);
   const config = getTableConfig(tableName);
-  
-  // Detectar SOLO columnas de archivo (no cualquier cosa que contenga "archivo")
-  const fileColumns = columns.filter(col => {
-    const colName = col.name.toLowerCase();
-    // Solo columnas que SEAN archivos, no que contengan la palabra
-    return (
-      colName === 'archivo' ||
-      colName === 'file' ||
-      colName === 'imagen' ||
-      colName === 'portada' ||
-      colName.startsWith('archivo_') ||
-      colName.startsWith('imagen_') ||
-      colName.startsWith('portada_') ||
-      colName.endsWith('_archivo') ||
-      colName.endsWith('_imagen') ||
-      colName.endsWith('_portada')
-    );
-  });
 
-  // Si hay configuración manual, usarla en lugar de auto-detección
-  let uploadConfig = {};
-  
-  if (config.uploadConfig && Object.keys(config.uploadConfig).length > 0) {
-    // Usar SOLO la configuración manual
-    uploadConfig = config.uploadConfig;
+  // 1. Determinar los nombres de los CAMPOS para el array .fields([])
+  //    Estos son los nombres reales de las columnas en la BD
+  let fileColumnNames = [];
+
+  if (config.fileColumns && Array.isArray(config.fileColumns)) {
+    // A) Uso manual explícito (Tu caso documentos_cendoc)
+    fileColumnNames = config.fileColumns;
   } else {
-    // Auto-detección solo si NO hay config manual
-    fileColumns.forEach(col => {
-      const colName = col.name.toLowerCase();
-      if (colName.includes('imagen') || colName.includes('portada')) {
-        uploadConfig[col.name] = ['image/*'];
-      } else if (colName.includes('archivo') || colName.includes('file')) {
-        uploadConfig[col.name] = ['application/pdf'];
+    // B) Auto-detección
+    const filePatterns = [/archivo/, /file/, /imagen/, /portada/, /foto/, /pdf/, /doc/];
+    const metadataPatterns = [/^id_/, /^nombre_/, /^fecha_/, /estatus/, /tipo_/];
+
+    fileColumnNames = columns
+      .map(c => c.name)
+      .filter(name => {
+        const lower = name.toLowerCase();
+        if (metadataPatterns.some(p => p.test(lower))) return false;
+        return filePatterns.some(p => p.test(lower));
+      });
+  }
+
+  // 2. Determinar la CONFIGURACIÓN para crearUpload()
+  let finalUploadConfig = {};
+
+  if (config.uploadConfig && Object.keys(config.uploadConfig).length > 0) {
+    // Usar configuración manual tal cual
+    finalUploadConfig = config.uploadConfig;
+  } else {
+    // Generar configuración por defecto
+    fileColumnNames.forEach(colName => {
+      const lower = colName.toLowerCase();
+      if (lower.includes('imag') || lower.includes('foto') || lower.includes('portada')) {
+        finalUploadConfig[colName] = ['image/*'];
+      } else if (lower.includes('pdf')) {
+        finalUploadConfig[colName] = ['application/pdf'];
       } else {
-        uploadConfig[col.name] = ['*/*'];
+        finalUploadConfig[colName] = ['*/*'];
       }
     });
   }
 
-  // Solo generar rutas con upload si hay columnas configuradas
-  const hasUploadConfig = Object.keys(uploadConfig).length > 0;
-  const uploadConfigStr = JSON.stringify(uploadConfig, null, 2).replace(/"/g, "'");
-  const fieldsArray = Object.keys(uploadConfig).map(col => `{ name: '${col}', maxCount: 1 }`).join(',\n    ');
+  const hasFiles = fileColumnNames.length > 0;
   
+  // 🔥 MEJORA DE FORMATO: Generar string limpio sin comillas en las claves
+  let uploadConfigStr = JSON.stringify(finalUploadConfig, null, 2);
+  // 1. Convertir comillas dobles a simples
+  uploadConfigStr = uploadConfigStr.replace(/"/g, "'");
+  // 2. Quitar comillas de las claves (ej: 'archivo': -> archivo:)
+  uploadConfigStr = uploadConfigStr.replace(/'([a-zA-Z0-9_]+)':/g, "$1:");
+  
+  // Generar el array de fields usando los nombres reales de columnas
+  const multerFieldsArray = fileColumnNames
+    .map(col => `{ name: '${col}', maxCount: 1 }`)
+    .join(',\n    ');
+
   return `//nuevo/backend/routes/${tableName}Routes.js
 const express = require('express');
 const router = express.Router();
 const ${controllerName} = require('../controllers/${tableName}Controller');
-${hasUploadConfig ? `const { crearUpload } = require('../middleware/uploadMiddleware');
+${hasFiles ? `const { crearUpload } = require('../middleware/uploadMiddleware');
 
 // Configurar upload para esta tabla
-const upload${toPascalCase(tableName)} = crearUpload('${tableName}', ${uploadConfigStr});
-` : ''}
+const upload${toPascalCase(tableName)} = crearUpload('${tableName}', ${uploadConfigStr});` : ''}
+
 // Rutas generadas automáticamente para: ${tableName}
 
 router.get('/', ${controllerName}.getAll);
 router.get('/filtrados', ${controllerName}.getFiltrados);
 router.get('/valores-unicos', ${controllerName}.getValoresUnicos);
 router.get('/:id', ${controllerName}.getById);
-${hasUploadConfig ? `router.post('/', upload${toPascalCase(tableName)}.fields([
-    ${fieldsArray}
+
+${hasFiles ? `// Rutas con carga de archivos
+router.post('/', upload${toPascalCase(tableName)}.fields([
+    ${multerFieldsArray}
 ]), ${controllerName}.create);
+
 router.put('/:id', upload${toPascalCase(tableName)}.fields([
-    ${fieldsArray}
+    ${multerFieldsArray}
 ]), ${controllerName}.update);` : `router.post('/', ${controllerName}.create);
 router.put('/:id', ${controllerName}.update);`}
+
 router.delete('/:id', ${controllerName}.delete);
 
 module.exports = router;

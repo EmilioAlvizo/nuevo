@@ -74,6 +74,10 @@ export class ApiArchivos_municipio {
   }
 
   createArchivo(formData: FormData): Observable<any> {
+    console.log('apiUrl: ', this.apiUrl);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
     return this.http.post(this.apiUrl, formData);
   }
 

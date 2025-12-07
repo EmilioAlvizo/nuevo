@@ -66,12 +66,13 @@
         <p-autocomplete
           formControlName="palabras_clave"
           multiple
+          fluid
+          [typeahead]="false"
           [addOnBlur]="true"
           [addOnTab]="true"
           separator=","
-          [typeahead]="false"
           placeholder="Escribe y presiona Tab, Enter o Coma"
-          fluid
+          
         ></p-autocomplete>
         <!-- <input pInputText formControlName="palabras_clave" class="form-control" placeholder="Ej: derechos, igualdad" /> -->
       </div>
@@ -84,9 +85,11 @@
           formControlName="fecha_documento"
           dateFormat="yy-mm-dd"
           [showIcon]="true"
+          [showButtonBar]="true"
           iconDisplay="input"
           placeholder="Seleccionar fecha"
           [appendTo]="'body'"
+          [invalid]="isFieldInvalid('fecha_documento')"
           fluid
         ></p-datepicker>
         @if (isFieldInvalid('fecha_documento')) {
@@ -116,16 +119,16 @@
         Archivo PDF @if (!isEditMode()) { <span class="text-danger">*</span> }
       </label>
 
-      @if (isEditMode() && docToEdit()?.archivo && !archivoNombre()) {
+      @if (isEditMode() && docToEdit()?.archivo_documento) {
       <div class="alert alert-info py-2 mb-2">
         <small>Archivo actual:</small>
         <div class="mt-2">
           <a
             [href]="
               publicUrl +
-              'documentos_cendoc/' +
-              docToEdit().id_documento +'/'+
-              docToEdit().archivo_documento
+              '/documentos_cendoc/' +
+              docToEdit()?.id_documento +'/'+
+              docToEdit()?.archivo_documento
             "
             target="_blank"
             class="btn btn-outline-primary btn-sm"
@@ -144,7 +147,7 @@
 
       <p-fileUpload
         mode="basic"
-        name="archivo"
+        name="archivo_documento"
         [maxFileSize]="20000000"
         chooseLabel="Seleccionar PDF"
         chooseIcon="pi pi-file-pdf"
@@ -154,6 +157,7 @@
         [auto]="false"
         [showUploadButton]="false"
         [showCancelButton]="false"
+        [withCredentials]="true"
         class="w-100"
       />
       <small class="text-muted d-block mt-1">

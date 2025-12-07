@@ -22,6 +22,8 @@ module.exports = {
     // Columnas que deben ser filtros de fecha
     dateFilters: ["fecha_archivo", "fecha_modificacion"],
 
+    fileColumns: ['archivo'],
+
     // Columnas que NO deben aparecer en filtros
     excludeFromFilters: [
       "archivo", // El archivo físico no se filtra
@@ -57,6 +59,8 @@ module.exports = {
     multiselect: ["estatus_documento", "id_categoria_cendoc", "autor_documento"],
 
     dateFilters: ["fecha_documento", "fecha_modificacion"],
+
+    fileColumns: ['archivo_documento'],
 
     excludeFromFilters: ["archivo_documento"],
 

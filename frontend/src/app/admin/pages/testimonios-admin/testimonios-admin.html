@@ -13,7 +13,6 @@
         label="Nuevo testimonio"
         icon="pi pi-plus"
         (onClick)="abrirModal()"
-        [disabled]="loading()"
       >
       </p-button>
     </ng-template>
@@ -271,7 +270,6 @@
         icon="pi pi-check"
         [loading]="submitting()"
         type="button"
-        [disabled]="formTestimonio.invalid || submitting()"
         (onClick)="submitForm()"
       ></p-button>
 

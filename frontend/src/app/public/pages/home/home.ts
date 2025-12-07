@@ -18,6 +18,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { AnimateOnScrollModule } from 'primeng/animateonscroll'; // ✅ NUEVO
 
 @Component({
   selector: 'app-home',
@@ -32,12 +33,14 @@ import { ButtonModule } from 'primeng/button';
     ButtonModule,
     EncuestaActual,
     CarruselRevista,
+    AnimateOnScrollModule,
   ],
   providers: [MessageService],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
+  today: number = Date.now();
   municipios: Municipio[] = [];
   testimonios: Testimonios[] = [];
   temas: Temas[] = [];

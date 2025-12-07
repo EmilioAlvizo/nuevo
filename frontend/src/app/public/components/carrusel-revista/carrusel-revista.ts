@@ -38,7 +38,7 @@ export class CarruselRevista implements OnInit {
 
   // AJUSTA ESTO: La ruta pública donde tu backend sirve las imágenes subidas
   // Ejemplo: si tu backend es Node/Express, suele ser 'http://localhost:3000/public/'
-  //baseImageUrl = `${environment.publicUrl}/revistas`;
+  baseImageUrl = `${environment.publicUrl}/revistas`;
 
   ngOnInit() {
     //this.configurarCarrusel();
@@ -111,7 +111,7 @@ export class CarruselRevista implements OnInit {
       activeBackground: '#3b82f6',
       focusRing: {
         width: '2px',
-        color: '#3b82f680'
+        color: '#00000'
       }
     }
   }; 

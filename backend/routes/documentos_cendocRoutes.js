@@ -6,7 +6,7 @@ const { crearUpload } = require('../middleware/uploadMiddleware');
 
 // Configurar upload para esta tabla
 const uploadDocumentosCendoc = crearUpload('documentos_cendoc', {
-  'archivo': [
+  archivo: [
     'application/pdf'
   ]
 });
@@ -17,12 +17,16 @@ router.get('/', DocumentosCendocController.getAll);
 router.get('/filtrados', DocumentosCendocController.getFiltrados);
 router.get('/valores-unicos', DocumentosCendocController.getValoresUnicos);
 router.get('/:id', DocumentosCendocController.getById);
+
+// Rutas con carga de archivos
 router.post('/', uploadDocumentosCendoc.fields([
-    { name: 'archivo', maxCount: 1 }
+    { name: 'archivo_documento', maxCount: 1 }
 ]), DocumentosCendocController.create);
+
 router.put('/:id', uploadDocumentosCendoc.fields([
-    { name: 'archivo', maxCount: 1 }
+    { name: 'archivo_documento', maxCount: 1 }
 ]), DocumentosCendocController.update);
+
 router.delete('/:id', DocumentosCendocController.delete);
 
 module.exports = router;

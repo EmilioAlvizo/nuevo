@@ -121,7 +121,7 @@ export class TablaArchMunicipios {
       optionsField: 'subcategoria_archivo',
     },
     {
-      field: 'fecha_modificacion',
+      field: 'fecha_archivo',
       header: 'Fecha',
       sortable: true,
       filterable: true,
@@ -129,7 +129,15 @@ export class TablaArchMunicipios {
       tooltip: false,
       dateFormat: 'long',
     },
-
+    {
+      field: 'fecha_modificacion',
+      header: 'Fecha de modificacion',
+      sortable: true,
+      filterable: true,
+      filterType: 'date',
+      tooltip: false,
+      dateFormat: 'long',
+    },
     {
       field: 'estatus_archivo',
       header: 'Estatus',
@@ -213,11 +221,11 @@ export class TablaArchMunicipios {
     });
   }
 
-  handleSave(event: { data: Partial<Archivos_municipio>; file: File | null }): void {
-    const { data, file } = event;
+  handleSave(formData: FormData/* event: { data: Partial<Archivos_municipio>; file: File | null } */): void {
+    //const { data, file } = event;
 
     // Validaciones básicas
-    if (!data.nombre_archivo || !data.id_municipio || !data.tipo_archivo || !data.categoria_archivo) {
+    /* if (!data.nombre_archivo || !data.id_municipio || !data.tipo_archivo || !data.categoria_archivo) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Campos requeridos',
@@ -237,9 +245,9 @@ export class TablaArchMunicipios {
       });
       this.archivoForm?.cancelSave();
       return;
-    }
+    } */
 
-    // 🧾 Crear FormData para envío
+    /* // 🧾 Crear FormData para envío
     const formData = new FormData();
     if (file) formData.append('archivo', file, file.name);
 
@@ -253,7 +261,7 @@ export class TablaArchMunicipios {
   }
 
     if (data.palabras_clave) formData.append('palabras_clave', data.palabras_clave);
-    if (data.subcategoria_archivo) formData.append('subcategoria_archivo', data.subcategoria_archivo);
+    if (data.subcategoria_archivo) formData.append('subcategoria_archivo', data.subcategoria_archivo); */
 
 
     console.log('📤 Enviando FormData a backend...');
@@ -271,7 +279,7 @@ export class TablaArchMunicipios {
           detail: this.isEditMode() ? 'Archivo actualizado correctamente' : 'Archivo creado correctamente',
           life: 3000,
         });
-        this.archivoForm?.completeSave();
+        //this.archivoForm?.completeSave();
         this.showDialog.set(false);
         this.refrescarTabla.update((v) => v + 1);
       },
@@ -283,7 +291,7 @@ export class TablaArchMunicipios {
           detail: err.error?.message || 'No se pudo guardar el archivo',
           life: 5000,
         });
-        this.archivoForm?.cancelSave();
+        //this.archivoForm?.cancelSave();
       },
     });
   }

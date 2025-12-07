@@ -30,7 +30,7 @@ export class TablaDocCendoc {
   readonly categorias = signal<Categoria_cendoc[]>([]);
 
   showDialog: WritableSignal<boolean> = signal(false);
-  revistaToEdit: Documentos_cendoc | null = null;
+  revistaToEdit = signal<Documentos_cendoc | null>(null);
   refrescarTabla = signal(0);
 
   // 🧠 Computed: opciones de municipios
@@ -162,13 +162,13 @@ export class TablaDocCendoc {
   }
 
   agregar() {
-    this.revistaToEdit = null;
+    this.revistaToEdit.set(null);
     this.showDialog.set(true);
   }
 
   editar(doc: any) {
     console.log('Editar doc:', doc);
-    this.revistaToEdit = doc; // 📌 Guarda la doc seleccionada
+    this.revistaToEdit.set(doc); // 📌 Guarda la doc seleccionada
     this.showDialog.set(true); // 📌 Abre el diálogo
   }
 
@@ -234,31 +234,33 @@ export class TablaDocCendoc {
   }
 
   guardar(formData: FormData) {
-    const isEdit = !!this.revistaToEdit;
-
+    const revista = this.revistaToEdit();   // obtener valor del signal
+    const isEdit = !!revista;               // true si tiene un documento cargado
+  
     const request = isEdit
-      ? this.documentosCendocService.actualizar(this.revistaToEdit!.id_documento, formData)
+      ? this.documentosCendocService.actualizar(revista!.id_documento, formData)
       : this.documentosCendocService.crear(formData);
-
+  
     request.subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
           detail: isEdit ? 'Revista actualizada' : 'Revista creada',
-          life: 3000,
+          life: 3000
         });
+  
         this.showDialog.set(false);
-        this.refrescarTabla.update((v) => v + 1);
+        this.refrescarTabla.update(v => v + 1);
       },
       error: (err) => {
         console.error(err);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudo guardar la doc',
+          detail: 'No se pudo guardar la doc'
         });
-      },
+      }
     });
   }
 }

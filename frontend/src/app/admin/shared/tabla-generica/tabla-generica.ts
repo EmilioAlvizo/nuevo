@@ -324,7 +324,7 @@ export class TablaGenerica {
       .subscribe({
         next: (resp: any) => {
           this.data.set(resp.data);
-          console.log("tabala generica ",this.data());
+          //console.log("tabala generica ",this.data());
           this.totalRecords.set(resp.total || 0);
           this.loading.set(false);
         },
@@ -474,10 +474,7 @@ export class TablaGenerica {
   ): string {
     if (!value) return '';
 
-    let date = new Date(value);
-
-    // ⚙️ Ajuste para compensar zona horaria (mantiene la hora "como está en BD")
-    date = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    const date = new Date(value);
 
     // Si no es una fecha válida, devolver texto original
     if (isNaN(date.getTime())) return value.toString();
@@ -494,7 +491,7 @@ export class TablaGenerica {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: true, // 👈 muestra AM/PM
+        hour12: true,
       },
       full: {
         weekday: 'long',
@@ -509,6 +506,8 @@ export class TablaGenerica {
 
     const options = format === 'custom' && customFormat ? customFormat : formats[format];
 
-    return date.toLocaleString(locale, options); // 👈 usamos toLocaleString, no toLocaleDateString
+    // ✅ toLocaleString ya maneja la zona horaria automáticamente
+    // No necesitas ajustar manualmente el offset
+    return date.toLocaleString(locale, options);
   }
 }

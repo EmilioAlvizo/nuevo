@@ -18,8 +18,7 @@
 <app-form-doc-cendoc
   [categorias]="categorias()"
   [visible]="showDialog()"
-  [isEditMode]="!!revistaToEdit"
-  [docToEdit]="revistaToEdit"
+  [docToEdit]="revistaToEdit()"
   (save)="guardar($event)"
   (visibleChange)="showDialog.set($event)"
 />

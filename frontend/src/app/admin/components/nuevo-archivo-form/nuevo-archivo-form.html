@@ -132,8 +132,7 @@
         <div class="col-12">
           <label for="palabras_clave" class="form-label fw-semibold">Palabras Clave</label>
           <p-autoComplete
-            inputId="chips-combined"
-            name="palabras_clave"
+            formControlName="palabras_clave"
             multiple
             fluid
             [typeahead]="false"
@@ -167,7 +166,7 @@
           </p-select>
         </div>
 
-       <!-- <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <label class="form-label fw-semibold">Fecha del Archivo</label>
           <input type="text" pInputText [value]="fechaActual()" class="form-control" disabled />
           <small class="text-muted">
@@ -177,17 +176,26 @@
         </div> -->
         <div class="col-md-6">
           <label class="form-label fw-semibold">Fecha del archivo:</label>
-          <input type="date" class="form-control" formControlName="fecha_archivo" required />
-          <!-- <p-datepicker
-          formControlName="fecha_archivo"
-          dateFormat="yy-mm-dd"
-          [showIcon]="true"
-          iconDisplay="input"
-          placeholder="Seleccionar fecha"
-          [appendTo]="'body'"
-          fluid
-          required="aaa"
-        ></p-datepicker> -->
+          <!-- <input type="date" class="form-control" formControlName="fecha_archivo" required /> -->
+          <p-datepicker
+            formControlName="fecha_archivo"
+            hourFormat="24"
+            [hourFormat]="'24'"
+            dateFormat="yy-mm-dd"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            [showTime]="true"
+            iconDisplay="input"
+            placeholder="Seleccionar fecha"
+            [appendTo]="'body'"
+            [invalid]="isFieldInvalid('fecha_archivo')"
+            fluid
+          ></p-datepicker>
+          @if (isFieldInvalid('fecha_documento')) {
+          <small class="text-danger">Campo requerido</small>
+          } @else {
+          <div class="invisible">00</div>
+          }
         </div>
       </div>
 

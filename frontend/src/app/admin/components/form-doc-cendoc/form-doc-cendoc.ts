@@ -14,6 +14,7 @@ import {
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
+import { Documentos_cendoc } from '../../../core/services/documentos_cendoc';
 
 // PrimeNG
 import { DialogModule } from 'primeng/dialog';
@@ -59,10 +60,10 @@ export class FormDocCendoc {
   private fb = new FormBuilder().nonNullable;
 
   // Inputs/Outputs
-  categorias = input.required<Categoria_cendoc[]>();
   visible = model.required<boolean>();
-  isEditMode = input<boolean>(false);
-  docToEdit = input<any>(null);
+  categorias = input.required<Categoria_cendoc[]>();
+  //isEditMode = input<boolean>(false);
+  docToEdit = input<Documentos_cendoc | null>(null);
 
   visibleChange = output<boolean>();
   save = output<FormData>();
@@ -84,6 +85,8 @@ export class FormDocCendoc {
       value: m.id_categoria_cendoc,
     }))
   );
+
+  isEditMode = computed(() => !!this.docToEdit());
 
   // Formulario
   docForm: FormGroup;
@@ -175,12 +178,15 @@ export class FormDocCendoc {
     }
 
     if (this.archivoSeleccionado()) {
-      fd.append('archivo', this.archivoSeleccionado()!);
+      fd.append('archivo_documento', this.archivoSeleccionado()!);
     }
 
-    if (this.isEditMode() && this.docToEdit()?.id_documento) {
-      fd.append('id_documento', this.docToEdit().id_documento);
-    }
+    /* if (this.isEditMode()) {
+      const doc = this.docToEdit();
+      if (doc?.id_documento) {
+        fd.append('id_documento', String(doc.id_documento));
+      }
+    } */
 
     return fd;
   }

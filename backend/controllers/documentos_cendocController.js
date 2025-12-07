@@ -2,6 +2,9 @@
 const DocumentosCendocModel = require("../models/documentos_cendocModel");
 const { parseArrayParam, validarCamposRequeridos } = require("../utils/filters");
 
+const path = require("path");
+const fs = require("fs");
+const backendPublicPath = path.join(__dirname, "../public");
 
 const TABLE_NAME = "documentos_cendoc";
 const ID_COLUMN = "id_documento";
@@ -83,9 +86,6 @@ class DocumentosCendocController {
         // id_categoria_cendoc
         id_categoria_cendoc,
         id_categoria_cendoc_matchMode,
-        // archivo_documento
-        archivo_documento,
-        archivo_documento_matchMode,
         // estatus_documento
         estatus_documento,
         estatus_documento_matchMode,
@@ -114,8 +114,6 @@ class DocumentosCendocController {
         fecha_documento: fecha_documento || null,
         fecha_documento_matchMode: fecha_documento_matchMode || "dateIs",
         id_categoria_cendoc: id_categoria_cendoc ? parseArrayParam(id_categoria_cendoc, "int") : [],
-        archivo_documento: archivo_documento || null,
-        archivo_documento_matchMode: archivo_documento_matchMode || "contains",
         estatus_documento: estatus_documento ? parseArrayParam(estatus_documento, "string") : [],
         fecha_modificacion: fecha_modificacion || null,
         fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs",
@@ -167,15 +165,50 @@ class DocumentosCendocController {
       // Validar campos requeridos
       validarCamposRequeridos(data, []);
 
-      const nuevoRegistro = await DocumentosCendocModel.create(TABLE_NAME, data);
+      console.log("📥 Datos recibidos:", req.body);
+      console.log("📎 Archivos recibidos:", req.files);
+
+      // 1️⃣ Crear el registro primero (sin archivos)
+      const nuevoRegistro = await DocumentosCendocModel.create(TABLE_NAME, { 
+        ...data,
+        archivo_documento: null
+      });
+
+      console.log("🆕 Resultado create():", nuevoRegistro);
+      const id = nuevoRegistro.id_documento || nuevoRegistro.insertId || nuevoRegistro.id;
+      if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
+
+      // 2️⃣ Definir carpetas
+      const tempPath = path.join(backendPublicPath, TABLE_NAME, 'temp');
+      const baseFolder = path.join(backendPublicPath, TABLE_NAME, id.toString());
+      fs.mkdirSync(baseFolder, { recursive: true });
+
+      // 3️⃣ Procesar archivos
+      const archivosActualizados = {};
+      
+      if (req.files && req.files.archivo_documento && req.files.archivo_documento[0]) {
+        const archivo_documento = req.files.archivo_documento[0];
+        const oldPath = path.join(tempPath, archivo_documento.filename);
+        const newPath = path.join(baseFolder, archivo_documento.filename);
+        fs.renameSync(oldPath, newPath);
+        archivosActualizados.archivo_documento = archivo_documento.filename;
+        console.log("📂 archivo_documento movido a:", newPath);
+      } else {
+        console.warn("⚠️ No se recibió archivo en req.files.archivo_documento");
+      }
+
+      // 4️⃣ Actualizar registro con archivos
+      if (Object.keys(archivosActualizados).length > 0) {
+        await DocumentosCendocModel.update(TABLE_NAME, id, archivosActualizados, ID_COLUMN);
+      }
 
       res.status(201).json({
         success: true,
         message: "Registro creado correctamente",
-        data: nuevoRegistro,
+        data: { id, ...archivosActualizados },
       });
     } catch (err) {
-      console.error(err, err);
+      console.error("💥 Error en create documentos_cendoc:", err);
       res.status(500).json({
         success: false,
         message: "Error al crear registro",
@@ -190,7 +223,18 @@ class DocumentosCendocController {
       const { id } = req.params;
       const data = req.body;
 
+      console.log("📂 id", id);
+      console.log("📂 data", data);
 
+      // 🧩 Validar que haya datos
+      if (!data || Object.keys(data).length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Datos inválidos o vacíos",
+        });
+      }
+
+      // 📁 Verificar que el registro exista
       const registroActual = await DocumentosCendocModel.getById(TABLE_NAME, id, ID_COLUMN);
 
       if (!registroActual) {
@@ -200,14 +244,49 @@ class DocumentosCendocController {
         });
       }
 
-      await DocumentosCendocModel.update(TABLE_NAME, id, data, ID_COLUMN);
+      const tempPath = path.join(backendPublicPath, TABLE_NAME, 'temp');
+      const baseFolder = path.join(backendPublicPath, TABLE_NAME, id.toString());
+      fs.mkdirSync(baseFolder, { recursive: true });
 
-      res.json({
+      // 🧾 Campos actualizables
+      const camposActualizados = { ...data };
+
+      // 📂 Si se envían nuevos archivos, reemplazar los anteriores
+      if (req.files && req.files.archivo_documento && req.files.archivo_documento[0]) {
+        const nuevoArchivoDocumento = req.files.archivo_documento[0];
+        const oldPath = path.join(tempPath, nuevoArchivoDocumento.filename);
+        const newPath = path.join(baseFolder, nuevoArchivoDocumento.filename);
+
+        // Eliminar el archivo anterior (si existe)
+        if (registroActual.archivo_documento) {
+          const archivoAnterior = path.join(baseFolder, registroActual.archivo_documento);
+          if (fs.existsSync(archivoAnterior)) {
+            fs.unlinkSync(archivoAnterior);
+            console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
+          }
+        }
+
+        // Mover el nuevo
+        fs.renameSync(oldPath, newPath);
+        camposActualizados.archivo_documento = nuevoArchivoDocumento.filename;
+        console.log("📂 Nuevo archivo guardado en:", newPath);
+      }
+
+      console.log("📂 id", id);
+      console.log("📂 TABLE_NAME", TABLE_NAME);
+      console.log("📂 ID_COLUMN", ID_COLUMN);
+      console.log("📂 camposActualizados", camposActualizados);
+
+      // 🔄 Actualizar BD
+      await DocumentosCendocModel.update(TABLE_NAME, id, camposActualizados, ID_COLUMN);
+
+      res.status(200).json({
         success: true,
         message: "Registro actualizado correctamente",
+        data: camposActualizados,
       });
     } catch (err) {
-      console.error(err, err);
+      console.error("💥 Error en update documentos_cendoc:", err);
       res.status(500).json({
         success: false,
         message: "Error al actualizar registro",
@@ -227,21 +306,26 @@ class DocumentosCendocController {
       if (!registro) {
         return res.status(404).json({
           success: false,
-          message: "Registro no encontrado",
+          message: "Registro no encontrado o ya fue eliminado",
         });
       }
 
+      // 🗂️ Borrar carpeta del archivo físico
+      const dir = path.join(backendPublicPath, TABLE_NAME, id.toString());
+      if (fs.existsSync(dir)) {
+        fs.rmSync(dir, { recursive: true, force: true });
+        console.log("🗑️ Carpeta eliminada:", dir);
+      }
 
       // 🧾 Eliminar registro en la BD
       await DocumentosCendocModel.delete(TABLE_NAME, id, ID_COLUMN);
 
-      res.json({
+      res.status(200).json({
         success: true,
         message: "Registro eliminado correctamente",
-        id,
       });
     } catch (err) {
-      console.error("Error al eliminar registro:", err);
+      console.error("💥 Error al eliminar registro:", err);
       res.status(500).json({
         success: false,
         message: err.message,

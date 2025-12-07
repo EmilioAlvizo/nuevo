@@ -2,7 +2,6 @@
 .home-section {
   margin-bottom: 3rem;
   padding-top: 10rem;
-  color: blanchedalmond;
 }
 
 .home-section-1 {
@@ -12,7 +11,7 @@
 
 .home-section-2 {
   margin-bottom: 3rem;
-  background: #F3EDE7;
+  background: #f3ede7;
 }
 
 .espacio-25 {
@@ -28,8 +27,6 @@
   max-width: 900px;
 }
 
-
-
 .carousel {
   margin: 24px 0;
   align-items: center;
@@ -44,7 +41,7 @@
   min-height: 400px;
   display: flex;
   align-items: center;
-} 
+}
 
 /* Contenedor de la tarjeta del tema */
 .tema-item {
@@ -75,6 +72,106 @@
   border-radius: 8px;
 }
 
+/* ========================================
+   ✨ ANIMACIONES ON SCROLL
+   ======================================== */
+
+/* Fade In - Aparecer suavemente */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Slide Up - Deslizar desde abajo */
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out;
+}
+
+/* Slide Left - Deslizar desde la derecha */
+@keyframes slideLeft {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-left {
+  animation: slideLeft 0.8s ease-out;
+}
+
+/* Slide Right - Deslizar desde la izquierda */
+@keyframes slideRight {
+  from {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-right {
+  animation: slideRight 0.8s ease-out;
+}
+
+/* Zoom In - Crecer suavemente */
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-zoom-in {
+  animation: zoomIn 0.8s ease-out;
+}
+
+/* Bounce - Efecto rebote sutil */
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.9s ease-out;
+}
 
 @media (max-width: 991px) {
   .espacio-25 {
