@@ -1,1 +1,38 @@
-<p>home-admin works!</p>
+<!-- <div class="home-admin-container">
+  <div class="welcome-card">
+    <h1 class="welcome-title">¡Bienvenid@ {{ nombreAdmin }}! 👋</h1>
+    <p class="welcome-subtitle">
+      Aquí puedes gestionar todos los aspectos de la plataforma.
+    </p>
+    <div class="icon-container">
+      <i class="fa-solid fa-user-shield fa-4x"></i>
+    </div>
+  </div>
+</div> -->
+
+<div class="home-admin-container">
+
+  <div class="welcome-card">
+    <h1 class="welcome-title">¡Bienvenid@ {{ nombreAdmin }}! 👋</h1>
+    <p class="welcome-subtitle">Panel de administración</p>
+  </div>
+
+  <!-- ========================= -->
+  <!--     NOTIFICACIONES        -->
+  <!-- ========================= -->
+  <div class="notificaciones-container" *ngIf="notificaciones().length > 0">
+    <h2 class="notif-title">Notificaciones recientes</h2>
+
+    <div class="notificacion" *ngFor="let n of notificaciones()">
+      <div class="notif-info">
+        <strong>{{ n.mensaje }}</strong>
+        <div class="fecha">{{ n.timestamp | date:'short' }}</div>
+      </div>
+
+      <button class="btn-recibido" (click)="marcarRecibida(n.id)">
+        Recibido
+      </button>
+    </div>
+  </div>
+
+</div>

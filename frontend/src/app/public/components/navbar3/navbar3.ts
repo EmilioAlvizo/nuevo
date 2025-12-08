@@ -16,6 +16,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { TopBar } from '../../../admin/shared/top-bar/top-bar';
 import { filter } from 'rxjs/operators';
+import { InterfazService } from '../../../core/services/interfaz';
 
 @Component({
   selector: 'app-navbar3',
@@ -25,7 +26,7 @@ import { filter } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.scrolled]': 'isScrolled()',
-    '[class.menu-open]': 'mobileMenuOpen()', // 🆕 Clase en el host
+    '[class.menu-open]': 'mobileMenuOpen()',
   },
 })
 export class Navbar3 implements OnInit, OnDestroy {
@@ -39,16 +40,19 @@ export class Navbar3 implements OnInit, OnDestroy {
   showTopBar = signal(true);
   isScrolled = signal(false);
   mobileMenuOpen = signal(false);
-  // dropdownOpen = signal(false);
   dropdownOpenId = signal<string | null>(null);
   topBarExpanded = signal(false);
+  
+  // Signals para el logo
+  logoUrl = signal<string>('/assets/logo_1.png');
+  logoLoaded = signal<boolean>(false);
 
   private routeChanged = signal(0);
 
-  // 🆕 Mapa de rutas por dropdown
-private dropdownRoutes = {
-  juventudes: ['/sistema-juventudes', '/consejo'],
-};
+  // Mapa de rutas por dropdown
+  private dropdownRoutes = {
+    juventudes: ['/sistema-juventudes', '/consejo'],
+  };
 
   // Internos
   private clickOutsideHandler?: () => void;
@@ -61,10 +65,11 @@ private dropdownRoutes = {
     private el: ElementRef,
     private renderer: Renderer2,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private interfazService: InterfazService
   ) {}
 
-  // 🆕 effect que previene scroll del body
+  // effect que previene scroll del body
   private preventBodyScrollEffect = effect(() => {
     if (typeof document === 'undefined') return;
 
@@ -73,6 +78,9 @@ private dropdownRoutes = {
   });
 
   ngOnInit(): void {
+    // Cargar logo dinámico
+    this.loadLogo();
+
     // Detectar clic fuera del dropdown
     this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
       const insideDropdown = (event.target as HTMLElement).closest('.nav-dropdown');
@@ -80,6 +88,7 @@ private dropdownRoutes = {
         this.dropdownOpenId.set(null);
       }
     });
+    
     // Escuchar scroll solo si hay ventana
     if (typeof window !== 'undefined') {
       this.scrollHandler = this.renderer.listen('window', 'scroll', () => {
@@ -88,8 +97,8 @@ private dropdownRoutes = {
     }
 
     this.router.events.pipe(filter((ev) => ev instanceof NavigationEnd)).subscribe(() => {
-      this.routeChanged.update((v) => v + 1); // Actualizar signal
-      this.cdr.markForCheck(); // Forzar detección de cambios
+      this.routeChanged.update((v) => v + 1);
+      this.cdr.markForCheck();
     });
   }
 
@@ -102,6 +111,30 @@ private dropdownRoutes = {
     if (typeof document !== 'undefined') {
       document.body.classList.remove('mobile-menu-open');
     }
+  }
+
+  // Cargar logo desde el servicio
+  private loadLogo(): void {
+    this.interfazService.getLogoIzquierda().subscribe({
+      next: (url) => {
+        this.logoUrl.set(url);
+        this.logoLoaded.set(true);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error cargando logo:', err);
+        this.logoUrl.set('/assets/logo_1.png');
+        this.logoLoaded.set(true);
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  // Manejar error de carga de imagen
+  onImageError(): void {
+    console.warn('Error al cargar imagen del logo, usando fallback');
+    this.logoUrl.set('/assets/logo_1.png');
+    this.cdr.markForCheck();
   }
 
   private handleScroll(): void {
@@ -118,17 +151,14 @@ private dropdownRoutes = {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const threshold = this.scrollThreshold();
 
-      const HIDE_POINT = threshold + 80; // punto donde se oculta
-      const SHOW_POINT = threshold + 20; // punto donde vuelve a mostrarse
+      const HIDE_POINT = threshold + 80;
+      const SHOW_POINT = threshold + 20;
 
-      //console.log('scrollTop ', scrollTop);
-      // Solo ocultar si estaba visible
       if (scrollTop > HIDE_POINT && this.showTopBar()) {
         this.showTopBar.set(false);
         this.isScrolled.set(true);
       }
 
-      // Solo mostrar si estaba oculta
       if (scrollTop < SHOW_POINT && !this.showTopBar()) {
         this.showTopBar.set(true);
         this.isScrolled.set(false);
@@ -138,9 +168,9 @@ private dropdownRoutes = {
     });
   }
 
-  // 🆕 Verificar si un dropdown tiene una ruta activa
+  // Verificar si un dropdown tiene una ruta activa
   isDropdownActive(id: string): boolean {
-    this.routeChanged(); // Lee el signal para activar detección
+    this.routeChanged();
     const routes = this.dropdownRoutes[id as keyof typeof this.dropdownRoutes];
     if (!routes) return false;
 
@@ -162,11 +192,6 @@ private dropdownRoutes = {
     console.log('📱 [NAVBAR] Menú móvil:', this.mobileMenuOpen() ? 'Abierto' : 'Cerrado');
   }
 
-  // toggleDropdown(event: Event): void {
-  //   event.stopPropagation();
-  //   this.dropdownOpen.update((open) => !open);
-  //   console.log('📋 [NAVBAR] Dropdown:', this.dropdownOpen() ? 'Abierto' : 'Cerrado');
-  // }
   toggleDropdown(id: string, event: Event) {
     event.stopPropagation();
 
