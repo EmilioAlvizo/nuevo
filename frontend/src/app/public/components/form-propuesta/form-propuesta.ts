@@ -67,7 +67,9 @@ export class FormPropuesta {
   isSaving = signal(false);
   formSubmitted = signal(false);
 
-  municipiosOptions: any[] = [];
+  //municipiosOptions: any[] = [];
+  municipiosOptions = signal<any[]>([]);
+
   showEspecifica = false;
 
   ngOnInit(): void {
@@ -232,10 +234,10 @@ export class FormPropuesta {
     this.apiMunicipio.getMessage().subscribe({
       next: (resp) => {
         if (resp?.data) {
-          this.municipiosOptions = resp.data.map((m) => ({
+          this.municipiosOptions.set(resp.data.map((m) => ({
             label: m.nombre,
             value: m.id_municipio,
-          }));
+          })));
         }
       },
       error: (err) => {

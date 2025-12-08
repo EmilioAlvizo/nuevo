@@ -3,13 +3,12 @@
 
 <div>
   <!-- Sección 1: Vídeo -->
-  @defer (hydrate on immediate) {
   <section
-    class="home-section pb-5"
+    class="home-section-3 pb-5"
     style="background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%)"
   >
     <div class="container">
-      <app-carrusel-revista></app-carrusel-revista>
+      <app-carrusel-1></app-carrusel-1>
     </div>
   </section>
 
@@ -29,13 +28,19 @@
       </video>
     </div>
   </section>
-  } @placeholder {
-  <div>Large component placeholder</div>
-  }
+
+  <!-- <section
+    class="home-section pb-5"
+    style="background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%)"
+  >
+    <div class="container">
+      <app-carrusel-revista></app-carrusel-revista>
+    </div>
+  </section> -->
 
   <!-- Sección 2: Testimonios -->
   <section class="home-section mb-4">
-    <app-carrusel-testimonios *ngIf="isBrowser" [testimonios]="testimonios" [publicUrl]="publicUrl">
+    <app-carrusel-testimonios [testimonios]="testimonios()" [publicUrl]="publicUrl">
     </app-carrusel-testimonios>
 
     <div
@@ -47,13 +52,13 @@
     >
       <div class="p-4 bg-light rounded">
         <h5>¿Quieres compartir tu experiencia?</h5>
-        <button class="btn btn-primary mt-2" (click)="abrirDialogo()">Deja tu testimonio</button>
+        <button class="btn btn-primary mt-2" (click)="showDialog.set(true)">Deja tu testimonio</button>
       </div>
     </div>
 
     <app-form-testimonios
-      [visible]="showDialog"
-      (visibleChange)="showDialog = $event"
+      [visible]="showDialog()"
+      (visibleChange)="showDialog.set($event)"
       (save)="guardarTestimonio($event)"
     />
   </section>
@@ -91,7 +96,7 @@
           <p-button
             label="Regístrala aquí"
             severity="success"
-            (onClick)="abrirDialogoPropuesta()"
+            (onClick)="showPropuesta.set(true)"
           />
         </div>
       </div>
@@ -105,7 +110,7 @@
       >
         <div id="temasCarousel" class="carousel slide h-100" data-bs-ride="carousel">
           <div class="carousel-inner">
-            @for (t of temas; track t.id_tema; let i = $index) {
+            @for (t of temas(); track t.id_tema; let i = $index) {
             <div class="carousel-item" [class.active]="i === 0">
               <div class="tema-item card border-0 h-100">
                 <div class="row g-0 align-items-center">
@@ -162,5 +167,7 @@
     </div>
   </section>
 
-  <app-form-propuesta [visible]="showPropuesta" (visibleChange)="showPropuesta = $event" />
+  <app-form-propuesta [visible]="showPropuesta()" (visibleChange)="showPropuesta.set($event)" />
 </div>
+
+<h1 class="text-blue-800">Juventudes Guanajuato - Página de Inicio</h1>

@@ -45,6 +45,7 @@ export class ApiRevistas {
   // ✅ NUEVO - Método con filtros (más eficiente)
   getFiltrados(filtros: any): Observable<ApiResponse<Revistas>> {
     let params = new HttpParams();
+    console.log('Filtros recibidos en el servicio:', filtros);
 
     // Agregar todos los parámetros dinámicamente
     Object.keys(filtros).forEach((key) => {

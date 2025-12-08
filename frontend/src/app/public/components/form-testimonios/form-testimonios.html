@@ -2,7 +2,8 @@
  <p-toast></p-toast>
 <p-dialog
   header="Nuevo Testimonio"
-  [(visible)]="visible"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
   [modal]="true"
   [draggable]="true"
   [resizable]="true"

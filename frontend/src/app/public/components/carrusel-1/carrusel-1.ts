@@ -1,4 +1,4 @@
-// nuevo/frontend/src/app/public/components/carrusel-revista/carrusel-revista.ts
+// nuevo/frontend/src/app/public/components/carrusel-1/carrusel-1.ts
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 
@@ -21,13 +21,12 @@ export interface RevistaVisual extends Revistas {
 }
 
 @Component({
-  selector: 'app-carrusel-revista',
-  standalone: true,
+  selector: 'app-carrusel-1',
   imports: [CommonModule, NgOptimizedImage, CarouselModule, ButtonModule, TagModule, DividerModule],
-  templateUrl: './carrusel-revista.html',
-  styleUrl: './carrusel-revista.css',
+  templateUrl: './carrusel-1.html',
+  styleUrl: './carrusel-1.css',
 })
-export class CarruselRevista implements OnInit {
+export class Carrusel1 {
   private srvRevistas = inject(ApiRevistas);
   private srvArticulos = inject(ApiArticulos);
 
@@ -57,7 +56,13 @@ export class CarruselRevista implements OnInit {
 
     // Usamos forkJoin para lanzar ambas peticiones en paralelo
     forkJoin({
-      revistasData: this.srvRevistas.getRevistas(),
+      revistasData: this.srvRevistas.getFiltrados({
+        estatus: ['A'],
+        limite: 1,
+        pagina: 1,
+        sortField: 'fecha',
+        sortOrder: -1
+      }),
       articulosData: this.srvArticulos.getArticulos(),
     })
       .pipe(
@@ -86,7 +91,7 @@ export class CarruselRevista implements OnInit {
     return estatus === 'A' ? 'success' : 'secondary';
   }
 
-  carouselDesignTokens = {
+  /* carouselDesignTokens = {
     indicator: {
       width: '2rem',
       height: '0.5rem',
@@ -99,9 +104,9 @@ export class CarruselRevista implements OnInit {
         color: '#00000',
       },
     },
-  };
+  }; */
 
-  /* carouselDesignTokens = {
+  carouselDesignTokens = {
     indicator: {
       width: '2rem',
       height: '0.5rem',
@@ -121,7 +126,7 @@ export class CarruselRevista implements OnInit {
         color: 'var(--primary-color-text)' // O una opacidad del primario
       }
     }
-  }; */
+  };
 
   dividerDesignTokens = {
     root: {

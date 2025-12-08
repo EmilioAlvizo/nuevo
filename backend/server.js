@@ -107,6 +107,11 @@ app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
+  // Si la solicitud es para un archivo estático (imagenes, PDF, etc)
+  if (req.path.startsWith('/public')) {
+    return res.status(404).end(); // ❗ sin JSON, sin texto
+  }
+
   res.status(404).json({
     success: false,
     message: "Ruta no encontrada",

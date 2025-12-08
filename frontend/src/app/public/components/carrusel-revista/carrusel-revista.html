@@ -4,7 +4,7 @@
   <!-- Carrusel -->
 
   <p-carousel
-    [value]="revistas"
+    [value]="revistas()"
     [numVisible]="1"
     [numScroll]="1"
     [circular]="true"
@@ -19,20 +19,8 @@
         <!-- COLUMNA IZQUIERDA: Portada (Estilo Hero) -->
         <!-- En la imagen, la portada tiene mucho espacio rojo/visual -->
         <div class="col-12 col-lg-5 mb-4 mb-lg-0 px-4 d-flex justify-content-center">
-          <div class="position-relative" style="width: fit-content">
+          <div class="position-relative" style="position: relative; width: fit-content">
             <!-- Marco rojo característico o sombra de la revista -->
-            @if (revista.portada) {
-            <picture>
-              <source
-                type="image/avif"
-                [attr.srcset]="
-                  baseImageUrl +
-                  '/' +
-                  revista.id_revista +
-                  '/portada/' +
-                  revista.portada.replace('.jpg', '.avif')
-                "
-              />
               <img
                 [ngSrc]="'/revistas/' + revista.id_revista + '/portada/' + revista.portada"
                 [alt]="revista.descripcion"
@@ -41,8 +29,26 @@
                 height="550"
                 priority
                 placeholder
-              /> </picture
-            >}
+              />
+            <!-- <picture>
+              <source
+                type="image/avif"
+                [srcset]="
+                  baseImageUrl + '/' +
+                  revista.id_revista +
+                  '/portada/' +
+                  revista.portada.replace('.jpg', '.avif')
+                "
+              />
+              <img
+                [src]="baseImageUrl + '/' + revista.id_revista + '/portada/' + revista.portada"
+                [alt]="revista.descripcion"
+                class="cover-image"
+                width="400"
+                height="550"
+                loading="lazy"
+              />
+            </picture> -->
           </div>
         </div>
 

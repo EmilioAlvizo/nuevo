@@ -1,0 +1,170 @@
+/* --- ESTILO TIPO "THE ECONOMIST" --- */
+/* Tu clase .kk (contenedor del item) */
+.kk {
+    min-height: auto !important; /* Quita el 550px fijo si lo tenías */
+    height: auto !important; /* Ocupar todo el espacio del slide */
+  }
+  /* Altura mínima basada en tu diseño (400px imagen + paddings) */
+  .carousel-wrapper-fixed {
+    min-height: 600px; /* Ajusta este valor a la altura real promedio de tu carrusel */
+    contain: content; /* Propiedad moderna para evitar recálculos de layout externos */
+    display: block;
+  }
+  
+  /* Opcional: transición suave de opacidad al cargar */
+  /* El componente inicia invisible y aparece suavemente */
+  
+  /* Fondo crema característico */
+  .bg-cream {
+    background-color: #f9f7f1 !important;
+  }
+  
+  span {
+    font-weight: bolder;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  /* Título principal de la revista */
+  .cover-headline {
+    line-height: 1.1;
+    color: var(---color-text);
+    font-weight: 700;
+  }
+  
+  /* Metadatos (Fecha, Edición) */
+  .meta-label {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+  
+  /* Contenedor principal limpio, sin sombras fuertes */
+  .magazine-card {
+    min-height: 500px;
+    background-color: transparent;
+    border: none;
+  }
+  
+  /* --- ARTÍCULOS --- */
+  
+  .article-item {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    height: 100%;
+  }
+  
+  .article-title {
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+  
+  .article-excerpt {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+  }
+  
+  /* Link "Read full edition" */
+  .read-link {
+    font-weight: 700;
+    color: #000;
+    text-decoration: none;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .read-link:hover > span:last-child {
+    text-decoration: underline;
+  }
+  
+  /* Imagen de portada - OPTIMIZADA PARA NgOptimizedImage */
+  .cover-image {
+    width: 100%;
+    height: auto;
+    /* IMPORTANTE: Define la relación de aspecto explícita.
+       400 / 550 ≈ 0.727. Esto reserva el espacio exacto aunque la imagen no haya cargado. */
+    aspect-ratio: 400 / 550;
+    object-fit: cover; /* Cambié contain por cover para asegurar que llene el aspect-ratio */
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    display: block;
+  }
+  
+  .cover-image:hover {
+    transform: translateY(-5px);
+  }
+  
+  /* Overrides de PrimeNG */
+  :host ::ng-deep .p-carousel-items-content,
+  :host ::ng-deep .p-carousel-items-container {
+    height: auto !important;
+    min-height: 0 !important;
+    align-items: flex-start !important; /* CRUCIAL: Evita que se estiren al más alto */
+    transition: height 0.3s ease-out; /* Opcional: Suaviza el cambio de altura */
+  }
+  
+  /* Fuerza a los items a respetar el ancho inmediatamente */
+  :host ::ng-deep .p-carousel-item {
+    flex: 1 0 100%; /* O el porcentaje según tu numVisible */
+  }
+  
+  /* Ajuste responsive */
+  @media (max-width: 768px) {
+    .cover-headline {
+      font-size: 1.8rem;
+    }
+  
+    .cover-image {
+      max-height: 450px;
+    }
+  }
+  
+  /* Forzar una columna hasta el punto exacto que tú decidas */
+  @media (max-width: 991px) {
+    .col-derecha {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  
+    .col-izquierda {
+      flex: 0 0 100%;
+      max-width: 100%;
+      margin-bottom: 2rem;
+    }
+  
+    .col-derecha li:first-of-type .divisor {
+      display: none;
+    }
+  }
+  
+  /* Dos columnas desde este punto en adelante */
+  @media (min-width: 992px) {
+    .col-izquierda {
+      flex: 0 0 41.666667%;
+      max-width: 41.666667%;
+    }
+  
+    .col-derecha {
+      flex: 0 0 58.333333%;
+    }
+  
+    .col-derecha li:nth-of-type(2) .divisor {
+      display: none;
+    }
+  
+    .col-derecha li:first-of-type .divisor {
+      display: none;
+    }
+  }
+  

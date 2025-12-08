@@ -1,6 +1,6 @@
 //nuevo/frontend/src/app/public/pages/home/home.ts
 
-import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, signal, ViewEncapsulation } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 
@@ -13,6 +13,7 @@ import { FormTestimonios } from '../../components/form-testimonios/form-testimon
 import { FormPropuesta } from '../../components/form-propuesta/form-propuesta';
 import { EncuestaActual } from '../../components/encuesta-actual/encuesta-actual';
 import { CarruselRevista } from '../../components/carrusel-revista/carrusel-revista';
+import { Carrusel1 } from '../../components/carrusel-1/carrusel-1';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
@@ -34,16 +35,21 @@ import { AnimateOnScrollModule } from 'primeng/animateonscroll'; // ✅ NUEVO
     EncuestaActual,
     CarruselRevista,
     AnimateOnScrollModule,
+    Carrusel1,
   ],
   providers: [MessageService],
   templateUrl: './home.html',
   styleUrl: './home.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class Home implements OnInit {
   today: number = Date.now();
   municipios: Municipio[] = [];
-  testimonios: Testimonios[] = [];
-  temas: Temas[] = [];
+  //testimonios: Testimonios[] = [];
+  //temas: Temas[] = [];
+
+  testimonios = signal<Testimonios[]>([]);
+  temas = signal<Temas[]>([]);
   publicUrl = environment.publicUrl;
 
   private msg = inject(MessageService);
@@ -51,17 +57,18 @@ export class Home implements OnInit {
   private apiTemas = inject(ApiTemas);
 
   isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  showDialog = false;
+  //showDialog = false;
+  //showPropuesta = false;
+  showDialog = signal(false);
+  showPropuesta = signal(false);
 
-  abrirDialogo() {
-    this.showDialog = true;
+  /* abrirDialogo() {
+    this.showDialog.set(true);
   }
 
-  showPropuesta = false;
-  
   abrirDialogoPropuesta() {
-    this.showPropuesta = true;
-  }
+    this.showPropuesta.set(true);
+  } */
 
   constructor(private api: ApiMunicipio) {}
 
@@ -71,7 +78,7 @@ export class Home implements OnInit {
 
     // ⬇ Suscripción permanente a la lista
     this.apiTestimonios.testimonios$.subscribe((lista) => {
-      this.testimonios = lista.filter((t: any) => t.estatus === 'A');
+      this.testimonios.set(lista.filter((t: any) => t.estatus === 'A'));
     });
     this.cargarMunicipios();
     this.cargarTemas();
@@ -96,10 +103,7 @@ export class Home implements OnInit {
   cargarTestimonios(): void {
     this.apiTestimonios.getTestimonios().subscribe({
       next: (datos) => {
-        this.testimonios = datos.data.filter((testimonios) => testimonios.estatus == 'A');
-      },
-      error: (err) => {
-        console.error('Error al obtener testimonios', err);
+        this.testimonios.set(datos.data.filter((t) => t.estatus === 'A'));
       },
     });
   }
@@ -107,7 +111,7 @@ export class Home implements OnInit {
   cargarTemas(): void {
     this.apiTemas.getTemas().subscribe({
       next: (datos) => {
-        this.temas = datos.data.filter((tema) => tema.estatusTema === 'A');
+        this.temas.set(datos.data.filter((tema) => tema.estatusTema === 'A'));
       },
       error: (err) => {
         console.error('Error al obtener temas', err);
@@ -141,7 +145,7 @@ export class Home implements OnInit {
           detail: 'Testimonio guardado correctamente',
         });
 
-        this.showDialog = false;
+        this.showDialog.set(false);
 
         // Esperar un poco y verificar estado
         setTimeout(() => {

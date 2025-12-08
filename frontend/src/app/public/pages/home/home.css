@@ -14,6 +14,12 @@
   background: #f3ede7;
 }
 
+.home-section-3 {
+  margin: 0 2rem 3rem 2rem;
+  border-radius: 60px;
+  /* padding: 2rem; */
+}
+
 .espacio-25 {
   width: 25%;
   vertical-align: top;
