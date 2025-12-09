@@ -47,6 +47,10 @@ interface StatusOption {
   ]
 })
 export class ArticulosAdmin implements OnInit, OnDestroy {
+  /* articulos = signal<Articulos[]>([]);
+  revistas = signal<Revistas[]>([]);
+
+  revistasOptions = signal<any | null >([]); */
 
   // ===========================
   // Datos
