@@ -6,7 +6,7 @@
   </div>
 
   <div class="card-stack-container">
-    <div *ngFor="let revista of revistas" class="card-stack" [style.--cards]="4" (click)="abrirRevista(revista)">
+    <div *ngFor="let revista of revistas()" class="card-stack" [style.--cards]="4" (click)="abrirRevista(revista)">
    
 
 

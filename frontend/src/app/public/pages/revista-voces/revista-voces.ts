@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -12,23 +12,28 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './revista-voces.html',
   styleUrl: './revista-voces.css',
 })
-export class RevistaVoces implements OnInit {
+export class RevistaVoces {
+  private apiRevistas = inject(ApiRevistas);
+  private router = inject(Router);
+
   publicUrl = environment.publicUrl;
 
-  revistas: Revistas[] = [];
-
-  constructor(private apiRevistas: ApiRevistas, private router: Router) {}
-
-  ngOnInit(): void {
+  revistas = signal<Revistas[]>([]);
+  
+  constructor() {
     this.cargarRevistas();
   }
+
+  /* ngOnInit(): void {
+    this.cargarRevistas();
+  } */
 
   cargarRevistas(): void {
     this.apiRevistas.getRevistas().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           // Filtrar solo las revistas activas
-          this.revistas = response.data.filter((r) => r.estatus === 'A');
+          this.revistas.set(response.data.filter((r) => r.estatus === 'A'));
         }
       },
       error: (error) => {

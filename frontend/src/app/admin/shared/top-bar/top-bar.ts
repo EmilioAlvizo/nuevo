@@ -5,6 +5,7 @@ import {
   input,
   Renderer2,
   signal,
+  computed, // Importar computed
   OnInit,
   OnDestroy,
   ChangeDetectionStrategy,
@@ -12,8 +13,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService, User } from '../../../core/services/auth.service';
-import { Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service'; // User ya se infiere
 
 @Component({
   selector: 'app-top-bar',
@@ -22,44 +22,42 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrl: './top-bar.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TopBar {
+export class TopBar implements OnInit, OnDestroy {
   // Services
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly renderer = inject(Renderer2);
-  private destroy$ = new Subject<void>();
 
-  // Inputs configurables
-  show = input(true); // Control externo de visibilidad
-
-  //output
+  // Inputs & Outputs
+  show = input(true);
   expandedChange = output<boolean>();
   isExpanded = false;
 
-  // Signals
-  currentUser = signal<User | null>(null);
+  // ✅ SIGNALS: Conectados directamente al Service (Reactividad automática)
+  // No necesitas crear un signal local y actualizarlo manualmente.
+  currentUser = this.authService.currentUser;
+  isLoggedIn = this.authService.isLoggedIn;
+
+  // ✅ COMPUTED: Derivado del signal de usuario
+  isAdmin = computed(() => this.currentUser()?.rol === 'admin');
+
+  // Estado local UI
   showAdminMenu = signal(false);
+  openSection = signal<number | null>(null);
 
   // Handlers
   private clickOutsideHandler?: () => void;
 
-  async ngOnInit(): Promise<void> {
-    // Suscribirse a cambios de autenticación
-    this.authService.currentUser$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
-      this.currentUser.set(user);
-      console.log('👤 [TOP-BAR] Usuario actualizado:', user?.email || 'No autenticado');
-    });
+  ngOnInit(): void {
+    // ❌ Eliminada la suscripción a currentUser$. Las Signals se actualizan solas.
 
     // ✅ Detectar clic fuera del menú admin para cerrarlo
     this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
-      // Verificar si el clic fue dentro del botón admin o del menú desplegable
       const insideAdminBtn = (event.target as HTMLElement).closest('.admin-btn');
       const insideAdminMenu = (event.target as HTMLElement).closest('.admin-menu');
 
-      // Si el clic fue fuera de ambos, cerrar el menú
       if (!insideAdminBtn && !insideAdminMenu) {
         if (this.showAdminMenu()) {
-          console.log('🔒 [TOP-BAR] Cerrando menú admin (clic fuera)');
           this.showAdminMenu.set(false);
         }
       }
@@ -68,26 +66,15 @@ export class TopBar {
 
   ngOnDestroy(): void {
     this.clickOutsideHandler?.();
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  // ==================== GETTERS ====================
-
-  get isLoggedIn(): boolean {
-    return !!this.currentUser();
-  }
-
-  get isAdmin(): boolean {
-    return this.currentUser()?.rol === 'admin';
+    // No hace falta destruir suscripciones de Auth porque ya no existen
   }
 
   // ==================== METHODS ====================
 
   toggleAdminMenu(event: Event): void {
+    event.stopPropagation();
     this.isExpanded = !this.isExpanded;
     this.expandedChange.emit(this.isExpanded);
-    event.stopPropagation();
     this.showAdminMenu.update((open) => !open);
   }
 
@@ -103,6 +90,7 @@ export class TopBar {
   }
 
   logout(): void {
+    // Logout sigue devolviendo un Observable (petición HTTP), así que .subscribe está bien aquí
     this.authService.logout().subscribe({
       next: () => {
         this.showAdminMenu.set(false);
@@ -114,12 +102,7 @@ export class TopBar {
     });
   }
 
-  // Índice de la sección abierta actualmente (solo móvil)
-  openSection = signal<number | null>(null);
-
-  // Cambia la sección abierta
   toggleSection(index: number) {
-    // Si ya está abierta, la cerramos
     if (this.openSection() === index) {
       this.openSection.set(null);
     } else {

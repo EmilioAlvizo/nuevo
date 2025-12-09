@@ -5,21 +5,21 @@
     </div>
   </div>
 
-<div class="detalle-container" *ngIf="revista">
-    <h1>Volumen {{ revista.volumen }} — Año {{ revista.numero_year }}</h1>
-    <p class="fecha">{{ revista.fecha | date:'longDate' }}</p>
+<div class="detalle-container" *ngIf="revista()">
+    <h1>Volumen {{ revista()?.volumen }} — Año {{ revista()?.numero_year }}</h1>
+    <p class="fecha">{{ revista()?.fecha | date:'longDate' }}</p>
     
     <div class="flipbook-wrapper">
-        <app-flipbook [src]="publicUrl+'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo"></app-flipbook>
+        <app-flipbook [src]="publicUrl+'/revistas/' + revista()?.id_revista + '/archivo/' + revista()?.archivo"></app-flipbook>
 
 
-        <div class="card-layer with-image" [style.background-image]="'url('+publicUrl+'/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
+        <div class="card-layer with-image" [style.background-image]="'url('+publicUrl+'/revistas/' + revista()?.id_revista + '/portada/' + revista()?.portada + ')'">
 
 
         </div>
     </div>
 
-    <p class="descripcion">{{ revista.descripcion }}</p>
+    <p class="descripcion">{{ revista()?.descripcion }}</p>
 
     <button class="btn-descargar" (click)="descargarPDF()">
         Descargar PDF completo
@@ -27,37 +27,43 @@
 
     <!-- Artículos -->
 <!-- Artículos -->
-<div *ngIf="articulos.length > 0" class="articulos-list">
-  <h2 class="titulo-articulos">Artículos</h2>
+@if (articulos().length > 0) {
+  <div class="articulos-list">
+    <h2 class="titulo-articulos">Artículos</h2>
 
-  <div *ngFor="let articulo of articulos" class="articulo-card">
+    @for (articulo of articulos(); track articulo.id_articulo) {
+      <div class="articulo-card">
 
-    <div class="articulo-image">
-      <img 
-        *ngIf="articulo.imagen"
-        [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen"
-        alt="{{ articulo.titulo }}"
-      >
-    </div>
+        <div class="articulo-image">
+          @if (articulo.imagen) {
+            <img
+              [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen"
+              alt="{{ articulo.titulo }}"
+            >
+          }
+        </div>
 
-    <div class="articulo-content">
-      <h3>{{ articulo.titulo }}</h3>
+        <div class="articulo-content">
+          <h3>{{ articulo.titulo }}</h3>
 
-      <p class="autor">
-        <strong>Autor:</strong> {{ articulo.autor }}
-      </p>
+          <p class="autor">
+            <strong>Autor:</strong> {{ articulo.autor }}
+          </p>
 
-      <p class="contenido">
-        {{ articulo.contenido | slice:0:200 }}...
-      </p>
+          <p class="contenido">
+            {{ articulo.contenido | slice:0:200 }}...
+          </p>
 
-      <button (click)="abrirFlipbookEnPagina(articulo.pagina)" class="btn-leer">
-        Leer más
-      </button>
-    </div>
+          <button (click)="abrirFlipbookEnPagina(articulo.pagina)" class="btn-leer">
+            Leer más
+          </button>
+        </div>
 
+      </div>
+    }
   </div>
-</div>
+}
+
 
 
 </div>

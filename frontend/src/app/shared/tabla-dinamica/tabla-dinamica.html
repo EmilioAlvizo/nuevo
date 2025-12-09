@@ -2,11 +2,11 @@
  @defer (on viewport) {
 <div class="container">
   <!-- === PANEL DE FILTROS (Solo en vista GRID) === -->
-  @if (viewMode === 'grid') {
+  @if (viewMode() === 'grid') {
   <div class="panel-filtros">
     <div class="encabezado-filtros">
       <h2 class="titulo-filtros">Filtros</h2>
-      @if (filtersConfig.length) {
+      @if (filtersConfig().length) {
       <button class="boton-restablecer" (click)="limpiarFiltros()">
         <span class="texto-boton">Limpiar</span>
       </button>
@@ -14,7 +14,7 @@
     </div>
 
     <div class="contenido-filtros">
-      @for (filter of filtersConfig; track filter.key) {
+      @for (filter of filtersConfig(); track filter.key) {
       <!-- Grupo de Facetas -->
       <fieldset class="grupo-facetas">
         <legend class="encabezado-grupo">
@@ -76,7 +76,7 @@
                   class="input-busqueda"
                   [placeholder]="'Buscar ' + filter.label"
                   [(ngModel)]="filter.valorActual"
-                  (input)="paginaActual = 1; cargarDatos()"
+                  (input)="updateFilterValor(filter, $any($event.target).value)"
                   autocomplete="off"
                 />
                 <svg
@@ -173,12 +173,12 @@
     <!-- ENCABEZADO SUPERIOR -->
     <div class="encabezado-busqueda">
       <h2 class="titulo-resultados">
-        <span class="contador-resultados">{{ totalResultados }} resultados</span>
+        <span class="contador-resultados">{{ totalResultados() }} resultados</span>
       </h2>
 
       <div class="acciones-encabezado">
         <!-- Ordenar (solo en vista grid) -->
-        @if (viewMode === 'grid') {
+        @if (viewMode() === 'grid') {
         <div class="contenedor-ordenar">
           <label class="etiqueta-ordenar" for="orden-busqueda">Ordenar</label>
           <select class="selector-ordenar" id="orden-busqueda" (change)="ordenar($event)">
@@ -195,10 +195,10 @@
         <div class="alternador-vista">
           <button
             class="boton-vista"
-            [class.boton-vista--activo]="viewMode === 'list'"
+            [class.boton-vista--activo]="viewMode() === 'list'"
             (click)="setViewMode('list')"
             type="button"
-            [attr.aria-pressed]="viewMode === 'list'"
+            [attr.aria-pressed]="viewMode() === 'list'"
             aria-label="Vista de lista"
           >
             <svg
@@ -217,10 +217,10 @@
 
           <button
             class="boton-vista"
-            [class.boton-vista--activo]="viewMode === 'grid'"
+            [class.boton-vista--activo]="viewMode() === 'grid'"
             (click)="setViewMode('grid')"
             type="button"
-            [attr.aria-pressed]="viewMode === 'grid'"
+            [attr.aria-pressed]="viewMode() === 'grid'"
             aria-label="Vista de cuadrícula"
           >
             <svg
@@ -241,30 +241,30 @@
     </div>
 
     <!-- === AREA DE RESULTADOS === -->
-    <div class="resultados-area" [class.loading]="loading">
+    <div class="resultados-area" [class.loading]="loading()">
       <!-- VISTA GRID (CARDS) -->
-      @if (viewMode === 'grid') {
+      @if (viewMode() === 'grid') {
       <div class="cards-grid">
-        @for (row of data; track $index) {
+        @for (row of data(); track $index) {
         <div class="card">
           <div class="contenido">
             <!-- Badge -->
             <div>
-              @for (col of columns; track col.key) { @if (col.role === 'subtitle') {
+              @for (col of columns(); track col.key) { @if (col.role === 'subtitle') {
               <div class="badge">{{ row[col.key] }}</div>
               } }
             </div>
 
             <!-- Título -->
             <div class="titulo">
-              @for (col of columns; track col.key) { @if (col.role === 'title') {
+              @for (col of columns(); track col.key) { @if (col.role === 'title') {
               <h3>{{ row[col.key] }}</h3>
               } }
             </div>
 
             <!-- Descripción/Detalles -->
             <div class="descripcion">
-              @for (col of columns; track col.key) { @if (col.role === 'body') {
+              @for (col of columns(); track col.key) { @if (col.role === 'body') {
               <p>
                 <strong>{{ col.label }}:</strong>
                 @if (col.type === 'date') { {{ row[col.key] | date : 'dd/MM/yyyy' }} } @else {
@@ -319,12 +319,12 @@
     </div>
 
     <!-- === PAGINACIÓN PRIME NG === -->
-    @if (viewMode === 'grid') {
+    @if (viewMode() === 'grid') {
       <div class="flex justify-center mt-4">
         <p-paginator
-          [first]="(paginaActual - 1) * limite"
-          [rows]="limite"
-          [totalRecords]="totalResultados"
+          [first]="(paginaActual() - 1) * limite()"
+          [rows]="limite()"
+          [totalRecords]="totalResultados()"
           [rowsPerPageOptions]="[10, 25, 50, 100]"
           (onPageChange)="onPageChange($event)"
           [showCurrentPageReport]="true"

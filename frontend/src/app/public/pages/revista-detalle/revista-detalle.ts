@@ -1,5 +1,12 @@
 // nuevo/frontend/src/app/public/pages/revista-detalle/revista-detalle.ts
-import { Component, LOCALE_ID, OnInit } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  LOCALE_ID,
+  effect,
+  signal,
+  inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
@@ -12,116 +19,117 @@ import { ViewChild } from '@angular/core';
 
 registerLocaleData(localeEs);
 
-
 @Component({
   selector: 'app-revista-detalle',
-  standalone: true,
   imports: [CommonModule, Flipbook, RouterModule],
   templateUrl: './revista-detalle.html',
   styleUrls: ['./revista-detalle.css'],
-  providers: [{ provide: LOCALE_ID, useValue: 'es' }] 
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [{ provide: LOCALE_ID, useValue: 'es' }],
 })
+export class RevistaDetalle {
+  // ------------------
+  // Signals
+  // ------------------
 
-export class RevistaDetalle implements OnInit {
-  @ViewChild(Flipbook) flipbookComponent!: Flipbook;
+  private route = inject(ActivatedRoute);
+  private apiRevistas = inject(ApiRevistas);
+  private apiArticulos = inject(ApiArticulos);
+
+  revista = signal<Revistas | null>(null);
+  articulos = signal<Articulos[]>([]);
+  cargandoArticulos = signal(false);
 
   publicUrl = environment.publicUrl;
 
-  revista?: Revistas;
-  articulos: Articulos[] = [];   // ← agregar array de artículos
-  cargandoArticulos = false;      // ← para mostrar loading opcional
+  @ViewChild(Flipbook)
+  flipbookComponent!: Flipbook;
 
-  constructor(
-    private route: ActivatedRoute,
-    private apiRevistas: ApiRevistas,
-    private apiArticulos: ApiArticulos
-  ) {}
+  // ID de la URL como signal
+  idRevista = signal<number | null>(null);
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.obtenerRevista(+id);
-  }
+  constructor() {
+    // Cargar ID desde la URL al inicializar
+    this.idRevista.set(Number(this.route.snapshot.paramMap.get('id')));
 
-  obtenerRevista(id: number): void {
-    this.apiRevistas.getRevistas().subscribe({
-      next: (response) => {
-        const encontrada = response.data.find(r => r.id_revista === id);
-        if (encontrada) {
-          this.revista = encontrada;
-          this.obtenerArticulosPorRevista(id);
-        }
-      },
-      error: (err) => console.error('Error al obtener detalle:', err)
+    // Efecto: cuando cambia el ID → cargar revista
+    effect(() => {
+      const id = this.idRevista();
+      if (!id) return;
+
+      this.apiRevistas.getRevistas().subscribe((response) => {
+        const encontrada = response.data.find((r) => r.id_revista === id) ?? null;
+        this.revista.set(encontrada);
+
+        if (encontrada) this.cargarArticulos(id);
+      });
     });
   }
 
-  obtenerArticulosPorRevista(id: number): void {
-    this.cargandoArticulos = true;
+  // ------------------
+  // Cargar artículos
+  // ------------------
+
+  private cargarArticulos(id: number) {
+    this.cargandoArticulos.set(true);
+
     this.apiArticulos.getArticulos().subscribe({
       next: (response) => {
-        // Filtrar solo los artículos de la revista actual **y** con estatus 'A'
-        this.articulos = response.data
-          .filter(a => a.id_revista === id && a.estatus === 'A');
-        this.cargandoArticulos = false;
+        const filtrados = response.data.filter((a) => a.id_revista === id && a.estatus === 'A');
+
+        this.articulos.set(filtrados);
+        this.cargandoArticulos.set(false);
       },
-      error: (err) => {
-        console.error('Error al obtener artículos:', err);
-        this.cargandoArticulos = false;
-      }
+      error: () => {
+        this.cargandoArticulos.set(false);
+      },
     });
   }
 
+  // ------------------
+  // Abrir PDF
+  // ------------------
 
   descargarPDF(): void {
-    if (this.revista?.archivo && this.revista?.id_revista) {
-      const ruta = `http://localhost:3000/public/revistas/${this.revista.id_revista}/archivo/${this.revista.archivo}`;
-      window.open(ruta, '_blank');
-    } else {
-      console.error('Archivo o ID de revista no definidos');
-    }
+    const r = this.revista();
+    if (!r) return;
+
+    const ruta = `${this.publicUrl}/revistas/${r.id_revista}/archivo/${r.archivo}`;
+    window.open(ruta, '_blank');
   }
+
+  // ------------------
+  // Abrir flipbook en página
+  // ------------------
 
   abrirFlipbookEnPagina(pagina: number | null) {
     if (pagina === null || !this.flipbookComponent) return;
 
-    // Calcular el índice del folio considerando que la portada (página 1) está sola
     let folioIndex: number;
-    
+
     if (pagina === 1) {
-      // La portada está en el folio 0
       folioIndex = 0;
     } else {
-      // Páginas 2 en adelante: página 2-3 → folio 1, página 4-5 → folio 2, etc.
       folioIndex = Math.floor((pagina - 2) / 2) + 1;
     }
-    
-    // Verificar que el folio existe
-    if (folioIndex < 0 || folioIndex >= this.flipbookComponent.folios.length) {
-      console.error('Índice de folio fuera de rango:', folioIndex);
+
+    if (!this.flipbookComponent.folios || folioIndex >= this.flipbookComponent.folios.length) {
+      console.error('Índice fuera de rango');
       return;
     }
 
-    // Marcar los folios anteriores como "flipped"
     for (let i = 0; i < folioIndex; i++) {
       this.flipbookComponent.folios[i].flipped = true;
     }
 
-    // Asegurarse de que el folio actual NO esté flipped
     this.flipbookComponent.folios[folioIndex].flipped = false;
-
-    // Actualizar el índice actual
     this.flipbookComponent.currentFolioIndex = folioIndex;
 
-    // Renderizar los folios visibles
     this.flipbookComponent.renderVisibleFolios();
 
-    // Scroll hacia el flipbook después de un pequeño delay
     setTimeout(() => {
       const flipbookEl = document.querySelector('.flipbook-wrapper');
-      if (flipbookEl) {
-        flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      flipbookEl?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }
-
 }

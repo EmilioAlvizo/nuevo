@@ -129,9 +129,9 @@ export class Carrusel1 {
   };
 
   dividerDesignTokens = {
-    root: {
+    /* root: {
       borderColor: 'var(--surface-border)', // Se adapta a gris claro u oscuro
-    },
+    }, */
     horizontal: {
       margin: '0 0 1.125rem 0',
     },

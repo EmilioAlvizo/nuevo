@@ -35,7 +35,7 @@
         <!-- Sección de autenticación -->
         <div class="auth-section">
           <!-- Botón Login (usuario no autenticado) -->
-          @if (!isLoggedIn) {
+          @if (!isLoggedIn()) {
           <button class="login-btn" (click)="goToLogin()" aria-label="Iniciar sesión">
             <i class="fa-solid fa-user"></i>
             <span>Login</span>
@@ -65,7 +65,7 @@
     </div>
 
     <!-- Menú desplegable de admin -->
-    @if (showAdminMenu() && isLoggedIn) {
+    @if (showAdminMenu() && isLoggedIn()) {
     <div class="admin-menu">
       <!-- Información del usuario -->
       <div class="admin-info">

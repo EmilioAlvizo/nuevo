@@ -1,26 +1,32 @@
-<!-- // nuevo/frontend/src/app/public/pages/estadisticas/estadisticas.ts -->
+<!-- // nuevo/frontend/src/app/public/pages/estadisticas/estadisticas.html -->
 <div class="contenedor">
   <div class="row text-wrap text-break">
     <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
-      <p class="text-center texto-title-pages mb-4">Estadísticas de las juventudes</p>
+      <!-- Título dinámico basado en el tab activo -->
+      <p class="text-center texto-title-pages mb-4">{{ pageTitle() }}</p>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <p-tabs value="0" [dt]="tabDesignTokens" [lazy]="true">
-    <p-tablist >
+  <!-- Usar [(value)] para two-way binding o [value] + (valueChange) -->
+  <p-tabs 
+    [(value)]="activeTab" 
+    [dt]="tabDesignTokens" 
+    [lazy]="true"
+  >
+    <p-tablist>
       <div class="container-xxl" style="position: relative; display: flex;">
         <p-tab value="0">Archivos municipio</p-tab>
-      <p-tab value="1">Documentos Cendoc</p-tab>
-      <p-tab value="2">Header III</p-tab>
+        <p-tab value="1">Documentos Cendoc</p-tab>
+        <p-tab value="2">Visualización</p-tab>
       </div>
     </p-tablist>
     <p-tabpanels>
       <p-tabpanel value="0">
-        <ng-template #content
-          ><app-tabla-dinamica [strategy]="archivosStrategy"></app-tabla-dinamica
-        ></ng-template>
+        <ng-template #content>
+          <app-tabla-dinamica [strategy]="archivosStrategy" />
+        </ng-template>
       </p-tabpanel>
       <p-tabpanel value="1">
         <ng-template #content>
@@ -28,28 +34,29 @@
             <h2 style="font-size: 30px; text-transform: none;">
               <b>¿Qué es el Centro Documental?</b>
             </h2>
-            <br>
-            <h2 class="animate__animated animate_fadeIn"
-              style="font-size: 20px; text-transform: none; margin-top: -20px;">
+            <br />
+            <h2
+              class="animate__animated animate_fadeIn"
+              style="font-size: 20px; text-transform: none; margin-top: -20px;"
+            >
               El Centro Documental es la unidad especializada en la recopilación, preservación y
               difusión de información sobre diagnósticos, artículos científicos, investigaciones y
               política pública resultado de actividades realizadas por instituciones públicas y
               privadas locales, nacionales e internacionales, con el objetivo de ser consultadas,
               referenciadas y usadas, para la reflexión o generación de nuevo conocimiento.
-              <br>
+              <br />
               El Sistema de Información e Investigación pone a disposición el Cendoc, que
               proporciona información oportuna y actualizada en materia de juventud a todos los
               usuarios interesados en realizar investigación sobre la temática y la realidad de la
               juventud en sus diversos contextos.
             </h2>
-      
           </div>
-          <app-tabla-dinamica [strategy]="docStrategy"></app-tabla-dinamica
-        ></ng-template>
+          <app-tabla-dinamica [strategy]="docStrategy" />
+        </ng-template>
       </p-tabpanel>
       <p-tabpanel value="2">
-        <ng-template #content
-          ><div
+        <ng-template #content>
+          <div
             style="
               position: relative;
               width: 100%;
@@ -83,13 +90,14 @@
             </iframe>
           </div>
           <a
-            href="https:&#x2F;&#x2F;www.canva.com&#x2F;design&#x2F;DAG6MzGo6Fw&#x2F;6SUwgkNcAizVRipUn4ojdA&#x2F;view?utm_content=DAG6MzGo6Fw&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link"
+            href="https://www.canva.com/design/DAG6MzGo6Fw/6SUwgkNcAizVRipUn4ojdA/view?utm_content=DAG6MzGo6Fw&utm_campaign=designshare&utm_medium=embeds&utm_source=link"
             target="_blank"
             rel="noopener"
-            >Diseño</a
           >
-          de Emilio Alvizo Velazquez</ng-template
-        >
+            Diseño
+          </a>
+          de Emilio Alvizo Velazquez
+        </ng-template>
       </p-tabpanel>
     </p-tabpanels>
   </p-tabs>

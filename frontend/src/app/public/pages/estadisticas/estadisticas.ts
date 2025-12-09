@@ -1,5 +1,5 @@
 // nuevo/frontend/src/app/public/pages/estadisticas/estadisticas.ts
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 
 import { Tabla } from '../../components/tabla/tabla';
 import { TablaDinamica } from '../../../shared/tabla-dinamica/tabla-dinamica';
@@ -19,6 +19,24 @@ export class Estadisticas {
   protected archivosStrategy = inject(ArchMunicipioPublic);
   protected docStrategy = inject(DocCendocPublic);
 
+  // Signal para rastrear el tab activo
+  activeTab = signal<string>('0');
+
+  // Configuración de los tabs con sus títulos
+  private readonly tabTitles: Record<string, string> = {
+    '0': 'Archivos Municipio',
+    '1': 'Centro Documental',
+    '2': 'Visualización'
+  };
+
+  // Computed signal para obtener el título dinámico
+  pageTitle = computed(() => this.tabTitles[this.activeTab()] || 'Estadísticas de las juventudes');
+
+  // Método para actualizar el tab activo
+  onTabChange(value: string) {
+    this.activeTab.set(value);
+  }
+  
   // Personalización con Design Tokens de PrimeNG
   menuDesignTokens = {
     item: {

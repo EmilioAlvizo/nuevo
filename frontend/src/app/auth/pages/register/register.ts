@@ -1,69 +1,73 @@
 // nuevo/frontend/src/app/pages/register/register.ts
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register.html',
   styleUrls: ['./register.css'],
 })
 export class RegisterComponent {
-  nombre = '';
-  email = '';
-  password = '';
-  confirmPassword = '';
-  loading = false;
-  error = '';
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  // Signals
+  loading = signal(false);
+  error = signal('');
+
+  // Formulario Reactivo
+  registerForm = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required]],
+  }, { validators: this.passwordMatchValidator });
 
   onSubmit(): void {
-    // Validaciones
-    if (!this.nombre || !this.email || !this.password || !this.confirmPassword) {
-      this.error = 'Por favor completa todos los campos';
+    this.error.set('');
+
+    if (this.registerForm.invalid) {
+      this.error.set('Por favor corrige los errores en el formulario');
+      this.registerForm.markAllAsTouched();
       return;
     }
 
-    if (this.password !== this.confirmPassword) {
-      this.error = 'Las contraseñas no coinciden';
-      return;
-    }
+    const { nombre, email, password, confirmPassword } = this.registerForm.getRawValue();
+    const userData = { nombre, email, password, confirmPassword };
 
-    if (this.password.length < 6) {
-      this.error = 'La contraseña debe tener al menos 6 caracteres';
-      return;
-    }
+    this.loading.set(true);
+    this.registerForm.disable();
 
-    this.loading = true;
-    this.error = '';
-
-    const userData = {
-      nombre: this.nombre,
-      email: this.email,
-      password: this.password,
-      confirmPassword: this.confirmPassword,
-    };
-
+    // Asumiendo que tu AuthService tiene un método register que devuelve un Observable
     this.authService.register(userData).subscribe({
-      next: (user) => {
-        if (user) {
-          this.router.navigate(['/admin']);
-        } else {
-          this.error = 'No se pudo registrar el usuario';
-        }
+      next: (response: any) => { 
+        // Ajusta 'response' según lo que devuelva tu backend en registro
+        this.loading.set(false);
+        this.registerForm.enable();
+        this.router.navigate(['/admin']);
       },
       error: (err) => {
-        this.error = err.error?.message || 'Error al registrar usuario';
-        this.loading = false;
-      },
-      complete: () => {
-        this.loading = false;
-      },
+        this.loading.set(false);
+        this.registerForm.enable();
+        const msg = err.error?.message || 'Error al registrar usuario';
+        this.error.set(msg);
+      }
     });
   }
+
+  // Validador personalizado para contraseñas
+  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password')?.value;
+    const confirmPassword = control.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
+  }
+
+  // Getters para el HTML
+  get f() { return this.registerForm.controls; }
 }

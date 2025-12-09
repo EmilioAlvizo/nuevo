@@ -1,5 +1,5 @@
 // nuevo/frontend/src/app/shared/tabla-dinamica/tabla-dinamica.ts
-import { Component, Input, OnInit, OnChanges, SimpleChanges, computed } from '@angular/core';
+import { Component, input, OnInit, OnChanges, SimpleChanges, computed, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
@@ -53,11 +53,11 @@ export interface TableStrategy {
   getColumns(): TableColumn[];
   initFilters(): Observable<FilterConfig[]>;
   getData(params: TableParams): Observable<TableData>;
-  
+
   // 👇 Métodos opcionales para tabla-generica
   getTableGenericaColumns?(): ColumnConfig[];
   getDataService?(): any;
-  
+
   // 👇 NUEVO: Métodos opcionales para manejar acciones
   onView?(item: any): void;
   onEdit?(item: any): void;
@@ -71,47 +71,58 @@ export interface TableStrategy {
   imports: [CommonModule, FormsModule, TablaGenerica, PaginatorModule],
   templateUrl: './tabla-dinamica.html',
   styleUrl: './tabla-dinamica.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TablaDinamica implements OnInit, OnChanges {
-  @Input() strategy!: TableStrategy;
+  // Usar input() function en lugar de @Input
+  strategy = input.required<TableStrategy>();
 
-  viewMode: 'grid' | 'list' = 'grid';
+  // Usar signals para el estado
+  viewMode = signal<'grid' | 'list'>('grid');
+  columns = signal<TableColumn[]>([]);
+  filtersConfig = signal<FilterConfig[]>([]);
+  data = signal<any[]>([]);
+  loading = signal(false);
+  totalResultados = signal(0);
+  totalPaginas = signal(0);
+  paginaActual = signal(1);
+  limite = signal(10);
+  searchTerm = signal('');
+  ordenActual = signal('');
 
-  columns: TableColumn[] = [];
-  filtersConfig: FilterConfig[] = [];
-  data: any[] = [];
-
-  loading = false;
-  totalResultados = 0;
-  totalPaginas = 0;
-  paginaActual = 1;
-  limite = 10;
-  searchTerm = '';
   searchSubject = new Subject<string>();
-
-  ordenActual = '';
   Math = Math;
 
   // 👇 Computed signals para tabla-generica
   tableGenericaColumns = computed<ColumnConfig[]>(() => {
-    if (this.strategy?.getTableGenericaColumns) {
-      return this.strategy.getTableGenericaColumns();
+    const strat = this.strategy();
+    if (strat?.getTableGenericaColumns) {
+      return strat.getTableGenericaColumns();
     }
     return [];
   });
 
   tableGenericaService = computed(() => {
-    if (this.strategy?.getDataService) {
-      return this.strategy.getDataService();
+    const strat = this.strategy();
+    if (strat?.getDataService) {
+      return strat.getDataService();
     }
     return null;
   });
 
   constructor() {
     this.searchSubject.pipe(debounceTime(500)).subscribe((term) => {
-      this.searchTerm = term;
-      this.paginaActual = 1;
+      this.searchTerm.set(term);
+      this.paginaActual.set(1);
       this.cargarDatos();
+    });
+
+    // Effect para reaccionar a cambios en la estrategia
+    effect(() => {
+      const strat = this.strategy();
+      if (strat) {
+        this.inicializarTabla();
+      }
     });
   }
 
@@ -126,30 +137,32 @@ export class TablaDinamica implements OnInit, OnChanges {
   }
 
   inicializarTabla() {
-    if (!this.strategy) return;
+    const strat = this.strategy();
+    if (!strat) return;
 
-    this.columns = this.strategy.getColumns();
+    this.columns.set(strat.getColumns());
 
-    this.loading = true;
-    this.strategy.initFilters().subscribe({
+    this.loading.set(true);
+    strat.initFilters().subscribe({
       next: (configs) => {
-        this.filtersConfig = configs;
+        this.filtersConfig.set(configs);
         this.cargarDatos();
       },
       error: (err) => {
         console.error(err);
-        this.loading = false;
+        this.loading.set(false);
       },
     });
   }
 
   cargarDatos() {
-    if (!this.strategy) return;
+    const strat = this.strategy();
+    if (!strat) return;
 
-    this.loading = true;
+    this.loading.set(true);
     const activeFilters: any = {};
 
-    this.filtersConfig.forEach((f) => {
+    this.filtersConfig().forEach((f) => {
       if (f.type === 'checkbox' && Array.isArray(f.valorActual) && f.valorActual.length > 0) {
         activeFilters[f.key] = f.valorActual.join(',');
       } else if (f.type === 'text' && f.valorActual) {
@@ -158,54 +171,77 @@ export class TablaDinamica implements OnInit, OnChanges {
     });
 
     const params: TableParams = {
-      page: this.paginaActual,
-      limit: this.limite,
-      search: this.searchTerm,
-      sort: this.ordenActual,
+      page: this.paginaActual(),
+      limit: this.limite(),
+      search: this.searchTerm(),
+      sort: this.ordenActual(),
       filters: activeFilters,
     };
 
-    this.strategy.getData(params).subscribe({
+    strat.getData(params).subscribe({
       next: (res) => {
-        this.data = res.data;
-        this.totalResultados = res.total;
-        this.totalPaginas = Math.ceil(this.totalResultados / this.limite);
-        this.loading = false;
+        this.data.set(res.data);
+        this.totalResultados.set(res.total);
+        this.totalPaginas.set(Math.ceil(res.total / this.limite()));
+        this.loading.set(false);
       },
-      error: () => (this.loading = false),
+      error: () => this.loading.set(false),
     });
   }
 
   // --- MÉTODOS UI ---
 
   setViewMode(mode: 'grid' | 'list') {
-    this.viewMode = mode;
+    this.viewMode.set(mode);
   }
 
   ordenar(event: Event) {
     const select = event.target as HTMLSelectElement;
-    this.ordenActual = select.value;
-    this.paginaActual = 1;
+    this.ordenActual.set(select.value);
+    this.paginaActual.set(1);
     this.cargarDatos();
   }
 
   toggleFilterGroup(f: FilterConfig) {
-    f.expandido = !f.expandido;
+    const filters = this.filtersConfig();
+    const index = filters.indexOf(f);
+    if (index > -1) {
+      const updated = [...filters];
+      updated[index] = { ...f, expandido: !f.expandido };
+      this.filtersConfig.set(updated);
+    }
   }
 
   toggleCheckbox(f: FilterConfig, val: any) {
-    if (!Array.isArray(f.valorActual)) f.valorActual = [];
-    const idx = f.valorActual.indexOf(val);
-    idx > -1 ? f.valorActual.splice(idx, 1) : f.valorActual.push(val);
-    this.paginaActual = 1;
+    const filters = this.filtersConfig();
+    const index = filters.indexOf(f);
+    if (index > -1) {
+      const updated = [...filters];
+      if (!Array.isArray(updated[index].valorActual)) {
+        updated[index] = { ...updated[index], valorActual: [] };
+      }
+      const valores = [...updated[index].valorActual];
+      const idx = valores.indexOf(val);
+
+      if (idx > -1) {
+        valores.splice(idx, 1);
+      } else {
+        valores.push(val);
+      }
+
+      updated[index] = { ...updated[index], valorActual: valores };
+      this.filtersConfig.set(updated);
+    }
+
+    this.paginaActual.set(1);
     this.cargarDatos();
   }
 
-  isChecked(f: FilterConfig, val: any) {
+  isChecked(f: FilterConfig, val: any): boolean {
     return Array.isArray(f.valorActual) && f.valorActual.includes(val);
   }
 
-  getOpcionesVisibles(f: FilterConfig) {
+  getOpcionesVisibles(f: FilterConfig): FilterOption[] {
     if (!f.opciones) return [];
     if (!f.busquedaInterna) return f.opciones;
     return f.opciones.filter((o) =>
@@ -214,27 +250,53 @@ export class TablaDinamica implements OnInit, OnChanges {
   }
 
   limpiarFiltros() {
-    this.filtersConfig.forEach((f) => {
-      f.valorActual = f.type === 'checkbox' ? [] : '';
-      f.busquedaInterna = '';
-    });
-    this.searchTerm = '';
-    this.paginaActual = 1;
+    const filters = this.filtersConfig().map((f) => ({
+      ...f,
+      valorActual: f.type === 'checkbox' ? [] : '',
+      busquedaInterna: '',
+    }));
+
+    this.filtersConfig.set(filters);
+    this.searchTerm.set('');
+    this.paginaActual.set(1);
     this.cargarDatos();
   }
 
-  // 👇 NUEVOS MÉTODOS: Delegan a la estrategia
   onView(item: any) {
-    if (this.strategy?.onView) {
-      this.strategy.onView(item);
+    const strat = this.strategy();
+    if (strat?.onView) {
+      strat.onView(item);
     } else {
       console.log('Ver:', item);
     }
   }
 
   onPageChange(event: PaginatorState) {
-    this.paginaActual = (event.first! / event.rows!) + 1;
-    this.limite = event.rows!;
+    this.paginaActual.set(event.first! / event.rows! + 1);
+    this.limite.set(event.rows!);
+    this.cargarDatos();
+  }
+
+  // Métodos auxiliares para el template
+  updateFilterBusqueda(f: FilterConfig, value: string) {
+    const filters = this.filtersConfig();
+    const index = filters.indexOf(f);
+    if (index > -1) {
+      const updated = [...filters];
+      updated[index] = { ...updated[index], busquedaInterna: value };
+      this.filtersConfig.set(updated);
+    }
+  }
+
+  updateFilterValor(f: FilterConfig, value: any) {
+    const filters = this.filtersConfig();
+    const index = filters.indexOf(f);
+    if (index > -1) {
+      const updated = [...filters];
+      updated[index] = { ...updated[index], valorActual: value };
+      this.filtersConfig.set(updated);
+    }
+    this.paginaActual.set(1);
     this.cargarDatos();
   }
 }

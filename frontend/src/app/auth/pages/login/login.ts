@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
+  standalone: true, // Asegúrate de que tu app soporte standalone o quítalo si usas Módulos
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -18,27 +18,25 @@ export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  // Signals para estado reactivo
+  // Signals locales
   loading = signal(false);
   error = signal('');
   returnUrl = signal('/');
 
-  // Formulario reactivo con validaciones
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   ngOnInit(): void {
-    // Si ya está logueado, redirigir
-    if (this.authService.isLoggedIn) {
-      const user = this.authService.currentUser;
+    // CORRECCIÓN: Usar paréntesis () para leer las signals del servicio
+    if (this.authService.isLoggedIn()) {
+      const user = this.authService.currentUser();
       console.log('✅ Ya está logueado como:', user?.email);
-      this.navigateAfterLogin(user!);
+      this.navigateAfterLogin(user);
       return;
     }
 
-    // Obtener la URL de retorno de los query params
     this.route.queryParams.subscribe((params) => {
       if (params['returnUrl']) {
         this.returnUrl.set(params['returnUrl']);
@@ -57,7 +55,6 @@ export class LoginComponent implements OnInit {
 
     const { email, password } = this.loginForm.getRawValue();
 
-    // Deshabilitar el formulario mientras carga
     this.loading.set(true);
     this.loginForm.disable();
 
@@ -67,23 +64,21 @@ export class LoginComponent implements OnInit {
         this.loginForm.enable();
 
         if (response.success && response.data) {
-          console.log('✅ Login exitoso:', response.data.user.email);
           this.navigateAfterLogin(response.data.user);
         }
       },
       error: (err) => {
         this.loading.set(false);
         this.loginForm.enable();
-        this.error.set(err.message || 'Error al iniciar sesión');
-        console.error('❌ Error de login:', err);
+        // Manejo seguro del mensaje de error
+        const msg = err.error?.message || err.message || 'Error al iniciar sesión';
+        this.error.set(msg);
       },
     });
   }
 
   private navigateAfterLogin(user: any): void {
-    // Redirigir según el rol
-    if (user.rol === 'usuario') {
-      console.log('redirigiendo ')
+    if (user?.rol === 'usuario') { // Safe navigation operator por si acaso
       this.router.navigate(['/admin']);
     } else {
       this.router.navigate([this.returnUrl()]);
@@ -96,12 +91,6 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // Helpers para el template
-  get emailControl() {
-    return this.loginForm.get('email');
-  }
-
-  get passwordControl() {
-    return this.loginForm.get('password');
-  }
+  get emailControl() { return this.loginForm.get('email'); }
+  get passwordControl() { return this.loginForm.get('password'); }
 }
