@@ -24,6 +24,8 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/primeicons/primeicons.css",
               "src/styles.css"
             ],
             "scripts": [
@@ -93,9 +95,9 @@
               }
             ],
             "styles": [
-              "src/styles.css",
               "src/app/public/public-layout/public-layout.css",
-              "src/app/admin/admin-layout/admin-layout.css"
+              "src/app/admin/admin-layout/admin-layout.css",
+              "src/styles.css"
             ]
           }
         }

@@ -51,7 +51,7 @@
             [attr.aria-expanded]="showAdminMenu()"
             aria-label="Menú de administración"
           >
-            <i class="fa-solid fa-user-shield"></i>
+            <i class="fa-solid pi pi-user"></i>
             <span>{{ currentUser()?.nombre || 'Admin' }}</span>
             <i
               class="fa-solid"
@@ -273,7 +273,7 @@
       <!-- Botón de cerrar sesión -->
       <div class="admin-footer">
         <button class="logout-btn" (click)="logout()">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <i class="fa-solid pi pi-sign-out"></i>
           <span>Cerrar Sesión</span>
         </button>
       </div>

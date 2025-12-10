@@ -1,23 +1,23 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiDirectorios, Directorios } from '../../../core/services/directorios';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-directorio',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './directorio.html',
-  styleUrls: ['./directorio.css']
+  styleUrls: ['./directorio.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Directorio implements OnInit {
-  publicUrl = environment.publicUrl;
-
   private directoriosService = inject(ApiDirectorios);
+
+  publicUrl = environment.publicUrl;
   
   directorio?: Directorios;
-  directorios: Directorios[] = [];
-  loading = true;
+  directorios = signal<Directorios[]>([]);
+  loading = signal(true);
 
   ngOnInit(): void {
     this.loadDirectorios();
@@ -29,13 +29,13 @@ export class Directorio implements OnInit {
         if (response.success && response.data) {
           // Filtrar solo los directorios activos
           // this.directorios = response.data.filter(d => d.estatus === 'A');
-          this.directorios = response.data;
+          this.directorios.set(response.data);
         }
-        this.loading = false;
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar directorios:', err);
-        this.loading = false;
+        this.loading.set(false);
       }
     });
   }

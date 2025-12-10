@@ -1,5 +1,5 @@
 // apoyos-servicios.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -17,35 +17,36 @@ import { environment } from '../../../../environments/environment';
     SkeletonModule
   ],
   templateUrl: './apoyos-servicios.html',
-  styleUrls: ['./apoyos-servicios.css']
+  styleUrls: ['./apoyos-servicios.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApoyosServicios implements OnInit {
+  private apiApoyos = inject(ApiApoyos);
   publicUrl = environment.publicUrl;
-  apoyos: Apoyos[] = [];
-  loading: boolean = true;
-  error: string | null = null;
 
-  constructor(private apiApoyos: ApiApoyos) {}
+  apoyos = signal<Apoyos[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadApoyos();
   }
 
   loadApoyos(): void {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
 
     this.apiApoyos.getApoyos().subscribe({
       next: (response) => {
         if (response.success) {
-          this.apoyos = response.data.filter(apoyo => apoyo.estatus === 'A');
-          this.loading = false;
+          this.apoyos.set(response.data.filter(apoyo => apoyo.estatus === 'A'));
+          this.loading.set(false);
         }
       },
       error: (err) => {
         console.error('Error al cargar apoyos:', err);
-        this.error = 'No se pudieron cargar los apoyos y servicios';
-        this.loading = false;
+        this.error.set('No se pudieron cargar los apoyos y servicios');
+        this.loading.set(false);
       }
     });
   }

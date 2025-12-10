@@ -40,7 +40,7 @@
               <div class="text-gray-400 mb-2">
                 <span class="font-bold">EDICIÓN:</span> {{ revista.fecha | date : 'longDate' | uppercase }}
               </div>
-              <h1 class="text-gray-50 mb-4 fs-1">
+              <h1 class="text-gray-50! mb-4 fs-1">
                 {{ revista.descripcion }}
               </h1><!-- <h1 class="text-3xl font-bold underline">
                     Hello world!
@@ -53,13 +53,13 @@
               <!-- Iteramos sobre los artículos -->
               @for (articulo of revista.articulos; track $index) {
               <li class="col-12 col-lg-6">
-                <p-divider [dt]="dividerDesignTokens" class="bg-blue-50 divisor"></p-divider>
+                <p-divider [dt]="dividerDesignTokens" class="bg-blue-50! divisor"></p-divider>
                 <div class="article-item font-sans">
                   <a
                 [href]="'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo"
                 target="_blank"
               >
-                  <h3 class="text-gray-50 hover:text-amber-400 hover-text-primary fs-5">
+                  <h3 class="text-gray-50! hover:text-amber-400! fs-5">
                     {{ articulo.titulo }}
                   </h3>
                   

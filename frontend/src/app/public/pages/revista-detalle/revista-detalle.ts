@@ -6,21 +6,22 @@ import {
   effect,
   signal,
   inject,
+  viewChild,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule, registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { ApiArticulos, Articulos } from '../../../core/services/articulos';
 import { Flipbook } from '../../components/flipbook/flipbook';
-import localeEs from '@angular/common/locales/es';
 import { environment } from '../../../../environments/environment';
-import { RouterModule } from '@angular/router';
-import { ViewChild } from '@angular/core';
 
 registerLocaleData(localeEs);
 
 @Component({
   selector: 'app-revista-detalle',
+  standalone: true, // Implicit in v19+ but good for clarity
   imports: [CommonModule, Flipbook, RouterModule],
   templateUrl: './revista-detalle.html',
   styleUrls: ['./revista-detalle.css'],
@@ -28,31 +29,26 @@ registerLocaleData(localeEs);
   providers: [{ provide: LOCALE_ID, useValue: 'es' }],
 })
 export class RevistaDetalle {
-  // ------------------
-  // Signals
-  // ------------------
-
   private route = inject(ActivatedRoute);
   private apiRevistas = inject(ApiRevistas);
   private apiArticulos = inject(ApiArticulos);
 
+  // Data Signals
   revista = signal<Revistas | null>(null);
   articulos = signal<Articulos[]>([]);
   cargandoArticulos = signal(false);
 
-  publicUrl = environment.publicUrl;
-
-  @ViewChild(Flipbook)
-  flipbookComponent!: Flipbook;
-
-  // ID de la URL como signal
+  // URL Signal
   idRevista = signal<number | null>(null);
 
+  publicUrl = environment.publicUrl;
+
+  // View Child Signal
+  flipbookRef = viewChild(Flipbook);
+
   constructor() {
-    // Cargar ID desde la URL al inicializar
     this.idRevista.set(Number(this.route.snapshot.paramMap.get('id')));
 
-    // Efecto: cuando cambia el ID → cargar revista
     effect(() => {
       const id = this.idRevista();
       if (!id) return;
@@ -60,62 +56,45 @@ export class RevistaDetalle {
       this.apiRevistas.getRevistas().subscribe((response) => {
         const encontrada = response.data.find((r) => r.id_revista === id) ?? null;
         this.revista.set(encontrada);
-
         if (encontrada) this.cargarArticulos(id);
       });
     });
   }
 
-  // ------------------
-  // Cargar artículos
-  // ------------------
-
   private cargarArticulos(id: number) {
     this.cargandoArticulos.set(true);
-
     this.apiArticulos.getArticulos().subscribe({
       next: (response) => {
         const filtrados = response.data.filter((a) => a.id_revista === id && a.estatus === 'A');
-
         this.articulos.set(filtrados);
         this.cargandoArticulos.set(false);
       },
-      error: () => {
-        this.cargandoArticulos.set(false);
-      },
+      error: () => this.cargandoArticulos.set(false),
     });
   }
-
-  // ------------------
-  // Abrir PDF
-  // ------------------
 
   descargarPDF(): void {
     const r = this.revista();
     if (!r) return;
-
     const ruta = `${this.publicUrl}/revistas/${r.id_revista}/archivo/${r.archivo}`;
     window.open(ruta, '_blank');
   }
 
-  // ------------------
-  // Abrir flipbook en página
-  // ------------------
-
   abrirFlipbookEnPagina(pagina: number | null) {
-    console.log('Intentando abrir página:', pagina);
-    // Validaciones básicas
-    if (!pagina || !this.flipbookComponent) {
-      console.error('El componente Flipbook no está inicializado o no se encontró en el DOM.');
+    // Basic validation
+    if (!pagina) return;
+
+    const flipbook = this.flipbookRef();
+    if (!flipbook) {
+      console.error('Flipbook component not ready');
       return;
     }
 
-    // 1. Delegar la lógica al componente hijo
-    this.flipbookComponent.goToPage(pagina);
+    // Delegate logic to child
+    flipbook.goToPage(pagina);
 
-    // 2. Hacer scroll hacia el visor
+    // Scroll
     setTimeout(() => {
-      // Asegúrate que en tu HTML exista un elemento con clase 'flipbook-wrapper' o usa el ID del stage
       const flipbookEl = document.querySelector('.book-stage');
       if (flipbookEl) {
         flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'center' });

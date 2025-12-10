@@ -11,7 +11,7 @@
     </div>
 
   <!-- Loading State -->
-  <div class="cards-grid" *ngIf="loading">
+  <div class="cards-grid" *ngIf="loading()">
     <p-card *ngFor="let item of [1,2,3,4]" class="tema-card">
       <div class="card-image-skeleton">
         <p-skeleton width="100%" height="12rem"></p-skeleton>
@@ -25,9 +25,9 @@
   </div>
 
   <!-- Error State -->
-  <div class="error-message" *ngIf="error && !loading">
+  <div class="error-message" *ngIf="error() && !loading()">
     <i class="pi pi-exclamation-triangle"></i>
-    <p>{{ error }}</p>
+    <p>{{ error() }}</p>
     <p-button 
       label="Reintentar" 
       icon="pi pi-refresh" 
@@ -37,9 +37,9 @@
   </div>
 
   <!-- Cards Grid -->
-  <div class="cards-grid" *ngIf="!loading && !error && temas.length > 0">
+  <div class="cards-grid" *ngIf="!loading() && !error() && temas().length > 0">
     <p-card 
-      *ngFor="let tema of temas" 
+      *ngFor="let tema of temas()" 
       class="tema-card"
       [styleClass]="'hover-card'">
       
@@ -76,7 +76,7 @@
   </div>
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loading && !error && temas.length === 0">
+  <div class="empty-state" *ngIf="!loading() && !error() && temas().length === 0">
     <i class="pi pi-inbox"></i>
     <p>No hay temas de interés disponibles en este momento</p>
   </div>

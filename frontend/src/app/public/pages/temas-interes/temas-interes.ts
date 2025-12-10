@@ -1,5 +1,5 @@
 // temas-interes.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -9,7 +9,6 @@ import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-temas-interes',
-  standalone: true,
   imports: [
     CommonModule,
     CardModule,
@@ -17,35 +16,36 @@ import { environment } from '../../../../environments/environment';
     SkeletonModule
   ],
   templateUrl: './temas-interes.html',
-  styleUrls: ['./temas-interes.css']
+  styleUrls: ['./temas-interes.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TemasInteres implements OnInit {
+  private apiTemas = inject(ApiTemas);
   publicUrl = environment.publicUrl;
-  temas: Temas[] = [];
-  loading: boolean = true;
-  error: string | null = null;
 
-  constructor(private apiTemas: ApiTemas) {}
+  temas = signal<Temas[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadTemas();
   }
 
   loadTemas(): void {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
 
     this.apiTemas.getTemas().subscribe({
       next: (response) => {
         if (response.success) {
-          this.temas = response.data.filter(tema => tema.estatusTema === 'A');
-          this.loading = false;
+          this.temas.set(response.data.filter(tema => tema.estatusTema === 'A'));
+          this.loading.set(false);
         }
       },
       error: (err) => {
         console.error('Error al cargar temas:', err);
-        this.error = 'No se pudieron cargar los temas de interés';
-        this.loading = false;
+        this.error.set('No se pudieron cargar los temas de interés');
+        this.loading.set(false);
       }
     });
   }
