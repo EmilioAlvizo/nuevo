@@ -1,6 +1,14 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin } from 'rxjs'; // Importamos forkJoin para cargar en paralelo si se desea
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -16,35 +24,45 @@ import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 @Component({
   selector: 'app-propuestas-accion-admin',
   standalone: true,
-  imports: [
-    CommonModule,
-    CardModule,
-    ToastModule,
-    ToolbarModule,
-    TooltipModule,
-    AccordionModule
-  ],
+  imports: [CommonModule, CardModule, ToastModule, ToolbarModule, TooltipModule, AccordionModule],
   providers: [MessageService],
   templateUrl: './propuestas-accion-admin.html',
-  styleUrls: ['./propuestas-accion-admin.css']
+  styleUrls: ['./propuestas-accion-admin.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush, // ACTIVADO: Mejor rendimiento
 })
 export class PropuestasAccionAdmin implements OnInit, OnDestroy {
+  // ===========================
+  // Inyección de Dependencias
+  // ===========================
+  private apiPropuesta = inject(ApiPropuesta);
+  private apiMunicipio = inject(ApiMunicipio);
+  private messageService = inject(MessageService);
 
-  propuestas: Propuesta[] = [];
-  municipios: Municipio[] = [];
-  loading: boolean = false;
+  // ===========================
+  // Estado (Signals)
+  // ===========================
+  propuestas = signal<Propuesta[]>([]);
+  municipios = signal<Municipio[]>([]);
+  loading = signal<boolean>(false);
 
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private apiPropuesta: ApiPropuesta,
-    private apiMunicipio: ApiMunicipio,
-    private messageService: MessageService
-  ) {}
+  // ===========================
+  // Estado Derivado (Computed) - OPTIMIZACIÓN CLAVE
+  // ===========================
+  /**
+   * Creamos un Map (Diccionario) para buscar municipios por ID instantáneamente.
+   * Esto evita usar .find() en el HTML, lo cual es muy lento si hay muchos datos.
+   */
+  municipiosMap = computed(() => {
+    const map = new Map<number, string>();
+    this.municipios().forEach((m) => map.set(m.id_municipio, m.nombre));
+    return map;
+  });
 
   ngOnInit(): void {
-    this.cargarPropuestas();
-    this.cargarMunicipios();
+    // Cargamos ambos datos.
+    this.cargarDatos();
   }
 
   ngOnDestroy(): void {
@@ -53,68 +71,60 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy {
   }
 
   // ============================================================
-  // Cargar propuestas
+  // Carga de Datos
   // ============================================================
-  cargarPropuestas(): void {
-    this.loading = true;
+  cargarDatos(): void {
+    this.loading.set(true);
 
-    this.apiPropuesta.getPropuestas()
+    // OPCIÓN A: Cargar en paralelo (Más rápido, espera a que ambos terminen)
+    forkJoin({
+      propuestas: this.apiPropuesta.getPropuestas(),
+      municipios: this.apiMunicipio.getMessage(),
+    })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          if (res.success && res.data) {
-            this.propuestas = res.data;
+          // 1. Manejar Propuestas
+          if (res.propuestas.success && res.propuestas.data) {
+            this.propuestas.set(res.propuestas.data);
           } else {
             this.mostrarError('Error al cargar las propuestas.');
           }
-          this.loading = false;
-        },
-        error: () => {
-          this.mostrarError('No se pudieron cargar las propuestas.');
-          this.loading = false;
-        }
-      });
-  }
 
-  cargarMunicipios(): void {
-    this.loading = true;
-
-    this.apiMunicipio.getMessage()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          if (res.success && res.data) {
-            this.municipios = res.data;
+          // 2. Manejar Municipios
+          if (res.municipios.success && res.municipios.data) {
+            this.municipios.set(res.municipios.data);
           } else {
             this.mostrarError('Error al cargar los municipios.');
           }
-          this.loading = false;
+
+          this.loading.set(false);
         },
         error: () => {
-          this.mostrarError('No se pudieron cargar los municipios.');
-          this.loading = false;
-        }
+          this.mostrarError('No se pudieron cargar los datos.');
+          this.loading.set(false);
+        },
       });
   }
 
   // ============================================================
-  // Mensajes
+  // Helpers para la Vista
   // ============================================================
+
+  /**
+   * Obtiene el nombre usando el Map computado (O(1) de complejidad).
+   * Super rápido para renderizar en tablas o listas grandes.
+   */
+  getNombreMunicipio(id_municipio: number): string {
+    return this.municipiosMap().get(id_municipio) || `Municipio #${id_municipio}`;
+  }
+
   mostrarError(mensaje: string): void {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
       detail: mensaje,
-      life: 3500
+      life: 3500,
     });
   }
-
-  // ============================================================
-  // Método para obtener nombre del municipio por ID
-  // ============================================================
-  getNombreMunicipio(id_municipio: number): string {
-    const municipio = this.municipios.find(m => m.id_municipio === id_municipio);
-    return municipio ? municipio.nombre : `Municipio #${id_municipio}`;
-  }
-
 }

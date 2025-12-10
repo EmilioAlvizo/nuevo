@@ -103,33 +103,23 @@ export class RevistaDetalle {
   // ------------------
 
   abrirFlipbookEnPagina(pagina: number | null) {
-    if (pagina === null || !this.flipbookComponent) return;
-
-    let folioIndex: number;
-
-    if (pagina === 1) {
-      folioIndex = 0;
-    } else {
-      folioIndex = Math.floor((pagina - 2) / 2) + 1;
-    }
-
-    if (!this.flipbookComponent.folios || folioIndex >= this.flipbookComponent.folios.length) {
-      console.error('Índice fuera de rango');
+    console.log('Intentando abrir página:', pagina);
+    // Validaciones básicas
+    if (!pagina || !this.flipbookComponent) {
+      console.error('El componente Flipbook no está inicializado o no se encontró en el DOM.');
       return;
     }
 
-    for (let i = 0; i < folioIndex; i++) {
-      this.flipbookComponent.folios[i].flipped = true;
-    }
+    // 1. Delegar la lógica al componente hijo
+    this.flipbookComponent.goToPage(pagina);
 
-    this.flipbookComponent.folios[folioIndex].flipped = false;
-    this.flipbookComponent.currentFolioIndex = folioIndex;
-
-    this.flipbookComponent.renderVisibleFolios();
-
+    // 2. Hacer scroll hacia el visor
     setTimeout(() => {
-      const flipbookEl = document.querySelector('.flipbook-wrapper');
-      flipbookEl?.scrollIntoView({ behavior: 'smooth' });
+      // Asegúrate que en tu HTML exista un elemento con clase 'flipbook-wrapper' o usa el ID del stage
+      const flipbookEl = document.querySelector('.book-stage');
+      if (flipbookEl) {
+        flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }, 100);
   }
 }

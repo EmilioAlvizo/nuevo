@@ -96,7 +96,7 @@
 
     <p-accordion [multiple]="true">
 
-      <ng-container *ngFor="let p of propuestas; let i = index">
+      <ng-container *ngFor="let p of propuestas(); let i = index">
 
         <p-accordion-panel [value]="i">
 

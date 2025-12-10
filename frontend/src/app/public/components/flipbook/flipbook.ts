@@ -1,463 +1,477 @@
 import {
   Component,
-  Input,
-  AfterViewInit,
-  ViewChildren,
-  QueryList,
   ElementRef,
-  ViewChild,
-  Renderer2,
-  HostListener,
   Inject,
-  PLATFORM_ID
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+  effect,
+  viewChild,
+  viewChildren,
+  inject,
+  input,
+  untracked,
+  OnDestroy,
 } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+
+// Interfaces para tipado estricto
+interface Folio {
+  front: number | null;
+  back: number | null;
+  flipped: boolean;
+}
 
 @Component({
   selector: 'app-flipbook',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './flipbook.html',
-  styleUrls: ['./flipbook.css']
+  styleUrls: ['./flipbook.css'],
+  host: {
+    class: 'flipbook-root',
+    '[class.fullscreen]': 'isFullscreen()',
+    '[attr.tabindex]': '"0"',
+    '(window:resize)': 'onResize()',
+    '(window:keydown)': 'handleKey($event)',
+    '(document:fullscreenchange)': 'onFullscreenChange()',
+    '(touchstart)': 'onTouchStart($event)',
+    '(touchend)': 'onTouchEnd($event)',
+  },
 })
-export class Flipbook implements AfterViewInit {
-  @Input() src!: string;
-  @Input() pageWidth = 800;
+export class Flipbook implements OnDestroy {
+  // Inyecciones
+  private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
 
-  @ViewChild('stage', { static: true }) stageRef!: ElementRef<HTMLDivElement>;
-  @ViewChildren('frontCanvas') frontCanvases!: QueryList<ElementRef<HTMLCanvasElement>>;
-  @ViewChildren('backCanvas') backCanvases!: QueryList<ElementRef<HTMLCanvasElement>>;
+  // Inputs como Signals
+  src = input.required<string>();
+  basePageWidth = input(800, { alias: 'pageWidth' });
 
-  pdfDoc: any = null;
-  folios: Array<{ front: number | null; back: number | null; flipped: boolean }> = [];
-  currentFolioIndex = 0;
-  folioHeight = 480;
-  isFullscreen = false;
-  isMobileView = false;
-  currentPageNumber = 1;
+  // Referencias al DOM como Signals
+  stageRef = viewChild.required<ElementRef<HTMLDivElement>>('stage');
+  frontCanvases = viewChildren<ElementRef<HTMLCanvasElement>>('frontCanvas');
+  backCanvases = viewChildren<ElementRef<HTMLCanvasElement>>('backCanvas');
 
+  // Estado Reactivo (Signals)
+  folios = signal<Folio[]>([]);
+  currentFolioIndex = signal(0);
+  currentPageNumber = signal(1); // Para vista móvil
+
+  // Estado de UI
+  isFullscreen = signal(false);
+  isMobileView = signal(false);
+  isTurning = signal(false);
+
+  // Dimensiones calculadas
+  calculatedPageWidth = signal(800);
+  folioHeight = signal(480);
+
+  // PDF Internal State
+  private pdfDoc: unknown = null;
   private touchStartX = 0;
-  private touchEndX = 0;
-  private isRendering = false;
-  private renderQueue: (() => void) | null = null;
-  private isTurning = false;
+  private isBrowser = isPlatformBrowser(this.platformId);
 
-  constructor(
-    private renderer: Renderer2,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  // Signals Computadas (Derived State)
+  totalPages = computed(() => {
+    // Si hay pdfDoc (no tipado estrictamente por librería externa), usamos numPages, sino el array
+    return (this.pdfDoc as any)?.numPages || this.folios().length * 2;
+  });
 
-  async ngAfterViewInit() {
-    if (!isPlatformBrowser(this.platformId)) return;
+  isMobileFullscreen = computed(() => this.isFullscreen() && this.isMobileView());
 
-    if (!this.src) {
-      console.error('Flipbook: `src` input is required and should point to a PDF file.');
-      return;
+  // Computada para texto del contador
+  paginationText = computed(() => {
+    if (this.isMobileFullscreen()) {
+      return `${this.currentPageNumber()} / ${this.totalPages()}`;
     }
+    const start = this.currentFolioIndex() * 2 + 1;
+    const end = this.currentFolioIndex() * 2 + 2;
+    return `${start}-${end} / ${this.totalPages()}`;
+  });
 
-    this.checkMobileView();
-    this.setStageWidth();
-    await this.loadPdf(this.src);
-    setTimeout(() => this.renderVisibleFolios(), 50);
+  constructor() {
+    // Efecto: Cargar PDF cuando cambia el SRC
+    effect(() => {
+      const url = this.src();
+      if (this.isBrowser && url) {
+        untracked(() => this.loadPdf(url));
+      }
+    });
+
+    // Efecto: Recalcular dimensiones iniciales
+    effect(() => {
+      if (this.isBrowser) {
+        this.checkMobileView();
+        this.updateDimensions();
+      }
+    });
+
+    // Efecto: Renderizar cuando cambian índices o tamaño
+    effect(() => {
+      const idx = this.currentFolioIndex();
+      const mobPage = this.currentPageNumber();
+      const fs = this.isFullscreen();
+      const width = this.calculatedPageWidth(); // Dependencia para re-render al resize
+
+      // Usamos untracked para la función de renderizado para evitar ciclos infinitos si esta actualiza algo menor
+      untracked(() => {
+        setTimeout(() => this.renderVisibleFolios(), 50);
+      });
+    });
   }
 
-  checkMobileView() {
-    this.isMobileView = window.innerWidth < 768;
-  }
-
-  setStageWidth() {
-    const stage = this.stageRef.nativeElement;
-    const root = stage.closest('.flipbook-root') as HTMLElement;
-    const isFullscreen = !!document.fullscreenElement;
-    
-    if (isFullscreen) {
-      this.calculateFullscreenSize();
-    } else {
-      this.pageWidth = Math.min(800, window.innerWidth);
-      this.folioHeight = 480;
+  ngOnDestroy(): void {
+    // Limpieza si fuera necesaria
+    if (this.pdfDoc) {
+      (this.pdfDoc as any).destroy?.();
     }
-    
-    if (root) {
-      this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
-    }
   }
 
-  @HostListener('window:resize')
-  onResize() {
-    this.checkMobileView();
-    this.setStageWidth();
-    this.scheduleRender();
-  }
+  // --- Lógica de Negocio ---
 
   async loadPdf(url: string) {
     try {
-      const pdfjsLib = await import('pdfjs-dist/');
+      // Import dinámico para no romper SSR
+      const pdfjsLib = await import('pdfjs-dist');
+      // Configurar worker (ajusta la ruta según tu build)
       (pdfjsLib as any).GlobalWorkerOptions.workerSrc = 'pdfjs-dist/pdf.worker.js';
 
       const loadingTask = (pdfjsLib as any).getDocument(url);
       this.pdfDoc = await loadingTask.promise;
 
-      const numPages = this.pdfDoc.numPages;
-      this.folios = [];
+      const numPages = (this.pdfDoc as any).numPages;
+      const newFolios: Folio[] = [];
+
       for (let p = 1; p <= numPages; p += 2) {
-        const front = p;
-        const back = (p + 1) <= numPages ? (p + 1) : null;
-        this.folios.push({ front, back, flipped: false });
+        newFolios.push({
+          front: p,
+          back: p + 1 <= numPages ? p + 1 : null,
+          flipped: false,
+        });
       }
-      this.currentFolioIndex = 0;
-      this.currentPageNumber = 1;
+
+      this.folios.set(newFolios);
+      this.currentFolioIndex.set(0);
+      this.currentPageNumber.set(1);
     } catch (err) {
       console.error('Error loading PDF', err);
     }
   }
 
-  scheduleRender() {
-    if (this.isRendering) {
-      this.renderQueue = () => this.renderVisibleFolios();
-      return;
+  onResize() {
+    this.checkMobileView();
+    this.updateDimensions();
+  }
+
+  checkMobileView() {
+    if (!this.isBrowser) return;
+    this.isMobileView.set(window.innerWidth < 768);
+  }
+
+  updateDimensions() {
+    if (!this.isBrowser) return;
+
+    if (this.isFullscreen()) {
+      this.calculateFullscreenSize();
+    } else {
+      const maxW = Math.min(this.basePageWidth(), window.innerWidth);
+      this.calculatedPageWidth.set(maxW);
+      this.folioHeight.set(480);
+
+      // Actualizar variable CSS
+      this.updateCssVariable('--page-width', `${maxW}px`);
     }
-    this.renderVisibleFolios();
+  }
+
+  private updateCssVariable(name: string, value: string) {
+    const root = this.stageRef()?.nativeElement.closest('.flipbook-root') as HTMLElement;
+    if (root) {
+      root.style.setProperty(name, value);
+    }
   }
 
   async renderVisibleFolios() {
-    if (this.isRendering) return;
-    this.isRendering = true;
+    if (!this.pdfDoc) return;
 
-    const frontList = this.frontCanvases.toArray();
-    const backList = this.backCanvases.toArray();
-    const renderPromises: Promise<void>[] = [];
+    const frontEls = this.frontCanvases();
+    const backEls = this.backCanvases();
+    const promises: Promise<void>[] = [];
+    const currentIndex = this.currentFolioIndex();
 
-    if (this.isFullscreen && this.isMobileView) {
-      // 📱 MÓVIL: Renderizar la página actual y las adyacentes
-      const startIdx = Math.max(0, this.currentFolioIndex - 1);
-      const endIdx = Math.min(this.folios.length - 1, this.currentFolioIndex + 1);
-      
-      for (let i = startIdx; i <= endIdx; i++) {
-        const folio = this.folios[i];
-        
-        if (folio.front && frontList[i]) {
-          const canvas = frontList[i].nativeElement;
-          // Solo renderizar si el canvas no ha sido renderizado (está vacío)
-          if (canvas.width === 0 || i === this.currentFolioIndex) {
-            renderPromises.push(this.renderPageToCanvas(folio.front, canvas));
-          }
-        }
-        
-        if (folio.back && backList[i]) {
-          const canvas = backList[i].nativeElement;
-          if (canvas.width === 0 || i === this.currentFolioIndex) {
-            renderPromises.push(this.renderPageToCanvas(folio.back, canvas));
-          }
-        }
-      }
+    // Determinar rango de renderizado
+    let startIdx: number, endIdx: number;
+
+    if (this.isMobileFullscreen()) {
+      startIdx = Math.max(0, currentIndex - 1);
+      endIdx = Math.min(this.folios().length - 1, currentIndex + 1);
     } else {
-      // 💻 ESCRITORIO: Renderizar folios visibles
-      this.folios.forEach((folio, i) => {
-        if (Math.abs(i - this.currentFolioIndex) <= 2) {
-          if (folio.front && frontList[i]) {
-            const canvas = frontList[i].nativeElement;
-            renderPromises.push(this.renderPageToCanvas(folio.front, canvas));
-          }
-          if (folio.back && backList[i]) {
-            const canvas = backList[i].nativeElement;
-            renderPromises.push(this.renderPageToCanvas(folio.back, canvas));
-          }
-        }
-      });
+      startIdx = Math.max(0, currentIndex - 2);
+      endIdx = Math.min(this.folios().length - 1, currentIndex + 2);
     }
 
-    await Promise.all(renderPromises);
-    this.isRendering = false;
+    for (let i = startIdx; i <= endIdx; i++) {
+      const folio = this.folios()[i];
 
-    if (this.renderQueue) {
-      const queued = this.renderQueue;
-      this.renderQueue = null;
-      queued();
+      if (folio.front && frontEls[i]) {
+        promises.push(this.renderPageToCanvas(folio.front, frontEls[i].nativeElement));
+      }
+      if (folio.back && backEls[i]) {
+        promises.push(this.renderPageToCanvas(folio.back, backEls[i].nativeElement));
+      }
     }
+
+    await Promise.all(promises);
   }
 
   async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
-    if (!this.pdfDoc) return;
+    // Si el canvas ya tiene contenido y dimensiones correctas, evitar re-render costoso
+    // (Opcional: lógica de invalidación si cambia el zoom/tamaño drásticamente)
+    if (canvas.width > 0 && !this.isFullscreen()) return;
 
     try {
-      const page = await this.pdfDoc.getPage(pageNumber);
+      const page = await (this.pdfDoc as any).getPage(pageNumber);
       const viewport = page.getViewport({ scale: 1 });
 
       let targetWidth: number;
-      
-      if (this.isFullscreen && this.isMobileView) {
-        targetWidth = this.pageWidth;
+      if (this.isMobileFullscreen()) {
+        targetWidth = this.calculatedPageWidth();
       } else {
-        targetWidth = this.pageWidth / 2;
+        targetWidth = this.calculatedPageWidth() / 2;
       }
-      
+
       const scale = targetWidth / viewport.width;
       const scaledViewport = page.getViewport({ scale });
 
-      const offscreen = document.createElement("canvas");
+      // Canvas fuera de pantalla para doble buffer y nitidez
+      const offscreen = document.createElement('canvas');
       offscreen.width = scaledViewport.width;
       offscreen.height = scaledViewport.height;
 
-      const ctx = offscreen.getContext("2d")!;
+      const ctx = offscreen.getContext('2d');
+      if (!ctx) return;
+
       await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
 
-      const visible = canvas.getContext("2d")!;
+      const visibleCtx = canvas.getContext('2d');
+      if (!visibleCtx) return;
+
       canvas.width = offscreen.width;
       canvas.height = offscreen.height;
-      visible.drawImage(offscreen, 0, 0);
-
+      visibleCtx.drawImage(offscreen, 0, 0);
     } catch (err) {
-      console.error("Error rendering page", pageNumber, err);
+      console.error(`Error render page ${pageNumber}`, err);
     }
   }
 
-//   async renderPageToCanvas(pageNumber: number, canvas: HTMLCanvasElement) {
-//   if (!this.pdfDoc) return;
-
-//   // Ocultamos mientras renderizamos
-//   canvas.style.visibility = 'hidden';
-
-//   try {
-//     const page = await this.pdfDoc.getPage(pageNumber);
-//     const viewport = page.getViewport({ scale: 1 });
-
-//     // Tamaño objetivo según modo
-//     const targetWidth = (this.isFullscreen && this.isMobileView)
-//       ? this.pageWidth
-//       : this.pageWidth / 2;
-
-//     // Factor de resolución para alta nitidez
-//     const dpr = window.devicePixelRatio || 1;
-//     const renderScale = (targetWidth / viewport.width) * dpr;
-
-//     const highResViewport = page.getViewport({ scale: renderScale });
-
-//     // Canvas temporal
-//     const offscreen = document.createElement('canvas');
-//     offscreen.width = highResViewport.width;
-//     offscreen.height = highResViewport.height;
-
-//     const offscreenCtx = offscreen.getContext('2d')!;
-//     await page.render({ canvasContext: offscreenCtx, viewport: highResViewport }).promise;
-
-//     // Copiamos al canvas visible
-//     canvas.width = highResViewport.width;
-//     canvas.height = highResViewport.height;
-//     canvas.style.width = `${targetWidth}px`;
-//     canvas.style.height = `${highResViewport.height / dpr}px`;
-
-//     const ctx = canvas.getContext('2d')!;
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-//     ctx.drawImage(offscreen, 0, 0);
-
-//     // Mostramos canvas
-//     canvas.style.visibility = 'visible';
-//   } catch (err) {
-//     console.error('Error rendering page', pageNumber, err);
-//     canvas.style.visibility = 'visible'; // en caso de error
-//   }
-// }
-
+  // --- Navegación ---
 
   prev() {
-    if (this.isTurning) return;
-    
-    if (this.isFullscreen && this.isMobileView) {
-      // 📱 Modo página única
-      if (this.currentPageNumber <= 1) return;
-      
-      this.isTurning = true;
-      this.currentPageNumber--;
-      this.currentFolioIndex = Math.floor((this.currentPageNumber - 1) / 2);
-      
-      setTimeout(() => {
-        this.scheduleRender();
-        this.isTurning = false;
-      }, 300);
+    if (this.isTurning()) return;
+
+    if (this.isMobileFullscreen()) {
+      if (this.currentPageNumber() <= 1) return;
+
+      this.isTurning.set(true);
+      this.currentPageNumber.update((n) => n - 1);
+      this.currentFolioIndex.set(Math.floor((this.currentPageNumber() - 1) / 2));
     } else {
-      // 💻 Modo normal
-      if (this.currentFolioIndex <= 0) return;
-      
-      this.isTurning = true;
-      this.currentFolioIndex--;
-      this.folios[this.currentFolioIndex].flipped = false;
-      
-      setTimeout(() => {
-        this.scheduleRender();
-        this.isTurning = false;
-      }, 600);
+      if (this.currentFolioIndex() <= 0) return;
+
+      this.isTurning.set(true);
+      this.currentFolioIndex.update((i) => i - 1);
+
+      // Actualizar el estado 'flipped' del folio específico
+      this.folios.update((fs) => {
+        const newFs = [...fs];
+        newFs[this.currentFolioIndex()].flipped = false;
+        return newFs;
+      });
     }
+
+    setTimeout(() => this.isTurning.set(false), 600);
   }
 
   next() {
-    if (this.isTurning) return;
-    
-    const totalPages = this.pdfDoc ? this.pdfDoc.numPages : this.folios.length * 2;
-    
-    if (this.isFullscreen && this.isMobileView) {
-      // 📱 Modo página única
-      if (this.currentPageNumber >= totalPages) return;
-      
-      this.isTurning = true;
-      this.currentPageNumber++;
-      this.currentFolioIndex = Math.floor((this.currentPageNumber - 1) / 2);
-      
-      setTimeout(() => {
-        this.scheduleRender();
-        this.isTurning = false;
-      }, 300);
+    if (this.isTurning()) return;
+    const total = this.totalPages();
+
+    if (this.isMobileFullscreen()) {
+      if (this.currentPageNumber() >= total) return;
+
+      this.isTurning.set(true);
+      this.currentPageNumber.update((n) => n + 1);
+      this.currentFolioIndex.set(Math.floor((this.currentPageNumber() - 1) / 2));
     } else {
-      // 💻 Modo normal
-      if (this.currentFolioIndex >= this.folios.length - 1) return;
-      
-      this.isTurning = true;
-      this.folios[this.currentFolioIndex].flipped = true;
-      
+      if (this.currentFolioIndex() >= this.folios().length - 1) return;
+
+      this.isTurning.set(true);
+
+      this.folios.update((fs) => {
+        const newFs = [...fs];
+        newFs[this.currentFolioIndex()].flipped = true;
+        return newFs;
+      });
+
       setTimeout(() => {
-        this.currentFolioIndex++;
-        this.scheduleRender();
-        this.isTurning = false;
+        this.currentFolioIndex.update((i) => i + 1);
+        this.isTurning.set(false);
       }, 600);
+      return; // El timeout maneja el flag
     }
+
+    setTimeout(() => this.isTurning.set(false), 300);
   }
 
-  @HostListener('window:keydown', ['$event'])
   handleKey(e: KeyboardEvent) {
     if (e.key === 'ArrowLeft') this.prev();
     if (e.key === 'ArrowRight') this.next();
+    if (e.key === 'Escape' && this.isFullscreen()) this.toggleFullscreen();
   }
 
-  @HostListener('touchstart', ['$event'])
+  public goToPage(pageNumber: number) {
+    if (!this.folios().length) return;
+
+    // Calcular índice del folio (lógica de pares/impares)
+    let targetFolioIndex: number;
+    if (pageNumber <= 1) {
+      targetFolioIndex = 0;
+    } else {
+      targetFolioIndex = Math.floor((pageNumber - 2) / 2) + 1;
+    }
+
+    // Validar rango
+    if (targetFolioIndex >= this.folios().length) {
+      targetFolioIndex = this.folios().length - 1;
+    }
+
+    // Actualizar estados internos usando Signals correctamente
+    this.folios.update(currentFolios => {
+      // Creamos una copia nueva del array para mantener inmutabilidad
+      return currentFolios.map((folio, index) => ({
+        ...folio,
+        flipped: index < targetFolioIndex // Voltear todos los anteriores
+      }));
+    });
+
+    this.currentFolioIndex.set(targetFolioIndex);
+    
+    // Si estamos en móvil, actualizar también el número de página
+    if (this.isMobileView()) {
+        this.currentPageNumber.set(pageNumber);
+    }
+
+    // Forzar renderizado
+    this.renderVisibleFolios();
+  }
+
+  // --- Touch Events ---
+
   onTouchStart(event: TouchEvent) {
     this.touchStartX = event.changedTouches[0].screenX;
   }
 
-  @HostListener('touchend', ['$event'])
   onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].screenX;
-    const diff = this.touchStartX - this.touchEndX;
+    const endX = event.changedTouches[0].screenX;
+    const diff = this.touchStartX - endX;
     if (Math.abs(diff) > 60) {
       if (diff > 0) this.next();
       else this.prev();
     }
   }
 
-  getZIndex(index: number): number {
-    if (this.folios[index].flipped && index >= this.currentFolioIndex - 1 && index <= this.currentFolioIndex) {
-      return 100;
-    }
-    if (index < this.currentFolioIndex) {
-      return 10 + index;
-    } else if (index === this.currentFolioIndex) {
-      return 100;
-    } else {
-      return 50 - index;
-    }
-  }
+  // --- Fullscreen Logic ---
 
   toggleFullscreen() {
-    const root = this.stageRef.nativeElement.closest('.flipbook-root') as HTMLElement;
-    if (!document.fullscreenElement) {
-      root.requestFullscreen().catch(err => console.error(err));
+    if (!this.isBrowser) return;
+    const root = this.stageRef().nativeElement.closest('.flipbook-root') as HTMLElement;
+
+    if (!this.document.fullscreenElement) {
+      root.requestFullscreen().catch((err) => console.error(err));
     } else {
-      document.exitFullscreen();
+      this.document.exitFullscreen();
     }
   }
 
-  @HostListener('document:fullscreenchange')
-  async onFullscreenChange() {
-    const stage = this.stageRef.nativeElement;
-    const root = stage.closest('.flipbook-root') as HTMLElement;
-    
-    this.isFullscreen = !!document.fullscreenElement;
-    
-    if (this.isFullscreen) {
-      await this.calculateFullscreenSize();
-      root?.classList.add('fullscreen');
-      
-      // Sincronizar página al entrar a fullscreen
-      if (this.isMobileView) {
-        this.currentPageNumber = this.currentFolioIndex * 2 + 1;
-      }
-    } else {
-      this.pageWidth = Math.min(800, window.innerWidth);
-      this.folioHeight = 480;
-      root?.classList.remove('fullscreen');
-    }
+  onFullscreenChange() {
+    if (!this.isBrowser) return;
+    const isFull = !!this.document.fullscreenElement;
+    this.isFullscreen.set(isFull);
 
-    if (root) {
-      this.renderer.setStyle(root, '--page-width', `${this.pageWidth}px`);
+    if (isFull) {
+      if (this.isMobileView()) {
+        // Sincronizar página al entrar a fullscreen móvil
+        this.currentPageNumber.set(this.currentFolioIndex() * 2 + 1);
+      }
+      // El effect disparará updateDimensions
+    } else {
+      this.updateDimensions();
     }
-    
-    setTimeout(() => this.scheduleRender(), 100);
   }
 
   async calculateFullscreenSize() {
     if (!this.pdfDoc) return;
-    
     try {
-      const page = await this.pdfDoc.getPage(1);
+      const page = await (this.pdfDoc as any).getPage(1);
       const viewport = page.getViewport({ scale: 1 });
-      const pageAspectRatio = viewport.width / viewport.height;
-      
-      const availableWidth = window.innerWidth - 40;
-      const availableHeight = window.innerHeight - 120;
-      
-      if (this.isMobileView) {
-        // 📱 MÓVIL: Una sola página (mantener aspect ratio)
-        const widthBasedHeight = availableWidth / pageAspectRatio;
-        
-        if (widthBasedHeight <= availableHeight) {
-          // Limita por ancho
-          this.pageWidth = availableWidth;
-          this.folioHeight = widthBasedHeight;
+      const aspectRatio = viewport.width / viewport.height;
+
+      const availW = window.innerWidth - 40;
+      const availH = window.innerHeight - 120;
+
+      if (this.isMobileView()) {
+        const wBasedH = availW / aspectRatio;
+        if (wBasedH <= availH) {
+          this.calculatedPageWidth.set(availW);
+          this.folioHeight.set(wBasedH);
         } else {
-          // Limita por alto
-          this.folioHeight = availableHeight;
-          this.pageWidth = availableHeight * pageAspectRatio;
+          this.folioHeight.set(availH);
+          this.calculatedPageWidth.set(availH * aspectRatio);
         }
       } else {
-        // 💻 ESCRITORIO: Dos páginas (mantener aspect ratio)
-        const twoPageAspectRatio = pageAspectRatio * 2;
-        const widthBasedHeight = availableWidth / twoPageAspectRatio;
-        
-        if (widthBasedHeight <= availableHeight) {
-          this.pageWidth = availableWidth;
-          this.folioHeight = widthBasedHeight;
+        const twoPageAR = aspectRatio * 2;
+        const wBasedH = availW / twoPageAR;
+        if (wBasedH <= availH) {
+          this.calculatedPageWidth.set(availW);
+          this.folioHeight.set(wBasedH);
         } else {
-          this.folioHeight = availableHeight;
-          this.pageWidth = availableHeight * twoPageAspectRatio;
+          this.folioHeight.set(availH);
+          this.calculatedPageWidth.set(availH * twoPageAR);
         }
       }
-    } catch (err) {
-      console.error('Error calculating fullscreen size:', err);
+      this.updateCssVariable('--page-width', `${this.calculatedPageWidth()}px`);
+    } catch (e) {
+      console.error(e);
     }
   }
 
-  getCurrentMobilePage(): number {
-    return this.currentPageNumber;
+  // --- Helpers UI ---
+
+  getZIndex(index: number): number {
+    const current = this.currentFolioIndex();
+    const isFlipped = this.folios()[index].flipped;
+
+    if (isFlipped && index >= current - 1 && index <= current) return 100;
+    if (index < current) return 10 + index;
+    if (index === current) return 100;
+    return 50 - index;
   }
 
-  getTotalPages(): number {
-    return this.pdfDoc ? this.pdfDoc.numPages : this.folios.length * 2;
-  }
-
-  // Helper para determinar si un folio debe estar visible
-  isFolioVisible(folioIndex: number): boolean {
-    if (!this.isFullscreen || !this.isMobileView) {
-      // Modo escritorio: mostrar folios cercanos
-      return Math.abs(folioIndex - this.currentFolioIndex) <= 2;
+  isFolioVisible(index: number): boolean {
+    if (!this.isMobileFullscreen()) {
+      return Math.abs(index - this.currentFolioIndex()) <= 2;
     }
-    // Modo móvil: solo el folio actual
-    return folioIndex === this.currentFolioIndex;
+    return index === this.currentFolioIndex();
   }
 
-  // Helper para determinar qué leaf mostrar en móvil
+  // Helpers para vista móvil
   shouldShowFrontInMobile(): boolean {
-    return this.currentPageNumber % 2 === 1;
+    return this.currentPageNumber() % 2 === 1;
   }
 
   shouldShowBackInMobile(): boolean {
-    return this.currentPageNumber % 2 === 0;
+    return this.currentPageNumber() % 2 === 0;
   }
 }

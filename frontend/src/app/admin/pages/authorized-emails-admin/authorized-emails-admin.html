@@ -14,7 +14,7 @@
         label="Nuevo Email" 
         icon="pi pi-plus" 
         (onClick)="abrirModal()"
-        [disabled]="loading">
+        [disabled]="loading()">
       </p-button>
     </ng-template>
   </p-toolbar>
@@ -22,8 +22,8 @@
   <!-- Tabla de Emails Autorizados -->
   <p-card>
     <p-table 
-      [value]="emails" 
-      [loading]="loading"
+      [value]="emails()" 
+      [loading]="loading()"
       [paginator]="true" 
       [rows]="10"
       [rowsPerPageOptions]="[5, 10, 20, 50]"
@@ -114,10 +114,11 @@
 
 <!-- Modal de Crear/Editar -->
 <p-dialog 
-  [(visible)]="modalVisible" 
-  [header]="editMode ? 'Editar Email Autorizado' : 'Nuevo Email Autorizado'"
+  [visible]="modalVisible()" 
+  [header]="editMode() ? 'Editar Email Autorizado' : 'Nuevo Email Autorizado'"
   [modal]="true" 
   [closable]="true"
+  [dismissableMask]="true"
   [draggable]="false"
   [resizable]="false"
   [style]="{ width: '500px' }"
@@ -145,7 +146,7 @@
     </div>
 
     <!-- Estado de Uso (solo en modo edición) -->
-    <div class="form-field" *ngIf="editMode">
+    <div class="form-field" *ngIf="editMode()">
       <div class="checkbox-container">
         <p-checkbox 
           formControlName="used" 
@@ -169,14 +170,14 @@
         [outlined]="true"
         type="button"
         (onClick)="cerrarModal()"
-        [disabled]="submitting">
+        [disabled]="submitting()">
       </p-button>
       <p-button 
-        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        [label]="editMode() ? 'Actualizar' : 'Crear'" 
         icon="pi pi-check"
         type="submit"
-        [loading]="submitting"
-        [disabled]="formEmail.invalid || submitting">
+        [loading]="submitting()"
+        [disabled]="formEmail.invalid || submitting()">
       </p-button>
     </div>
   </form>

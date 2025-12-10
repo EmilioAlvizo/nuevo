@@ -1,3 +1,4 @@
+<!-- // nuevo/frontend/src/app/admin/pages/articulos-admin/articulos-admin.html -->
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 
@@ -12,7 +13,7 @@
         label="Nuevo artículo" 
         icon="pi pi-plus" 
         (onClick)="abrirModal()"
-        [disabled]="loading">
+        [disabled]="loading()">
       </p-button>
     </ng-template>
   </p-toolbar>
@@ -22,7 +23,7 @@
   <!-- ========================= -->
 <p-accordion [value]="[0]" multiple="true" class="revista-accordion">
 
-  <ng-container *ngFor="let grupo of groupedArticulos; let idx = index">
+  <ng-container *ngFor="let grupo of groupedArticulos(); let idx = index">
 
     <p-accordion-panel [value]="idx">
 
@@ -129,7 +130,7 @@
 <!-- MODAL DE ARTÍCULO -->
 <p-dialog 
   [(visible)]="modalVisible"
-  [header]="editMode ? 'Editar Artículo' : 'Nuevo Artículo'"
+  [header]="editMode() ? 'Editar Artículo' : 'Nuevo Artículo'"
   [modal]="true"
   [style]="{ width: '90%', maxWidth: '700px' }">
 
@@ -139,7 +140,7 @@
     <div class="form-field">
       <label class="form-label">Revista</label>
       <p-select 
-        [options]="revistasOptionsConNulo"
+        [options]="revistasOptionsConNulo()"
         optionLabel="label"
         optionValue="value"
         formControlName="id_revista"
@@ -175,7 +176,7 @@
       <textarea pInputTextarea rows="4" class="w-full" formControlName="contenido"></textarea>
     </div>
 
-    <div class="form-field">
+    <div class="form-field flex gap-2">
       <label>Imagen</label>
       <input type="file" class="w-full" accept="image/*" (change)="onFileSelected($event)">
       <small *ngIf="selectedImage">{{ selectedImage.name }}</small>
@@ -195,7 +196,7 @@
     <div class="form-actions">
       <p-button label="Cancelar" severity="secondary" type="button" (click)="cerrarModal()"></p-button>
       <!-- <p-button label="Guardar" [loading]="submitting"></p-button> -->
-       <button pButton label="Guardar" type="submit" [loading]="submitting"></button>
+       <p-button label="Guardar" type="submit" [loading]="submitting()"></p-button>
 
     </div>
 
