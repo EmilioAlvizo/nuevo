@@ -13,20 +13,35 @@
 <div class="home-admin-container">
 
   <div class="welcome-card">
-    <h1 class="welcome-title">¡Bienvenid@ {{ nombreAdmin }}! 👋</h1>
+    <h1 class="welcome-title">¡Bienvenid&#64; {{ nombreAdmin }}! 👋</h1>
     <p class="welcome-subtitle">Panel de administración</p>
   </div>
 
   <!-- ========================= -->
   <!--     NOTIFICACIONES        -->
   <!-- ========================= -->
-  <div class="notificaciones-container" *ngIf="notificaciones().length > 0">
+  <div class="notificaciones-container">
     <h2 class="notif-title">Notificaciones recientes</h2>
 
+    <!-- Mensaje cuando no hay notificaciones -->
+    <div class="sin-notificaciones" *ngIf="notificaciones().length === 0">
+      <i class="fa-regular fa-bell-slash"></i>
+      <p>No hay notificaciones</p>
+    </div>
+
+    <!-- Lista de notificaciones -->
     <div class="notificacion" *ngFor="let n of notificaciones()">
-      <div class="notif-info">
-        <strong>{{ n.mensaje }}</strong>
-        <div class="fecha">{{ n.timestamp | date:'short' }}</div>
+      <div class="notif-content">
+        <div class="notif-info">
+          <strong>{{ n.mensaje }}</strong>
+          <div class="fecha">{{ n.timestamp | date:'short' }}</div>
+        </div>
+
+        <a *ngIf="n.link"
+          class="notif-link"
+          [routerLink]="n.link">
+          Ver detalle →
+        </a>
       </div>
 
       <button class="btn-recibido" (click)="marcarRecibida(n.id)">

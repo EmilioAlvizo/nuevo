@@ -198,7 +198,9 @@ export class FormPropuesta {
   //   this.visibleChange.emit(false);
   // }
 
-  handleSubmit(): void {
+// Actualización del método handleSubmit en FormPropuesta
+
+handleSubmit(): void {
   if (this.propuestaForm.invalid) {
     this.propuestaForm.markAllAsTouched();
     return;
@@ -220,7 +222,6 @@ export class FormPropuesta {
   };
 
   this.apiPropuesta.crearPropuesta(data).subscribe({
-
     next: (resp) => {
       this.msg.add({
         severity: 'success',
@@ -228,10 +229,27 @@ export class FormPropuesta {
         detail: 'Propuesta registrada correctamente',
       });
 
-      // 🔔 Crear notificación para el Admin
-      this.notifs.agregar(`Nueva propuesta de acción registrada por ${form.nombre}`);
-    },
+      // 🔔 Extraer ID de diferentes posibles ubicaciones
+      const idPropuesta = resp?.data?.id_propuesta || 
+                         resp?.data?.insertId || 
+                         resp?.insertId ||
+                         resp?.id_propuesta;
+      
+      console.log('✅ ID Propuesta:', idPropuesta);
 
+      // Crear notificación con link que incluye query param para resaltar
+      this.notifs.agregar(
+        `Nueva propuesta de acción registrada por ${form.nombre}`,
+        {
+          tipo: 'propuesta',
+          idReferencia: idPropuesta,
+          // link: `/admin/propuestas-accion?highlight=${idPropuesta}`
+          link: `/admin/propuestas-accion`
+        }
+      );
+
+      this.visibleChange.emit(false);
+    },
     error: (err) => {
       console.error('❌ Error al enviar propuesta:', err);
 
@@ -241,11 +259,9 @@ export class FormPropuesta {
         detail: 'No se pudo registrar la propuesta',
       });
     },
-
   });
-
-  this.visibleChange.emit(false);
 }
+
 
   handleCancel(): void {
     this.resetForm();

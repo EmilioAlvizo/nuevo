@@ -8,7 +8,7 @@ const TABLE_NAME = 'authorized_emails';
 
 /**
  * GET /api/authorized-emails
- * Obtiene todos los emails autorizados
+ * Obtiene todos los emails autorizados con su estado de usuario
  */
 router.get('/', async (req, res) => {
   try {
@@ -16,14 +16,18 @@ router.get('/', async (req, res) => {
     const result = await pool.request()
       .query(`
         SELECT 
-          id,
-          email,
-          authorized_by,
-          authorized_at,
-          used,
-          used_at
-        FROM ${TABLE_NAME}
-        ORDER BY authorized_at DESC
+          ae.id,
+          ae.email,
+          ae.authorized_by,
+          ae.authorized_at,
+          ae.used,
+          ae.used_at,
+          CAST(u.activo AS int) as usuario_activo,
+          u.id as usuario_id,
+          u.nombre as usuario_nombre
+        FROM ${TABLE_NAME} ae
+        LEFT JOIN usuarios u ON ae.email = u.email
+        ORDER BY ae.authorized_at DESC
       `);
 
     res.json({
@@ -40,6 +44,7 @@ router.get('/', async (req, res) => {
     });
   }
 });
+
 
 /**
  * POST /api/authorized-emails
@@ -193,6 +198,65 @@ router.put('/:id', async (req, res) => {
     });
   }
 });
+
+
+/**
+ * PATCH /api/authorized-emails/usuario/:usuarioId/status
+ * Actualiza el estado activo/inactivo del usuario por su ID
+ */
+router.patch('/usuario/:usuarioId/status', async (req, res) => {
+  try {
+    const { usuarioId } = req.params;
+    const { activo } = req.body;
+
+    if (activo === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'El campo activo es requerido'
+      });
+    }
+
+    const pool = await getConnection();
+
+    // Verificar si existe el usuario
+    const checkUser = await pool.request()
+      .input('usuarioId', mssql.Int, usuarioId)
+      .query(`SELECT id, email FROM usuarios WHERE id = @usuarioId`);
+
+    if (checkUser.recordset.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No existe un usuario con ese ID'
+      });
+    }
+
+    // Actualizar el estado
+    const result = await pool.request()
+      .input('usuarioId', mssql.Int, usuarioId)
+      .input('activo', mssql.Bit, activo)
+      .query(`
+        UPDATE usuarios
+        SET activo = @activo
+        OUTPUT INSERTED.*
+        WHERE id = @usuarioId
+      `);
+
+    res.json({
+      success: true,
+      message: `Usuario ${activo ? 'activado' : 'inactivado'} exitosamente`,
+      data: result.recordset[0]
+    });
+
+  } catch (error) {
+    console.error('Error al actualizar estado de usuario:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el estado del usuario',
+      error: error.message
+    });
+  }
+});
+
 
 /**
  * DELETE /api/authorized-emails/:id

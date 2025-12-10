@@ -1,6 +1,4 @@
-// authorized-emails-admin.component.ts
-
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -66,13 +64,17 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
     private apiEmails: ApiAuthorizedEmails,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private cdr: ChangeDetectorRef // ⬅️ AGREGAR ESTO
   ) {
     this.inicializarFormulario();
   }
 
   ngOnInit(): void {
-    this.cargarEmails();
+    // Usar setTimeout para evitar el error de ExpressionChanged
+    setTimeout(() => {
+      this.cargarEmails();
+    });
   }
 
   ngOnDestroy(): void {
@@ -105,11 +107,13 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
             this.mostrarError('Error al cargar los emails autorizados');
           }
           this.loading = false;
+          this.cdr.detectChanges(); // ⬅️ AGREGAR ESTO
         },
         error: (error) => {
           console.error('Error al cargar emails:', error);
           this.mostrarError('Error al cargar los emails autorizados. Intente nuevamente.');
           this.loading = false;
+          this.cdr.detectChanges(); // ⬅️ AGREGAR ESTO
         }
       });
   }
@@ -281,6 +285,47 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
           this.mostrarError('Error al eliminar el email autorizado. Intente nuevamente.');
         }
       });
+  }
+
+  /**
+   * Cambia el estado activo/inactivo del usuario
+   */
+  toggleUsuarioActivo(email: AuthorizedEmail): void {
+    if (!email.usuario_id) {
+      this.mostrarAdvertencia('Este email aún no tiene un usuario registrado');
+      return;
+    }
+
+    // Cambiar: si es 1 lo pone en 0, si es 0 (o cualquier otra cosa) lo pone en 1
+    const nuevoEstado = email.usuario_activo === 1 ? 0 : 1;
+    const accion = nuevoEstado === 1 ? 'activar' : 'inactivar';
+
+    this.confirmationService.confirm({
+      message: `¿Desea ${accion} al usuario "${email.usuario_nombre || email.email}"?`,
+      header: 'Confirmar Cambio de Estado',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: `Sí, ${accion}`,
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.apiEmails.updateUsuarioStatus(email.usuario_id!, nuevoEstado === 1)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (res) => {
+              if (res.success) {
+                this.mostrarExito(res.message || `Usuario ${accion}do exitosamente`);
+                this.cargarEmails();
+              } else {
+                this.mostrarError(res.message || `Error al ${accion} el usuario`);
+              }
+            },
+            error: (error) => {
+              console.error('Error al cambiar estado:', error);
+              const mensaje = error.error?.message || `Error al ${accion} el usuario`;
+              this.mostrarError(mensaje);
+            }
+          });
+      }
+    });
   }
 
   /**

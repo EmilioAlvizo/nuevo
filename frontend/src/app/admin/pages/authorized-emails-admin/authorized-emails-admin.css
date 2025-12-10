@@ -299,3 +299,17 @@
     font-size: 0.8rem;
   }
 }
+
+p-tag {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+p-tag:hover {
+  transform: scale(1.05);
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 0.875rem;
+}

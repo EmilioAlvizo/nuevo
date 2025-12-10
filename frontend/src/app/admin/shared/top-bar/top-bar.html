@@ -87,6 +87,15 @@
           <ul>
             <li>
               <a
+                routerLink="/admin"
+                (click)="closeAdminMenu()"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a
                 routerLink="/admin/propuestas-accion"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"

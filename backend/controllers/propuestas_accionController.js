@@ -55,15 +55,22 @@ class Propuestas_accionController {
       if (!data || Object.keys(data).length === 0) {
         return res.status(400).json({
           success: false,
-          message: `Datos inválidos o vacíos ${data}`,
+          message: `Datos inválidos o vacíos`,
         });
       }
 
       const newPropuesta = await Propuestas_accionModel.create(TABLE_NAME, data);
+      
+      // Si el modelo solo devuelve insertId, construimos el objeto completo
+      const responseData = {
+        id_propuesta: newPropuesta.insertId || newPropuesta.id_propuesta || newPropuesta,
+        ...data
+      };
+
       res.status(201).json({
         success: true,
         message: "Registro creado exitosamente",
-        data: newPropuesta,
+        data: responseData, // ← Ahora siempre incluye id_propuesta
       });
     } catch (error) {
       res.status(500).json({

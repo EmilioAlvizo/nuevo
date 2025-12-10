@@ -33,7 +33,7 @@ app.use(cors({
   origin: "http://localhost:4200", // tu frontend Angular
   //origin: "https://hnd2r2hj-4200.usw3.devtunnels.ms", // tu frontend Angular
   credentials: true, // ⚠️ CRÍTICO para que las cookies funcionen
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 

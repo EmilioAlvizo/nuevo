@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 
 // PrimeNG
@@ -33,18 +34,35 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy {
   propuestas: Propuesta[] = [];
   municipios: Municipio[] = [];
   loading: boolean = false;
+  
+  // 🎯 Signal para manejar el resaltado
+  propuestaResaltada = signal<number | null>(null);
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private apiPropuesta: ApiPropuesta,
     private apiMunicipio: ApiMunicipio,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.cargarPropuestas();
     this.cargarMunicipios();
+    this.cargarPropuestas();
+    
+    // 🔔 Escuchar parámetro de query para resaltar
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const highlightId = params['highlight'];
+        if (highlightId) {
+          // Esperar a que se carguen las propuestas
+          setTimeout(() => {
+            this.resaltarPropuesta(Number(highlightId));
+          }, 500);
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -64,6 +82,14 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy {
         next: (res) => {
           if (res.success && res.data) {
             this.propuestas = res.data;
+            
+            // Si hay un highlight pendiente, aplicarlo después de cargar
+            const highlightId = this.route.snapshot.queryParams['highlight'];
+            if (highlightId) {
+              setTimeout(() => {
+                this.resaltarPropuesta(Number(highlightId));
+              }, 300);
+            }
           } else {
             this.mostrarError('Error al cargar las propuestas.');
           }
@@ -77,8 +103,6 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy {
   }
 
   cargarMunicipios(): void {
-    this.loading = true;
-
     this.apiMunicipio.getMessage()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -88,13 +112,57 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy {
           } else {
             this.mostrarError('Error al cargar los municipios.');
           }
-          this.loading = false;
         },
         error: () => {
           this.mostrarError('No se pudieron cargar los municipios.');
-          this.loading = false;
         }
       });
+  }
+
+  // ============================================================
+  // 🎯 Resaltar propuesta específica
+  // ============================================================
+  resaltarPropuesta(idPropuesta: number): void {
+    console.log('🎯 Resaltando propuesta:', idPropuesta);
+    
+    // Marcar como resaltada
+    this.propuestaResaltada.set(idPropuesta);
+
+    // Hacer scroll al elemento
+    setTimeout(() => {
+      const elemento = document.getElementById(`propuesta-${idPropuesta}`);
+      
+      if (elemento) {
+        // Scroll suave al elemento
+        elemento.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+
+        // Abrir el accordion si está usando PrimeNG Accordion
+        const accordionHeader = elemento.closest('.p-accordion-header');
+        if (accordionHeader && !accordionHeader.classList.contains('p-accordion-header-active')) {
+          (accordionHeader as HTMLElement).click();
+        }
+
+        console.log('✅ Scroll completado a propuesta:', idPropuesta);
+      } else {
+        console.warn('⚠️ No se encontró el elemento con ID:', `propuesta-${idPropuesta}`);
+      }
+    }, 200);
+
+    // Quitar el resaltado después de 4 segundos
+    setTimeout(() => {
+      this.propuestaResaltada.set(null);
+    }, 4000);
+  }
+
+  // ============================================================
+  // Verificar si una propuesta está resaltada
+  // ============================================================
+  esPropuestaResaltada(idPropuesta: number): boolean {
+    return this.propuestaResaltada() === idPropuesta;
   }
 
   // ============================================================
@@ -116,5 +184,4 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy {
     const municipio = this.municipios.find(m => m.id_municipio === id_municipio);
     return municipio ? municipio.nombre : `Municipio #${id_municipio}`;
   }
-
 }
