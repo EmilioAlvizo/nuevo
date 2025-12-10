@@ -12,7 +12,7 @@
         label="Nuevo Directorio" 
         icon="pi pi-plus" 
         (onClick)="abrirModal()"
-        [disabled]="loading">
+        [disabled]="loading()">
       </p-button>
     </ng-template>
   </p-toolbar>
@@ -20,8 +20,8 @@
   <!-- Tabla de Directorios -->
   <p-card>
     <p-table 
-      [value]="directorios" 
-      [loading]="loading"
+      [value]="directorios()" 
+      [loading]="loading()"
       [paginator]="true" 
       [rows]="10"
       [rowsPerPageOptions]="[5, 10, 20]"
@@ -108,11 +108,12 @@
 <!-- Modal de Crear/Editar -->
 <p-dialog 
   [(visible)]="modalVisible" 
-  [header]="editMode ? 'Editar Directorio' : 'Nuevo Directorio'"
+  [header]="editMode() ? 'Editar Directorio' : 'Nuevo Directorio'"
   [modal]="true" 
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
+  [dismissableMask]="true"
   [style]="{ width: '600px' }"
   [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
   (onHide)="vaciarFormulario()">
@@ -179,7 +180,7 @@
     <!-- Archivo -->
     <div class="form-field">
       <label for="archivo" class="form-label">
-        Archivo <span *ngIf="!editMode" class="required">*</span>
+        Archivo <span *ngIf="!editMode()" class="required">*</span>
       </label>
       <input 
         #fileInput
@@ -205,14 +206,14 @@
         [outlined]="true"
         type="button"
         (onClick)="cerrarModal()"
-        [disabled]="submitting">
+        [disabled]="submitting()">
       </p-button>
       <p-button 
-        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        [label]="editMode() ? 'Actualizar' : 'Crear'" 
         icon="pi pi-check"
         type="submit"
-        [loading]="submitting"
-        [disabled]="formDirectorio.invalid || submitting">
+        [loading]="submitting()"
+        [disabled]="formDirectorio.invalid || submitting()">
       </p-button>
     </div>
   </form>

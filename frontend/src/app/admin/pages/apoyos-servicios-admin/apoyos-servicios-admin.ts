@@ -1,6 +1,12 @@
 // apoyos-servicios-admin.component.ts
-
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -10,7 +16,6 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
@@ -19,6 +24,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
 
 import { ApiApoyos, Apoyos } from '../../../core/services/apoyos_servicios';
 
@@ -29,7 +36,7 @@ interface EstatusOption {
 
 @Component({
   selector: 'app-apoyos-servicios-admin',
-  standalone: true,
+  // standalone: true, // Es default en Angular moderno
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -37,56 +44,60 @@ interface EstatusOption {
     ButtonModule,
     DialogModule,
     InputTextModule,
-    AutoCompleteModule,
+    TextareaModule,
     SelectModule,
     FileUploadModule,
     ToastModule,
     ConfirmDialogModule,
     CardModule,
     ToolbarModule,
-    TooltipModule
+    TooltipModule,
+    TagModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './apoyos-servicios-admin.html',
   styleUrl: './apoyos-servicios-admin.css',
+  changeDetection: ChangeDetectionStrategy.OnPush, // CLAVE PARA SOLUCIONAR EL RENDERIZADO
 })
 export class ApoyosServiciosAdmin implements OnInit, OnDestroy {
-  // Datos
-  apoyos: Apoyos[] = [];
-  
-  // Formulario
+  // ===========================
+  // INYECCIÓN DE DEPENDENCIAS
+  // ===========================
+  private apiApoyos = inject(ApiApoyos);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+
+  // ===========================
+  // ESTADO (SIGNALS)
+  // ===========================
+  apoyos = signal<Apoyos[]>([]);
+  loading = signal<boolean>(false);
+  submitting = signal<boolean>(false);
+
+  // Estado UI
+  modalVisible = signal<boolean>(false);
+  editMode = signal<boolean>(false);
+
+  // ===========================
+  // VARIABLES LOCALES
+  // ===========================
   formApoyo!: FormGroup;
-  
-  // Control de modal
-  modalVisible: boolean = false;
-  editMode: boolean = false;
   selectedApoyoId: number | null = null;
-  
+
   // Archivo
   selectedImage: File | null = null;
   allowedImageTypes: string[] = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-  maxFileSize: number = 5242880; // 5MB
-  
-  // Loading states
-  loading: boolean = false;
-  submitting: boolean = false;
-  
-  // Opciones de estatus
+  maxFileSize: number = 5 * 1024 * 1024; // 5MB
+
   estatusOptions: EstatusOption[] = [
     { label: 'Activo', value: 'A' },
-    { label: 'Inactivo', value: 'B' }
+    { label: 'Inactivo', value: 'B' },
   ];
 
-  
-  // Subject para manejar subscripciones
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private apiApoyos: ApiApoyos,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
-  ) {
+  constructor() {
     this.inicializarFormulario();
   }
 
@@ -99,161 +110,147 @@ export class ApoyosServiciosAdmin implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Inicializa el formulario con validaciones
-   */
+  // ===========================
+  // FORMULARIO
+  // ===========================
   private inicializarFormulario(): void {
     this.formApoyo = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
-      estatus: ['activo', [Validators.required]],
+      estatus: ['A', [Validators.required]], // Corregido valor default a 'A'
       link: ['', [Validators.maxLength(500)]],
-      descripcion: ['', [Validators.maxLength(1000)]]
+      descripcion: ['', [Validators.maxLength(1000)]],
     });
   }
 
-  /**
-   * Carga todos los apoyos desde el API
-   */
+  // ===========================
+  // CARGA DE DATOS
+  // ===========================
   cargarApoyos(): void {
-    this.loading = true;
-    this.apiApoyos.getApoyos()
+    this.loading.set(true); // Signal
+
+    this.apiApoyos
+      .getApoyos()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.apoyos = res.data || [];
+            this.apoyos.set(res.data || []); // Signal dispara la vista
           } else {
             this.mostrarError('Error al cargar los apoyos');
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (error) => {
           console.error('Error al cargar apoyos:', error);
           this.mostrarError('Error al cargar los apoyos. Intente nuevamente.');
-          this.loading = false;
-        }
+          this.loading.set(false);
+        },
       });
   }
 
-  /**
-   * Abre el modal para crear o editar
-   */
+  // ===========================
+  // MODAL
+  // ===========================
   abrirModal(apoyo?: Apoyos): void {
     if (apoyo) {
-      this.editMode = true;
+      this.editMode.set(true);
       this.selectedApoyoId = apoyo.id_apoyo;
       this.formApoyo.patchValue({
         nombre: apoyo.nombre || '',
         estatus: apoyo.estatus || 'A',
         link: apoyo.link || '',
-        descripcion: apoyo.descripcion || ''
+        descripcion: apoyo.descripcion || '',
       });
     } else {
-      this.editMode = false;
+      this.editMode.set(false);
       this.selectedApoyoId = null;
+      this.formApoyo.reset({ estatus: 'A' });
+      this.selectedImage = null;
     }
-    
-    this.modalVisible = true;
+
+    this.modalVisible.set(true);
   }
 
-  /**
-   * Cierra el modal y limpia el estado
-   */
   cerrarModal(): void {
-    this.modalVisible = false;
-    // Esperar a que la animación termine antes de limpiar
+    this.modalVisible.set(false);
     setTimeout(() => {
       this.vaciarFormulario();
     }, 200);
   }
 
-  /**
-   * Limpia el formulario y reinicia el estado
-   */
   vaciarFormulario(): void {
     this.formApoyo.reset({
       nombre: '',
-      estatus: '',
+      estatus: 'A',
       link: '',
-      descripcion: ''
+      descripcion: '',
     });
     this.formApoyo.markAsPristine();
     this.formApoyo.markAsUntouched();
-    this.editMode = false;
+    this.editMode.set(false);
     this.selectedApoyoId = null;
     this.selectedImage = null;
   }
 
-  /**
-   * Maneja la selección de archivo con validaciones
-   */
+  // ===========================
+  // ARCHIVO
+  // ===========================
   onFileSelected(event: any): void {
     const file = event.target?.files?.[0] || event.files?.[0];
-    
-    if (!file) {
-      return;
-    }
 
-    // Validar tipo de archivo
+    if (!file) return;
+
     if (!this.allowedImageTypes.includes(file.type)) {
-      this.mostrarAdvertencia('Tipo de archivo no válido. Solo se permiten imágenes (JPG, PNG, GIF, WEBP).');
+      this.mostrarAdvertencia('Tipo de archivo no válido. Solo se permiten imágenes.');
       this.selectedImage = null;
       event.target.value = '';
       return;
     }
 
-    // Validar tamaño
     if (file.size > this.maxFileSize) {
-      this.mostrarAdvertencia(`El archivo excede el tamaño máximo permitido de ${this.maxFileSize / 1024 / 1024}MB.`);
+      this.mostrarAdvertencia(`El archivo excede el tamaño máximo permitido de 5MB.`);
       this.selectedImage = null;
       event.target.value = '';
       return;
     }
 
     this.selectedImage = file;
-    this.mostrarExito(`Imagen "${file.name}" seleccionada correctamente.`);
+    this.mostrarExito(`Imagen "${file.name}" seleccionada.`);
   }
 
-  /**
-   * Envía el formulario (crear o actualizar)
-   */
+  // ===========================
+  // SUBMIT
+  // ===========================
   submitForm(): void {
-    // Validar formulario
     if (this.formApoyo.invalid) {
       this.formApoyo.markAllAsTouched();
-      this.mostrarAdvertencia('Por favor complete todos los campos requeridos correctamente.');
+      this.mostrarAdvertencia('Complete los campos requeridos.');
       return;
     }
 
-    // Validar imagen en modo creación
-    if (!this.editMode && !this.selectedImage) {
+    if (!this.editMode() && !this.selectedImage) {
       this.mostrarAdvertencia('Por favor seleccione una imagen.');
       return;
     }
 
-    this.submitting = true;
-
-    // Preparar FormData
+    this.submitting.set(true);
     const formData = this.prepararFormData();
 
-    if (this.editMode && this.selectedApoyoId) {
+    if (this.editMode() && this.selectedApoyoId) {
       this.actualizarApoyo(formData);
     } else {
       this.crearApoyo(formData);
     }
   }
 
-  /**
-   * Prepara el FormData con los datos del formulario
-   */
   private prepararFormData(): FormData {
     const formData = new FormData();
-    const formValues = this.formApoyo.value;
+    const v = this.formApoyo.value;
 
-    formData.append('nombre', formValues.nombre?.trim() || '');
-    formData.append('estatus', formValues.estatus || '');
-    formData.append('link', formValues.link?.trim() || '');
-    formData.append('descripcion', formValues.descripcion?.trim() || '');
+    formData.append('nombre', v.nombre?.trim() || '');
+    formData.append('estatus', v.estatus || 'A');
+    formData.append('link', v.link?.trim() || '');
+    formData.append('descripcion', v.descripcion?.trim() || '');
 
     if (this.selectedImage) {
       formData.append('imagen', this.selectedImage, this.selectedImage.name);
@@ -262,155 +259,107 @@ export class ApoyosServiciosAdmin implements OnInit, OnDestroy {
     return formData;
   }
 
-  /**
-   * Crea un nuevo apoyo
-   */
+  // ===========================
+  // CRUD
+  // ===========================
   private crearApoyo(formData: FormData): void {
-    this.apiApoyos.createApoyo(formData)
+    this.apiApoyos
+      .createApoyo(formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             this.mostrarExito(res.message || 'Apoyo creado exitosamente');
-            
-            // Agregar el nuevo apoyo a la lista o recargar
+
+            // Actualización optimista o inmutable
             if (res.data) {
-              this.apoyos = [res.data, ...this.apoyos];
+              this.apoyos.update((curr) => [res.data, ...curr]);
             } else {
               this.cargarApoyos();
             }
-            
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al crear el apoyo');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
           console.error('Error al crear apoyo:', error);
           this.mostrarError('Error al crear el apoyo. Intente nuevamente.');
-          this.submitting = false;
-        }
+          this.submitting.set(false);
+        },
       });
   }
 
-  /**
-   * Actualiza un apoyo existente
-   */
   private actualizarApoyo(formData: FormData): void {
-    if (!this.selectedApoyoId) {
-      this.mostrarError('No se ha seleccionado un apoyo para actualizar');
-      this.submitting = false;
-      return;
-    }
+    if (!this.selectedApoyoId) return;
 
-    this.apiApoyos.updateApoyo(this.selectedApoyoId, formData)
+    this.apiApoyos
+      .updateApoyo(this.selectedApoyoId, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             this.mostrarExito(res.message || 'Apoyo actualizado exitosamente');
-            
-            // Actualizar el apoyo en la lista local
-            const index = this.apoyos.findIndex(a => a.id_apoyo === this.selectedApoyoId);
-            if (index !== -1) {
-              this.apoyos[index] = {
-                ...this.apoyos[index],
-                ...this.formApoyo.value,
-                ...(res.data || {})
-              };
-              // Forzar detección de cambios
-              this.apoyos = [...this.apoyos];
-            }
-            
+
+            // Actualización local
+            this.apoyos.update((curr) =>
+              curr.map((a) =>
+                a.id_apoyo === this.selectedApoyoId
+                  ? { ...a, ...this.formApoyo.value, ...(res.data || {}) }
+                  : a
+              )
+            );
+
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al actualizar el apoyo');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
           console.error('Error al actualizar apoyo:', error);
           this.mostrarError('Error al actualizar el apoyo. Intente nuevamente.');
-          this.submitting = false;
-        }
+          this.submitting.set(false);
+        },
       });
   }
 
-  /**
-   * Obtiene la URL completa de la imagen
-   */
+  // ===========================
+  // HELPERS UI
+  // ===========================
   getImageUrl(apoyo: Apoyos): string {
-    if (!apoyo.imagen) {
-      return '';
-    }
+    if (!apoyo.imagen) return '';
     return `http://localhost:3000/public/apoyos_servicios/${apoyo.id_apoyo}/${apoyo.imagen}`;
   }
 
-  /**
-   * Obtiene el label del estatus
-   */
   getEstatusLabel(estatus: string): string {
-    const option = this.estatusOptions.find(opt => opt.value === estatus);
-    return option?.label || estatus;
+    return estatus === 'A' ? 'Activo' : 'Inactivo';
   }
 
-  /**
-   * Verifica si un campo tiene errores
-   */
-  hasError(fieldName: string): boolean {
-    const field = this.formApoyo.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+  hasError(field: string): boolean {
+    const control = this.formApoyo.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  /**
-   * Obtiene el mensaje de error de un campo
-   */
-  getErrorMessage(fieldName: string): string {
-    const field = this.formApoyo.get(fieldName);
-    if (!field || !field.errors) {
-      return '';
-    }
-
-    if (field.errors['required']) {
-      return 'Este campo es requerido';
-    }
-    if (field.errors['minlength']) {
-      return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
-    }
-    if (field.errors['maxlength']) {
-      return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
-    }
-
-    return 'Campo inválido';
+  getErrorMessage(field: string): string {
+    const control = this.formApoyo.get(field);
+    if (control?.errors?.['required']) return 'Este campo es requerido';
+    if (control?.errors?.['minlength'])
+      return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
+    if (control?.errors?.['maxlength'])
+      return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
+    return '';
   }
 
-  // === MÉTODOS DE MENSAJES ===
-
-  private mostrarExito(mensaje: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: mensaje,
-      life: 3000
-    });
+  // Wrappers de mensajes
+  private mostrarExito(detail: string) {
+    this.messageService.add({ severity: 'success', summary: 'Éxito', detail });
   }
-
-  private mostrarError(mensaje: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje,
-      life: 5000
-    });
+  private mostrarError(detail: string) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail });
   }
-
-  private mostrarAdvertencia(mensaje: string): void {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Advertencia',
-      detail: mensaje,
-      life: 4000
-    });
+  private mostrarAdvertencia(detail: string) {
+    this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail });
   }
 }

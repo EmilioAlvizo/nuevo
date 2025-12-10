@@ -14,7 +14,7 @@
         label="Nuevo Apoyo" 
         icon="pi pi-plus" 
         (onClick)="abrirModal()"
-        [disabled]="loading">
+        [disabled]="loading()">
       </p-button>
     </ng-template>
   </p-toolbar>
@@ -22,8 +22,8 @@
   <!-- Tabla de Apoyos -->
   <p-card>
     <p-table 
-      [value]="apoyos" 
-      [loading]="loading"
+      [value]="apoyos()" 
+      [loading]="loading()"
       [paginator]="true" 
       [rows]="10"
       [rowsPerPageOptions]="[5, 10, 20]"
@@ -117,11 +117,12 @@
 <!-- Modal de Crear/Editar -->
 <p-dialog 
   [(visible)]="modalVisible" 
-  [header]="editMode ? 'Editar Apoyo' : 'Nuevo Apoyo'"
+  [header]="editMode() ? 'Editar Apoyo' : 'Nuevo Apoyo'"
   [modal]="true" 
   [closable]="true"
   [draggable]="false"
   [resizable]="false"
+  [dismissableMask]="true"
   [style]="{ width: '600px' }"
   [breakpoints]="{ '960px': '90vw', '640px': '95vw' }"
   (onHide)="vaciarFormulario()">
@@ -205,7 +206,7 @@
     <!-- Imagen -->
     <div class="form-field">
       <label for="imagen" class="form-label">
-        Imagen <span *ngIf="!editMode" class="required">*</span>
+        Imagen <span *ngIf="!editMode()" class="required">*</span>
       </label>
       <input 
         #fileInput
@@ -231,14 +232,14 @@
         [outlined]="true"
         type="button"
         (onClick)="cerrarModal()"
-        [disabled]="submitting">
+        [disabled]="submitting()">
       </p-button>
       <p-button 
-        [label]="editMode ? 'Actualizar' : 'Crear'" 
+        [label]="editMode() ? 'Actualizar' : 'Crear'" 
         icon="pi pi-check"
         type="submit"
-        [loading]="submitting"
-        [disabled]="formApoyo.invalid || submitting">
+        [loading]="submitting()"
+        [disabled]="formApoyo.invalid || submitting()">
       </p-button>
     </div>
   </form>

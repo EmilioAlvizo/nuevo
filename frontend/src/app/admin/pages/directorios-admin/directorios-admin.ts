@@ -1,4 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -8,7 +15,7 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-// import { InputTextareaModule } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -16,6 +23,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
 
 import { ApiDirectorios, Directorios } from '../../../core/services/directorios';
 
@@ -26,7 +34,7 @@ interface EstatusOption {
 
 @Component({
   selector: 'app-directorios-admin',
-  standalone: true,
+  // standalone: true, // Default en Angular v19+
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -34,55 +42,66 @@ interface EstatusOption {
     ButtonModule,
     DialogModule,
     InputTextModule,
-    // InputTextareaModule,
+    TextareaModule,
     SelectModule,
     ToastModule,
     ConfirmDialogModule,
     CardModule,
     ToolbarModule,
-    TooltipModule
+    TooltipModule,
+    TagModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './directorios-admin.html',
   styleUrl: './directorios-admin.css',
+  changeDetection: ChangeDetectionStrategy.OnPush, // SOLUCIÓN DE RENDERIZADO
 })
 export class DirectoriosAdmin implements OnInit, OnDestroy {
-  // Datos
-  directorios: Directorios[] = [];
-  
-  // Formulario
+  // ===========================
+  // INYECCIÓN DE DEPENDENCIAS
+  // ===========================
+  private apiDirectorios = inject(ApiDirectorios);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+
+  // ===========================
+  // ESTADO (SIGNALS)
+  // ===========================
+  directorios = signal<Directorios[]>([]);
+  loading = signal<boolean>(false);
+  submitting = signal<boolean>(false);
+
+  // UI State
+  modalVisible = signal<boolean>(false);
+  editMode = signal<boolean>(false);
+
+  // ===========================
+  // VARIABLES LOCALES
+  // ===========================
   formDirectorio!: FormGroup;
-  
-  // Control de modal
-  modalVisible: boolean = false;
-  editMode: boolean = false;
   selectedDirectorioId: number | null = null;
-  
+
   // Archivo
   selectedFile: File | null = null;
-  allowedFileTypes: string[] = ['application/pdf', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+  // Tipos MIME permitidos
+  allowedFileTypes: string[] = [
+    'application/pdf',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ];
+  // Extensiones permitidas (validación secundaria)
   allowedFileExtensions: string[] = ['.pdf', '.xls', '.xlsx'];
-  maxFileSize: number = 10485760; // 10MB
-  
-  // Loading states
-  loading: boolean = false;
-  submitting: boolean = false;
-  
-  // Opciones de estatus
+  maxFileSize: number = 10 * 1024 * 1024; // 10MB
+
   estatusOptions: EstatusOption[] = [
     { label: 'Activo', value: 'A' },
-    { label: 'Inactivo', value: 'B' }
+    { label: 'Inactivo', value: 'B' },
   ];
 
-  // Subject para manejar subscripciones
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private apiDirectorios: ApiDirectorios,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
-  ) {
+  constructor() {
     this.inicializarFormulario();
   }
 
@@ -95,163 +114,158 @@ export class DirectoriosAdmin implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Inicializa el formulario con validaciones
-   */
+  // ===========================
+  // FORMULARIO
+  // ===========================
   private inicializarFormulario(): void {
     this.formDirectorio = this.fb.group({
       descripcion: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
       estatus: ['A', [Validators.required]],
-      descripcionMas: ['', [Validators.maxLength(1000)]]
+      descripcionMas: ['', [Validators.maxLength(1000)]],
     });
   }
 
-  /**
-   * Carga todos los directorios desde el API
-   */
+  // ===========================
+  // CARGA DE DATOS
+  // ===========================
   cargarDirectorios(): void {
-    this.loading = true;
-    this.apiDirectorios.getDirectorios()
+    this.loading.set(true); // Signal
+
+    this.apiDirectorios
+      .getDirectorios()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.directorios = res.data || [];
+            this.directorios.set(res.data || []); // Signal dispara la vista
           } else {
             this.mostrarError('Error al cargar los directorios');
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (error) => {
           console.error('Error al cargar directorios:', error);
           this.mostrarError('Error al cargar los directorios. Intente nuevamente.');
-          this.loading = false;
-        }
+          this.loading.set(false);
+        },
       });
   }
 
-  /**
-   * Abre el modal para crear o editar
-   */
+  // ===========================
+  // MODAL
+  // ===========================
   abrirModal(directorio?: Directorios): void {
     if (directorio) {
-      this.editMode = true;
+      this.editMode.set(true);
       this.selectedDirectorioId = directorio.id_directorio;
       this.formDirectorio.patchValue({
         descripcion: directorio.descripcion || '',
         estatus: directorio.estatus || 'A',
-        descripcionMas: directorio.descripcionMas || ''
+        descripcionMas: directorio.descripcionMas || '',
       });
     } else {
-      this.editMode = false;
+      this.editMode.set(false);
       this.selectedDirectorioId = null;
+      this.formDirectorio.reset({ estatus: 'A' });
+      this.selectedFile = null;
     }
-    
-    this.modalVisible = true;
+
+    this.modalVisible.set(true);
   }
 
-  /**
-   * Cierra el modal y limpia el estado
-   */
   cerrarModal(): void {
-    this.modalVisible = false;
+    this.modalVisible.set(false);
     setTimeout(() => {
       this.vaciarFormulario();
     }, 200);
   }
 
-  /**
-   * Limpia el formulario y reinicia el estado
-   */
   vaciarFormulario(): void {
     this.formDirectorio.reset({
       descripcion: '',
       estatus: 'A',
-      descripcionMas: ''
+      descripcionMas: '',
     });
     this.formDirectorio.markAsPristine();
     this.formDirectorio.markAsUntouched();
-    this.editMode = false;
+    this.editMode.set(false);
     this.selectedDirectorioId = null;
     this.selectedFile = null;
   }
 
-  /**
-   * Maneja la selección de archivo con validaciones
-   */
-  onFileSelected(event: any): void {
-    const file = event.target?.files?.[0] || event.files?.[0];
-    
-    if (!file) {
-      return;
-    }
+  // ===========================
+  // ARCHIVO
+  // ===========================
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
 
     // Validar tipo de archivo
     if (!this.allowedFileTypes.includes(file.type)) {
-      this.mostrarAdvertencia('Tipo de archivo no válido. Solo se permiten archivos PDF, XLS y XLSX.');
+      this.mostrarAdvertencia(
+        'Tipo de archivo no válido. Solo se permiten archivos PDF, XLS y XLSX.'
+      );
       this.selectedFile = null;
-      event.target.value = '';
+      input.value = '';
       return;
     }
 
-    // Validar extensión del archivo
+    // Validar extensión del archivo (doble check)
     const fileName = file.name.toLowerCase();
-    const hasValidExtension = this.allowedFileExtensions.some(ext => fileName.endsWith(ext));
+    const hasValidExtension = this.allowedFileExtensions.some((ext) => fileName.endsWith(ext));
     if (!hasValidExtension) {
-      this.mostrarAdvertencia('Extensión de archivo no válida. Solo se permiten .pdf, .xls y .xlsx.');
+      this.mostrarAdvertencia('Extensión de archivo no válida.');
       this.selectedFile = null;
-      event.target.value = '';
+      input.value = '';
       return;
     }
 
     // Validar tamaño
     if (file.size > this.maxFileSize) {
-      this.mostrarAdvertencia(`El archivo excede el tamaño máximo permitido de ${this.maxFileSize / 1024 / 1024}MB.`);
+      this.mostrarAdvertencia(`El archivo excede el tamaño máximo de 10MB.`);
       this.selectedFile = null;
-      event.target.value = '';
+      input.value = '';
       return;
     }
 
     this.selectedFile = file;
-    this.mostrarExito(`Archivo "${file.name}" seleccionado correctamente.`);
+    this.mostrarExito(`Archivo "${file.name}" seleccionado.`);
   }
 
-  /**
-   * Envía el formulario (crear o actualizar)
-   */
+  // ===========================
+  // SUBMIT
+  // ===========================
   submitForm(): void {
-    // Validar formulario
     if (this.formDirectorio.invalid) {
       this.formDirectorio.markAllAsTouched();
-      this.mostrarAdvertencia('Por favor complete todos los campos requeridos correctamente.');
+      this.mostrarAdvertencia('Complete los campos requeridos.');
       return;
     }
 
-    // Validar archivo en modo creación
-    if (!this.editMode && !this.selectedFile) {
+    if (!this.editMode() && !this.selectedFile) {
       this.mostrarAdvertencia('Por favor seleccione un archivo (PDF o Excel).');
       return;
     }
 
-    this.submitting = true;
+    this.submitting.set(true);
+    const formData = this.prepararFormData();
 
-    if (this.editMode && this.selectedDirectorioId) {
-      this.actualizarDirectorio();
+    if (this.editMode() && this.selectedDirectorioId) {
+      this.actualizarDirectorio(formData);
     } else {
-      this.crearDirectorio();
+      this.crearDirectorio(formData);
     }
   }
 
-  /**
-   * Prepara el FormData con los datos del formulario
-   */
   private prepararFormData(): FormData {
     const formData = new FormData();
-    const formValues = this.formDirectorio.value;
+    const v = this.formDirectorio.value;
 
-    formData.append('descripcion', formValues.descripcion?.trim() || '');
-    formData.append('estatus', formValues.estatus || 'A');
-    formData.append('descripcionMas', formValues.descripcionMas?.trim() || '');
+    formData.append('descripcion', v.descripcion?.trim() || '');
+    formData.append('estatus', v.estatus || 'A');
+    formData.append('descripcionMas', v.descripcionMas?.trim() || '');
 
     if (this.selectedFile) {
       formData.append('archivo', this.selectedFile, this.selectedFile.name);
@@ -260,172 +274,116 @@ export class DirectoriosAdmin implements OnInit, OnDestroy {
     return formData;
   }
 
-  /**
-   * Crea un nuevo directorio
-   */
-  private crearDirectorio(): void {
-    const formData = this.prepararFormData();
-    
-    this.apiDirectorios.createDirectorio(formData)
+  // ===========================
+  // CRUD
+  // ===========================
+  private crearDirectorio(formData: FormData): void {
+    this.apiDirectorios
+      .createDirectorio(formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             this.mostrarExito(res.message || 'Directorio creado exitosamente');
-            
+
             if (res.data) {
-              this.directorios = [res.data, ...this.directorios];
+              // Actualización inmutable
+              this.directorios.update((curr) => [res.data, ...curr]);
             } else {
               this.cargarDirectorios();
             }
-            
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al crear el directorio');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
-          console.error('Error al crear directorio:', error);
+          console.error('Error create:', error);
           this.mostrarError('Error al crear el directorio. Intente nuevamente.');
-          this.submitting = false;
-        }
+          this.submitting.set(false);
+        },
       });
   }
 
-  /**
-   * Actualiza un directorio existente
-   */
-  private actualizarDirectorio(): void {
-    if (!this.selectedDirectorioId) {
-      this.mostrarError('No se ha seleccionado un directorio para actualizar');
-      this.submitting = false;
-      return;
-    }
+  private actualizarDirectorio(formData: FormData): void {
+    if (!this.selectedDirectorioId) return;
 
-    const formData = this.prepararFormData();
-
-    this.apiDirectorios.updateDirectorio(this.selectedDirectorioId, formData)
+    this.apiDirectorios
+      .updateDirectorio(this.selectedDirectorioId, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.mostrarExito(res.message || 'Directorio actualizado exitosamente');
-            
-            const index = this.directorios.findIndex(d => d.id_directorio === this.selectedDirectorioId);
-            if (index !== -1) {
-              this.directorios[index] = {
-                ...this.directorios[index],
-                ...this.formDirectorio.value,
-                ...(res.data || {})
-              };
-              this.directorios = [...this.directorios];
-            }
-            
+            this.mostrarExito('Directorio actualizado exitosamente');
+
+            // Actualización inmutable
+            this.directorios.update((curr) =>
+              curr.map((d) =>
+                d.id_directorio === this.selectedDirectorioId
+                  ? { ...d, ...this.formDirectorio.value, ...(res.data || {}) }
+                  : d
+              )
+            );
+
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al actualizar el directorio');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
-          console.error('Error al actualizar directorio:', error);
-          this.mostrarError('Error al actualizar el directorio. Intente nuevamente.');
-          this.submitting = false;
-        }
+          console.error('Error update:', error);
+          this.mostrarError('Error al actualizar el directorio.');
+          this.submitting.set(false);
+        },
       });
   }
 
-  /**
-   * Obtiene la URL completa del archivo
-   */
+  // ===========================
+  // HELPERS UI
+  // ===========================
   getFileUrl(directorio: Directorios): string {
-    if (!directorio.link) {
-      return '';
-    }
+    if (!directorio.link) return '';
     return `http://localhost:3000/public/directorios/${directorio.id_directorio}/${directorio.link}`;
   }
 
-  /**
-   * Obtiene el icono según el tipo de archivo
-   */
   getFileIcon(directorio: Directorios): string {
-    if (!directorio.link) {
-      return 'pi pi-file';
-    }
+    if (!directorio.link) return 'pi pi-file';
     const fileName = directorio.link.toLowerCase();
-    if (fileName.endsWith('.pdf')) {
-      return 'pi pi-file-pdf';
-    } else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
-      return 'pi pi-file-excel';
-    }
+    if (fileName.endsWith('.pdf')) return 'pi pi-file-pdf text-red-500';
+    if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx'))
+      return 'pi pi-file-excel text-green-500';
     return 'pi pi-file';
   }
 
-  /**
-   * Obtiene el label del estatus
-   */
   getEstatusLabel(estatus: string): string {
-    const option = this.estatusOptions.find(opt => opt.value === estatus);
-    return option?.label || estatus;
+    return estatus === 'A' ? 'Activo' : 'Inactivo';
   }
 
-  /**
-   * Verifica si un campo tiene errores
-   */
-  hasError(fieldName: string): boolean {
-    const field = this.formDirectorio.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+  hasError(field: string): boolean {
+    const control = this.formDirectorio.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  /**
-   * Obtiene el mensaje de error de un campo
-   */
-  getErrorMessage(fieldName: string): string {
-    const field = this.formDirectorio.get(fieldName);
-    if (!field || !field.errors) {
-      return '';
-    }
-
-    if (field.errors['required']) {
-      return 'Este campo es requerido';
-    }
-    if (field.errors['minlength']) {
-      return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
-    }
-    if (field.errors['maxlength']) {
-      return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
-    }
-
-    return 'Campo inválido';
+  getErrorMessage(field: string): string {
+    const control = this.formDirectorio.get(field);
+    if (control?.errors?.['required']) return 'Este campo es requerido';
+    if (control?.errors?.['minlength'])
+      return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
+    if (control?.errors?.['maxlength'])
+      return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
+    return '';
   }
 
-  // === MÉTODOS DE MENSAJES ===
-
-  private mostrarExito(mensaje: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: mensaje,
-      life: 3000
-    });
+  // Mensajes Wrapper
+  private mostrarExito(detail: string) {
+    this.messageService.add({ severity: 'success', summary: 'Éxito', detail });
   }
-
-  private mostrarError(mensaje: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje,
-      life: 5000
-    });
+  private mostrarError(detail: string) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail });
   }
-
-  private mostrarAdvertencia(mensaje: string): void {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Advertencia',
-      detail: mensaje,
-      life: 4000
-    });
+  private mostrarAdvertencia(detail: string) {
+    this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail });
   }
 }

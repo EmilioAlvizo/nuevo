@@ -1,4 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -8,15 +15,15 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { SelectModule } from 'primeng/select';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { TextareaModule } from 'primeng/textarea';
 
 import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 
@@ -35,56 +42,59 @@ interface EstatusOption {
     ButtonModule,
     DialogModule,
     InputTextModule,
-    AutoCompleteModule,
     SelectModule,
-    FileUploadModule,
     ToastModule,
     ConfirmDialogModule,
     CardModule,
     ToolbarModule,
-    TooltipModule
+    TooltipModule,
+    TagModule,
+    TextareaModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './temas-interes-admin.html',
   styleUrl: './temas-interes-admin.css',
+  changeDetection: ChangeDetectionStrategy.OnPush, // SOLUCIÓN AL RENDERIZADO
 })
 export class TemasInteresAdmin implements OnInit, OnDestroy {
-  // Datos
-  temas: Temas[] = [];
-  
-  // Formulario
+  // ===========================
+  // INYECCIONES
+  // ===========================
+  private apiTemas = inject(ApiTemas);
+  private fb = inject(FormBuilder);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+
+  // ===========================
+  // ESTADO (SIGNALS)
+  // ===========================
+  temas = signal<Temas[]>([]);
+  loading = signal<boolean>(false);
+  submitting = signal<boolean>(false);
+
+  // Modal State
+  modalVisible = signal<boolean>(false);
+  editMode = signal<boolean>(false);
+
+  // ===========================
+  // VARIABLES LOCALES
+  // ===========================
   formTema!: FormGroup;
-  
-  // Control de modal
-  modalVisible: boolean = false;
-  editMode: boolean = false;
   selectedTemaId: number | null = null;
-  
+
   // Archivo
   selectedImage: File | null = null;
   allowedImageTypes: string[] = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-  maxFileSize: number = 5242880; // 5MB
-  
-  // Loading states
-  loading: boolean = false;
-  submitting: boolean = false;
-  
-  // Opciones de estatus
+  maxFileSize: number = 5 * 1024 * 1024; // 5MB
+
   estatusOptions: EstatusOption[] = [
     { label: 'Activo', value: 'A' },
-    { label: 'Inactivo', value: 'B' }
+    { label: 'Inactivo', value: 'B' },
   ];
 
-  
-  // Subject para manejar subscripciones
   private destroy$ = new Subject<void>();
 
-  constructor(
-    private apiTemas: ApiTemas,
-    private fb: FormBuilder,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
-  ) {
+  constructor() {
     this.inicializarFormulario();
   }
 
@@ -97,161 +107,155 @@ export class TemasInteresAdmin implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Inicializa el formulario con validaciones
-   */
+  // ===========================
+  // FORMULARIO
+  // ===========================
   private inicializarFormulario(): void {
     this.formTema = this.fb.group({
-      descripcionTema: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+      descripcionTema: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(200)],
+      ],
       estatusTema: ['A', [Validators.required]],
       link: ['', [Validators.maxLength(500)]],
-      descripcionMas: ['', [Validators.maxLength(1000)]]
+      descripcionMas: ['', [Validators.maxLength(1000)]],
     });
   }
 
-  /**
-   * Carga todos los temas desde el API
-   */
+  // ===========================
+  // CARGA DE DATOS
+  // ===========================
   cargarTemas(): void {
-    this.loading = true;
-    this.apiTemas.getTemas()
+    this.loading.set(true);
+
+    this.apiTemas
+      .getTemas()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.temas = res.data || [];
+            this.temas.set(res.data || []);
           } else {
             this.mostrarError('Error al cargar los temas');
           }
-          this.loading = false;
+          this.loading.set(false);
         },
         error: (error) => {
           console.error('Error al cargar temas:', error);
           this.mostrarError('Error al cargar los temas. Intente nuevamente.');
-          this.loading = false;
-        }
+          this.loading.set(false);
+        },
       });
   }
 
-  /**
-   * Abre el modal para crear o editar
-   */
+  // ===========================
+  // MODAL LOGIC
+  // ===========================
   abrirModal(tema?: Temas): void {
     if (tema) {
-      this.editMode = true;
+      this.editMode.set(true);
       this.selectedTemaId = tema.id_tema;
       this.formTema.patchValue({
         descripcionTema: tema.descripcionTema || '',
         estatusTema: tema.estatusTema || 'A',
         link: tema.link || '',
-        descripcionMas: tema.descripcionMas || ''
+        descripcionMas: tema.descripcionMas || '',
       });
     } else {
-      this.editMode = false;
+      this.editMode.set(false);
       this.selectedTemaId = null;
+      this.formTema.reset({ estatusTema: 'A' });
+      this.selectedImage = null;
     }
-    
-    this.modalVisible = true;
+
+    this.modalVisible.set(true);
   }
 
-  /**
-   * Cierra el modal y limpia el estado
-   */
   cerrarModal(): void {
-    this.modalVisible = false;
-    // Esperar a que la animación termine antes de limpiar
+    this.modalVisible.set(false);
     setTimeout(() => {
       this.vaciarFormulario();
     }, 200);
   }
 
-  /**
-   * Limpia el formulario y reinicia el estado
-   */
   vaciarFormulario(): void {
     this.formTema.reset({
       descripcionTema: '',
       estatusTema: 'A',
       link: '',
-      descripcionMas: ''
+      descripcionMas: '',
     });
     this.formTema.markAsPristine();
     this.formTema.markAsUntouched();
-    this.editMode = false;
+    this.editMode.set(false);
     this.selectedTemaId = null;
     this.selectedImage = null;
   }
 
-  /**
-   * Maneja la selección de archivo con validaciones
-   */
+  // ===========================
+  // ARCHIVO
+  // ===========================
   onFileSelected(event: any): void {
     const file = event.target?.files?.[0] || event.files?.[0];
-    
-    if (!file) {
-      return;
-    }
 
-    // Validar tipo de archivo
+    if (!file) return;
+
+    // Validaciones
     if (!this.allowedImageTypes.includes(file.type)) {
-      this.mostrarAdvertencia('Tipo de archivo no válido. Solo se permiten imágenes (JPG, PNG, GIF, WEBP).');
+      this.mostrarAdvertencia('Tipo de archivo no válido. Solo imágenes (JPG, PNG, GIF, WEBP).');
       this.selectedImage = null;
       event.target.value = '';
       return;
     }
 
-    // Validar tamaño
     if (file.size > this.maxFileSize) {
-      this.mostrarAdvertencia(`El archivo excede el tamaño máximo permitido de ${this.maxFileSize / 1024 / 1024}MB.`);
+      this.mostrarAdvertencia(`El archivo excede el tamaño máximo permitido de 5MB.`);
       this.selectedImage = null;
       event.target.value = '';
       return;
     }
 
     this.selectedImage = file;
-    this.mostrarExito(`Imagen "${file.name}" seleccionada correctamente.`);
+    // No necesitamos un signal aquí a menos que mostremos el nombre del archivo en la UI y falle el refresco
+    // Pero OnPush a veces requiere forzar si es una variable local simple mostrada en template.
+    // En este caso, el input file muestra su propio valor nativo, así que suele estar bien.
+    this.mostrarExito(`Imagen "${file.name}" seleccionada.`);
   }
 
-  /**
-   * Envía el formulario (crear o actualizar)
-   */
+  // ===========================
+  // SUBMIT
+  // ===========================
   submitForm(): void {
-    // Validar formulario
     if (this.formTema.invalid) {
       this.formTema.markAllAsTouched();
-      this.mostrarAdvertencia('Por favor complete todos los campos requeridos correctamente.');
+      this.mostrarAdvertencia('Complete los campos requeridos.');
       return;
     }
 
-    // Validar imagen en modo creación
-    if (!this.editMode && !this.selectedImage) {
+    // Validación extra para imagen en modo creación
+    if (!this.editMode() && !this.selectedImage) {
       this.mostrarAdvertencia('Por favor seleccione una imagen.');
       return;
     }
 
-    this.submitting = true;
-
-    // Preparar FormData
+    this.submitting.set(true);
     const formData = this.prepararFormData();
 
-    if (this.editMode && this.selectedTemaId) {
+    if (this.editMode() && this.selectedTemaId) {
       this.actualizarTema(formData);
     } else {
       this.crearTema(formData);
     }
   }
 
-  /**
-   * Prepara el FormData con los datos del formulario
-   */
   private prepararFormData(): FormData {
     const formData = new FormData();
-    const formValues = this.formTema.value;
+    const v = this.formTema.value;
 
-    formData.append('descripcionTema', formValues.descripcionTema?.trim() || '');
-    formData.append('estatusTema', formValues.estatusTema || 'A');
-    formData.append('link', formValues.link?.trim() || '');
-    formData.append('descripcionMas', formValues.descripcionMas?.trim() || '');
+    formData.append('descripcionTema', v.descripcionTema?.trim() || '');
+    formData.append('estatusTema', v.estatusTema || 'A');
+    formData.append('link', v.link?.trim() || '');
+    formData.append('descripcionMas', v.descripcionMas?.trim() || '');
 
     if (this.selectedImage) {
       formData.append('imagen', this.selectedImage, this.selectedImage.name);
@@ -260,157 +264,109 @@ export class TemasInteresAdmin implements OnInit, OnDestroy {
     return formData;
   }
 
-  /**
-   * Crea un nuevo tema
-   */
+  // ===========================
+  // CRUD
+  // ===========================
   private crearTema(formData: FormData): void {
-    this.apiTemas.createTema(formData)
+    this.apiTemas
+      .createTema(formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             this.mostrarExito(res.message || 'Tema creado exitosamente');
-            
-            // Agregar el nuevo tema a la lista o recargar
+
+            // Actualización optimista o basada en respuesta (Inmutable)
             if (res.data) {
-              this.temas = [res.data, ...this.temas];
+              this.temas.update((current) => [res.data, ...current]);
             } else {
               this.cargarTemas();
             }
-            
             this.cerrarModal();
           } else {
             this.mostrarError(res.message || 'Error al crear el tema');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
-          console.error('Error al crear tema:', error);
-          this.mostrarError('Error al crear el tema. Intente nuevamente.');
-          this.submitting = false;
-        }
+          console.error('Error create:', error);
+          this.mostrarError('Error al crear el tema.');
+          this.submitting.set(false);
+        },
       });
   }
 
-  /**
-   * Actualiza un tema existente
-   */
   private actualizarTema(formData: FormData): void {
-    if (!this.selectedTemaId) {
-      this.mostrarError('No se ha seleccionado un tema para actualizar');
-      this.submitting = false;
-      return;
-    }
+    if (!this.selectedTemaId) return;
 
-    this.apiTemas.updateTema(this.selectedTemaId, formData)
+    this.apiTemas
+      .updateTema(this.selectedTemaId, formData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.mostrarExito(res.message || 'Tema actualizado exitosamente');
-            
-            // Actualizar el tema en la lista local
-            const index = this.temas.findIndex(t => t.id_tema === this.selectedTemaId);
-            if (index !== -1) {
-              this.temas[index] = {
-                ...this.temas[index],
-                ...this.formTema.value,
-                ...(res.data || {})
-              };
-              // Forzar detección de cambios
-              this.temas = [...this.temas];
-            }
-            
+            this.mostrarExito('Tema actualizado exitosamente');
+
+            // Actualización Inmutable Local (Evita parpadeo de recarga)
+            this.temas.update((current) =>
+              current.map((t) =>
+                t.id_tema === this.selectedTemaId
+                  ? { ...t, ...this.formTema.value, ...(res.data || {}) }
+                  : t
+              )
+            );
+
             this.cerrarModal();
           } else {
-            this.mostrarError(res.message || 'Error al actualizar el tema');
+            this.mostrarError(res.message || 'Error al actualizar');
           }
-          this.submitting = false;
+          this.submitting.set(false);
         },
         error: (error) => {
-          console.error('Error al actualizar tema:', error);
-          this.mostrarError('Error al actualizar el tema. Intente nuevamente.');
-          this.submitting = false;
-        }
+          console.error('Error update:', error);
+          this.mostrarError('Error al actualizar el tema.');
+          this.submitting.set(false);
+        },
       });
   }
 
-  /**
-   * Obtiene la URL completa de la imagen
-   */
+  // ===========================
+  // HELPERS
+  // ===========================
   getImageUrl(tema: Temas): string {
-    if (!tema.imagen) {
-      return '';
-    }
+    if (!tema.imagen) return '';
+    // Idealmente mover URL base a environment.ts
     return `http://localhost:3000/public/temas_interes/${tema.id_tema}/${tema.imagen}`;
   }
 
-
-
-  /**
-   * Obtiene el label del estatus
-   */
   getEstatusLabel(estatus: string): string {
-    const option = this.estatusOptions.find(opt => opt.value === estatus);
-    return option?.label || estatus;
+    return estatus === 'A' ? 'Activo' : 'Inactivo';
   }
 
-  /**
-   * Verifica si un campo tiene errores
-   */
-  hasError(fieldName: string): boolean {
-    const field = this.formTema.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+  // Validaciones UI
+  hasError(field: string): boolean {
+    const control = this.formTema.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  /**
-   * Obtiene el mensaje de error de un campo
-   */
-  getErrorMessage(fieldName: string): string {
-    const field = this.formTema.get(fieldName);
-    if (!field || !field.errors) {
-      return '';
-    }
-
-    if (field.errors['required']) {
-      return 'Este campo es requerido';
-    }
-    if (field.errors['minlength']) {
-      return `Mínimo ${field.errors['minlength'].requiredLength} caracteres`;
-    }
-    if (field.errors['maxlength']) {
-      return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
-    }
-
-    return 'Campo inválido';
+  getErrorMessage(field: string): string {
+    const control = this.formTema.get(field);
+    if (control?.errors?.['required']) return 'Campo requerido';
+    if (control?.errors?.['minlength'])
+      return `Mínimo ${control.errors['minlength'].requiredLength} caracteres`;
+    if (control?.errors?.['maxlength'])
+      return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
+    return '';
   }
 
-  // === MÉTODOS DE MENSAJES ===
-
-  private mostrarExito(mensaje: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: mensaje,
-      life: 3000
-    });
+  // Mensajes Wrapper
+  private mostrarExito(detail: string) {
+    this.messageService.add({ severity: 'success', summary: 'Éxito', detail });
   }
-
-  private mostrarError(mensaje: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje,
-      life: 5000
-    });
+  private mostrarError(detail: string) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail });
   }
-
-  private mostrarAdvertencia(mensaje: string): void {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Advertencia',
-      detail: mensaje,
-      life: 4000
-    });
+  private mostrarAdvertencia(detail: string) {
+    this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail });
   }
 }

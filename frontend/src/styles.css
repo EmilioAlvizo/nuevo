@@ -82,6 +82,10 @@ html {
   scrollbar-gutter: stable;
 }
 
+body.p-overflow-hidden {
+    padding-right: 0 !important; 
+}
+
 :host {
   will-change: transform;
   transition: transform 0.25s ease, opacity 0.25s ease;

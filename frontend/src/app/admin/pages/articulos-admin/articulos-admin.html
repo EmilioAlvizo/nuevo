@@ -132,7 +132,9 @@
   [(visible)]="modalVisible"
   [header]="editMode() ? 'Editar Artículo' : 'Nuevo Artículo'"
   [modal]="true"
+  [dismissableMask]="true"
   [style]="{ width: '90%', maxWidth: '700px' }">
+
 
   <form [formGroup]="formArticulo" (ngSubmit)="submitForm()">
 
