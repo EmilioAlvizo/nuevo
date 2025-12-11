@@ -1,140 +1,45 @@
 /* nuevo/frontend/src/app/public/components/testimonios-carousel/testimonios-carousel.component.css */
-
-/* 1. CONFIGURACIÓN DEL EFECTO FADE (MENTIMETER) */
-/* Aplicamos la máscara SOLO al viewport donde se mueven las tarjetas.
-   De esta forma, las flechas NO se ven afectadas por el desvanecimiento. */
+@import "tailwindcss";
+/* 1. MÁSCARA DE DESVANECIMIENTO (Fade Effect) */
+/* Usamos ::ng-deep si no tienes ViewEncapsulation.None, o clase directa si lo tienes */
 .mentimeter-carousel .p-carousel-viewport {
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 15%,
-    black 85%,
-    transparent 100%
-  );
+  /* Tailwind arbitrary value en CSS puro para la máscara */
   mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
-  padding: 20px 0; /* Espacio arriba/abajo para sombras */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+  padding: 20px 0; /* Espacio para que la sombra (shadow-xl) no se corte arriba/abajo */
 }
 
-/* 2. MOVER FLECHAS A LA PARTE INFERIOR */
-/* Forzamos al contenedor a tener espacio abajo para las flechas */
-.mentimeter-carousel .p-carousel-content {
-  padding-bottom: 60px; /* Espacio reservado para las flechas */
-  position: relative;
-}
-
-/* Estilo y posición de los botones Prev/Next */
+/* 2. PERSONALIZACIÓN DE FLECHAS (Botones Redondos Abajo) */
 .mentimeter-carousel .p-carousel-prev-button,
 .mentimeter-carousel .p-carousel-next-button {
-  position: absolute;
-  bottom: 0; /* Los pegamos al fondo del contenedor */
-  z-index: 10;
-  background-color: #f3f4f6; /* Color gris claro */
-  color: #333;
-  border-radius: 50%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 0;
-  transition: all 0.3s ease;
+  outline: none;
+  @apply absolute bottom-0 z-10 m-0 h-12 w-12 rounded-full border-none bg-gray-100 text-gray-600 shadow-md transition-all duration-300;
 }
 
 .mentimeter-carousel .p-carousel-prev-button:hover,
 .mentimeter-carousel .p-carousel-next-button:hover {
-  background-color: #e5e7eb;
-  transform: scale(1.1);
+  @apply scale-110 bg-gray-200; /* Asumiendo que tienes un color primary configurado */
 }
 
-/* Ubicación exacta: Centrados o separados */
+/* Posicionamiento exacto */
 .mentimeter-carousel .p-carousel-prev-button {
-  left: calc(50% - 4rem); /* Un poco a la izquierda del centro */
+  left: calc(50% - 4rem);
 }
 
 .mentimeter-carousel .p-carousel-next-button {
-  right: calc(50% - 4rem); /* Un poco a la derecha del centro */
+  right: calc(50% - 4rem);
 }
 
-/* 3. ESTILOS DE LA TARJETA */
-.testimonial-wrapper {
-  padding: 10px; /* Espacio entre tarjetas */
-  height: 100%;
+/* Ocultar flechas si están deshabilitadas (opcional) */
+.mentimeter-carousel .p-carousel-prev-button:disabled,
+.mentimeter-carousel .p-carousel-next-button:disabled {
+  @apply opacity-0 cursor-default;
 }
 
-.testimonial-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid rgba(0, 0, 0, 0.03);
-}
-
-.description-text {
-  font-size: 1rem;
-  line-height: 1.6;
-  font-style: italic;
-  color: #555;
-  /* Limitar texto si es muy largo */
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.quote-symbol {
-  font-size: 4rem;
-  color: #d1d5db;
-  line-height: 1rem;
-  display: block;
-  margin-bottom: 1.5rem;
-  font-family: serif;
-}
-
-.user-profile {
-  margin-top: auto; /* Empuja esto al fondo de la tarjeta */
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f0f0f0;
-}
-
-.user-info h6 {
-  margin-bottom: 0;
-  font-weight: bold;
-}
-
-.user-info {
-  flex: 1;
-  min-width: 0; /* Permite que el texto se trunque si es necesario */
-}
-
-.avatar-img {
-  object-fit: cover;    /* Esto recorta la imagen rectangular para llenar el círculo sin deformar */
-  object-position: center; /* Centra la cara */
-  border-radius: 50%;   /* Opcional: si quieres redondear la imagen directamente */
-}
-
-/* Mantén la clase .avatar-container por si acaso, aunque el style inline tiene prioridad */
-.avatar-container {
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  /* position, width y height ya están en el HTML para evitar el error de Angular */
-}
-
-/* RESPONSIVE */
+/* RESPONSIVE: Quitar fade en móviles */
 @media (max-width: 768px) {
-  /* En móvil quitamos el efecto fade porque solo se ve 1 */
   .mentimeter-carousel .p-carousel-viewport {
     mask-image: none;
     -webkit-mask-image: none;
   }
-
-  /* En móvil separamos más las flechas */
-  /* .mentimeter-carousel .p-carousel-prev-button {
-    left: 20px;
-  }
-  .mentimeter-carousel .p-carousel-next-button {
-    right: 20px;
-  } */
 }

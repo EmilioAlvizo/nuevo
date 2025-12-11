@@ -353,7 +353,7 @@ export class Flipbook implements OnDestroy {
       this.currentFolioIndex.set(Math.floor((this.currentPageNumber() - 1) / 2));
       setTimeout(() => this.isTurning.set(false), 300);
     } else {
-      if (this.currentFolioIndex() >= this.folios().length - 1) return;
+      if (this.currentFolioIndex() >= this.folios().length) return;
       this.isTurning.set(true);
 
       // 1. Flip visual

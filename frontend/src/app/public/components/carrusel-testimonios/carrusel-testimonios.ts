@@ -23,7 +23,7 @@ export class CarruselTestimonios {
   responsiveOptions = [
     {
       breakpoint: '1400px',
-      numVisible: 4,
+      numVisible: 3,
       numScroll: 1,
     },
     {

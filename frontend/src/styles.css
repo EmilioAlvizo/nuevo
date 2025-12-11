@@ -49,6 +49,11 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Evita que el navegador salte cuando el contenido superior cambia de tamaño */
+body, html {
+  overflow-anchor: none;
+}
+
 body.p-overflow-hidden {
     padding-right: 0 !important; 
 }

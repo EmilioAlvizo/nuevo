@@ -29,7 +29,7 @@
         [disabled]="
           isMobileView()
             ? currentPageNumber() >= totalPages()
-            : currentFolioIndex() >= folios().length - 1
+            : currentFolioIndex() >= folios().length
         "
         aria-label="Next Page"
       >
@@ -139,7 +139,7 @@
     class="control-btn"
     type="button"
     (click)="next()"
-    [disabled]="currentFolioIndex() >= folios().length - 1"
+    [disabled]="currentFolioIndex() >= folios().length"
   >
     <svg
       width="20"

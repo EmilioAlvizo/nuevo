@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core'; // Agrega computed
+import { RouterModule } from '@angular/router';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-hero',
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, RouterModule],
   templateUrl: './hero.html',
   styleUrl: './hero.css',
 })
