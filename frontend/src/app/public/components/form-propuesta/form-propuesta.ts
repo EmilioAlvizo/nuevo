@@ -200,67 +200,67 @@ export class FormPropuesta {
 
 // Actualización del método handleSubmit en FormPropuesta
 
-handleSubmit(): void {
-  if (this.propuestaForm.invalid) {
-    this.propuestaForm.markAllAsTouched();
-    return;
+  handleSubmit(): void {
+    if (this.propuestaForm.invalid) {
+      this.propuestaForm.markAllAsTouched();
+      return;
+    }
+
+    const form = this.propuestaForm.value;
+
+    const data = {
+      nombreC: form.nombre,
+      sexo: form.sexo,
+      edad: form.edad,
+      actividad: form.actividad === 'Otro' ? form.especifica : form.actividad,
+      correo: form.correo,
+      id_municipio: form.municipio,
+      zona: form.zona,
+      detalle: form.detalle,
+      justificacion: form.justificacion,
+      necesidades: form.necesidades,
+    };
+
+    this.apiPropuesta.crearPropuesta(data).subscribe({
+      next: (resp) => {
+        this.msg.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Propuesta registrada correctamente',
+        });
+
+        // 🔔 Extraer ID de diferentes posibles ubicaciones
+        const idPropuesta = resp?.data?.id_propuesta || 
+                          resp?.data?.insertId || 
+                          resp?.insertId ||
+                          resp?.id_propuesta;
+        
+        console.log('✅ ID Propuesta:', idPropuesta);
+
+        // Crear notificación con link que incluye query param para resaltar
+        this.notifs.agregar(
+          `Nueva propuesta de acción registrada por ${form.nombre}`,
+          {
+            tipo: 'propuesta',
+            idReferencia: idPropuesta,
+            // link: `/admin/propuestas-accion?highlight=${idPropuesta}`
+            link: `/admin/propuestas-accion`
+          }
+        );
+
+        this.visibleChange.emit(false);
+      },
+      error: (err) => {
+        console.error('❌ Error al enviar propuesta:', err);
+
+        this.msg.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo registrar la propuesta',
+        });
+      },
+    });
   }
-
-  const form = this.propuestaForm.value;
-
-  const data = {
-    nombreC: form.nombre,
-    sexo: form.sexo,
-    edad: form.edad,
-    actividad: form.actividad === 'Otro' ? form.especifica : form.actividad,
-    correo: form.correo,
-    id_municipio: form.municipio,
-    zona: form.zona,
-    detalle: form.detalle,
-    justificacion: form.justificacion,
-    necesidades: form.necesidades,
-  };
-
-  this.apiPropuesta.crearPropuesta(data).subscribe({
-    next: (resp) => {
-      this.msg.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'Propuesta registrada correctamente',
-      });
-
-      // 🔔 Extraer ID de diferentes posibles ubicaciones
-      const idPropuesta = resp?.data?.id_propuesta || 
-                         resp?.data?.insertId || 
-                         resp?.insertId ||
-                         resp?.id_propuesta;
-      
-      console.log('✅ ID Propuesta:', idPropuesta);
-
-      // Crear notificación con link que incluye query param para resaltar
-      this.notifs.agregar(
-        `Nueva propuesta de acción registrada por ${form.nombre}`,
-        {
-          tipo: 'propuesta',
-          idReferencia: idPropuesta,
-          // link: `/admin/propuestas-accion?highlight=${idPropuesta}`
-          link: `/admin/propuestas-accion`
-        }
-      );
-
-      this.visibleChange.emit(false);
-    },
-    error: (err) => {
-      console.error('❌ Error al enviar propuesta:', err);
-
-      this.msg.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudo registrar la propuesta',
-      });
-    },
-  });
-}
 
 
   handleCancel(): void {

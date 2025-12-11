@@ -25,6 +25,7 @@ export interface InterfazResponse {
 })
 export class InterfazService {
   private apiUrl = `${environment.apiUrl}/interfaz`;
+  publicUrl = environment.publicUrl;
   private logoSubject = new BehaviorSubject<string>('');
   public logo$ = this.logoSubject.asObservable();
 
@@ -73,7 +74,7 @@ export class InterfazService {
         if (config && config.archivo) {
           return this.buildImageUrl(config.id_config, config.archivo);
         }
-        return '/assets/logo_1.png'; // Logo por defecto
+         return `${environment.publicUrl}/assets/logo_1.png`; // Logo por defecto
       }),
       tap(url => this.logoSubject.next(url))
     );
@@ -86,7 +87,7 @@ export class InterfazService {
         if (config && config.archivo) {
           return this.buildImageUrl(config.id_config, config.archivo);
         }
-        return '/assets/logo_2.png'; // Logo por defecto
+        return `${environment.publicUrl}/assets/logo_1.png`; // Logo por defecto
       })
     );
   }

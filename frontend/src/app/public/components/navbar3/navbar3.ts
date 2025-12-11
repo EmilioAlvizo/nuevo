@@ -44,7 +44,7 @@ export class Navbar3 implements OnInit, OnDestroy {
   topBarExpanded = signal(false);
   
   // Signals para el logo
-  logoUrl = signal<string>('/assets/logo_1.png');
+  logoUrl = signal<string>(`${environment.publicUrl}/assets/logo_1.png`);
   logoLoaded = signal<boolean>(false);
 
   private routeChanged = signal(0);
@@ -123,7 +123,7 @@ export class Navbar3 implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error cargando logo:', err);
-        this.logoUrl.set('/assets/logo_1.png');
+        this.logoUrl.set(`${environment.publicUrl}/assets/logo_1.png`);
         this.logoLoaded.set(true);
         this.cdr.markForCheck();
       }
@@ -133,7 +133,7 @@ export class Navbar3 implements OnInit, OnDestroy {
   // Manejar error de carga de imagen
   onImageError(): void {
     console.warn('Error al cargar imagen del logo, usando fallback');
-    this.logoUrl.set('/assets/logo_1.png');
+    this.logoUrl.set(`${environment.publicUrl}/assets/logo_1.png`);
     this.cdr.markForCheck();
   }
 

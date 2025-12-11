@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -42,39 +42,30 @@ import { ApiAuthorizedEmails, AuthorizedEmail } from '../../../core/services/aut
   styleUrl: './authorized-emails-admin.css',
 })
 export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
-  // Datos
+
   emails: AuthorizedEmail[] = [];
-  
-  // Formulario
   formEmail!: FormGroup;
-  
-  // Control de modal
-  modalVisible: boolean = false;
-  editMode: boolean = false;
+
+  modalVisible = false;
+  editMode = false;
   selectedEmailId: number | null = null;
-  
-  // Loading states
-  loading: boolean = false;
-  submitting: boolean = false;
-  
-  // Subject para manejar subscripciones
+
+  loading = false;
+  submitting = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private apiEmails: ApiAuthorizedEmails,
     private fb: FormBuilder,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-    private cdr: ChangeDetectorRef // ⬅️ AGREGAR ESTO
+    private confirmationService: ConfirmationService
   ) {
     this.inicializarFormulario();
   }
 
   ngOnInit(): void {
-    // Usar setTimeout para evitar el error de ExpressionChanged
-    setTimeout(() => {
-      this.cargarEmails();
-    });
+    this.cargarEmails();  // ← llamado directo, sin setTimeout
   }
 
   ngOnDestroy(): void {
@@ -82,9 +73,6 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Inicializa el formulario con validaciones
-   */
   private inicializarFormulario(): void {
     this.formEmail = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
@@ -92,11 +80,9 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Carga todos los emails desde el API
-   */
   cargarEmails(): void {
     this.loading = true;
+
     this.apiEmails.getAuthorizedEmails()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -107,49 +93,39 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
             this.mostrarError('Error al cargar los emails autorizados');
           }
           this.loading = false;
-          this.cdr.detectChanges(); // ⬅️ AGREGAR ESTO
         },
-        error: (error) => {
-          console.error('Error al cargar emails:', error);
-          this.mostrarError('Error al cargar los emails autorizados. Intente nuevamente.');
+        error: (err) => {
+          console.error('Error al cargar emails:', err);
+          this.mostrarError('Error al cargar los emails autorizados.');
           this.loading = false;
-          this.cdr.detectChanges(); // ⬅️ AGREGAR ESTO
         }
       });
   }
 
-  /**
-   * Abre el modal para crear o editar
-   */
   abrirModal(email?: AuthorizedEmail): void {
     if (email) {
       this.editMode = true;
       this.selectedEmailId = email.id;
+
       this.formEmail.patchValue({
-        email: email.email || '',
-        used: email.used || false
+        email: email.email,
+        used: email.used
       });
+
     } else {
       this.editMode = false;
       this.selectedEmailId = null;
+      this.formEmail.reset({ email: '', used: false });
     }
-    
+
     this.modalVisible = true;
   }
 
-  /**
-   * Cierra el modal y limpia el estado
-   */
   cerrarModal(): void {
     this.modalVisible = false;
-    setTimeout(() => {
-      this.vaciarFormulario();
-    }, 200);
+    this.vaciarFormulario();
   }
 
-  /**
-   * Limpia el formulario y reinicia el estado
-   */
   vaciarFormulario(): void {
     this.formEmail.reset({
       email: '',
@@ -161,13 +137,10 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
     this.selectedEmailId = null;
   }
 
-  /**
-   * Envía el formulario (crear o actualizar)
-   */
   submitForm(): void {
     if (this.formEmail.invalid) {
       this.formEmail.markAllAsTouched();
-      this.mostrarAdvertencia('Por favor complete todos los campos requeridos correctamente.');
+      this.mostrarAdvertencia('Complete correctamente todos los campos.');
       return;
     }
 
@@ -180,12 +153,9 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Crea un nuevo email autorizado
-   */
   private crearEmail(): void {
     const data = {
-      email: this.formEmail.value.email?.trim(),
+      email: this.formEmail.value.email.trim(),
       authorized_by: 'admin'
     };
 
@@ -194,196 +164,108 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.mostrarExito(res.message || 'Email autorizado creado exitosamente');
+            this.mostrarExito(res.message || 'Email creado exitosamente');
             this.cargarEmails();
             this.cerrarModal();
           } else {
-            this.mostrarError(res.message || 'Error al crear el email autorizado');
+            this.mostrarError(res.message || 'Error al crear el email');
           }
           this.submitting = false;
         },
-        error: (error) => {
-          console.error('Error al crear email:', error);
-          const mensaje = error.error?.message || 'Error al crear el email autorizado. Intente nuevamente.';
-          this.mostrarError(mensaje);
+        error: (err) => {
+          console.error(err);
+          this.mostrarError('Error al crear el email');
           this.submitting = false;
         }
       });
   }
 
-  /**
-   * Actualiza un email autorizado existente
-   */
   private actualizarEmail(): void {
-    if (!this.selectedEmailId) {
-      this.mostrarError('No se ha seleccionado un email para actualizar');
-      this.submitting = false;
-      return;
-    }
-
     const data = {
-      email: this.formEmail.value.email?.trim(),
+      email: this.formEmail.value.email.trim(),
       used: this.formEmail.value.used
     };
 
-    this.apiEmails.updateAuthorizedEmail(this.selectedEmailId, data)
+    this.apiEmails.updateAuthorizedEmail(this.selectedEmailId!, data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.mostrarExito(res.message || 'Email autorizado actualizado exitosamente');
+            this.mostrarExito(res.message || 'Email actualizado');
             this.cargarEmails();
             this.cerrarModal();
           } else {
-            this.mostrarError(res.message || 'Error al actualizar el email autorizado');
+            this.mostrarError(res.message || 'Error al actualizar');
           }
           this.submitting = false;
         },
-        error: (error) => {
-          console.error('Error al actualizar email:', error);
-          const mensaje = error.error?.message || 'Error al actualizar el email autorizado. Intente nuevamente.';
-          this.mostrarError(mensaje);
+        error: (err) => {
+          console.error(err);
+          this.mostrarError('Error al actualizar email');
           this.submitting = false;
         }
       });
   }
 
-  /**
-   * Confirma y elimina un email
-   */
-  confirmarEliminar(email: AuthorizedEmail): void {
-    this.confirmationService.confirm({
-      message: `¿Está seguro que desea eliminar el email "${email.email}"?`,
-      header: 'Confirmar Eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, eliminar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.eliminarEmail(email.id);
-      }
-    });
-  }
-
-  /**
-   * Elimina un email
-   */
-  private eliminarEmail(id: number): void {
-    this.apiEmails.deleteAuthorizedEmail(id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (res) => {
-          if (res.success) {
-            this.mostrarExito(res.message || 'Email autorizado eliminado exitosamente');
-            this.cargarEmails();
-          } else {
-            this.mostrarError(res.message || 'Error al eliminar el email autorizado');
-          }
-        },
-        error: (error) => {
-          console.error('Error al eliminar email:', error);
-          this.mostrarError('Error al eliminar el email autorizado. Intente nuevamente.');
-        }
-      });
-  }
-
-  /**
-   * Cambia el estado activo/inactivo del usuario
-   */
   toggleUsuarioActivo(email: AuthorizedEmail): void {
     if (!email.usuario_id) {
-      this.mostrarAdvertencia('Este email aún no tiene un usuario registrado');
+      this.mostrarAdvertencia('Este email no tiene usuario registrado');
       return;
     }
 
-    // Cambiar: si es 1 lo pone en 0, si es 0 (o cualquier otra cosa) lo pone en 1
     const nuevoEstado = email.usuario_activo === 1 ? 0 : 1;
     const accion = nuevoEstado === 1 ? 'activar' : 'inactivar';
 
     this.confirmationService.confirm({
       message: `¿Desea ${accion} al usuario "${email.usuario_nombre || email.email}"?`,
-      header: 'Confirmar Cambio de Estado',
+      header: 'Confirmar',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: `Sí, ${accion}`,
-      rejectLabel: 'Cancelar',
       accept: () => {
         this.apiEmails.updateUsuarioStatus(email.usuario_id!, nuevoEstado === 1)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (res) => {
               if (res.success) {
-                this.mostrarExito(res.message || `Usuario ${accion}do exitosamente`);
+                this.mostrarExito(res.message || 'Actualizado');
                 this.cargarEmails();
               } else {
-                this.mostrarError(res.message || `Error al ${accion} el usuario`);
+                this.mostrarError(res.message || 'Error al actualizar');
               }
             },
-            error: (error) => {
-              console.error('Error al cambiar estado:', error);
-              const mensaje = error.error?.message || `Error al ${accion} el usuario`;
-              this.mostrarError(mensaje);
+            error: () => {
+              this.mostrarError('Error al actualizar el usuario');
             }
           });
       }
     });
   }
 
-  /**
-   * Verifica si un campo tiene errores
-   */
-  hasError(fieldName: string): boolean {
-    const field = this.formEmail.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+  hasError(field: string): boolean {
+    const f = this.formEmail.get(field);
+    return !!(f && f.invalid && (f.touched || f.dirty));
   }
 
-  /**
-   * Obtiene el mensaje de error de un campo
-   */
-  getErrorMessage(fieldName: string): string {
-    const field = this.formEmail.get(fieldName);
-    if (!field || !field.errors) {
-      return '';
-    }
+  getErrorMessage(field: string): string {
+    const f = this.formEmail.get(field);
+    if (!f || !f.errors) return '';
 
-    if (field.errors['required']) {
-      return 'Este campo es requerido';
-    }
-    if (field.errors['email']) {
-      return 'El formato del email no es válido';
-    }
-    if (field.errors['maxlength']) {
-      return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
-    }
+    if (f.errors['required']) return 'Campo requerido';
+    if (f.errors['email']) return 'Email inválido';
+    if (f.errors['maxlength']) return `Máximo ${f.errors['maxlength'].requiredLength} caracteres`;
 
     return 'Campo inválido';
   }
 
-  // === MÉTODOS DE MENSAJES ===
-
-  private mostrarExito(mensaje: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: mensaje,
-      life: 3000
-    });
+  // Mensajes PrimeNG
+  mostrarExito(msg: string) {
+    this.messageService.add({ severity: 'success', summary: 'Éxito', detail: msg });
   }
 
-  private mostrarError(mensaje: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: mensaje,
-      life: 5000
-    });
+  mostrarError(msg: string) {
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: msg });
   }
 
-  private mostrarAdvertencia(mensaje: string): void {
-    this.messageService.add({
-      severity: 'warn',
-      summary: 'Advertencia',
-      detail: mensaje,
-      life: 4000
-    });
+  mostrarAdvertencia(msg: string) {
+    this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: msg });
   }
 }
