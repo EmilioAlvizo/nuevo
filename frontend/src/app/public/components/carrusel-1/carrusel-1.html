@@ -55,11 +55,11 @@
               <li class="col-12 col-lg-6">
                 <p-divider [dt]="dividerDesignTokens" class="bg-blue-50! divisor"></p-divider>
                 <div class="article-item font-sans">
-                  <a
+                  <a class="no-underline!"
                 [href]="'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo"
                 target="_blank"
               >
-                  <h3 class="text-gray-50! hover:text-amber-400! fs-5">
+                  <h3 class="text-gray-50! hover:underline decoration-blue-200! fs-5">
                     {{ articulo.titulo }}
                   </h3>
                   
@@ -99,7 +99,7 @@
               <a
                 [href]="'/revistas/' + revista.id_revista + '/archivo/' + revista.archivo"
                 target="_blank"
-                class="read-link text-amber-600"
+                class="read-link text-black!"
               >
                 <i class="pi pi-arrow-circle-right" style="font-size: 1.2rem"></i>
                 <span>Leer edición completa</span>

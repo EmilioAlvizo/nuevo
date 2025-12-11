@@ -21,7 +21,7 @@ registerLocaleData(localeEs);
 
 @Component({
   selector: 'app-revista-detalle',
-  standalone: true, // Implicit in v19+ but good for clarity
+  standalone: true,
   imports: [CommonModule, Flipbook, RouterModule],
   templateUrl: './revista-detalle.html',
   styleUrls: ['./revista-detalle.css'],
@@ -81,7 +81,6 @@ export class RevistaDetalle {
   }
 
   abrirFlipbookEnPagina(pagina: number | null) {
-    // Basic validation
     if (!pagina) return;
 
     const flipbook = this.flipbookRef();
@@ -90,12 +89,14 @@ export class RevistaDetalle {
       return;
     }
 
-    // Delegate logic to child
+    // Ahora Flipbook.goToPage contiene TU lógica original de cálculo de folios
     flipbook.goToPage(pagina);
 
-    // Scroll
+    // Restaurar el comportamiento de scroll suave del original
     setTimeout(() => {
-      const flipbookEl = document.querySelector('.book-stage');
+      // Intentamos buscar por clase wrapper o stage
+      const flipbookEl =
+        document.querySelector('.flipbook-wrapper') || document.querySelector('.book-stage');
       if (flipbookEl) {
         flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
