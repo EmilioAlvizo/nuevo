@@ -154,7 +154,7 @@ export class Flipbook implements OnDestroy {
       const page = await this.pdfDoc.getPage(1);
       const viewport = page.getViewport({ scale: 1 });
       this.pdfAspectRatio.set(viewport.width / viewport.height);
-      
+
       const numPages = this.pdfDoc.numPages;
       const newFolios: Folio[] = [];
 
@@ -169,10 +169,9 @@ export class Flipbook implements OnDestroy {
       this.folios.set(newFolios);
       this.currentFolioIndex.set(0);
       this.currentPageNumber.set(1);
-      
-      // 2. FORZAR RECALCULO DE DIMENSIONES DESPUÉS DE OBTENER EL ASPECT RATIO
-      this.updateDimensions(); 
 
+      // 2. FORZAR RECALCULO DE DIMENSIONES DESPUÉS DE OBTENER EL ASPECT RATIO
+      this.updateDimensions();
     } catch (err) {
       console.error('Error loading PDF', err);
     }
@@ -254,6 +253,7 @@ export class Flipbook implements OnDestroy {
       const page = await this.pdfDoc.getPage(pageNumber);
       const viewport = page.getViewport({ scale: 1 });
 
+      // 1. Determinar el ancho objetivo en pantalla
       let targetWidth: number;
       if (this.isMobileFullscreen()) {
         targetWidth = this.calculatedPageWidth();
@@ -261,31 +261,60 @@ export class Flipbook implements OnDestroy {
         targetWidth = this.calculatedPageWidth() / 2;
       }
 
-      const scale = targetWidth / viewport.width;
-      const scaledViewport = page.getViewport({ scale });
+      // 2. Configurar calidad alta (Device Pixel Ratio)
+      const dpr = window.devicePixelRatio || 1;
 
-      // Canvas offscreen (Igual que original)
+      // 3. EL TRUCO DEL ESCALADO (Bleed):
+      // Multiplicamos por 1.005 (0.5% extra) para que la imagen sea
+      // imperceptiblemente más grande que el hueco, forzando a cerrar las líneas.
+      const bleedScale = 1.005;
+
+      const baseScale = targetWidth / viewport.width;
+      const outputScale = baseScale * dpr * bleedScale; // <--- APLICAR BLEED
+
+      const scaledViewport = page.getViewport({ scale: outputScale });
+
+      // 4. Canvas Offscreen con dimensiones enteras
       const offscreen = document.createElement('canvas');
-      offscreen.width = scaledViewport.width;
-      offscreen.height = scaledViewport.height;
+      offscreen.width = Math.floor(scaledViewport.width);
+      offscreen.height = Math.floor(scaledViewport.height);
 
-      const ctx = offscreen.getContext('2d');
+      const ctx = offscreen.getContext('2d', { alpha: false });
       if (!ctx) return;
 
-      await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
+      // Desactivar suavizado puede ayudar en algunos casos, pero 'high' es mejor para revistas
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
-      const visibleCtx = canvas.getContext('2d');
+      // 5. EL TRUCO DEL FONDO (Contrast Background):
+      // Rellenar de negro/gris oscuro antes de renderizar.
+      // Si queda una línea de 1px, será oscura y se mezclará con la imagen.
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+
+      // Renderizar PDF
+      await page.render({
+        canvasContext: ctx,
+        viewport: scaledViewport,
+      }).promise;
+
+      // 6. Pasar al Canvas Visible
+      const visibleCtx = canvas.getContext('2d', { alpha: false });
       if (!visibleCtx) return;
 
+      // Asignar tamaño real (físico)
       canvas.width = offscreen.width;
       canvas.height = offscreen.height;
-      visibleCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Limpiar y dibujar
+      visibleCtx.fillStyle = '#1a1a1a'; // Fondo oscuro también aquí por seguridad
+      visibleCtx.fillRect(0, 0, canvas.width, canvas.height);
+
       visibleCtx.drawImage(offscreen, 0, 0);
     } catch (err) {
       console.error(`Error rendering page ${pageNumber}`, err);
     }
   }
-
   // --- Navegación ---
 
   prev() {
@@ -400,14 +429,14 @@ export class Flipbook implements OnDestroy {
       this.calculatedPageWidth.set(maxW);
 
       const ar = this.pdfAspectRatio();
-      
+
       if (ar !== null) {
         // CORRECCIÓN: Calcular la altura basada en el ancho de UNA página y el Aspect Ratio
-        const pageW = maxW / 2; 
+        const pageW = maxW / 2;
         this.folioHeight.set(pageW / ar); // Alto = Ancho / AR
       } else {
         // Fallback si el PDF aún no carga
-        this.folioHeight.set(480); 
+        this.folioHeight.set(480);
       }
     }
   }

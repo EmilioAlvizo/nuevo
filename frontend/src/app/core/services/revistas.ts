@@ -43,7 +43,7 @@ export class ApiRevistas {
   }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
-  getFiltrados(filtros: any): Observable<ApiResponse<Revistas>> {
+  getFiltrados(filtros: any): Observable<ApiResponsePaginated<Revistas>> {
     let params = new HttpParams();
     console.log('Filtros recibidos en el servicio:', filtros);
 
