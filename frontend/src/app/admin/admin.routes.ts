@@ -18,6 +18,7 @@ import { DirectoriosAdmin } from './pages/directorios-admin/directorios-admin';
 import { ApoyosServiciosAdmin } from './pages/apoyos-servicios-admin/apoyos-servicios-admin';
 import { AuthorizedEmailsAdmin } from './pages/authorized-emails-admin/authorized-emails-admin';
 import { EncuestasAdmin } from './pages/encuestas-admin/encuestas-admin';
+import { InterfazAdmin } from './pages/interfaz-admin/interfaz-admin';
 
 export const adminRoutes: Routes = [
   { path: '', component: HomeAdmin },
@@ -38,4 +39,5 @@ export const adminRoutes: Routes = [
   { path: 'apoyos', component: ApoyosServiciosAdmin},
   { path: 'usuarios-autorizados', component: AuthorizedEmailsAdmin},
   { path: 'encuestas', component: EncuestasAdmin },
+  { path: 'interfaz', component: InterfazAdmin }
 ];

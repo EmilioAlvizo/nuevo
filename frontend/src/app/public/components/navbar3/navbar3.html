@@ -8,7 +8,16 @@
     <!-- Logo/Brand -->
     <figure class="cmp-navbar-brand">
       <a [routerLink]="brandLink()" (click)="onLinkClick()">
-        <img navbar-brand ngSrc="/assets/logo_1.png" alt="Logo" width="120" height="40"/>
+        <!-- <img navbar-brand ngSrc="/assets/logo_1.png" alt="Logo" width="120" height="40"/> -->
+        <img 
+          navbar-brand 
+          [src]="logoUrl()" 
+          (error)="onImageError()"
+          alt="Logo" 
+          width="120" 
+          height="40"
+          [class.fade-in]="logoLoaded()"
+        />
       </a>
     </figure>
 

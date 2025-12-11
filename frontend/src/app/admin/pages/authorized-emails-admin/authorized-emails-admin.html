@@ -29,18 +29,19 @@
       [rowsPerPageOptions]="[5, 10, 20, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} emails"
-      [tableStyle]="{ 'min-width': '60rem' }"
+      [tableStyle]="{ 'min-width': '70rem' }"
       styleClass="p-datatable-striped"
       responsiveLayout="scroll">
       
       <ng-template pTemplate="header">
         <tr>
           <th style="width: 5%">ID</th>
-          <th style="width: 25%">Email</th>
+          <th style="width: 20%">Email</th>
           <th style="width: 12%">Autorizado por</th>
-          <th style="width: 15%">Fecha Autorización</th>
-          <th style="width: 10%">Estado</th>
-          <th style="width: 15%">Fecha Uso</th>
+          <th style="width: 12%">Fecha Autorización</th>
+          <th style="width: 10%">Estado Email</th>
+          <th style="width: 12%">Fecha Uso</th>
+          <th style="width: 12%">Estado Usuario</th>
           <th style="width: 10%">Acciones</th>
         </tr>
       </ng-template>
@@ -50,6 +51,10 @@
           <td>{{ email.id }}</td>
           <td>
             <span class="email-text">{{ email.email }}</span>
+            <br>
+            <small *ngIf="email.usuario_nombre" class="text-muted">
+              <i class="pi pi-user"></i> {{ email.usuario_nombre }}
+            </small>
           </td>
           <td>
             <span class="authorized-by-badge">
@@ -72,6 +77,27 @@
             <span *ngIf="!email.used_at" class="text-muted">
               -
             </span>
+          </td>
+          <td>
+            <!-- Estado del Usuario -->
+            <div *ngIf="email.usuario_id; else noRegistrado">
+              <p-tag 
+                [value]="email.usuario_activo === 1 ? 'Activo' : 'Inactivo'" 
+                [severity]="email.usuario_activo === 1 ? 'success' : 'warn'"
+                [style]="{'cursor': 'pointer'}"
+                (click)="toggleUsuarioActivo(email)"
+                pTooltip="Click para cambiar estado"
+                tooltipPosition="top">
+              </p-tag>
+            </div>
+            <ng-template #noRegistrado>
+              <p-tag 
+                value="Sin Registro" 
+                severity="secondary"
+                pTooltip="Este email aún no tiene usuario registrado"
+                tooltipPosition="top">
+              </p-tag>
+            </ng-template>
           </td>
           <td>
             <div class="action-buttons">
@@ -100,7 +126,7 @@
       
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="text-center">
+          <td colspan="8" class="text-center">
             <div class="empty-message">
               <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
               <p>No hay emails autorizados registrados</p>

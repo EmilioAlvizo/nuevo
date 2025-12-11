@@ -11,6 +11,10 @@ export interface AuthorizedEmail {
   authorized_at: string;
   used: boolean;
   used_at: string | null;
+  // Nuevos campos
+  usuario_activo: number | null;
+  usuario_id: number | null;
+  usuario_nombre: string | null;
 }
 
 export interface ApiResponse {
@@ -38,6 +42,20 @@ export class ApiAuthorizedEmails {
   updateAuthorizedEmail(id: number, data: { email: string; used?: boolean }): Observable<ApiResponse> {
     return this.http.put<ApiResponse>(`${this.apiUrl}/authorized-emails/${id}`, data);
   }
+
+  updateUsuarioStatus(usuarioId: number, activo: boolean): Observable<ApiResponse> {
+  return this.http.patch<ApiResponse>(
+    `${this.apiUrl}/authorized-emails/usuario/${usuarioId}/status`, 
+    { activo }
+  );
+}
+
+  // updateUsuarioStatus(email: string, activo: boolean): Observable<ApiResponse> {
+  //   return this.http.patch<ApiResponse>(
+  //     `${this.apiUrl}/authorized-emails/${email}/usuario-status`, 
+  //     { activo }
+  //   );
+  // }
 
   deleteAuthorizedEmail(id: number): Observable<ApiResponse> {
     return this.http.delete<ApiResponse>(`${this.apiUrl}/authorized-emails/${id}`);

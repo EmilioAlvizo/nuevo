@@ -78,7 +78,7 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.cargarEmails();
+    this.cargarEmails();  // ← llamado directo, sin setTimeout
   }
 
   ngOnDestroy(): void {
@@ -129,10 +129,12 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
     if (email) {
       this.editMode.set(true);
       this.selectedEmailId = email.id;
+
       this.formEmail.patchValue({
         email: email.email || '',
         used: email.used || false,
       });
+
     } else {
       this.editMode.set(false);
       this.selectedEmailId = null;
@@ -161,7 +163,7 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
   submitForm(): void {
     if (this.formEmail.invalid) {
       this.formEmail.markAllAsTouched();
-      this.mostrarAdvertencia('Por favor complete todos los campos requeridos correctamente.');
+      this.mostrarAdvertencia('Complete correctamente todos los campos.');
       return;
     }
 
@@ -190,7 +192,7 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
             this.cargarEmails(); // Recargar lista
             this.cerrarModal();
           } else {
-            this.mostrarError(res.message || 'Error al crear el email autorizado');
+            this.mostrarError(res.message || 'Error al crear el email');
           }
           this.submitting.set(false);
         },
@@ -216,11 +218,11 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.mostrarExito(res.message || 'Email autorizado actualizado exitosamente');
+            this.mostrarExito(res.message || 'Email actualizado');
             this.cargarEmails();
             this.cerrarModal();
           } else {
-            this.mostrarError(res.message || 'Error al actualizar el email autorizado');
+            this.mostrarError(res.message || 'Error al actualizar');
           }
           this.submitting.set(false);
         },
@@ -232,20 +234,55 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
       });
   }
 
+
+  toggleUsuarioActivo(email: AuthorizedEmail): void {
+    if (!email.usuario_id) {
+      this.mostrarAdvertencia('Este email no tiene usuario registrado');
+      return;
+    }
+
+    const nuevoEstado = email.usuario_activo === 1 ? 0 : 1;
+    const accion = nuevoEstado === 1 ? 'activar' : 'inactivar';
+
+    this.confirmationService.confirm({
+      message: `¿Desea ${accion} al usuario "${email.usuario_nombre || email.email}"?`,
+      header: 'Confirmar',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.apiEmails.updateUsuarioStatus(email.usuario_id!, nuevoEstado === 1)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (res) => {
+              if (res.success) {
+                this.mostrarExito(res.message || 'Actualizado');
+                this.cargarEmails();
+              } else {
+                this.mostrarError(res.message || 'Error al actualizar');
+              }
+            },
+            error: () => {
+              this.mostrarError('Error al actualizar el usuario');
+            }
+          });
+      }
+    });
+  }
+
+
   // ===========================
   // ELIMINAR
   // ===========================
-  confirmarEliminar(email: AuthorizedEmail): void {
-    this.confirmationService.confirm({
-      message: `¿Está seguro que desea eliminar el email "${email.email}"?`,
-      header: 'Confirmar Eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, eliminar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.eliminarEmail(email.id),
-    });
-  }
+  // confirmarEliminar(email: AuthorizedEmail): void {
+  //   this.confirmationService.confirm({
+  //     message: `¿Desea ${accion} al usuario "${email.usuario_nombre || email.email}"?`,
+  //     header: 'Confirmar',
+  //     icon: 'pi pi-exclamation-triangle',
+  //     acceptLabel: 'Sí, eliminar',
+  //     rejectLabel: 'Cancelar',
+  //     acceptButtonStyleClass: 'p-button-danger',
+  //     accept: () => this.eliminarEmail(email.id),
+  //   });
+  // }
 
   private eliminarEmail(id: number): void {
     this.apiEmails

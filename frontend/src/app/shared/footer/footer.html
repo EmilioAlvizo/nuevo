@@ -80,13 +80,30 @@
         </div>
 
         <!-- Sección del logo y copyright -->
-        <div class="footer-bottom">
+        <!-- <div class="footer-bottom">
             <a href="/" target="_blank" rel="noopener">
                 <img src="{{publicUrl}}/assets/logo_1.png" alt="logo">
             </a>
             <a href="https://www.guanajuato.gob.mx/igualdad-laboral.php" target="_blank" rel="noopener">
                 <img src="{{publicUrl}}/assets/logo-Igualdad.svg" alt="Certificación Igualdad Laboral">
             </a>
+        </div> -->
+        <div class="footer-bottom">
+            <a routerLink="/">
+                <img 
+                [src]="logoUrl()" 
+                (error)="onImageError()" 
+                alt="Logo" 
+                width="120" 
+                height="40"
+                [class.fade-in]="logoLoaded()"
+                />
+            </a>
+
+            <a href="https://www.guanajuato.gob.mx/igualdad-laboral.php" target="_blank" rel="noopener">
+                <img src="{{publicUrl}}/assets/logo-Igualdad.svg" alt="Certificación Igualdad Laboral">
+            </a>
         </div>
+
     </div>
 </footer>

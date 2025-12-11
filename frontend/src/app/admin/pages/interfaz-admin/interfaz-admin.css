@@ -1,0 +1,115 @@
+/* nuevo/frontend/src/app/admin/pages/interfaz-admin/interfaz-admin.css */
+
+/* Estilos de badges de estatus */
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Imagen en tabla */
+.config-imagen {
+  max-width: 80px;
+  max-height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 1px solid #dee2e6;
+}
+
+.config-imagen:hover {
+  transform: scale(3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+/* Texto muted */
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Mensaje vacío */
+.empty-message {
+  padding: 3rem;
+  text-align: center;
+}
+
+.empty-message p {
+  margin-top: 1rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+/* Estilos del formulario */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Texto de ayuda */
+.help-text {
+  display: block;
+  margin-top: 0.25rem;
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .p-toolbar {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-toolbar .p-toolbar-group-left h2 {
+    font-size: 1.25rem;
+  }
+
+  .config-imagen {
+    max-width: 60px;
+    max-height: 45px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::ng-deep .p-tooltip {
+  font-size: 0.85rem;
+  border-radius: 4px;
+  animation: fadeIn 0.2s ease-in;
+}
