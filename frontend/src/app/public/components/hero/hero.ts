@@ -43,9 +43,6 @@ export class Hero {
 
   // Helper para obtener la URL de la imagen (ajusta según tu lógica actual)
   getPortadaUrl(rev: Revistas): string {
-    //console.log('Revistas recientes cargadas:', this.revistas());
-    console.log('revista:', rev);
-    console.log('URL:', `/revistas/${rev.id_revista}/portada/${rev.portada}`);
     return `/revistas/${rev.id_revista}/portada/${rev.portada}`;
   }
 }
