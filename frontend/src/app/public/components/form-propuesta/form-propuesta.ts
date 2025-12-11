@@ -17,6 +17,7 @@ import { environment } from '../../../../environments/environment';
 import { ApiPropuesta, Propuesta } from '../../../core/services/propuestas_accion';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { NotificationService } from '../../../core/services/notificacion';
+import { Router } from '@angular/router';
 
 // PrimeNG
 import { DialogModule } from 'primeng/dialog';
@@ -28,7 +29,7 @@ import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-form-propuesta',
@@ -46,6 +47,7 @@ import { MessageService } from 'primeng/api';
   ],
   templateUrl: './form-propuesta.html',
   styleUrl: './form-propuesta.css',
+  providers: [MessageService, ConfirmationService]
 })
 export class FormPropuesta {
   publicUrl = environment.publicUrl;
@@ -54,6 +56,7 @@ export class FormPropuesta {
   private msg = inject(MessageService);
   private fb = new FormBuilder().nonNullable;
   private notifs = inject(NotificationService);
+  private confirmationService = inject(ConfirmationService);
 
   // Inputs/Outputs
   visible = model.required<boolean>();
@@ -82,7 +85,7 @@ export class FormPropuesta {
   propuestaForm: FormGroup;
   private lastLoadedId: number | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(private cdr: ChangeDetectorRef, private router: Router) {
     this.propuestaForm = this.fb.group({
       nombre: ['', Validators.required],
       sexo: ['', Validators.required],
@@ -153,52 +156,17 @@ export class FormPropuesta {
     this.propuestaForm.patchValue({ archivoFile: null });
   }
 
-  // handleSubmit(): void {
-  //   if (this.propuestaForm.invalid) {
-  //     this.propuestaForm.markAllAsTouched();
-  //     return;
-  //   }
+  confirmarEnvio() {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de enviar la propuesta? Una vez enviada, esta será revisada por el equipo correspondiente y no podrá ser modificada. ¿Deseas continuar con el envío?',
+      header: 'Confirmación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
+      accept: () => this.handleSubmit(),
+    });
+  }
 
-  //   const form = this.propuestaForm.value;
-
-  //   const data = {
-  //     nombreC: form.nombre,
-  //     sexo: form.sexo,
-  //     edad: form.edad,
-  //     actividad: form.actividad === 'Otro' ? form.especifica : form.actividad,
-  //     correo: form.correo,
-  //     id_municipio: form.municipio,
-  //     zona: form.zona,
-  //     detalle: form.detalle,
-  //     justificacion: form.justificacion,
-  //     necesidades: form.necesidades,
-  //   };
-
-  //   this.apiPropuesta.crearPropuesta(data).subscribe({
-  //     next: (resp) => {
-  //       this.msg.add({
-  //         severity: 'success',
-  //         summary: 'Éxito',
-  //         detail: 'Propuesta registrada correctamente',
-  //       });
-
-  //       //this.cerrar();
-  //     },
-  //     error: (err) => {
-  //       console.error('❌ Error al enviar propuesta:', err);
-
-  //       this.msg.add({
-  //         severity: 'error',
-  //         summary: 'Error',
-  //         detail: 'No se pudo registrar la propuesta',
-  //       });
-  //     },
-  //   });
-
-  //   this.visibleChange.emit(false);
-  // }
-
-// Actualización del método handleSubmit en FormPropuesta
 
   handleSubmit(): void {
     if (this.propuestaForm.invalid) {

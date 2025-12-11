@@ -7,7 +7,7 @@ export interface Notificacion {
   timestamp: Date;
   leida: boolean;
   link?: string; // URL para navegar al detalle
-  tipo?: 'propuesta' | 'documento' | 'general'; // Tipo de notificación
+  tipo?: 'propuesta' | 'documento' | 'general' | 'testimonio'; // Tipo de notificación
   idReferencia?: number; // ID del elemento relacionado
 }
 
@@ -77,7 +77,7 @@ export class NotificationService {
     mensaje: string, 
     opciones?: {
       link?: string;
-      tipo?: 'propuesta' | 'documento' | 'general';
+      tipo?: 'propuesta' | 'documento' | 'general' | 'testimonio';
       idReferencia?: number;
     }
   ) 

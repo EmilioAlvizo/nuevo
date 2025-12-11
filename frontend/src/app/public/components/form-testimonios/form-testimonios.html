@@ -1,5 +1,6 @@
-<!-- // nuevo/frontend/src/app/public/components/form-testimonios/forms-testimonios.html -->
- <p-toast></p-toast>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
 <p-dialog
   header="Nuevo Testimonio"
   [visible]="visible()"
@@ -22,65 +23,36 @@
             {{ m.nombre }}
           </option>
         </select>
-        @if (isFieldInvalid('id_municipio')) {
-        <small class="text-danger">Campo requerido</small>
-        }@else {
-        <div class="invisible">00</div>
-        }
+        <small class="text-danger" *ngIf="isFieldInvalid('id_municipio')">Campo requerido</small>
       </div>
 
       <!-- NOMBRE -->
       <div class="col-md-6 mb-3">
         <label class="form-label fw-semibold">Nombre *</label>
         <input class="form-control" formControlName="nombreM" />
-        @if (isFieldInvalid('nombreM')) {
-        <small class="text-danger">Campo requerido</small>
-        }@else {
-        <div class="invisible">00</div>
-        }
+        <small class="text-danger" *ngIf="isFieldInvalid('nombreM')">Campo requerido</small>
       </div>
 
       <!-- DESCRIPCIÓN -->
       <div class="col-12 mb-3">
         <label class="form-label fw-semibold">Descripción *</label>
         <textarea rows="4" class="form-control" formControlName="descripcion"></textarea>
-        @if (isFieldInvalid('descripcion')) {
-        <small class="text-danger">Campo requerido</small>
-        }@else {
-        <div class="invisible">00</div>
-        }
+        <small class="text-danger" *ngIf="isFieldInvalid('descripcion')">Campo requerido</small>
       </div>
 
       <!-- CORREO -->
       <div class="col-md-6 mb-3">
         <label class="form-label fw-semibold">Correo *</label>
         <input type="email" class="form-control" formControlName="correo" />
-        @if (isFieldInvalid('correo')) {
-        <small class="text-danger">Correo inválido</small>
-        }@else {
-        <div class="invisible">00</div>
-        }
+        <small class="text-danger" *ngIf="isFieldInvalid('correo')">Correo inválido</small>
       </div>
 
       <!-- TELÉFONO -->
       <div class="col-md-6 mb-3">
         <label class="form-label fw-semibold">Teléfono *</label>
         <input maxlength="10" class="form-control" formControlName="telefono" />
-        @if (isFieldInvalid('telefono')) {
-        <small class="text-danger">Debe ser 10 dígitos</small>
-        }@else {
-        <div class="invisible">00</div>
-        }
+        <small class="text-danger" *ngIf="isFieldInvalid('telefono')">Debe ser 10 dígitos</small>
       </div>
-
-      <!-- ESTATUS -->
-      <!-- <div class="col-md-6 mb-3">
-        <label class="form-label fw-semibold">Estatus *</label>
-        <select class="form-select" formControlName="estatus">
-          <option value="A">Activo</option>
-          <option value="B">Inactivo</option>
-        </select>
-      </div> -->
 
       <!-- IMAGEN -->
       <div class="col-md-6 mb-3">
@@ -102,12 +74,11 @@
   <ng-template pTemplate="footer">
     <div class="d-flex justify-content-end gap-2">
       <p-button label="Cancelar" icon="pi pi-times" [outlined]="true" (onClick)="handleCancel()" />
-
       <p-button
         label="Guardar Testimonio"
         icon="pi pi-check"
         severity="success"
-        (onClick)="handleSubmit()"
+        (onClick)="confirmarEnvio()"
         [loading]="isSaving()"
         [disabled]="isSaving()"
       />
