@@ -4,6 +4,79 @@
   </div>
 </div>
 
+<!-- Cards destacadas (estilo temas-interes con imagen) -->
+<!-- <div class="cards-grid cards-grid-featured">
+  <p-card 
+    *ngFor="let item of Cards()" 
+    class="tema-card hover-card featured-card">
+
+    <ng-template pTemplate="header">
+      <div class="card-image-container">
+        <img 
+          [src]="item.image"
+          [alt]="item.title"
+          class="card-image">
+
+        <div class="card-overlay"></div>
+
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <h3 class="card-title">{{ item.title }}</h3>
+      <p class="card-description">{{ item.description }}</p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button 
+        label="Ver más"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        outlined="true"
+        styleClass="w-full view-more-btn"
+        (onClick)="navigateToFeatured(item.link)">
+      </p-button>
+    </ng-template>
+
+  </p-card>
+</div> -->
+
+<div class="cards-grid cards-grid-featured">
+  <p-card 
+    *ngFor="let item of Cards()" 
+    class="tema-card hover-card featured-card"
+    [ngClass]="{'highlight': seleccionarCard.selectedCard() === item.link}">
+
+    <ng-template pTemplate="header">
+      <div class="card-image-container">
+        <img 
+          [src]="item.image"
+          [alt]="item.title"
+          class="card-image">
+        <div class="card-overlay"></div>
+      </div>
+    </ng-template>
+
+    <div class="card-body">
+      <h3 class="card-title">{{ item.title }}</h3>
+      <p class="card-description">{{ item.description }}</p>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button 
+        label="Ver más"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        outlined="true"
+        styleClass="w-full view-more-btn"
+        (onClick)="navigateToFeatured(item.link)">
+      </p-button>
+    </ng-template>
+
+  </p-card>
+</div>
+
+
 
 <div class="organos-container">
   <!-- Header -->
@@ -41,7 +114,7 @@
           <div class="card-content-back">
             <!-- ¿Qué es? -->
             <div class="content-section">
-              <h3 class="section-title">¿Qué es?</h3>
+              <h3 class="section-title">{{ card.queTitulo }}</h3>
               <div class="section-text" [innerHTML]="card.que"></div>
             </div>
 

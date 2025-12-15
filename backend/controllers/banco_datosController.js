@@ -1,7 +1,7 @@
 const Banco_datosModel = require("../models/banco_datosModel");
 
-const TABLE_NAME = "documento_banco_datos";
-const ID_COLUMN = "id";
+const TABLE_NAME = "banco_datos";
+const ID_COLUMN = "id_banco";
 
 const path = require("path");
 const fs = require("fs");

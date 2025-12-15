@@ -1,22 +1,67 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { environment } from '../../../../environments/environment';
+import { SeleccionarCard } from '../../../core/services/seleccionar_card';
 
 interface OrganoInstitucional {
   id: number;
   title: string;
   icon: string;
+  queTitulo: string;
   que: string;
   objetivoTitulo: string;
   objetivo: string;
 }
 
+interface Card {
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+}
+
 @Component({
   selector: 'app-sistema-juventudes',
-  imports: [ CommonModule],
+  imports: [ CommonModule, CardModule, ButtonModule],
   templateUrl: './sistema-juventudes.html',
   styleUrl: './sistema-juventudes.css'
 })
 export class SistemaJuventudes {
+  publicUrl = environment.publicUrl;
+
+  constructor(public seleccionarCard: SeleccionarCard) {}
+
+  Cards = signal<Card[]>([
+    {
+      title: 'Padrón Estatal de Beneficiarios',
+      description: 'Sitio de consulta que permite conocer información general sobre personas beneficiarias y apoyos otorgados en distintos programas.',
+      image: `${this.publicUrl}/sistema_juventudes/beneficiarios.jpg`,
+      link: 'https://peb.guanajuato.gob.mx/Busquedas/Programas'
+    },
+    {
+      title: 'Sistema de Monitoreo y Evaluación',
+      description: 'Espacio digital donde se publican documentos y resultados relacionados con el seguimiento y evaluación de programas.',
+      image: `${this.publicUrl}/sistema_juventudes/monitoreo_evaluacion.png`,
+      link: 'https://juventudesgto.guanajuato.gob.mx/index.php/resultados-de-evaluacion/'
+    }
+  ]);
+
+  // Señal para card activa
+  // activeCard = signal<string>(''); // guarda el link de la card activa
+
+  // // Método para seleccionar card desde la navegación
+  // setActiveCard(link: string) {
+  //   this.activeCard.set(link);
+  // }
+
+  navigateToFeatured(link: string): void {
+    window.open(link, '_blank');
+  }
+
+
+
   flipped: { [key: number]: boolean } = {};
 
   cards: OrganoInstitucional[] = [
@@ -24,6 +69,7 @@ export class SistemaJuventudes {
       id: 1,
       title: 'SISTEMA PARA EL DESARROLLO Y ATENCIÓN A LAS JUVENTUDES DEL ESTADO DE GUANAJUATO',
       icon: '🏛️',
+      queTitulo: '¿Qué es?',
       que: 'Es el conjunto de instituciones, políticas públicas, programas, organismos auxiliares y de consulta, así como, registros de información en materia de juventudes, que promueven, protegen y difunden los derechos de los jóvenes en el estado de Guanajuato.',
       objetivoTitulo: 'Objetivo',
       objetivo: 'Ser instrumento base para la coordinación funcional, administrativa e institucional entre el Gobierno del Estado, organismos autónomos, instituciones privadas, sociales y educativas, organismos gubernamentales y no gubernamentales, así como, con organizaciones juveniles para la formulación e implementación de acciones en favor de los jóvenes en el estado de Guanajuato.'
@@ -32,6 +78,7 @@ export class SistemaJuventudes {
       id: 2,
       title: 'SISTEMA DE INFORMACIÓN E INVESTIGACIÓN PARA EL DESARROLLO Y ATENCIÓN A LAS JUVENTUDES DEL ESTADO DE GUANAJAUTO',
       icon: '📖',
+      queTitulo: '¿Qué es?',
       que: `Es uno de los instrumentos rectores para la política de juventud en el estado. Cuenta además, con:
         
         <ul>
@@ -51,6 +98,7 @@ export class SistemaJuventudes {
       id: 3,
       title: 'PROGRAMA ESTATAL PARA EL DESARROLLO Y ATENCIÓN A LAS JUVENTUDES DEL ESTADO DE GUANAJUATO',
       icon: '⚜️',
+      queTitulo: '¿Qué es?',
       que: 'Es el instrumento rector de la política para el desarrollo y atención a las juventudes del estado de Guanajuato y articulador del Sistema para el Desarrollo y Atención a las Juventudes del Estado de Guanajuato en el que se establecerán los objetivos, estrategias y acciones para promover el desarrollo integral de los jóvenes.',
       objetivoTitulo: '¿Cómo se construyó?',
       objetivo: `Su construcción representa la suma de esfuerzos entre sociedad y gobierno. El proceso se desarrolló a partir de las siguientes etapas:        
@@ -69,6 +117,7 @@ export class SistemaJuventudes {
       id: 4,
       title: 'SISTEMA ÚNICO DE BECAS',
       icon: '🎓',
+      queTitulo: '¿Qué es?',
       que: 'Es un modelo que integra programas de apoyos, becas, estímulos y financiamiento educativo para que las y los guanajuatenses puedan continuar con la educación formal, así como para la vida.',
       objetivoTitulo: 'Objetivo',
       objetivo: 'Promover la política pública en el estado de Guanajuato en materia de otorgamiento de becas, estímulos, crédito educativo o apoyos, en especie para los estudiantes de todos los niveles educativos, de tipo formal y no formal, presenciales, semipresenciales o a distancia que requieran de apoyo para sus estudios.'
