@@ -250,7 +250,7 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
         id_revista: art.id_revista,
         titulo: art.titulo,
         autor: art.autor,
-        pagina: art.pagina,
+        pagina: art.pagina_revista,
         contenido: art.contenido,
         estatus: art.estatus,
       });

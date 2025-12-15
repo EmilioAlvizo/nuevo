@@ -199,7 +199,7 @@ function generateModel(schema) {
 
   // Obtener todos los campos disponibles (tabla principal + aliases de JOINs)
   const availableFields = [...columns.map(col => col.name)];
-  
+
   if (hasJoins) {
     config.joins.forEach(join => {
       join.selectFields.forEach(selectField => {
@@ -213,7 +213,7 @@ function generateModel(schema) {
 
   // Construir configuración de filtros
   const filterConfigs = [];
-  
+
   // Primero agregar campos de la tabla principal
   columns
     .filter(col => !col.isIdentity && !shouldExcludeFromFilters(col.name, tableName))
@@ -235,11 +235,11 @@ function generateModel(schema) {
     config.multiselect.forEach(multiselectField => {
       // Verificar si este campo NO está en las columnas de la tabla principal
       const isFromMainTable = columns.some(col => col.name === multiselectField);
-      
+
       if (!isFromMainTable && availableFields.includes(multiselectField)) {
         // Este campo viene de un JOIN
         const dbField = getDbFieldFromAlias(multiselectField, config, mainAlias);
-        
+
         filterConfigs.push({
           name: multiselectField,
           dbField: dbField,
@@ -258,11 +258,11 @@ function generateModel(schema) {
         `dbField: "${config.dbField}"`,
         `type: "${config.type}"`
       ];
-      
+
       if (config.isMulti) {
         parts.push('isMulti: true');
       }
-      
+
       return `    { ${parts.join(', ')} }`;
     })
     .join(',\n');
@@ -514,30 +514,31 @@ function isActualFileColumn(columnName, allColumns, config = {}) {
   // 1️⃣ PRIORIDAD ABSOLUTA: Configuración manual explícita
   // Si definiste 'fileColumns' en tu config, SOLO esas columnas son archivos.
   if (config.fileColumns && Array.isArray(config.fileColumns)) {
+    console.log("si se definio columna de archivo ---------")
     return config.fileColumns.includes(columnName);
   }
 
   // 2️⃣ Si NO hay configuración manual, usamos la detección automática (tu lógica actual)
-  
+
   // ... aquí va el resto de tu código existente de regex ...
   const lower = columnName.toLowerCase();
-  
+
   // Excluir metadatos comunes
   const metadataPatterns = [
-    /^id_/, /^nombre_/, /^fecha_/, /estatus/, /tipo_/, 
-    /categoria_/, /subcategoria_/, /_id$/, /_nombre$/, 
+    /^id_/, /^nombre_/, /^fecha_/, /estatus/, /tipo_/,
+    /categoria_/, /subcategoria_/, /_id$/, /_nombre$/,
     /_fecha$/, /_tipo$/, /_categoria$/, /_estatus$/
   ];
-  
+
   if (metadataPatterns.some(pattern => pattern.test(lower))) {
     return false;
   }
-  
+
   const filePatterns = [
-    /^archivo$/, /^file$/, /^imagen$/, /^portada$/, 
+    /^archivo$/, /^file$/, /^imagen$/, /^portada$/,
     /^foto$/, /^documento$/, /^pdf$/, /^attachment$/, /^adjunto$/
   ];
-  
+
   return filePatterns.some(pattern => pattern.test(lower));
 }
 
@@ -546,13 +547,13 @@ function generateController(schema) {
   const modelName = toPascalCase(tableName) + 'Model';
   const controllerName = toPascalCase(tableName) + 'Controller';
   const config = getTableConfig(tableName);
-  
+
   // Detectar columnas de archivo REALES
   const fileColumns = columns.filter(col => isActualFileColumn(col.name, columns, config));
   const hasFiles = fileColumns.length > 0;
-  
+
   console.log(`📂 Columnas de archivo detectadas para ${tableName}:`, fileColumns.map(c => c.name));
-  
+
   // Generar parámetros de query (excluir solo las columnas de archivo reales)
   const fileColumnNames = fileColumns.map(c => c.name.toLowerCase());
   const queryParams = columns
@@ -569,7 +570,7 @@ function generateController(schema) {
     .map(col => {
       const filterType = getFilterType(col.type);
       const isMulti = isMultiselectColumn(col.name, tableName);
-    
+
       if (isMulti) {
         return `        ${col.name}: ${col.name} ? parseArrayParam(${col.name}, "${filterType}") : [],`;
       } else if (filterType === 'date') {
@@ -583,9 +584,9 @@ function generateController(schema) {
 
   // Campos requeridos (excluyendo ID, fechas automáticas y archivos)
   const requiredFields = columns
-    .filter(col => 
-      !col.isIdentity && 
-      col.nullable === 'NO' && 
+    .filter(col =>
+      !col.isIdentity &&
+      col.nullable === 'NO' &&
       !col.name.toLowerCase().includes('fecha_modificacion') &&
       !col.name.toLowerCase().includes('fecha_captura') &&
       !fileColumnNames.includes(col.name.toLowerCase())
@@ -964,14 +965,14 @@ function generateRoutes(schema) {
   }
 
   const hasFiles = fileColumnNames.length > 0;
-  
+
   // 🔥 MEJORA DE FORMATO: Generar string limpio sin comillas en las claves
   let uploadConfigStr = JSON.stringify(finalUploadConfig, null, 2);
   // 1. Convertir comillas dobles a simples
   uploadConfigStr = uploadConfigStr.replace(/"/g, "'");
   // 2. Quitar comillas de las claves (ej: 'archivo': -> archivo:)
   uploadConfigStr = uploadConfigStr.replace(/'([a-zA-Z0-9_]+)':/g, "$1:");
-  
+
   // Generar el array de fields usando los nombres reales de columnas
   const multerFieldsArray = fileColumnNames
     .map(col => `{ name: '${col}', maxCount: 1 }`)

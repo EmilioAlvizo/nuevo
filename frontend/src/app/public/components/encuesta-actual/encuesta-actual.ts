@@ -8,6 +8,8 @@ import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CardModule } from 'primeng/card';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 // ChartJS
 import ChartDataLabels from 'chartjs-plugin-datalabels';
@@ -19,13 +21,15 @@ Chart.register(ChartDataLabels);
 @Component({
   selector: 'app-encuesta-actual',
   standalone: true,
-  imports: [ChartModule, ButtonModule, SkeletonModule, CardModule],
+  imports: [ChartModule, ButtonModule, SkeletonModule, CardModule, ToastModule],
+  providers: [MessageService],
   templateUrl: './encuesta-actual.html',
   styleUrl: './encuesta-actual.css',
 })
 export class EncuestaActual implements OnInit {
   private api = inject(ApiEncuestas);
   private platform = inject(PlatformService);
+  private messageService = inject(MessageService);
 
   // Signals
   encuesta = signal<EncuestaConOpciones | null>(null);
@@ -52,13 +56,14 @@ export class EncuestaActual implements OnInit {
       const enc = this.encuesta();
       if (enc && this.platform.isBrowser) {
         this.construirChart(enc);
+        // IMPORTANTE: Verificar si ya votó en ESTA encuesta específica
+        this.verificarEstadoVoto(enc.idEncuesta);
       }
     });
   }
 
   ngOnInit(): void {
     if (this.platform.isBrowser) {
-      //this.yaVoto.set(!!localStorage.getItem('huella_encuesta'));
       this.configurarOpcionesChart();
     }
     this.loadEncuesta();
@@ -79,19 +84,82 @@ export class EncuestaActual implements OnInit {
     const enc = this.encuesta();
     if (!enc) return;
 
-    // Optimismo UI: Marcamos cargando mientras viaja la petición
     this.cargando.set(true);
 
-    const huella = 'huella-' + Date.now(); // Tu lógica de huella aquí
+    // 1. Obtenemos una huella única del navegador
+    const huella = this.getClientUUID(); // Asumiendo que ya implementaste getClientUUID
 
     this.api.votar(enc.idEncuesta, idOpcion, huella).subscribe({
       next: () => {
-        localStorage.setItem('huella_encuesta', huella);
-        //this.yaVoto.set(true);
+        // Marcamos localmente, actualizamos estado y recargamos
+        this.marcarVotoLocal(enc.idEncuesta);
+        this.yaVoto.set(true);
         this.loadEncuesta();
+
+        // Mensaje de éxito (Opcional, pero bueno)
+        this.messageService.add({
+          severity: 'success',
+          summary: '¡Voto registrado!',
+          detail: 'Gracias por participar. Los resultados se han actualizado.'
+        });
       },
-      error: () => this.cargando.set(false),
+      error: (err) => {
+        this.cargando.set(false);
+
+        // Manejo de Error 409 (Conflicto: Ya votaste)
+        if (err.status === 409) {
+          this.marcarVotoLocal(enc.idEncuesta); // Bloqueamos la UI localmente también
+          this.yaVoto.set(true);
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Voto no aceptado',
+            detail: 'Ya has votado en esta encuesta. No se permite votar más de una vez.',
+          });
+          // Si el voto fue rechazado, volvemos a cargar para ver los resultados
+          this.loadEncuesta();
+
+        } else {
+          // Otros errores (servidor caído, etc.)
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Ocurrió un error al intentar registrar tu voto. Intenta de nuevo.',
+          });
+        }
+      },
     });
+  }
+  /**
+   * Genera o recupera un ID único para este navegador.
+   * Esto sirve como "Huella" básica.
+   */
+  private getClientUUID(): string {
+    const KEY_UUID = 'app_client_uuid';
+    let uuid = localStorage.getItem(KEY_UUID);
+
+    if (!uuid) {
+      // Generamos un random string o UUID v4
+      uuid = crypto.randomUUID ? crypto.randomUUID() : 'user-' + Date.now() + Math.random();
+      localStorage.setItem(KEY_UUID, uuid);
+    }
+    return uuid;
+  }
+
+  /**
+   * Verifica si existe la marca de voto para una encuesta específica
+   */
+  private verificarEstadoVoto(idEncuesta: number) {
+    const key = `voto_encuesta_${idEncuesta}`;
+    const haVotado = !!localStorage.getItem(key);
+    this.yaVoto.set(haVotado);
+  }
+
+  /**
+   * Guarda la marca de voto para que persista si refresca la página
+   */
+  private marcarVotoLocal(idEncuesta: number) {
+    const key = `voto_encuesta_${idEncuesta}`;
+    localStorage.setItem(key, 'true');
   }
 
   // --- Helpers Visuales ---
@@ -132,7 +200,8 @@ export class EncuestaActual implements OnInit {
             usePointStyle: true,
             color: textColor,
             padding: 20
-          }},
+          }
+        },
         datalabels: {
           color: '#fff',
           font: { weight: 'bold', size: 12 },

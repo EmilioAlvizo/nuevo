@@ -1,8 +1,9 @@
 /* style.css */
 /* @import "../node_modules/primeicons/primeicons.css"; */
 @import "tailwindcss";
+
 @layer utilities {
-  @important; 
+  @important;
 }
 
 /* 🌞 TEMA CLARO */
@@ -50,19 +51,21 @@ html {
 }
 
 /* Evita que el navegador salte cuando el contenido superior cambia de tamaño */
-body, html {
+body,
+html {
   overflow-anchor: none;
 }
 
 body.p-overflow-hidden {
-    padding-right: 0 !important; 
+  padding-right: 0 !important;
 }
 
 :host {
   will-change: transform;
   transition: transform 0.25s ease, opacity 0.25s ease;
   display: block;
-  min-height: 100vh; /* Previene cambios de altura durante carga */
+  min-height: 100vh;
+  /* Previene cambios de altura durante carga */
 }
 
 body {
@@ -90,7 +93,8 @@ app-root {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 100vh; /* Vista completa */
+  min-height: 100vh;
+  /* Vista completa */
 }
 
 /* El layout admin también se comporta como un contenedor flex */
@@ -108,7 +112,8 @@ main.content {
 }
 
 /* El footer se empuja automáticamente al fondo */
-app-footer, footer {
+app-footer,
+footer {
   margin-top: auto;
 }
 
@@ -130,10 +135,9 @@ app-footer, footer {
 
 @media (min-width: 1800px) {
   .container-xxl {
-    max-width: 1720px; /* tú decides el ancho */
+    max-width: 1720px;
+    /* tú decides el ancho */
   }
 
   /* O cualquier otro ajuste que necesites */
 }
-
-

@@ -1,31 +1,32 @@
-// nuevo/backend/routes/articulosRoutes.js
-
-const express = require("express");
+//nuevo/backend/routes/articulos_revistaRoutes.js
+const express = require('express');
 const router = express.Router();
-const ArticulosController = require("../controllers/articulosController");
+const ArticulosRevistaController = require('../controllers/articulosController');
 const { crearUpload } = require('../middleware/uploadMiddleware');
 
-
-const uploadArticulos = crearUpload('articulos', {
-  imagen: ['image/*']
+// Configurar upload para esta tabla
+const uploadArticulosRevista = crearUpload('articulos', {
+  imagen: [
+    'image/*'
+  ]
 });
 
-router.get("/articulos", ArticulosController.getAll);
-router.get("/articulos/:id", ArticulosController.getById);
+// Rutas generadas automáticamente para: articulos_revista
 
-router.post(
-  "/articulos",
-  uploadArticulos.fields([{ name: "imagen", maxCount: 1 }]),
-  ArticulosController.create
-);
+router.get('/', ArticulosRevistaController.getAll);
+router.get('/filtrados', ArticulosRevistaController.getFiltrados);
+router.get('/valores-unicos', ArticulosRevistaController.getValoresUnicos);
+router.get('/:id', ArticulosRevistaController.getById);
 
-router.put(
-  "/articulos/:id",
-  uploadArticulos.fields([{ name: "imagen", maxCount: 1 }]),
-  ArticulosController.update
-);
+// Rutas con carga de archivos
+router.post('/', uploadArticulosRevista.fields([
+  { name: 'imagen', maxCount: 1 }
+]), ArticulosRevistaController.create);
 
-router.delete("/articulos/:id", ArticulosController.delete);
+router.put('/:id', uploadArticulosRevista.fields([
+  { name: 'imagen', maxCount: 1 }
+]), ArticulosRevistaController.update);
+
+router.delete('/:id', ArticulosRevistaController.delete);
 
 module.exports = router;
-

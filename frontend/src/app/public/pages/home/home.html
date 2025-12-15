@@ -6,53 +6,13 @@
     <app-hero></app-hero>
   </section>
 
-  <!-- Sección 1: Vídeo -->
-  <!-- <section
-    class="home-section-3 pb-5"
-    style="background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%)"
-  >
-    <div class="container">
-      <app-carrusel-1></app-carrusel-1>
-    </div>
-  </section>
-
-  <section class="home-section-2 mb-4">
-    <div
-      class="video-container container"
-      pAnimateOnScroll
-      enterClass="animate-fade-in animate-zoom-in"
-      once="true"
-    >
-      <video controls width="100%" style="border-radius: 20px">
-        <source
-          src="https://juventudesgto.guanajuato.gob.mx/files/archivos_excedidos/Juventudes_Estrategia.mp4"
-          type="video/mp4"
-        />
-        Tu navegador no soporta el elemento de video
-      </video>
-    </div>
-  </section> -->
-
-  <!-- <section
-    class="home-section pb-5"
-    style="background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%)"
-  >
-    <div class="container">
-      <app-carrusel-revista></app-carrusel-revista>
-    </div>
-  </section> -->
-
   <!-- Sección 2: Testimonios -->
   <section class="home-section mb-4">
     <app-carrusel-testimonios [testimonios]="testimonios()" [publicUrl]="publicUrl">
     </app-carrusel-testimonios>
 
-    <div
-      class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
-      pAnimateOnScroll
-      enterClass="animate-fade-in animate-slide-up animate-duration-1000"
-      once="true"
-    >
+    <div class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
+      pAnimateOnScroll enterClass="animate-fade-in animate-slide-up animate-duration-1000" once="true">
       <div class="p-4 bg-light rounded">
         <h5>¿Quieres compartir tu experiencia?</h5>
         <button class="btn btn-primary mt-2" (click)="showDialog.set(true)">
@@ -61,22 +21,14 @@
       </div>
     </div>
 
-    <app-form-testimonios
-      [visible]="showDialog()"
-      (visibleChange)="showDialog.set($event)"
-      (save)="guardarTestimonio($event)"
-    />
+    <app-form-testimonios [visible]="showDialog()" (visibleChange)="showDialog.set($event)"
+      (save)="guardarTestimonio($event)" />
   </section>
 
   <!-- Sección 3: Encuestas -->
   @defer (hydrate on viewport) {
   <section class="home-section-1 p-5">
-    <div
-      class="container"
-      pAnimateOnScroll
-      enterClass="animate-fade-in animate-slide-up"
-      once="true"
-    >
+    <div class="container" pAnimateOnScroll enterClass="animate-fade-in animate-slide-up" once="true">
       <app-encuesta-actual></app-encuesta-actual>
     </div>
   </section>
@@ -87,21 +39,16 @@
   <!-- Sección 4: Temas de interés -->
   <section class="home-section mb-4 container">
     <div class="row align-items-center justify-content-center">
-      <div
-        class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center"
-      >
+      <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center">
         <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
-          <!-- <p-button
-            label="Regístrala aquí"
-            severity="success"
-            (onClick)="showPropuesta.set(true)"
-          /> -->
+          <button (click)="showPropuesta.set(true)">Regístrala aquí
+          </button>
         </div>
       </div>
 
     </div>
   </section>
-<!-- 
-  <app-form-propuesta [visible]="showPropuesta()" (visibleChange)="showPropuesta.set($event)" /> -->
+
+  <app-form-propuesta [visible]="showPropuesta()" (visibleChange)="showPropuesta.set($event)" />
 </div>

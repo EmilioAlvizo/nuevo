@@ -1,12 +1,20 @@
-:host { 
-  display: block; 
+:host {
+  display: block;
 }
 
 .flipbook-root {
   width: 100%;
   max-width: 1000px;
+  /* max-width: 100%; */
   margin: 0 auto;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  outline: none;
+  /* remove focus ring */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* Center the stage */
 }
 
 /* ========== CONTROLES NORMALES ========== */
@@ -51,16 +59,21 @@
 /* ========== CONTENEDOR DEL VISOR ========== */
 .viewer-container {
   position: relative;
-  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: transparent;
+  /* Clean look requested */
+  /* Remove borders/shadows for clean look */
+  /* border-radius: 12px; */
+  /* padding: 24px; */
+  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); */
+  padding: 0;
   overflow: hidden;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .book-stage {
   perspective: 2000px;
-  height: clamp(250px, 60vw, 600px);
+  /* Height controlled by conditional inline bindings in normal mode, CSS in fullscreen */
   position: relative;
   display: flex;
   justify-content: center;
@@ -69,14 +82,30 @@
   overflow: hidden;
 }
 
+.book-stage.is-dragging {
+  cursor: grabbing !important;
+}
+
+.transform-layer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .folio {
   position: absolute;
+  /* Default positioning for spread view - left edge at center */
   left: 50%;
   transform-origin: left center;
   transform-style: preserve-3d;
-  transition: transform 0.6s ease, opacity 0.3s ease;
-  max-width: 50%;
-  max-height: 100%;
+  transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+  backface-visibility: visible;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+  /* Single view centering will be applied inline conditionally */
 }
 
 /* Ocultar folios no visibles (pero mantenerlos en el DOM) */
@@ -96,25 +125,36 @@
   height: 100%;
   backface-visibility: hidden;
   background: white;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Ocultar leaves específicas sin quitarlas del DOM */
+.leaf {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.leaf.front {
+  left: 0;
+  /* Front is on the left side, visible when not flipped */
+}
+
+.leaf.back {
+  left: 0;
+  /* Back is also at left 0, but rotated 180deg on Y axis */
+  transform: rotateY(180deg);
+}
+
+/* Hidden leaf - completely invisible */
 .leaf-hidden {
-  opacity: 0;
-  pointer-events: none;
+  display: none !important;
 }
 
-.leaf.front { 
-  left: 0; 
-}
-
-.leaf.back { 
-  right: 0; 
-  transform: rotateY(180deg); 
-}
-
-.leaf canvas {
+canvas {
   width: 100%;
   height: 100%;
   display: block;
@@ -124,32 +164,32 @@
 /* ========== BOTÓN FULLSCREEN (MODO NORMAL) ========== */
 .fullscreen-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0, 0, 0, 0.6);
+  bottom: 0;
+  right: 0;
+  /* background: rgba(0, 0, 0, 0.6); */
+  background: transparent;
   border: none;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   padding: 10px;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  backdrop-filter: blur(8px);
+  color: #333;
+  /* Dark icon for white page */
+  /* backdrop-filter: blur(8px); */
 }
 
 .fullscreen-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
-  transform: scale(1.05);
+  transform: scale(1.1);
+  color: #000;
 }
 
 /* ========== TIPS ========== */
 .tips {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 13px;
-  color: #888;
+  display: none;
+  /* Hide tips for clean look */
 }
 
 /* ========== MODO FULLSCREEN ========== */
@@ -158,7 +198,8 @@
   height: 100vh !important;
   margin: 0 !important;
   padding: 0;
-  background: #1a1a1a;
+  background: #000;
+  /* Black background for fullscreen is standard/expected */
   box-sizing: border-box;
   display: flex !important;
   flex-direction: column !important;
@@ -166,10 +207,12 @@
 
 .flipbook-root:fullscreen .viewer-container {
   flex: 1;
+  width: 100vw;
+  /* Explicit width to prevent collapse */
   border-radius: 0;
   padding: 0;
   box-shadow: none;
-  background: #1a1a1a;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,12 +222,104 @@
   flex: 1 !important;
   width: 100% !important;
   height: 100% !important;
-  display: flex;
+  display: flex !important;
   justify-content: center;
   align-items: center;
+  perspective: 2500px;
+  /* Keep perspective for 3D pages */
 }
 
-/* ========== BOTONES DE NAVEGACIÓN EN FULLSCREEN ========== */
+/* Ensure controls are ALWAYS on top in FS */
+.fullscreen-controls {
+  z-index: 2147483647 !important;
+  /* Max Z-Index */
+}
+
+.nav-btn {
+  z-index: 2147483647 !important;
+}
+
+/* ========== CONTROLES FULLSCREEN (BARRA SUPERIOR) ========== */
+.fullscreen-controls {
+  position: absolute;
+  bottom: 30px;
+  /* Abajo como en canva approx */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding-right: 16px;
+}
+
+.zoom-level {
+  color: white;
+  min-width: 45px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-btn-icon {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.nav-btn-icon:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-btn-icon:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.exit-fullscreen-btn {
+  /* Reusado para el icono dentro de la barra */
+  position: static;
+  background: transparent;
+  border: none;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.exit-fullscreen-btn:hover {
+  background: transparent;
+  transform: scale(1.1);
+  color: #ff4d4d;
+}
+
+/* ========== PAGE COUNTER FS ========== */
+.page-counter-fullscreen {
+  position: static;
+  transform: none;
+  background: transparent;
+  padding: 0;
+  border: none;
+}
+
+/* ========== BOTONES DE NAVEGACIÓN EN FULLSCREEN (SINGLE/SPREAD) ========== */
+/* Solo visibles si no hay zoom (controlado en HTML) */
 .nav-btn {
   position: absolute;
   top: 50%;
@@ -192,8 +327,10 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 20px 12px;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 0;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
@@ -205,13 +342,7 @@
 
 .nav-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-50%) scale(1.05);
-}
-
-.nav-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .nav-btn-left {
@@ -222,46 +353,90 @@
   right: 20px;
 }
 
-/* ========== BOTÓN SALIR DE FULLSCREEN ========== */
-.exit-fullscreen-btn {
+/* ========== FULLSCREEN FOLIO RULES ========== */
+.flipbook-root:fullscreen .folio {
+  /* Ensure folios are visible in fullscreen */
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  z-index: 1000;
-}
-
-.exit-fullscreen-btn:hover {
-  background: rgba(255, 59, 48, 0.8);
-  border-color: rgba(255, 59, 48, 1);
-  transform: scale(1.05);
-}
-
-/* ========== CONTADOR EN FULLSCREEN ========== */
-.page-counter-fullscreen {
-  position: absolute;
-  bottom: 30px;
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 10px 24px;
-  color: white;
-  font-size: 14px;
-  z-index: 1000;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  /* Dimensions controlled by HTML bindings */
 }
+
+/* In fullscreen single view, center the folio instead of left-aligning */
+.flipbook-root:fullscreen .folio {
+  /* This will be overridden for spread view by the transform */
+}
+
+.flipbook-root:fullscreen .transform-layer {
+  /* Ensure transform layer works in fullscreen */
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* REGLAS ESPECIFICAS PARA SINGLE VIEW (NO FULLSCREEN) vs SPREAD */
+/* En modo normal (Single View), el folio debe estar centrado Y PLANO */
+
+/* REGLAS ESPECIFICAS PARA SINGLE VIEW (NO FULLSCREEN) vs SPREAD */
+/* En modo normal (Single View), el folio debe estar centrado Y PLANO */
+
+/* Ya no necesitamos height auto !important porque vamos a bindear la altura en el HTML */
+.flipbook-root:not(:fullscreen) .book-stage {
+  /* height: auto !important;  <-- REMOVED CAUSED COLLAPSE */
+  /* min-height: 300px; */
+}
+
+.flipbook-root:not(:fullscreen) .folio {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* El ancho se controla inline en el HTML. Max-width 100% del contenedor */
+  max-width: 100%;
+  transform-origin: center center !important;
+  transition: none;
+  transform-style: flat;
+}
+
+.flipbook-root:not(:fullscreen) .folio.flipped {
+  transform: translateX(-50%) !important;
+}
+
+/* En Single View, las leaf front/back deben APILARSE mediante Absolute Position para que ocupen el mismo espacio. */
+.flipbook-root:not(:fullscreen) .leaf {
+  position: absolute !important;
+  /* Volver a absolute para superponerlas */
+  top: 0;
+  left: 0 !important;
+  width: 100%;
+  height: 100%;
+  transform: none !important;
+  backface-visibility: visible !important;
+  /* Importante para ver la back face sin rotacion */
+}
+
+/* Forzar que la hoja visible tenga z-index superior, aunque lo controlamos con leaf-hidden */
+.flipbook-root:not(:fullscreen) .leaf:not(.leaf-hidden) {
+  z-index: 10;
+  display: block;
+}
+
+.flipbook-root:not(:fullscreen) .leaf.leaf-hidden {
+  display: none;
+  /* Display none es mas seguro que opacity 0 para evitar clicks fantasmas o scroll */
+}
+
+.flipbook-root:not(:fullscreen) .leaf.back {
+  transform: none !important;
+  right: auto !important;
+}
+
+/* Ajustar shadow para single view */
+.flipbook-root:not(:fullscreen) .leaf {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  /* Sombra mas sutil */
+}
+
+/* ========================================= */
 
 /* ========== RESPONSIVE MOBILE ========== */
 @media (max-width: 768px) {
@@ -272,109 +447,5 @@
 
   .book-stage {
     height: clamp(200px, 50vw, 400px);
-    padding: 8px;
-  }
-
-  .folio {
-    max-width: 45%;
-  }
-
-  .controls {
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .control-btn {
-    padding: 8px 12px;
-  }
-
-  .page-counter {
-    font-size: 13px;
-    min-width: 100px;
-  }
-
-  .tips {
-    font-size: 12px;
-    margin-top: 12px;
-  }
-
-  .nav-btn {
-    padding: 16px 10px;
-  }
-
-  .nav-btn-left {
-    left: 10px;
-  }
-
-  .nav-btn-right {
-    right: 10px;
-  }
-
-  .exit-fullscreen-btn {
-    top: 10px;
-    right: 10px;
-    padding: 10px;
-  }
-
-  .page-counter-fullscreen {
-    bottom: 20px;
-    font-size: 13px;
-    padding: 8px 20px;
-  }
-
-  /* 📱 MÓVIL FULLSCREEN: Una sola página centrada */
-  .flipbook-root:fullscreen .folio {
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    transform-origin: center center !important;
-    max-width: none !important;
-  }
-
-  /* .flipbook-root:fullscreen .leaf {
-    position: relative !important;
-    left: 0 !important;
-    right: 0 !important;
-    transform: none !important;
-  } */
-
-  .flipbook-root:fullscreen .leaf {
-  position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  transform: none !important;
-  margin: 0 !important;
-}
-
-
-  .flipbook-root:fullscreen .leaf canvas {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-}
-
-/* Pantallas muy pequeñas */
-@media (max-width: 480px) {
-  .viewer-container {
-    padding: 8px;
-  }
-
-  .book-stage {
-    height: clamp(180px, 45vw, 300px);
-  }
-
-  .folio {
-    max-width: 42%;
-  }
-
-  .fullscreen-btn {
-    padding: 8px;
-  }
-
-  .fullscreen-btn svg {
-    width: 18px;
-    height: 18px;
   }
 }

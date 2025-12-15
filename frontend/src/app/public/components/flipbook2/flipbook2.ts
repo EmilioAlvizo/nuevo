@@ -1,4 +1,3 @@
-// nuevo/frontend/src/app/public/components/flipbook/flipbook.ts
 import {
   Component,
   ElementRef,
@@ -24,12 +23,11 @@ interface Folio {
 }
 
 @Component({
-  selector: 'app-flipbook',
-  standalone: true,
+  selector: 'app-flipbook2',
   imports: [CommonModule],
+  templateUrl: './flipbook2.html',
+  styleUrl: './flipbook2.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './flipbook.html',
-  styleUrls: ['./flipbook.css'],
   host: {
     class: 'flipbook-root',
     '[class.fullscreen]': 'isFullscreen()',
@@ -42,14 +40,13 @@ interface Folio {
     '[style.--page-width]': 'cssPageWidth()',
   },
 })
-export class Flipbook implements OnDestroy {
+export class Flipbook2 implements OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
 
   // --- Inputs ---
   src = input.required<string>();
   basePageWidth = input(800, { alias: 'pageWidth' });
-  targetHeight = input<number | undefined>(undefined, { alias: 'pageHeight' }); // Optional height override
 
   // --- Element Refs ---
   stageRef = viewChild.required<ElementRef<HTMLDivElement>>('stage');
@@ -59,14 +56,11 @@ export class Flipbook implements OnDestroy {
   // --- Signals de Estado ---
   folios = signal<Folio[]>([]);
   currentFolioIndex = signal(0);
-  currentPageNumber = signal(1); // Importante para vista móvil y single view
+  currentPageNumber = signal(1); // Importante para vista móvil
 
   isFullscreen = signal(false);
   isMobileView = signal(false);
   isTurning = signal(false);
-
-  // NEW: View Mode Signal ('auto' | 'single' | 'spread')
-  viewMode = signal<'auto' | 'single' | 'spread'>('auto');
 
   // Dimensiones
   calculatedPageWidth = signal(800);
@@ -75,37 +69,21 @@ export class Flipbook implements OnDestroy {
   // Nuevo signal para almacenar el aspect ratio del PDF
   pdfAspectRatio = signal<number | null>(null);
 
-  // --- ZOOM & PAN SIGNALS ---
-  zoomScale = signal(1);
-  panX = signal(0);
-  panY = signal(0);
-  isDragging = signal(false);
-
   // --- Estado Interno (No reactivo) ---
   private pdfDoc: any = null;
   private touchStartX = 0;
   private isBrowser = isPlatformBrowser(this.platformId);
   private isRendering = false;
   private renderQueue: (() => void) | null = null;
-  private lastMouseX = 0;
-  private lastMouseY = 0;
 
   // --- Computed Helpers ---
   totalPages = computed(() => (this.pdfDoc ? this.pdfDoc.numPages : this.folios().length * 2));
 
-  // Single view ahora aplica si es móvil O si NO es fullscreen, respetando viewMode
-  isSingleView = computed(() => {
-    const mode = this.viewMode();
-    if (mode === 'single') return true;
-    if (mode === 'spread') return false;
-    // Auto
-    return !this.isFullscreen() || this.isMobileView();
-  });
   isMobileFullscreen = computed(() => this.isFullscreen() && this.isMobileView());
 
   paginationText = computed(() => {
     const total = this.totalPages();
-    if (this.isSingleView()) {
+    if (this.isMobileFullscreen()) {
       return `${this.currentPageNumber()} / ${total}`;
     }
     const start = this.currentFolioIndex() * 2 + 1;
@@ -141,7 +119,7 @@ export class Flipbook implements OnDestroy {
       // Suscripción a cambios
       const _folios = this.folios();
       const _idx = this.currentFolioIndex();
-      const _mob = this.currentPageNumber(); // Trigger en cambio de pag en single view
+      const _mob = this.currentPageNumber();
       const _fs = this.isFullscreen();
       const _fronts = this.frontCanvases(); // Necesario para saber cuando el DOM está listo
 
@@ -160,7 +138,7 @@ export class Flipbook implements OnDestroy {
     }
   }
 
-  // --- Lógica Principal ---
+  // --- Lógica Principal (Restaurada del Original) ---
 
   async loadPdf(url: string) {
     try {
@@ -197,7 +175,7 @@ export class Flipbook implements OnDestroy {
     }
   }
 
-  // --- Renderizado Optimizado ---
+  // --- Renderizado Optimizado (Igual al Original) ---
 
   scheduleRender() {
     if (this.isRendering) {
@@ -216,34 +194,33 @@ export class Flipbook implements OnDestroy {
     const promises: Promise<void>[] = [];
     const currentIndex = this.currentFolioIndex();
 
-    if (this.isSingleView()) {
-      // 📱 MÓVIL o SINGLE VIEW (Modo NO Fullscreen)
-      // Renderizamos la página actual
-      // Calculamos folio basado en currentPageNumber
-      // currentPageNumber 1 -> folio 0, front
-      // currentPageNumber 2 -> folio 0, back
-      // currentPageNumber 3 -> folio 1, front
-      const pNum = this.currentPageNumber();
-      const fIdx = Math.floor((pNum - 1) / 2); // Folio index
-      const isFront = pNum % 2 !== 0;
-
-      // Pre-render surrounding pages optimization maybe? For now just current.
-      // Renderizamos el folio actual y quizás los adyacentes para suavidad.
-      const startIdx = Math.max(0, fIdx - 1);
-      const endIdx = Math.min(this.folios().length - 1, fIdx + 1);
+    if (this.isMobileFullscreen()) {
+      // 📱 MÓVIL (Lógica original): Actual +/- 1 con optimización
+      const startIdx = Math.max(0, currentIndex - 1);
+      const endIdx = Math.min(this.folios().length - 1, currentIndex + 1);
 
       for (let i = startIdx; i <= endIdx; i++) {
         const folio = this.folios()[i];
+
+        // Lógica original: Renderizar si no ha sido renderizado (width=0) o si es el folio actual
         if (folio.front && frontEls[i]) {
-          promises.push(this.renderPageToCanvas(folio.front, frontEls[i].nativeElement));
+          const canvas = frontEls[i].nativeElement;
+          if (canvas.width === 0 || i === currentIndex) {
+            promises.push(this.renderPageToCanvas(folio.front, canvas));
+          }
         }
+
         if (folio.back && backEls[i]) {
-          promises.push(this.renderPageToCanvas(folio.back, backEls[i].nativeElement));
+          const canvas = backEls[i].nativeElement;
+          if (canvas.width === 0 || i === currentIndex) {
+            promises.push(this.renderPageToCanvas(folio.back, canvas));
+          }
         }
       }
-
     } else {
-      // 💻 FULLSCREEN (Spread View de 2 páginas)
+      // 💻 ESCRITORIO (Lógica original): Folios visibles (index +/- 2)
+      // **CORREGIDO**: Se ha eliminado el check `canvas.width === 0` para forzar el renderizado en carga/redimensionamiento,
+      // tal como hacía tu código imperativo original. Esto soluciona la página blanca inicial.
       const startIdx = Math.max(0, currentIndex - 2);
       const endIdx = Math.min(this.folios().length - 1, currentIndex + 2);
 
@@ -276,28 +253,26 @@ export class Flipbook implements OnDestroy {
 
       // 1. Determinar el ancho objetivo en pantalla
       let targetWidth: number;
-      if (this.isSingleView()) {
+      if (this.isMobileFullscreen()) {
         targetWidth = this.calculatedPageWidth();
       } else {
         targetWidth = this.calculatedPageWidth() / 2;
       }
 
-      // 2. Configurar calidad alta
-      // Aumentamos la resolución base para permitir zoom sin pixelar.
-      // Un factor de 2.0 permite zoom hasta 200% perfectamente nitido.
-      // Para zoom 300% (max), se estirará un poco pero se verá mucho mejor que antes.
-      const ZOOM_QUALITY_FACTOR = 2.5;
+      // 2. Configurar calidad alta (Device Pixel Ratio)
       const dpr = window.devicePixelRatio || 1;
 
-      // 3. Bleed Scale
+      // 3. EL TRUCO DEL ESCALADO (Bleed):
+      // Multiplicamos por 1.005 (0.5% extra) para que la imagen sea
+      // imperceptiblemente más grande que el hueco, forzando a cerrar las líneas.
       const bleedScale = 1.005;
 
       const baseScale = targetWidth / viewport.width;
-      const outputScale = baseScale * dpr * bleedScale * ZOOM_QUALITY_FACTOR;
+      const outputScale = baseScale * dpr * bleedScale; // <--- APLICAR BLEED
 
       const scaledViewport = page.getViewport({ scale: outputScale });
 
-      // 4. Canvas Offscreen
+      // 4. Canvas Offscreen con dimensiones enteras
       const offscreen = document.createElement('canvas');
       offscreen.width = Math.floor(scaledViewport.width);
       offscreen.height = Math.floor(scaledViewport.height);
@@ -305,11 +280,14 @@ export class Flipbook implements OnDestroy {
       const ctx = offscreen.getContext('2d', { alpha: false });
       if (!ctx) return;
 
+      // Desactivar suavizado puede ayudar en algunos casos, pero 'high' es mejor para revistas
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // 5. Fondo
-      ctx.fillStyle = '#ffffff'; // Blanco para evitar lineas oscuras si hay transparencia
+      // 5. EL TRUCO DEL FONDO (Contrast Background):
+      // Rellenar de negro/gris oscuro antes de renderizar.
+      // Si queda una línea de 1px, será oscura y se mezclará con la imagen.
+      ctx.fillStyle = '#1a1a1a';
       ctx.fillRect(0, 0, offscreen.width, offscreen.height);
 
       // Renderizar PDF
@@ -322,12 +300,12 @@ export class Flipbook implements OnDestroy {
       const visibleCtx = canvas.getContext('2d', { alpha: false });
       if (!visibleCtx) return;
 
-      // El canvas visible tiene el tamaño del buffer (high res)
+      // Asignar tamaño real (físico)
       canvas.width = offscreen.width;
       canvas.height = offscreen.height;
 
-      // Pero CSS lo forzará a 'width: 100%' del contenedor, logrando la densidad de pixeles alta
-      visibleCtx.fillStyle = '#ffffff';
+      // Limpiar y dibujar
+      visibleCtx.fillStyle = '#1a1a1a'; // Fondo oscuro también aquí por seguridad
       visibleCtx.fillRect(0, 0, canvas.width, canvas.height);
 
       visibleCtx.drawImage(offscreen, 0, 0);
@@ -335,30 +313,23 @@ export class Flipbook implements OnDestroy {
       console.error(`Error rendering page ${pageNumber}`, err);
     }
   }
-
   // --- Navegación ---
 
   prev() {
     if (this.isTurning()) return;
 
-    if (this.isSingleView()) {
-      // SINGLE PAGE NAV
+    if (this.isMobileFullscreen()) {
       if (this.currentPageNumber() <= 1) return;
       this.isTurning.set(true);
       this.currentPageNumber.update((n) => n - 1);
-
-      const newFolioIdx = Math.floor((this.currentPageNumber() - 1) / 2);
-      this.currentFolioIndex.set(newFolioIdx);
-      // Sync vital para cambiar modos
-      this.syncFlips(newFolioIdx);
-
+      this.currentFolioIndex.set(Math.floor((this.currentPageNumber() - 1) / 2));
       setTimeout(() => this.isTurning.set(false), 300);
     } else {
-      // SPREAD NAV
       if (this.currentFolioIndex() <= 0) return;
       this.isTurning.set(true);
       this.currentFolioIndex.update((i) => i - 1);
 
+      // Actualizar estado flipped
       this.folios.update((fs) => {
         const copy = [...fs];
         copy[this.currentFolioIndex()].flipped = false;
@@ -373,19 +344,13 @@ export class Flipbook implements OnDestroy {
     if (this.isTurning()) return;
     const total = this.totalPages();
 
-    if (this.isSingleView()) {
-      // SINGLE PAGE NAV
+    if (this.isMobileFullscreen()) {
       if (this.currentPageNumber() >= total) return;
       this.isTurning.set(true);
       this.currentPageNumber.update((n) => n + 1);
-
-      const newFolioIdx = Math.floor((this.currentPageNumber() - 1) / 2);
-      this.currentFolioIndex.set(newFolioIdx);
-      this.syncFlips(newFolioIdx);
-
+      this.currentFolioIndex.set(Math.floor((this.currentPageNumber() - 1) / 2));
       setTimeout(() => this.isTurning.set(false), 300);
     } else {
-      // SPREAD NAV
       if (this.currentFolioIndex() >= this.folios().length) return;
       this.isTurning.set(true);
 
@@ -396,7 +361,7 @@ export class Flipbook implements OnDestroy {
         return copy;
       });
 
-      // 2. Cambio de índice lógico
+      // 2. Cambio de índice lógico después de la animación
       setTimeout(() => {
         this.currentFolioIndex.update((i) => i + 1);
         this.isTurning.set(false);
@@ -404,17 +369,13 @@ export class Flipbook implements OnDestroy {
     }
   }
 
-  syncFlips(targetIndex: number) {
-    this.folios.update(fs => fs.map((f, i) => ({
-      ...f,
-      flipped: i < targetIndex
-    })));
-  }
-
-  goToPage(pageNumber: number) {
+  // --- Lógica importada de RevistaDetalle Original ---
+  public goToPage(pageNumber: number) {
     if (this.folios().length === 0) return;
 
+    // Lógica Original para calcular el folioIndex
     let targetIndex: number;
+
     if (pageNumber <= 1) {
       targetIndex = 0;
     } else {
@@ -424,103 +385,27 @@ export class Flipbook implements OnDestroy {
     if (targetIndex >= this.folios().length) targetIndex = this.folios().length - 1;
     if (targetIndex < 0) targetIndex = 0;
 
+    // Aplicar estado 'flipped' a todos los anteriores (lógica original manual)
     this.folios.update((fs) =>
       fs.map((f, i) => ({
         ...f,
-        flipped: i < targetIndex,
+        flipped: i < targetIndex, // True si el índice es menor al target
       }))
     );
 
     this.currentFolioIndex.set(targetIndex);
-    this.currentPageNumber.set(pageNumber); // Sync explicit
 
+    // Si estamos en móvil, actualizar también el número de página
+    if (this.isMobileView()) {
+      this.currentPageNumber.set(pageNumber);
+    }
+
+    // Forzar render inmediato
     setTimeout(() => this.scheduleRender(), 50);
   }
 
-  // --- Click Zones & Zoom ---
-
-  onStageClick(event: MouseEvent) {
-    if (this.isDragging()) return; // Ignorar clic si se estaba arrastrando
-
-    if (this.isSingleView()) {
-      const target = event.currentTarget as HTMLElement;
-      const rect = target.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const width = rect.width;
-
-      if (x > width / 2) {
-        this.next();
-      } else {
-        this.prev();
-      }
-    }
-  }
-
-  onWheel(event: WheelEvent) {
-    if (this.isFullscreen()) {
-      event.preventDefault();
-      const delta = -Math.sign(event.deltaY) * 0.1;
-      const newScale = Math.min(Math.max(this.zoomScale() + delta, 1), 3);
-
-      this.zoomScale.set(newScale);
-
-      if (newScale === 1) {
-        this.panX.set(0);
-        this.panY.set(0);
-      }
-    }
-  }
-
-  zoomIn() {
-    this.zoomScale.update(s => Math.min(s + 0.5, 3)); // Max zoom 3x
-  }
-
-  zoomOut() {
-    this.zoomScale.update(s => {
-      const newScale = Math.max(s - 0.5, 1);
-      if (newScale === 1) {
-        this.panX.set(0);
-        this.panY.set(0);
-      }
-      return newScale;
-    });
-  }
-
-  resetZoom() {
-    this.zoomScale.set(1);
-    this.panX.set(0);
-    this.panY.set(0);
-  }
-
-  // --- Drag / Pan Logic (Mouse) ---
-  onMouseDown(event: MouseEvent) {
-    if (this.zoomScale() > 1 && this.isFullscreen()) {
-      this.isDragging.set(true);
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
-      event.preventDefault(); // Prevenir selección texto etc
-    }
-  }
-
-  onMouseMove(event: MouseEvent) {
-    if (this.isDragging() && this.zoomScale() > 1) {
-      const dx = event.clientX - this.lastMouseX;
-      const dy = event.clientY - this.lastMouseY;
-      this.panX.update(v => v + dx);
-      this.panY.update(v => v + dy);
-      this.lastMouseX = event.clientX;
-      this.lastMouseY = event.clientY;
-    }
-  }
-
-  onMouseUp() {
-    if (this.isDragging()) {
-      this.isDragging.set(false);
-    }
-  }
-
-
   // --- Helpers y Eventos ---
+
   onResize() {
     this.checkMobileView();
     this.updateDimensions();
@@ -534,72 +419,22 @@ export class Flipbook implements OnDestroy {
   updateDimensions() {
     if (!this.isBrowser) return;
 
-    const ar = this.pdfAspectRatio();
-    if (!ar) {
-      this.calculatedPageWidth.set(800);
-      this.folioHeight.set(480);
-      return;
-    }
-
     if (this.isFullscreen()) {
-      // FULLSCREEN MODE
-      const availW = window.innerWidth;
-      const availH = window.innerHeight - 80; // Space for controls
-
-      if (this.isSingleView()) {
-        // Single page fullscreen
-        let w = availW;
-        let h = w / ar;
-
-        if (h > availH) {
-          h = availH;
-          w = h * ar;
-        }
-
-        this.calculatedPageWidth.set(Math.floor(w));
-        this.folioHeight.set(Math.floor(h));
-      } else {
-        // Spread (2 pages) fullscreen
-        const twoPageAR = ar * 2;
-        let w = availW;
-        let h = w / twoPageAR;
-
-        if (h > availH) {
-          h = availH;
-          w = h * twoPageAR;
-        }
-
-        this.calculatedPageWidth.set(Math.floor(w));
-        this.folioHeight.set(Math.floor(h));
-      }
+      this.calculateFullscreenSize();
     } else {
-      // NORMAL MODE
-      const inputH = this.targetHeight();
+      // 💻 MODO NORMAL/ESCRITORIO
+      const maxW = Math.min(this.basePageWidth(), window.innerWidth);
+      this.calculatedPageWidth.set(maxW);
 
-      if (inputH) {
-        // Fixed height mode
-        const h = inputH;
-        let w = h * ar;
+      const ar = this.pdfAspectRatio();
 
-        // If spread view in normal mode, double the width but cap at screen width
-        if (!this.isSingleView()) {
-          w = Math.min(w * 2, window.innerWidth - 40); // Cap to prevent overflow
-        }
-
-        this.folioHeight.set(Math.floor(h));
-        this.calculatedPageWidth.set(Math.floor(w));
+      if (ar !== null) {
+        // CORRECCIÓN: Calcular la altura basada en el ancho de UNA página y el Aspect Ratio
+        const pageW = maxW / 2;
+        this.folioHeight.set(pageW / ar); // Alto = Ancho / AR
       } else {
-        // Width-based mode (default)
-        let maxW = Math.min(this.basePageWidth(), window.innerWidth - 40);
-
-        // For spread view, we DON'T double the width - maxW is already the container width
-        // The calculatedPageWidth represents total width for the stage
-        // Individual folios get width/2 in the HTML binding
-
-        const h = maxW / (this.isSingleView() ? ar : ar * 2);
-
-        this.calculatedPageWidth.set(Math.floor(maxW));
-        this.folioHeight.set(Math.floor(h));
+        // Fallback si el PDF aún no carga
+        this.folioHeight.set(480);
       }
     }
   }
@@ -615,45 +450,61 @@ export class Flipbook implements OnDestroy {
     }
   }
 
-  toggleViewMode() {
-    const mode = this.viewMode();
-    let next: 'auto' | 'single' | 'spread' = 'auto'; // Default
-
-    const currentIsSingle = this.isSingleView();
-    if (currentIsSingle) {
-      next = 'spread';
-    } else {
-      next = 'single';
-    }
-    this.viewMode.set(next);
-    this.updateDimensions();
-  }
-
   onFullscreenChange() {
     if (!this.isBrowser) return;
     const isFull = !!this.document.fullscreenElement;
     this.isFullscreen.set(isFull);
 
-    if (!isFull) {
-      this.resetZoom();
-      this.viewMode.set('auto');
+    if (isFull) {
+      this.calculateFullscreenSize();
+      // Sincronizar página móvil al entrar (Lógica Original)
+      if (this.isMobileView()) {
+        this.currentPageNumber.set(this.currentFolioIndex() * 2 + 1);
+      }
+    } else {
+      this.updateDimensions(); // Resetear a tamaño normal
     }
-
-    // Recalcular inmediatamente - NO usar timeout
-    this.updateDimensions();
   }
 
-  // Unified into updateDimensions
   async calculateFullscreenSize() {
-    // No-op kept for safety if called elsewhere, but logic moved to updateDimensions
+    if (!this.pdfDoc) return;
+    try {
+      const page = await this.pdfDoc.getPage(1);
+      const viewport = page.getViewport({ scale: 1 });
+      const ar = viewport.width / viewport.height;
+
+      const availW = window.innerWidth - 40;
+      const availH = window.innerHeight - 120; // Margen para controles
+
+      if (this.isMobileView()) {
+        const wBasedH = availW / ar;
+        if (wBasedH <= availH) {
+          this.calculatedPageWidth.set(availW);
+          this.folioHeight.set(wBasedH);
+        } else {
+          this.folioHeight.set(availH);
+          this.calculatedPageWidth.set(availH * ar);
+        }
+      } else {
+        const twoPageAR = ar * 2;
+        const wBasedH = availW / twoPageAR;
+        if (wBasedH <= availH) {
+          this.calculatedPageWidth.set(availW);
+          this.folioHeight.set(wBasedH);
+        } else {
+          this.folioHeight.set(availH);
+          this.calculatedPageWidth.set(availH * twoPageAR);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   handleKey(e: KeyboardEvent) {
     if (e.key === 'ArrowLeft') this.prev();
     if (e.key === 'ArrowRight') this.next();
-    if (e.key === 'Escape' && this.isFullscreen()) {
-      // Native handled
-    }
+    if (e.key === 'Escape' && this.isFullscreen()) this.toggleFullscreen();
   }
 
   onTouchStart(event: TouchEvent) {
@@ -681,23 +532,22 @@ export class Flipbook implements OnDestroy {
     return 50 - index;
   }
 
+  // Helper para determinar si un folio debe estar visible
   isFolioVisible(index: number): boolean {
-    if (this.isSingleView()) {
-      const targetFolio = Math.floor((this.currentPageNumber() - 1) / 2);
-      return index === targetFolio;
+    if (!this.isMobileFullscreen()) {
+      // Modo escritorio: mostrar folios cercanos (índice +/- 2)
+      return Math.abs(index - this.currentFolioIndex()) <= 2;
     }
-    // In spread view, show current folio and the one before it (for flip animation)
-    const current = this.currentFolioIndex();
-    return index >= current - 1 && index <= current;
+    // Modo móvil: solo el folio actual
+    return index === this.currentFolioIndex();
   }
 
   shouldShowFrontInMobile(): boolean {
-    // Show front when on odd page (1, 3, 5...)
-    return this.currentPageNumber() % 2 !== 0;
+    return this.currentPageNumber() % 2 === 1;
   }
 
   shouldShowBackInMobile(): boolean {
-    // Show back when on even page (2, 4, 6...)
     return this.currentPageNumber() % 2 === 0;
   }
+
 }

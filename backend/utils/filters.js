@@ -109,6 +109,19 @@ function buildConditions(params, request, config) {
   config.forEach(({ name, dbField, type = "string", isMulti = false }) => {
     const value = params[name];
     const matchMode = params[`${name}_matchMode`] || "contains";
+    console.log("match ", matchMode)
+
+    // 🟣 MATCH MODES UNIVERSALES PARA NULL
+    if (matchMode === "isNull") {
+      console.log("si es  ", matchMode)
+      conditions.push(`${dbField} IS NULL`);
+      return;
+    }
+
+    if (matchMode === "isNotNull") {
+      conditions.push(`${dbField} IS NOT NULL`);
+      return;
+    }
 
     if (
       value == null ||

@@ -117,4 +117,38 @@ module.exports = {
     autoDetectSearchFields: true,
     maxSearchFields: 5,
   },
+
+  articulos_revista: {
+    // Columnas que deben ser multiselect
+    multiselect: [
+      "id_revista",
+      "estatus",
+      "autor"
+    ],
+
+    // Columnas que deben ser filtros de fecha
+    dateFilters: ["fecha_modificacion"],
+
+    fileColumns: ['imagen'],
+
+    // Columnas que NO deben aparecer en filtros
+    excludeFromFilters: [
+      "imagen", // El archivo físico no se filtra
+    ],
+
+    // 📁 Configuración de tipos de archivo permitidos
+    uploadConfig: {
+      imagen: ['image/*']
+    },
+
+    // Campos de búsqueda global
+    searchFields: ["titulo", "autor", "contenido"],
+
+    // Ordenamiento por defecto
+    defaultSort: {
+      field: "fecha_modificacion",
+      order: "DESC",
+    },
+  },
+
 };

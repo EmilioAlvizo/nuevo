@@ -1,4 +1,5 @@
 <!-- // nuevo/frontend/src/app/public/components/encuesta-actual/encuesta-actual.html -->
+<p-toast></p-toast>
 <div class="encuesta-section container-fluid py-5">
   <div class="text-center mb-5 animate-fade-down">
     <h1 class="display-5 fw-bold text-dark text-uppercase mb-2">Participación en vivo</h1>
@@ -20,18 +21,10 @@
         <h5 class="fw-bold text-muted mb-4 ps-3">Opciones disponibles:</h5>
 
         @for (opcion of enc.opciones; track opcion.idOpcion; let i = $index) {
-        <button
-          type="button"
-          class="btn btn-vote-item text-start p-3 position-relative"
-          [class.active-vote]="yaVoto()"
-          [disabled]="yaVoto()"
-          (click)="votar(opcion.idOpcion)"
-        >
+        <button type="button" class="btn btn-vote-item text-start p-3 position-relative" [class.active-vote]="yaVoto()"
+          [disabled]="yaVoto()" (click)="votar(opcion.idOpcion)">
           <div class="d-flex align-items-center">
-            <i
-              class="pi fs-4 me-3 text-secondary"
-              
-            ></i>
+            <i class="pi fs-4 me-3 text-secondary"></i>
 
             <div class="d-flex flex-column">
               <span class="fw-bold fs-6 text-dark">{{ opcion.textoOpcion }}</span>
@@ -54,9 +47,7 @@
     <div class="col-12 col-lg-8">
       <div class="tablet-backdrop p-4 p-md-5 rounded-5">
         <div class="tablet-device bg-white mx-auto shadow-lg overflow-hidden position-relative">
-          <div
-            class="card-body p-4 d-flex flex-column align-items-center justify-content-center h-100"
-          >
+          <div class="card-body p-4 d-flex flex-column align-items-center justify-content-center h-100">
             @if (cargando()) {
             <p-skeleton shape="circle" size="180px"></p-skeleton>
             } @if (encuesta(); as enc) {
@@ -65,16 +56,10 @@
             </h3>
 
             <div class="chart-wrapper position-relative">
-              <p-chart
-                type="doughnut"
-                [data]="chartData"
-                [options]="chartOptions"
-                height="280px"
-                width="280px"
-              >
+              <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="280px" width="280px">
               </p-chart>
 
-              
+
             </div>
 
             <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
@@ -93,9 +78,7 @@
             }
           </div>
 
-          <div
-            class="page-indicator badge bg-black text-white rounded-pill position-absolute bottom-0 end-0 m-3"
-          >
+          <div class="page-indicator badge bg-black text-white rounded-pill position-absolute bottom-0 end-0 m-3">
             Live
           </div>
         </div>

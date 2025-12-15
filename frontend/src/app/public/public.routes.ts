@@ -19,7 +19,8 @@ export const publicRoutes: Routes = [
   { path: '', component: Home, data: { ocultarDiv: false } },
   { path: 'sistema', component: SistemaJuventudes },
   { path: 'estadisticas', component: Estadisticas, data: { ocultarDiv: true } },
-  { path: 'revista', component: RevistaVoces },
+  { path: 'revista', component: RevistaVoces, data: { ocultarDiv: true } },
+  { path: 'articulo/:id', component: RevistaDetalle },
   { path: 'revista/:id', component: RevistaDetalle },
   { path: 'revista/:id/articulo', component: Articulos, children: ARTICULOS_CHILD_ROUTES },
   //{ path: 'centro-documental', component: CentroDocumental },
@@ -27,6 +28,6 @@ export const publicRoutes: Routes = [
   { path: 'contactanos', component: Contactanos },
   { path: 'directorio-info', component: Directorio },
   { path: 'consejo', component: Consejo },
-  { path: 'temas', component: TemasInteres},
-  { path: 'apoyos', component: ApoyosServicios},
+  { path: 'temas', component: TemasInteres },
+  { path: 'apoyos', component: ApoyosServicios },
 ];

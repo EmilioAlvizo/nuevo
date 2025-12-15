@@ -91,11 +91,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/documentos_cendoc", documentos_cendocRoutes);
 app.use("/api/archivos_municipio", archivos_municipioRoutes);
 app.use("/api/encuestas", encuestaRoutes);
+app.use("/api/articulos", articulosRoutes);
 app.use("/api", municipioRoutes);
 app.use("/api", categorias_cendocRoutes);
 app.use("/api", testimoniosRoutes);
 app.use("/api", revistasRoutes);
-app.use("/api", articulosRoutes);
 app.use("/api", documentos_fisicosRoutes);
 app.use("/api", temas_interesRoutes);
 app.use("/api", propuesta_accionRoutes);
@@ -139,7 +139,7 @@ app.listen(PORT, async () => {
   console.log(`📚 Documentación en http://localhost:${PORT}/`);
   console.log(`🍪 CORS habilitado para: http://localhost:4200`);
   console.log(`${'='.repeat(60)}\n`);
-  
+
   // 🆕 Iniciar limpiador automático de tokens expirados
   try {
     await startCleanupScheduler();

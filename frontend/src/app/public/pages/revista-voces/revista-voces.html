@@ -1,20 +1,119 @@
-<div class="contenedor">
-  <div class="row text-wrap text-break">
-    <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
-      <p class="text-center texto-title-pages mb-4">Voces Emergentes</p>
+<div class="min-h-screen bg-gray-500 flex flex-col">
+  <!-- Header / Breadcrumb Section -->
+  <div class="bg-blue-800 shadow-sm border-b border-gray-200">
+    <div class="container mx-auto px-4 pt-40 pb-4">
+      <h1 class="text-3xl font-serif font-bold text-gray-50! mt-4">{{ pageTitle() }}</h1>
     </div>
   </div>
 
-  <div class="card-stack-container">
-    <div *ngFor="let revista of revistas()" class="card-stack" [style.--cards]="4" (click)="abrirRevista(revista)">
-   
+  <!-- Main Content -->
+  <div class="bg-gray-800">
 
+    <p-tabs [(value)]="activeTab">
+      <p-tablist>
+        <div class="flex gap-8 border-gray-200 border-b-2 w-full mb-6">
+          <p-tab value="0"
+            class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors">
+            Revistas
+          </p-tab>
+          <p-tab value="1"
+            class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors">
+            Artículos Independientes
+          </p-tab>
+        </div>
+      </p-tablist>
 
-<div class="card-layer with-image" [style.background-image]="'url('+publicUrl+'/revistas/' + revista.id_revista + '/portada/' + revista.portada + ')'">
-        <h2>Volumen {{ revista.volumen }}</h2>
-        <p>{{ revista.fecha | date: 'MMMM y' }} - 4 artículos</p>
-      </div>
-      <div class="card-layer" *ngFor="let i of [].constructor(3)"></div>
-    </div>
+      <p-tabpanels styleClass="!p-0 !bg-transparent">
+
+        <!-- Tab: Revistas -->
+        <p-tabpanel value="0">
+          <ng-template #content>
+            <div class="container mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div *ngFor="let revista of revistas()"
+                class="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 overflow-hidden"
+                (click)="abrirRevista(revista)">
+
+                <!-- Cover Image -->
+                <div class="aspect-[3/4] w-full relative bg-gray-100 overflow-hidden">
+                  <img [src]="publicUrl + '/revistas/' + revista.id_revista + '/portada/' + revista.portada"
+                    alt="Portada {{revista.volumen}}"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                  <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <span class="text-white text-sm font-medium">{{ revista.fecha | date: 'MMMM y' }}</span>
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-4">
+                  <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                    Volumen {{ revista.volumen }}
+                  </h3>
+                  <p class="text-sm text-gray-500 mb-3 line-clamp-2">{{ revista.descripcion }}</p>
+                  <p class="text-xs font-semibold text-blue-600 uppercase tracking-wider flex items-center">
+                    Ver Edición <i class="pi pi-arrow-right ml-1 text-[10px]"></i>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="revistas().length === 0" class="text-center py-12 text-gray-400">
+              No hay revistas disponibles.
+            </div>
+          </ng-template>
+        </p-tabpanel>
+
+        <!-- Tab: Articulos Independientes -->
+        <p-tabpanel value="1">
+          <ng-template #content>
+            <div class="max-w-4xl mx-auto space-y-6">
+
+              <div *ngFor="let articulo of articulosIndependientes()"
+                class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm hover:border-blue-200 transition-all">
+                <div class="flex flex-col md:flex-row gap-6">
+                  <!-- Optional Article Image -->
+                  <div *ngIf="articulo.imagen"
+                    class="w-full md:w-48 h-32 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+                    <img [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen"
+                      class="w-full h-full object-cover">
+                  </div>
+
+                  <div class="flex-grow">
+                    <div
+                      class="flex items-center gap-2 mb-2 text-xs text-gray-500 uppercase tracking-wide font-semibold">
+                      <span class="text-blue-600">Artículo de Investigación</span>
+                      <span>•</span>
+                      <span>{{ articulo.fecha_modificacion | date:'longDate' }}</span>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 hover:text-blue-600 cursor-pointer">
+                      {{ articulo.titulo }}
+                    </h3>
+
+                    <p class="text-sm text-gray-600 mb-4 font-medium">
+                      {{ articulo.autor }}
+                    </p>
+
+                    <p class="text-gray-500 text-sm line-clamp-3 leading-relaxed mb-4">
+                      {{ articulo.contenido }}
+                    </p>
+
+                    <button
+                      class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
+                      Leer artículo completo <i class="pi pi-file-pdf"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="articulosIndependientes().length === 0" class="text-center py-12 text-gray-400">
+                No hay artículos independientes recientes.
+              </div>
+
+            </div>
+          </ng-template>
+        </p-tabpanel>
+
+      </p-tabpanels>
+    </p-tabs>
   </div>
 </div>

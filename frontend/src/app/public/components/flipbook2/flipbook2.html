@@ -1,0 +1,80 @@
+<!-- // nuevo/frontend/src/app/public/components/flipbook/flipbook.html -->
+<div class="flipbook-root" tabindex="0">
+    <div class="viewer-container">
+        <div class="book-stage" #stage>
+            @if (isFullscreen()) {
+            <button class="nav-btn nav-btn-left" type="button" (click)="prev()"
+                [disabled]="isMobileView() ? currentPageNumber() === 1 : currentFolioIndex() === 0"
+                aria-label="Previous Page">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <button class="nav-btn nav-btn-right" type="button" (click)="next()" [disabled]="
+          isMobileView()
+            ? currentPageNumber() >= totalPages()
+            : currentFolioIndex() >= folios().length
+        " aria-label="Next Page">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+
+            <button class="exit-fullscreen-btn" type="button" (click)="toggleFullscreen()" aria-label="Exit Fullscreen">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg>
+            </button>
+
+            <div class="page-counter-fullscreen" role="status">
+                {{ paginationText() }}
+            </div>
+            } @for (folio of folios(); track $index) {
+            <div class="folio" [class.folio-hidden]="!isFolioVisible($index)" [class.flipped]="folio.flipped"
+                [style.z-index]="getZIndex($index)"
+                [style.width.px]="isMobileFullscreen() ? calculatedPageWidth() : calculatedPageWidth() / 2"
+                [style.height.px]="folioHeight()">
+                <div class="leaf front" [class.leaf-hidden]="isMobileFullscreen() && !shouldShowFrontInMobile()">
+                    <canvas #frontCanvas width="400" height="480"></canvas>
+                </div>
+
+                <div class="leaf back" [class.leaf-hidden]="isMobileFullscreen() && !shouldShowBackInMobile()">
+                    <canvas #backCanvas width="400" height="480"></canvas>
+                </div>
+            </div>
+            }
+        </div>
+
+        @if (!isFullscreen()) {
+        <button class="fullscreen-btn" type="button" (click)="toggleFullscreen()" aria-label="Enter Fullscreen">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3">
+                </path>
+            </svg>
+        </button>
+        }
+    </div>
+</div>
+
+@if (!isFullscreen()) {
+<div class="controls">
+    <button class="control-btn" type="button" (click)="prev()" [disabled]="currentFolioIndex() === 0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+    </button>
+
+    <div class="page-counter" role="status">
+        {{ paginationText() }}
+    </div>
+
+    <button class="control-btn" type="button" (click)="next()" [disabled]="currentFolioIndex() >= folios().length">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+    </button>
+</div>
+
+<div class="tips">Usa flechas ← → o desliza para cambiar página</div>
+}

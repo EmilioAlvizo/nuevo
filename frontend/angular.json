@@ -14,8 +14,7 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
-            "polyfills": [
-            ],
+            "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -25,8 +24,8 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/primeicons/primeicons.css",
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/primeicons/primeicons.css"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
@@ -85,8 +84,7 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "polyfills": [
-            ],
+            "polyfills": [],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {

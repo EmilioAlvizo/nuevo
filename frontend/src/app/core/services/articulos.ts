@@ -1,8 +1,10 @@
 // nuevo/frontend/src/app/services/articulos.ts
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
 // Tipado de los artículos
 export interface Articulos {
@@ -11,37 +13,62 @@ export interface Articulos {
   titulo: string;
   autor: string;
   contenido: string;
-  pagina: number;
+  pagina_revista: number;
   imagen: string;
   estatus: string;
   fecha_modificacion: string;
-}
-
-// Respuesta genérica de la API
-export interface ApiResponse {
-  success: boolean;
-  data: Articulos[];
-  total?: number;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiArticulos {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = `${environment.apiUrl}/articulos`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  getValoresUnicos(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/valores-unicos`);
+  }
 
-  getArticulos():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/articulos`,{});
+  // ✅ NUEVO - Método con filtros (más eficiente)
+  getFiltrados(filtros: any): Observable<ApiResponsePaginated<Articulos>> {
+    let params = new HttpParams();
+
+    // Agregar todos los parámetros dinámicamente
+    Object.keys(filtros).forEach((key) => {
+      const value = filtros[key];
+
+      if (value !== null && value !== undefined) {
+        // Si es un array, convertir a string separado por comas
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            params = params.set(key, value.join(','));
+          }
+        } else {
+          params = params.set(key, value.toString());
+        }
+      }
+    });
+
+    return this.http.get<ApiResponsePaginated<Articulos>>(`${this.apiUrl}/filtrados`, {
+      params,
+    });
+  }
+
+  getArticulos(): Observable<ApiResponse<Articulos>> {
+    return this.http.get<ApiResponse<Articulos>>(this.apiUrl);
   }
 
   crearArticulo(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/articulos`, formData);
+    console.log('apiUrl: ', this.apiUrl);
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+    return this.http.post(this.apiUrl, formData);
   }
 
   actualizarArticulo(id: number, formData: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/articulos/${id}`, formData);
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
 

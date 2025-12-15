@@ -1,115 +1,115 @@
-<!-- // nuevo/frontend/src/app/public/components/flipbook/flipbook.html -->
 <div class="flipbook-root" tabindex="0">
   <div class="viewer-container">
-    <div class="book-stage" #stage>
+    <!-- STAGE: Añadimos eventos de clic (zonas) y drag (pan) -->
+    <div class="book-stage" #stage (click)="onStageClick($event)" (wheel)="onWheel($event)"
+      (mousedown)="onMouseDown($event)" (mousemove)="onMouseMove($event)" (mouseup)="onMouseUp()"
+      (mouseleave)="onMouseUp()" [style.width.px]="!isFullscreen() ? calculatedPageWidth() : null"
+      [style.height.px]="!isFullscreen() ? folioHeight() : null" [class.is-dragging]="isDragging()"
+      [style.cursor]="zoomScale() > 1 && isFullscreen() ? (isDragging() ? 'grabbing' : 'grab') : 'auto'">
       @if (isFullscreen()) {
-      <button
-        class="nav-btn nav-btn-left"
-        type="button"
-        (click)="prev()"
-        [disabled]="isMobileView() ? currentPageNumber() === 1 : currentFolioIndex() === 0"
-        aria-label="Previous Page"
-      >
-        <svg
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+      <!-- Control Barra Superior Fullscreen -->
+      <div class="fullscreen-controls" (click)="$event.stopPropagation()">
+
+        <div class="zoom-controls">
+          <button class="nav-btn-icon" (click)="zoomOut()" [disabled]="zoomScale() <= 1" aria-label="Zoom Out">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </button>
+          <span class="zoom-level">{{ (zoomScale() * 100).toFixed(0) }}%</span>
+          <button class="nav-btn-icon" (click)="zoomIn()" [disabled]="zoomScale() >= 3" aria-label="Zoom In">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              <line x1="11" y1="8" x2="11" y2="14"></line>
+              <line x1="8" y1="11" x2="14" y2="11"></line>
+            </svg>
+          </button>
+          <button class="nav-btn-icon" (click)="resetZoom()" *ngIf="zoomScale() > 1" aria-label="Reset Zoom">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Boton Toggle View Mode -->
+        <button class="nav-btn-icon" (click)="toggleViewMode()" aria-label="Toggle View Mode"
+          style="margin-right: 12px; margin-left: 12px;">
+          @if (isSingleView()) {
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          } @else {
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          }
+        </button>
+
+        <div class="page-counter-fullscreen">
+          {{ paginationText() }}
+        </div>
+
+        <button class="exit-fullscreen-btn" type="button" (click)="toggleFullscreen()" aria-label="Exit Fullscreen">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navegación Fullscreen: Solo mostrar si NO hay zoom para evitar conflicto con pan -->
+      @if (zoomScale() === 1) {
+      <button class="nav-btn nav-btn-left" type="button" (click)="prev(); $event.stopPropagation()"
+        [disabled]="isSingleView() ? currentPageNumber() <= 1 : currentFolioIndex() <= 0" aria-label="Previous Page">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
 
-      <button
-        class="nav-btn nav-btn-right"
-        type="button"
-        (click)="next()"
-        [disabled]="
-          isMobileView()
-            ? currentPageNumber() >= totalPages()
-            : currentFolioIndex() >= folios().length
-        "
-        aria-label="Next Page"
-      >
-        <svg
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
+      <button class="nav-btn nav-btn-right" type="button" (click)="next(); $event.stopPropagation()"
+        [disabled]="isSingleView() ? currentPageNumber() >= totalPages() : currentFolioIndex() >= folios().length"
+        aria-label="Next Page">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="9 18 15 12 9 6"></polyline>
         </svg>
       </button>
-
-      <button
-        class="exit-fullscreen-btn"
-        type="button"
-        (click)="toggleFullscreen()"
-        aria-label="Exit Fullscreen"
-      >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M18 6L6 18M6 6l12 12"></path>
-        </svg>
-      </button>
-
-      <div class="page-counter-fullscreen" role="status">
-        {{ paginationText() }}
-      </div>
-      } @for (folio of folios(); track $index) {
-      <div
-        class="folio"
-        [class.folio-hidden]="!isFolioVisible($index)"
-        [class.flipped]="folio.flipped"
-        [style.z-index]="getZIndex($index)"
-        [style.width.px]="isMobileFullscreen() ? calculatedPageWidth() : calculatedPageWidth() / 2"
-        [style.height.px]="folioHeight()"
-      >
-        <div
-          class="leaf front"
-          [class.leaf-hidden]="isMobileFullscreen() && !shouldShowFrontInMobile()"
-        >
-          <canvas #frontCanvas width="400" height="480"></canvas>
-        </div>
-
-        <div
-          class="leaf back"
-          [class.leaf-hidden]="isMobileFullscreen() && !shouldShowBackInMobile()"
-        >
-          <canvas #backCanvas width="400" height="480"></canvas>
-        </div>
-      </div>
       }
+
+      }
+
+      <!-- CONTENT TRANSFORM WRAPPER -->
+      <div class="transform-layer"
+        [style.transform]="'scale(' + zoomScale() + ') translate(' + panX() + 'px, ' + panY() + 'px)'"
+        [style.transition]="isDragging() ? 'none' : 'transform 0.2s ease-out'"
+        style="transform-origin: center center; display: flex; justify-content: center; align-items: center;">
+        @for (folio of folios(); track $index) {
+        <div class="folio" [class.folio-hidden]="!isFolioVisible($index)" [class.flipped]="folio.flipped"
+          [style.z-index]="getZIndex($index)"
+          [style.width.px]="isSingleView() ? calculatedPageWidth() : calculatedPageWidth() / 2"
+          [style.height.px]="folioHeight()" [style.left]="isSingleView() ? '50%' : '50%'"
+          [style.transform]="isSingleView() ? 'translateX(-50%)' : (folio.flipped ? 'rotateY(-180deg)' : 'rotateY(0deg)')">
+          <div class="leaf front" [class.leaf-hidden]="!isSingleView() ? false : !shouldShowFrontInMobile()">
+            <canvas #frontCanvas width="400" height="480"></canvas>
+          </div>
+
+          <div class="leaf back" [class.leaf-hidden]="!isSingleView() ? false : !shouldShowBackInMobile()">
+            <canvas #backCanvas width="400" height="480"></canvas>
+          </div>
+        </div>
+        }
+      </div> <!-- End Transform Layer -->
+
     </div>
 
     @if (!isFullscreen()) {
-    <button
-      class="fullscreen-btn"
-      type="button"
-      (click)="toggleFullscreen()"
-      aria-label="Enter Fullscreen"
-    >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-        ></path>
+    <button class="fullscreen-btn" type="button" (click)="toggleFullscreen()" aria-label="Enter Fullscreen">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
       </svg>
     </button>
     }
@@ -118,15 +118,9 @@
 
 @if (!isFullscreen()) {
 <div class="controls">
-  <button class="control-btn" type="button" (click)="prev()" [disabled]="currentFolioIndex() === 0">
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-    >
+  <button class="control-btn" type="button" (click)="prev()"
+    [disabled]="isSingleView() ? currentPageNumber() <= 1 : currentFolioIndex() <= 0">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="15 18 9 12 15 6"></polyline>
     </svg>
   </button>
@@ -135,20 +129,26 @@
     {{ paginationText() }}
   </div>
 
-  <button
-    class="control-btn"
-    type="button"
-    (click)="next()"
-    [disabled]="currentFolioIndex() >= folios().length"
-  >
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-    >
+  <!-- View Mode Toggle Button -->
+  <button class="control-btn" type="button" (click)="toggleViewMode()" aria-label="Toggle View Mode">
+    @if (isSingleView()) {
+    <!-- Book icon = switch to Spread -->
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+    </svg>
+    } @else {
+    <!-- File icon = switch to Single -->
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+    </svg>
+    }
+  </button>
+
+  <button class="control-btn" type="button" (click)="next()"
+    [disabled]="isSingleView() ? currentPageNumber() >= totalPages() : currentFolioIndex() >= folios().length">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
   </button>
