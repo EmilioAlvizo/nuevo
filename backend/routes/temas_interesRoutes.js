@@ -19,17 +19,17 @@ router.get("/temas", Temas_interesController.getAll);
 router.get("/temas/:id", Temas_interesController.getById);
 
 //POST - Crear registro
-router.post('/temas', uploadTema.fields([
+router.post('/temas', authMiddleware, uploadTema.fields([
   { name: 'imagen', maxCount: 1 }
 ]), Temas_interesController.create);
 
 //PUT - Actualizar registro
-router.put('/temas/:id', uploadTema.fields([
+router.put('/temas/:id', authMiddleware, uploadTema.fields([
   { name: 'imagen', maxCount: 1 }
 ]), Temas_interesController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/temas/:id", Temas_interesController.delete);
+router.delete("/temas/:id", authMiddleware, Temas_interesController.delete);
 
 
 module.exports = router;

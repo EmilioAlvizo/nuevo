@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { getConnection, mssql } = require("../config/database");
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 const TABLE_NAME = 'authorized_emails';
 
@@ -10,7 +11,7 @@ const TABLE_NAME = 'authorized_emails';
  * GET /api/authorized-emails
  * Obtiene todos los emails autorizados con su estado de usuario
  */
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const pool = await getConnection();
     const result = await pool.request()
@@ -50,7 +51,7 @@ router.get('/', async (req, res) => {
  * POST /api/authorized-emails
  * Crea un nuevo email autorizado
  */
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { email, authorized_by } = req.body;
 
@@ -115,7 +116,7 @@ router.post('/', async (req, res) => {
  * PUT /api/authorized-emails/:id
  * Actualiza un email autorizado
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { email, used } = req.body;
@@ -204,7 +205,7 @@ router.put('/:id', async (req, res) => {
  * PATCH /api/authorized-emails/usuario/:usuarioId/status
  * Actualiza el estado activo/inactivo del usuario por su ID
  */
-router.patch('/usuario/:usuarioId/status', async (req, res) => {
+router.patch('/usuario/:usuarioId/status', authMiddleware, async (req, res) => {
   try {
     const { usuarioId } = req.params;
     const { activo } = req.body;
@@ -262,7 +263,7 @@ router.patch('/usuario/:usuarioId/status', async (req, res) => {
  * DELETE /api/authorized-emails/:id
  * Elimina un email autorizado
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 

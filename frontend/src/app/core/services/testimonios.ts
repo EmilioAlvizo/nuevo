@@ -72,6 +72,34 @@ export class ApiTestimonios {
     );
   }
 
+  createTestimonioPublico(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/publico`, formData).pipe(
+      tap((res) => {
+        console.log('📤 POST response:', res);
+      }),
+      switchMap((res) => {
+        if (res.success) {
+          if (res.data) {
+            // ✅ Si el backend devuelve el objeto, agregarlo localmente
+            const currentList = this.testimoniosSubject.value;
+            const newList = [...currentList, res.data];
+            this.testimoniosSubject.next(newList);
+            console.log('✅ Testimonio agregado localmente:', res.data);
+            console.log('📊 BehaviorSubject ahora tiene:', newList.length, 'items');
+            return [res];
+          } else {
+            // ⚠️ Si NO devuelve data, hacer refresh
+            console.warn('⚠️ Backend no devolvió data, haciendo refresh...');
+            return this.getTestimonios().pipe(
+              tap(() => console.log('🔄 Refresh completado'))
+            );
+          }
+        }
+        return [res];
+      })
+    );
+  }
+
   // 🚀 Editar - Con fallback a refresh
   updateTestimonio(id: number, formData: FormData): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, formData).pipe(

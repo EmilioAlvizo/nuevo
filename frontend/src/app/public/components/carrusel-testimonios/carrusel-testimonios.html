@@ -1,7 +1,7 @@
 <!-- // frontend/src/app/public/components/carrusel-testimonios/carrusel-testimonios.html -->
 <div class="mb-12 text-center animate-fade-down">
-  <h1 class="mb-2 text-9xl font-bold uppercase text-gray-900 sm:text-5xl">Testimonios</h1>
-  <p class="mx-auto max-w-2xl text-lg text-gray-500">
+  <h1 class="mb-2 text-9xl font-bold uppercase text-gray-900 dark:text-neutral-50! sm:text-5xl">Testimonios</h1>
+  <p class="mx-auto max-w-2xl text-lg text-gray-500 dark:text-neutral-400!">
     Testimonios de quienes han participado en programas y actividades de Juventudes Guanajuato.
   </p>
 </div>
@@ -60,13 +60,13 @@
   @if (testimonios.length > 0) {
   <div class="">
     <button type="button" (click)="miCarrusel.navBackward($event)"
-      class="absolute rounded-full! bottom-0 left-[calc(50%-4rem)] z-10 m-1 flex h-12 w-12 shrink-0 items-center justify-center border border-gray-200 bg-white transition-all duration-300 hover:scale-110 hover:border-indigo-600! hover:bg-indigo-600! hover:text-white focus:outline-none"
+      class="absolute rounded-full! bottom-0 left-[calc(50%-4rem)] z-10 m-1 flex h-12 w-12 shrink-0 items-center justify-center border border-gray-200 bg-white transition-all duration-300 hover:scale-110 hover:border-b-blue-600! hover:bg-blue-600! hover:text-white focus:outline-none"
       aria-label="Anterior">
       <i class="bi bi-chevron-left"></i>
     </button>
 
     <button type="button" (click)="miCarrusel.navForward($event)"
-      class="absolute rounded-full! bottom-0 right-[calc(50%-4rem)] z-10 m-1 flex h-12 w-12 shrink-0 items-center justify-center border border-gray-200 bg-white transition-all duration-300 hover:scale-110 hover:border-indigo-600! hover:bg-indigo-600! hover:text-white focus:outline-none"
+      class="absolute rounded-full! bottom-0 right-[calc(50%-4rem)] z-10 m-1 flex h-12 w-12 shrink-0 items-center justify-center border border-gray-200 bg-white transition-all duration-300 hover:scale-110 hover:border-b-blue-600! hover:bg-blue-600! hover:text-white focus:outline-none"
       aria-label="Siguiente">
       <i class="bi bi-chevron-right"></i>
     </button>

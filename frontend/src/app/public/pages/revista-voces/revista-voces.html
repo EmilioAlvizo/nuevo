@@ -1,19 +1,20 @@
 <div class="min-h-screen bg-gray-500 flex flex-col">
   <!-- Header / Breadcrumb Section -->
-  <div class="bg-blue-800 shadow-sm border-b border-gray-200">
+  <div class="bg-blue-950 shadow-sm border-b border-gray-200">
     <div class="container mx-auto px-4 pt-40 pb-4">
-      <h1 class="text-3xl font-serif font-bold text-gray-50! mt-4">{{ pageTitle() }}</h1>
+      <h1 class="text-3xl font-bold text-gray-50! mt-4">{{ pageTitle() }}</h1>
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="bg-gray-800">
 
-    <p-tabs [(value)]="activeTab">
-      <p-tablist>
-        <div class="flex gap-8 border-gray-200 border-b-2 w-full mb-6">
+    <p-tabs [(value)]="activeTab" class="!bg-[#ecf0f0]">
+      <p-tablist class="!bg-[#ecf0f0]">
+        <div class="px-24 container flex gap-8 border-gray-200 border-b-2 w-full mb-6"
+          style="position: relative; display: flex;">
           <p-tab value="0"
-            class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors">
+            class="!bg-[#ecf0f0] !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors">
             Revistas
           </p-tab>
           <p-tab value="1"
@@ -23,7 +24,7 @@
         </div>
       </p-tablist>
 
-      <p-tabpanels styleClass="!p-0 !bg-transparent">
+      <p-tabpanels>
 
         <!-- Tab: Revistas -->
         <p-tabpanel value="0">

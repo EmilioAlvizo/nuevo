@@ -19,17 +19,17 @@ router.get("/apoyos", Apoyos_serviciosController.getAll);
 router.get("/apoyos/:id", Apoyos_serviciosController.getById);
 
 //POST - Crear registro
-router.post('/apoyos', uploadApoyo.fields([
+router.post('/apoyos', authMiddleware, uploadApoyo.fields([
   { name: 'imagen', maxCount: 1 }
 ]), Apoyos_serviciosController.create);
 
 //PUT - Actualizar registro
-router.put('/apoyos/:id', uploadApoyo.fields([
+router.put('/apoyos/:id', authMiddleware, uploadApoyo.fields([
   { name: 'imagen', maxCount: 1 }
 ]), Apoyos_serviciosController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/apoyos/:id", Apoyos_serviciosController.delete);
+router.delete("/apoyos/:id", authMiddleware, Apoyos_serviciosController.delete);
 
 
 module.exports = router;

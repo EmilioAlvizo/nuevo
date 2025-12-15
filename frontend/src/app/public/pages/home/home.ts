@@ -72,7 +72,7 @@ export class Home implements OnInit {
     this.showPropuesta.set(true);
   } */
 
-  constructor(private api: ApiMunicipio) {}
+  constructor(private api: ApiMunicipio) { }
 
   ngOnInit(): void {
     // ⬇ Primera carga desde el servidor
@@ -135,7 +135,7 @@ export class Home implements OnInit {
 
     const request = id
       ? this.apiTestimonios.updateTestimonio(Number(id), fd)
-      : this.apiTestimonios.createTestimonio(fd);
+      : this.apiTestimonios.createTestimonioPublico(fd);
 
     request.subscribe({
       next: (response) => {

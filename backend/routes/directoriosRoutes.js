@@ -14,7 +14,7 @@ const uploadDirectorio = crearUpload("directorios", {
     // Excel:
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
     'application/vnd.ms-excel', // .xls
-    'text/csv' 
+    'text/csv'
   ]
 });
 
@@ -29,7 +29,7 @@ router.get("/directorios/:id", DirectoriosController.getById);
 
 //POST - Crear registro
 router.post(
-  "/directorios",
+  "/directorios", authMiddleware,
   uploadDirectorio.fields([{ name: "archivo", maxCount: 1 }]),
   DirectoriosController.create
 );

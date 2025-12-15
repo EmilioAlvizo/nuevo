@@ -18,17 +18,17 @@ router.get("/consejo", ConsejoController.getAll);
 router.get("/consejo/:id", ConsejoController.getById);
 
 //POST - Crear registro
-router.post('/consejo', uploadConsejo.fields([
+router.post('/consejo', authMiddleware, uploadConsejo.fields([
   { name: 'imagen', maxCount: 1 }
 ]), ConsejoController.create);
 
 //PUT - Actualizar registro
-router.put('/consejo/:id', uploadConsejo.fields([
+router.put('/consejo/:id', authMiddleware, uploadConsejo.fields([
   { name: 'imagen', maxCount: 1 }
 ]), ConsejoController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/consejo/:id", ConsejoController.delete);
+router.delete("/consejo/:id", authMiddleware, ConsejoController.delete);
 
 
 module.exports = router;

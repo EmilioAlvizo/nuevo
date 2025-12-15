@@ -3,6 +3,7 @@ const router = express.Router();
 
 const InterfazController = require("../controllers/interfazController");
 const { crearUpload } = require("../middleware/uploadMiddleware");
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 const uploadInterfaz = crearUpload("interfaz", {
   archivo: ["image/*"]
@@ -19,7 +20,7 @@ router.get("/interfaz/:id", InterfazController.getById);
 // );
 
 router.put(
-  "/interfaz/:id",
+  "/interfaz/:id", authMiddleware,
   uploadInterfaz.fields([{ name: "archivo", maxCount: 1 }]),
   InterfazController.update
 );

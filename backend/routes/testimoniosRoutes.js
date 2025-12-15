@@ -38,13 +38,13 @@ const readLimiter = rateLimit({
 // ========================================
 
 // GET - Obtener testimonios activos (solo los aprobados)
-router.get("/testimonios/publicos", 
+router.get("/testimonios/publico",
   readLimiter,
   TestimoniosController.getPublicos
 );
 
 // POST - Crear testimonio público (CON RESTRICCIONES)
-router.post('/testimonios/publico', 
+router.post('/testimonios/publico',
   publicTestimonioLimiter,
   uploadTestimonio.fields([
     { name: 'imagenT', maxCount: 1 }

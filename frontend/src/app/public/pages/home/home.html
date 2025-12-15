@@ -11,11 +11,13 @@
     <app-carrusel-testimonios [testimonios]="testimonios()" [publicUrl]="publicUrl">
     </app-carrusel-testimonios>
 
-    <div class="p-4 col-lg-3 col-md-4 col-sm-12 col-xs-12 col-fixed text-center espacio-25 justify-content-center"
-      pAnimateOnScroll enterClass="animate-fade-in animate-slide-up animate-duration-1000" once="true">
-      <div class="p-4 bg-light rounded">
-        <h5>¿Quieres compartir tu experiencia?</h5>
-        <button class="btn btn-primary mt-2" (click)="showDialog.set(true)">
+    <div class="flex justify-center p-4" pAnimateOnScroll
+      enterClass="animate-fade-in animate-slide-up animate-duration-1000" once="true">
+      <div class="w-full max-w-sm p-6 bg-white rounded-lg shadow-md text-center">
+        <h5 class="text-xl font-semibold text-gray-800 mb-4">¿Quieres compartir tu experiencia?</h5>
+        <button
+          class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md! hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+          (click)="showDialog.set(true)">
           Deja tu testimonio
         </button>
       </div>
@@ -42,11 +44,54 @@
       <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center">
         <div class="p-4 bg-light rounded h-100 d-flex flex-column justify-content-center">
           <h5>¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
-          <button (click)="showPropuesta.set(true)">Regístrala aquí
+          <button
+            class="px-1 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+            (click)="showPropuesta.set(true)">Regístrala aquí
           </button>
         </div>
       </div>
 
+      <!-- Columna derecha: Carrusel -->
+      <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
+        <div id="temasCarousel" class="carousel slide h-100" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            @for (t of temas(); track t.id_tema; let i = $index) {
+            <div class="carousel-item" [class.active]="i === 0">
+              <div class="tema-item card border-0 h-100">
+                <div class="row g-0 align-items-center">
+                  <div class="col-md-5 text-center p-3">
+                    <div class="tema-img-container">
+                      <img class="img-fluid tema-img rounded"
+                        [src]="`${publicUrl}/temas_interes/${t.id_tema}/${t.imagen}`" [alt]="t.descripcionTema" />
+                    </div>
+                  </div>
+                  <div class="col-md-7 d-flex flex-column justify-content-center p-4">
+                    <h5 class="fw-bold text-primary">{{ t.descripcionTema }}</h5>
+                    <p class="text-muted text-justify mb-3">
+                      {{ t.descripcionMas }}
+                    </p>
+                    <a [href]="t.link" target="_blank" rel="noopener noreferrer"
+                      class="btn btn-outline-primary align-self-start">
+                      Ver más
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+
+          <!-- Controles -->
+          <button class="carousel-control-prev" type="button" data-bs-target="#temasCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#temasCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 

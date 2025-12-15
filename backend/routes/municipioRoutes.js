@@ -15,12 +15,12 @@ router.get("/municipios", MunicipioController.getAll);
 router.get("/municipios/:id", MunicipioController.getById);
 
 // POST - Crear un nuevo registro
-router.post("/municipios", MunicipioController.create);
+router.post("/municipios", authMiddleware, MunicipioController.create);
 
 // PUT - Actualizar un registro
-router.put("/municipios/:id", MunicipioController.update);
+router.put("/municipios/:id", authMiddleware, MunicipioController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/municipios/:id", MunicipioController.delete);
+router.delete("/municipios/:id", authMiddleware, MunicipioController.delete);
 
 module.exports = router;

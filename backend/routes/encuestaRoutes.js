@@ -5,6 +5,7 @@ const EncuestaController = require("../controllers/encuestaController");
 const multer = require("multer");
 const upload = multer();
 const rateLimit = require("express-rate-limit");
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 const encuestaLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -17,9 +18,9 @@ router.get("/activa", EncuestaController.obtenerActiva);
 // CRUD
 router.get("/", EncuestaController.listar);
 router.get("/:id", EncuestaController.obtener);
-router.post("/", upload.none(), EncuestaController.crear);
-router.put("/:id", upload.none(), EncuestaController.actualizar);
-router.delete("/:id", EncuestaController.eliminar);
+router.post("/", authMiddleware, upload.none(), EncuestaController.crear);
+router.put("/:id", authMiddleware, upload.none(), EncuestaController.actualizar);
+router.delete("/:id", authMiddleware, EncuestaController.eliminar);
 
 // Votar
 router.post("/:idEncuesta/votar/:idOpcion", encuestaLimiter, EncuestaController.votar);

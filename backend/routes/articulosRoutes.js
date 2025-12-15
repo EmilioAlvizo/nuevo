@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const ArticulosRevistaController = require('../controllers/articulosController');
 const { crearUpload } = require('../middleware/uploadMiddleware');
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 // Configurar upload para esta tabla
 const uploadArticulosRevista = crearUpload('articulos', {
@@ -19,14 +20,14 @@ router.get('/valores-unicos', ArticulosRevistaController.getValoresUnicos);
 router.get('/:id', ArticulosRevistaController.getById);
 
 // Rutas con carga de archivos
-router.post('/', uploadArticulosRevista.fields([
+router.post('/', authMiddleware, uploadArticulosRevista.fields([
   { name: 'imagen', maxCount: 1 }
 ]), ArticulosRevistaController.create);
 
-router.put('/:id', uploadArticulosRevista.fields([
+router.put('/:id', authMiddleware, uploadArticulosRevista.fields([
   { name: 'imagen', maxCount: 1 }
 ]), ArticulosRevistaController.update);
 
-router.delete('/:id', ArticulosRevistaController.delete);
+router.delete('/:id', authMiddleware, ArticulosRevistaController.delete);
 
 module.exports = router;

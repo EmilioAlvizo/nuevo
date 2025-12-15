@@ -16,9 +16,9 @@ router.get("/propuestas/:id", Propuestas_accionController.getById);
 router.post("/propuestas", Propuestas_accionController.create);
 
 // PUT - Actualizar un registro
-router.put("/propuestas/:id", Propuestas_accionController.update);
+router.put("/propuestas/:id", authMiddleware, Propuestas_accionController.update);
 
 // DELETE - Eliminar un registro
-router.delete("/propuestas/:id", Propuestas_accionController.delete);
+router.delete("/propuestas/:id", authMiddleware, Propuestas_accionController.delete);
 
 module.exports = router;
