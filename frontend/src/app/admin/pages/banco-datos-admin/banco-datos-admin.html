@@ -1,83 +1,510 @@
-<!-- <p-toast></p-toast>
+<p-toast></p-toast>
 
-<div class="propuestas-admin-container">
+<div class="file-manager-container">
+  <div class="header">
+    <h1><i class="pi pi-cloud"></i> Banco de Datos</h1>
+    <p-button 
+      icon="pi pi-refresh" 
+      [rounded]="true"
+      [outlined]="true"
+      (onClick)="recargarDatos()"
+      [loading]="archivoService.cargando()"
+      pTooltip="Recargar datos">
+    </p-button>
+  </div>
 
-  <p-toolbar styleClass="mb-4">
-    <ng-template pTemplate="left">
-      <h2 class="m-0">Propuestas de acción</h2>
-    </ng-template>
-  </p-toolbar>
+  @if (platform.isBrowser) {
 
-  <p-card>
-    <p-table 
-      [value]="propuestas" 
-      [loading]="loading"
-      [paginator]="true" 
-      [rows]="10"
-      [rowsPerPageOptions]="[5, 10, 20]"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} propuestas"
-      [tableStyle]="{ 'min-width': '80rem' }"
-      styleClass="p-datatable-striped"
-      responsiveLayout="scroll">
-      
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 5%">ID</th>
-          <th style="width: 10%">Municipio</th>
-          <th style="width: 15%">Nombre</th>
-          <th style="width: 8%">Sexo</th>
-          <th style="width: 8%">Edad</th>
-          <th style="width: 12%">Actividad</th>
-          <th style="width: 15%">Correo</th>
-          <th style="width: 10%">Zona</th>
-          <th style="width: 25%">Detalle</th>
-          <th style="width: 25%">Justificación</th>
-          <th style="width: 25%">Necesidades</th>
-          <th style="width: 12%">Fecha Registro</th>
-        </tr>
-      </ng-template>
+  <p-tabs [value]="vistaActiva()">
+    <p-tablist>
+      <p-tab value="0" leftIcon="pi pi-folder">Categorías</p-tab>
+      <p-tab value="1" leftIcon="pi pi-table">Listado</p-tab>
+    </p-tablist>
+    
+    <p-tabpanels>
 
-      <ng-template pTemplate="body" let-p>
-        <tr>
-          <td>{{ p.id_propuesta }}</td>
-          <td>{{ p.id_municipio }}</td>
-          <td>{{ p.nombreC }}</td>
-          <td>{{ p.sexo }}</td>
-          <td>{{ p.edad }}</td>
-          <td>{{ p.actividad }}</td>
-          <td>{{ p.correo }}</td>
-          <td>{{ p.zona }}</td>
-          <td>
-            <span pTooltip="{{ p.detalle }}" tooltipPosition="top">
-              {{ p.detalle | slice:0:50 }}{{ p.detalle?.length > 50 ? '...' : '' }}
-            </span>
-          </td>
-          <td>
-            <span pTooltip="{{ p.justificacion }}" tooltipPosition="top">
-              {{ p.justificacion | slice:0:50 }}{{ p.justificacion?.length > 50 ? '...' : '' }}
-            </span>
-          </td>
-          <td>
-            <span pTooltip="{{ p.necesidades }}" tooltipPosition="top">
-              {{ p.necesidades | slice:0:50 }}{{ p.necesidades?.length > 50 ? '...' : '' }}
-            </span>
-          </td>
-          <td>{{ p.fecha_registro | date:'dd/MM/yyyy HH:mm':'UTC' }}</td>
-        </tr>
-      </ng-template>
+      <!-- ========== TAB: CATEGORÍAS ========== -->
+      <p-tabpanel value="0">
+        <div class="vista-categorias">
+          <div class="toolbar">
+            <p-button 
+              label="Nueva Carpeta" 
+              icon="pi pi-folder-plus" 
+              (onClick)="abrirDialogNuevaCarpeta()"
+              severity="success"
+              [outlined]="true">
+            </p-button>
+            <p-button 
+              label="Subir Archivo" 
+              icon="pi pi-upload" 
+              (onClick)="abrirDialogSubida()"
+              [disabled]="!categoriaSeleccionada() || categoriaSeleccionada()!.type !== 'folder'"
+              severity="primary">
+            </p-button>
+            <p-button 
+              label="Eliminar Carpeta" 
+              icon="pi pi-trash" 
+              (onClick)="eliminarCarpeta()"
+              [disabled]="!categoriaSeleccionada() || categoriaSeleccionada()!.type !== 'folder'"
+              severity="danger"
+              [outlined]="true">
+            </p-button>
+          </div>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="12" class="text-center">
-            <div class="empty-message">
-              <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-              <p>No hay propuestas registradas</p>
+          <div class="contenido-arbol">
+            <p-tree 
+              [value]="categorias()" 
+              selectionMode="single"
+              [(selection)]="nodoSeleccionado"
+              (onNodeSelect)="onSeleccionNodo($event)"
+              (onNodeUnselect)="onSeleccionNodo($event)"
+              (onNodeClick)="onNodoClick($event)"
+              [filter]="true"
+              filterMode="lenient"
+              filterPlaceholder="Buscar..."
+              class="arbol-categorias">
+
+              <ng-template let-node pTemplate="default">
+                <div class="nodo-contenido">
+                  <span class="nodo-label">{{ node.label }}</span>
+                  <span class="nodo-acciones" *ngIf="node.data?.type === 'file' && node.data.fileId">
+                    <p-button 
+                      icon="pi pi-eye" 
+                      [rounded]="true" 
+                      [text]="true"
+                      size="small"
+                      (onClick)="visualizarArchivo(archivoService.getArchivoPorId(node.data.fileId)!); $event.stopPropagation()"
+                      pTooltip="Ver">
+                    </p-button>
+                    <p-button 
+                      icon="pi pi-download" 
+                      [rounded]="true" 
+                      [text]="true"
+                      size="small"
+                      severity="success"
+                      (onClick)="descargarArchivo(archivoService.getArchivoPorId(node.data.fileId)!); $event.stopPropagation()"
+                      pTooltip="Descargar">
+                    </p-button>
+                  </span>
+                </div>
+              </ng-template>
+            </p-tree>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <!-- ========== TAB: LISTADO ========== -->
+      <p-tabpanel value="1">
+        <p-table 
+          [value]="archivosTabla()" 
+          [paginator]="true" 
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [tableStyle]="{'min-width': '60rem'}"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} archivos"
+          [globalFilterFields]="['nombre', 'tema_designado', 'atributo', 'categoria']"
+          [loading]="archivoService.cargando()"
+          #dt1>
+          
+          <ng-template pTemplate="caption">
+            <div class="table-header">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input 
+                  pInputText 
+                  type="text" 
+                  (input)="dt1.filterGlobal($any($event.target).value, 'contains')"
+                  placeholder="Buscar..." />
+              </span>
             </div>
-          </td>
-        </tr>
-      </ng-template>
+          </ng-template>
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+              <th pSortableColumn="tema_designado">Tema <p-sortIcon field="tema_designado"></p-sortIcon></th>
+              <th pSortableColumn="categoria">Categoría <p-sortIcon field="categoria"></p-sortIcon></th>
+              <th pSortableColumn="fecha">Fecha <p-sortIcon field="fecha"></p-sortIcon></th>
+              <th pSortableColumn="estatus">Estatus <p-sortIcon field="estatus"></p-sortIcon></th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-archivo>
+            <tr>
+              <td>
+                <i [class]="getIconoClasificacion(archivo.archivo || '')"></i>
+                {{ archivo.nombre }}
+              </td>
+              <td>{{ archivo.tema_designado || '-' }}</td>
+              <td>
+                <p-tag 
+                  [value]="archivo.categoria || 'Sin categoría'"
+                  severity="info">
+                </p-tag>
+              </td>
+              <td>{{ formatearFecha(archivo.fecha) }}</td>
+              <td>
+                <p-tag 
+                  [value]="archivo.estatus === 'A' ? 'Activo' : 'Inactivo'"
+                  [severity]="archivo.estatus === 'A' ? 'success' : 'danger'">
+                </p-tag>
+              </td>
+              <td>
+                <p-button 
+                  icon="pi pi-eye" 
+                  [rounded]="true" 
+                  [text]="true"
+                  (onClick)="visualizarArchivo(archivo)"
+                  pTooltip="Ver">
+                </p-button>
+                <p-button 
+                  icon="pi pi-pencil" 
+                  [rounded]="true" 
+                  [text]="true"
+                  (onClick)="editarArchivo(archivo)"
+                  pTooltip="Editar">
+                </p-button>
+                <p-button 
+                  icon="pi pi-trash" 
+                  [rounded]="true" 
+                  [text]="true"
+                  severity="danger"
+                  (onClick)="eliminarArchivo(archivo)"
+                  pTooltip="Eliminar">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="text-center">No se encontraron archivos</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-tabpanel>
 
-    </p-table>
-  </p-card>
-</div> -->
+    </p-tabpanels>
+  </p-tabs>
+
+  } @else {
+    <!-- PLACEHOLDER PARA SSR -->
+    <div class="p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0">Gestión de Banco de Datos</h3>
+        <div class="text-muted">
+          <i class="pi pi-spin pi-spinner"></i> Cargando...
+        </div>
+      </div>
+      
+      <div class="border rounded p-4 bg-light">
+        <div class="animate-pulse space-y-3">
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+          <div class="bg-secondary bg-opacity-25 rounded" style="height: 40px;"></div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ========== DIALOG: SUBIR ARCHIVO ========== -->
+<p-dialog 
+  header="Subir Archivo Excel" 
+  [visible]="mostrarDialogSubida()"
+  (visibleChange)="mostrarDialogSubida.set($event)"
+  [modal]="true"
+  [style]="{width: '700px'}"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <form [formGroup]="formularioArchivo" class="formulario-archivo">
+    <div class="field">
+      <label for="archivo">Seleccionar Archivo Excel * (.xlsx, .xls)</label>
+      <p-fileUpload 
+        mode="basic" 
+        chooseLabel="Elegir archivo Excel"
+        [auto]="true"
+        (onSelect)="onSeleccionArchivo($event)"
+        accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+        [maxFileSize]="10000000">
+      </p-fileUpload>
+      <small *ngIf="archivoSeleccionado()" class="archivo-seleccionado">
+        <i class="pi pi-check-circle text-green-600"></i> {{ archivoSeleccionado()!.name }}
+      </small>
+    </div>
+
+    <div class="field">
+      <label for="nombre">Nombre del Documento *</label>
+      <input 
+        id="nombre" 
+        type="text" 
+        pInputText 
+        formControlName="nombre"
+        placeholder="Ej: Reporte Anual 2024" />
+    </div>
+
+    <div class="field">
+      <label for="tema_designado">Tema Designado</label>
+      <input 
+        id="tema_designado" 
+        type="text" 
+        pInputText 
+        formControlName="tema_designado" />
+    </div>
+
+    <div class="field">
+      <label for="atributo">Atributo</label>
+      <input 
+        id="atributo" 
+        type="text" 
+        pInputText 
+        formControlName="atributo" />
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <label for="anio_informacion">Año de Información</label>
+        <input 
+          id="anio_informacion" 
+          type="text" 
+          pInputText 
+          formControlName="anio_informacion" />
+      </div>
+      <div class="col-6">
+        <label for="fecha">Fecha</label>
+        <p-datepicker 
+          formControlName="fecha"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy">
+        </p-datepicker>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="origen_institucion">Origen Institución</label>
+      <input 
+        id="origen_institucion" 
+        type="text" 
+        pInputText 
+        formControlName="origen_institucion" />
+    </div>
+
+    <div class="field">
+      <label for="link">Link (URL)</label>
+      <input 
+        id="link" 
+        type="text" 
+        pInputText 
+        formControlName="link" />
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogSubida.set(false)"
+      [outlined]="true">
+    </p-button>
+    <p-button 
+      label="Subir Excel" 
+      icon="pi pi-upload" 
+      (onClick)="subirArchivo()"
+      [loading]="archivoService.cargando()"
+      [disabled]="!formularioArchivo.valid || !archivoSeleccionado()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- ========== DIALOG: NUEVA CARPETA ========== -->
+<p-dialog 
+  header="Nueva Carpeta" 
+  [visible]="mostrarDialogNuevaCarpeta()"
+  (visibleChange)="mostrarDialogNuevaCarpeta.set($event)"
+  [modal]="true"
+  [style]="{width: '400px'}">
+  
+  <div class="field">
+    <label for="nombreCarpeta">Nombre de la Carpeta</label>
+    <input 
+      id="nombreCarpeta" 
+      type="text" 
+      pInputText 
+      [ngModel]="nombreNuevaCarpeta()"
+      (ngModelChange)="nombreNuevaCarpeta.set($event)"
+      placeholder="Ej: Documentos 2024" />
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogNuevaCarpeta.set(false)"
+      [outlined]="true">
+    </p-button>
+    <p-button 
+      label="Crear" 
+      icon="pi pi-check" 
+      (onClick)="crearCarpeta()"
+      [disabled]="!nombreNuevaCarpeta()?.trim()">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- ========== DIALOG: VISUALIZADOR ========== -->
+<p-dialog 
+  [header]="archivoParaVisualizar()?.nombre || 'Vista previa'" 
+  [visible]="mostrarDialogVisualizador()"
+  (visibleChange)="mostrarDialogVisualizador.set($event)"
+  [modal]="true"
+  [style]="{width: '80vw', height: '80vh'}"
+  [maximizable]="true">
+  
+  <div class="visualizador-contenido" *ngIf="archivoParaVisualizar()">
+    <div class="metadatos-archivo">
+      <div class="metadato-item">
+        <strong>Tema:</strong> {{ archivoParaVisualizar()!.tema_designado || '-' }}
+      </div>
+      <div class="metadato-item">
+        <strong>Categoría:</strong> {{ archivoParaVisualizar()!.categoria || '-' }}
+      </div>
+      <div class="metadato-item">
+        <strong>Fecha:</strong> {{ formatearFecha(archivoParaVisualizar()!.fecha) }}
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <iframe 
+        *ngIf="urlVisualizacion()"
+        [src]="'https://view.officeapps.live.com/op/embed.aspx?src=' + urlVisualizacion() | safe: 'resourceUrl'"
+        width="100%" 
+        height="600px"
+        frameborder="0">
+      </iframe>
+      
+      <div 
+        *ngIf="!urlVisualizacion()"
+        class="no-preview">
+        <i class="pi pi-file-excel" style="font-size: 4rem"></i>
+        <p>Vista previa no disponible</p>
+        <p-button 
+          label="Descargar archivo" 
+          icon="pi pi-download"
+          (onClick)="descargarArchivo(archivoParaVisualizar()!)">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Descargar" 
+      icon="pi pi-download" 
+      (onClick)="descargarArchivo(archivoParaVisualizar()!)"
+      severity="success">
+    </p-button>
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogVisualizador.set(false)"
+      [outlined]="true">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- ========== DIALOG: EDITAR ARCHIVO ========== -->
+<p-dialog 
+  header="Editar Archivo Excel" 
+  [visible]="mostrarDialogEdicion()"
+  (visibleChange)="mostrarDialogEdicion.set($event)"
+  [modal]="true"
+  [style]="{width: '700px'}"
+  [draggable]="false"
+  [resizable]="false">
+  
+  <form [formGroup]="formularioEdicion" class="formulario-archivo">
+    <div class="field">
+      <label for="nombreEdit">Nombre del Documento *</label>
+      <input 
+        id="nombreEdit" 
+        type="text" 
+        pInputText 
+        formControlName="nombre" />
+    </div>
+
+    <div class="field">
+      <label for="tema_designado_edit">Tema Designado</label>
+      <input 
+        id="tema_designado_edit" 
+        type="text" 
+        pInputText 
+        formControlName="tema_designado" />
+    </div>
+
+    <div class="field">
+      <label for="atributo_edit">Atributo</label>
+      <input 
+        id="atributo_edit" 
+        type="text" 
+        pInputText 
+        formControlName="atributo" />
+    </div>
+
+    <div class="grid">
+      <div class="col-6">
+        <label for="anio_edit">Año</label>
+        <input 
+          id="anio_edit" 
+          type="text" 
+          pInputText 
+          formControlName="anio_informacion" />
+      </div>
+      <div class="col-6">
+        <label for="fecha_edit">Fecha</label>
+        <p-datepicker 
+          formControlName="fecha"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy">
+        </p-datepicker>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="link_edit">Link</label>
+      <input 
+        id="link_edit" 
+        type="text" 
+        pInputText 
+        formControlName="link" />
+    </div>
+
+    <div class="field">
+      <label for="estatus_edit">Estatus</label>
+      <p-select 
+        formControlName="estatus"
+        [options]="[{label: 'Activo', value: 'A'}, {label: 'Inactivo', value: 'B'}]"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Seleccione">
+      </p-select>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cancelar" 
+      icon="pi pi-times" 
+      (onClick)="mostrarDialogEdicion.set(false)"
+      [outlined]="true">
+    </p-button>
+    <p-button 
+      label="Guardar" 
+      icon="pi pi-check" 
+      (onClick)="guardarEdicion()"
+      [loading]="archivoService.cargando()"
+      [disabled]="!formularioEdicion.valid">
+    </p-button>
+  </ng-template>
+</p-dialog>
