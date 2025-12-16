@@ -10,11 +10,16 @@
 
   <p-card>
 
-    <p-accordion [multiple]="true">
+    <p-accordion
+      [multiple]="true"
+      [value]="activeIndexes()"
+    >
+
 
       <ng-container *ngFor="let p of propuestas(); let i = index">
 
-        <p-accordion-panel [value]="i">
+        <p-accordion-panel [value]="i"
+          [ngClass]="{'highlight-panel': highlight.highlightedId() === p.id_propuesta}">
 
           <!-- ENCABEZADO -->
           <p-accordion-header>
@@ -65,11 +70,6 @@
       </ng-container>
 
     </p-accordion>
-
-    <!-- <div *ngIf="!propuestas.length && !loading" class="empty-message">
-      <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-      <p>No hay propuestas registradas</p>
-    </div> -->
 
     @if (!propuestas.length && !loading) {
       <div class="empty-message">

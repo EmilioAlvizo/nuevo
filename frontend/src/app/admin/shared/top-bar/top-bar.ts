@@ -21,8 +21,7 @@ import { NotificationService, Notificacion } from '../../../core/services/notifi
   imports: [CommonModule, RouterModule],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [NotificationService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopBar implements OnInit, OnDestroy {
   // Services

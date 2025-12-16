@@ -37,12 +37,18 @@
           <div class="fecha">{{ n.timestamp | date:'short' }}</div>
         </div>
 
-        <a *ngIf="n.link"
+        <!-- <a *ngIf="n.link"
           class="notif-link"
           [routerLink]="n.link">
           Ver detalle →
         </a>
-      </div>
+      </div> -->
+
+      <a *ngIf="n.link"
+        class="notif-link"
+        (click)="verDetalleNotificacion(n)">  <!-- ✅ Cambiar a click -->
+        Ver detalle →
+      </a>
 
       <button class="btn-recibido" (click)="marcarRecibida(n.id)">
         Recibido

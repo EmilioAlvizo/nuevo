@@ -17,7 +17,6 @@ import { environment } from '../../../../environments/environment';
 import { ApiPropuesta, Propuesta } from '../../../core/services/propuestas_accion';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { NotificationService } from '../../../core/services/notificacion';
-import { Router } from '@angular/router';
 
 // PrimeNG
 import { DialogModule } from 'primeng/dialog';
@@ -30,6 +29,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-form-propuesta',
@@ -44,6 +44,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     DatePickerModule,
     TagModule,
     AutoCompleteModule,
+    ConfirmDialogModule,
   ],
   templateUrl: './form-propuesta.html',
   styleUrl: './form-propuesta.css',
@@ -85,7 +86,7 @@ export class FormPropuesta {
   propuestaForm: FormGroup;
   private lastLoadedId: number | null = null;
 
-  constructor(private cdr: ChangeDetectorRef, private router: Router) {
+  constructor() {
     this.propuestaForm = this.fb.group({
       nombre: ['', Validators.required],
       sexo: ['', Validators.required],
@@ -113,6 +114,7 @@ export class FormPropuesta {
       }
     });
   }
+
 
   sexoOptions = [
     { label: 'Mujer', value: 'Mujer' },
@@ -161,12 +163,11 @@ export class FormPropuesta {
       message: '¿Estás seguro de enviar la propuesta? Una vez enviada, esta será revisada por el equipo correspondiente y no podrá ser modificada. ¿Deseas continuar con el envío?',
       header: 'Confirmación',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí',
-      rejectLabel: 'No',
+      acceptLabel: 'Sí, enviar',
+      rejectLabel: 'No, cancelar',
       accept: () => this.handleSubmit(),
     });
   }
-
 
   handleSubmit(): void {
     if (this.propuestaForm.invalid) {
@@ -197,24 +198,47 @@ export class FormPropuesta {
           detail: 'Propuesta registrada correctamente',
         });
 
-        // 🔔 Extraer ID de diferentes posibles ubicaciones
-        const idPropuesta = resp?.data?.id_propuesta || 
-                          resp?.data?.insertId || 
-                          resp?.insertId ||
-                          resp?.id_propuesta;
+        // 🔔 Extraer ID de la respuesta
+        let idPropuesta = null;
         
-        console.log('✅ ID Propuesta:', idPropuesta);
-
-        // Crear notificación con link que incluye query param para resaltar
-        this.notifs.agregar(
-          `Nueva propuesta de acción registrada por ${form.nombre}`,
-          {
-            tipo: 'propuesta',
-            idReferencia: idPropuesta,
-            // link: `/admin/propuestas-accion?highlight=${idPropuesta}`
-            link: `/admin/propuestas-accion`
+        if (resp?.data?.id_propuesta) {
+          const idProp = resp.data.id_propuesta;
+          
+          // Si id_propuesta es un objeto, buscar el ID dentro
+          if (typeof idProp === 'object' && idProp !== null) {
+            idPropuesta = idProp.id || idProp.insertId || idProp.id_propuesta;
+          } 
+          // Si id_propuesta ya es el número
+          else if (typeof idProp === 'number' || !isNaN(Number(idProp))) {
+            idPropuesta = Number(idProp);
           }
-        );
+        }
+        
+        // Fallback: buscar en otras ubicaciones
+        if (!idPropuesta) {
+          idPropuesta = resp?.data?.id || 
+                      resp?.insertId || 
+                      resp?.id;
+        }
+
+        // ⚠️ VALIDAR que sea un número
+        if (typeof idPropuesta === 'number' || (typeof idPropuesta === 'string' && !isNaN(Number(idPropuesta)))) {
+          const idNumerico = Number(idPropuesta);
+          
+          // Crear notificación con el ID numérico correcto
+          this.notifs.agregar(
+            `Nueva propuesta de acción registrada por ${form.nombre}`,
+            {
+              tipo: 'propuesta',
+              idReferencia: idNumerico, // ✅ SOLO EL NÚMERO
+              link: `/admin/propuestas-accion`
+            }
+          );
+          
+          console.log('✅ Notificación creada con ID:', idNumerico);
+        } else {
+          console.error('❌ No se pudo extraer un ID válido de la respuesta:', resp);
+        }
 
         this.visibleChange.emit(false);
       },
@@ -229,7 +253,6 @@ export class FormPropuesta {
       },
     });
   }
-
 
   handleCancel(): void {
     this.resetForm();
@@ -293,4 +316,5 @@ export class FormPropuesta {
 
     this.propuestaForm.get('especifica')?.updateValueAndValidity();
   }
+
 }

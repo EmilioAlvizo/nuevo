@@ -1,18 +1,57 @@
+/* ============================================
+   PROPUESTAS ACCIÓN ADMIN - ESTILOS
+   ============================================ */
+
 .propuestas-admin-container {
   padding: 2rem;
   max-width: 1000px;
   margin: 0 auto;
   background-color: #f8f9fa;
   min-height: 100vh;
+  scroll-behavior: smooth;
 }
 
-/* Card */
-::ng-deep .p-card {
+/* ============================================
+   CARD
+   ============================================ */
+.p-card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
 
-/* Encabezado del panel */
+/* ============================================
+   TOOLBAR
+   ============================================ */
+.p-toolbar {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+/* ============================================
+   ACCORDION - ESTILOS BASE
+   ============================================ */
+.p-accordion .p-accordion-header-link {
+  background-color: white;
+  border-radius: 6px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.p-accordion .p-accordion-header-link:hover {
+  background-color: #f8f9fa;
+}
+
+.p-accordion .p-accordion-content {
+  background-color: white;
+  border: none;
+  padding: 1.5rem;
+}
+
+/* ============================================
+   ENCABEZADO DEL PANEL
+   ============================================ */
 .accordion-header {
   display: flex;
   justify-content: space-between;
@@ -42,7 +81,9 @@
   color: #6c757d;
 }
 
-/* Contenido */
+/* ============================================
+   CONTENIDO DEL PANEL
+   ============================================ */
 .panel-content {
   padding: 0.5rem 0;
   animation: fadeIn 0.3s ease;
@@ -60,7 +101,9 @@
   margin: 0.25rem 0 0.75rem;
 }
 
-/* Grid de info adicional */
+/* ============================================
+   GRID DE INFORMACIÓN
+   ============================================ */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -68,6 +111,9 @@
   margin-top: 1rem;
 }
 
+/* ============================================
+   MENSAJE VACÍO
+   ============================================ */
 .empty-message {
   padding: 2.5rem;
   text-align: center;
@@ -75,66 +121,84 @@
   color: #6c757d;
 }
 
-/* Toolbar */
-::ng-deep .p-toolbar {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
+/* ============================================
+   ✨ HIGHLIGHT DE NOTIFICACIONES ✨
+   ============================================ */
+
+/* Contenedor del panel resaltado */
+.highlight-panel {
+  position: relative;
+  z-index: 10;
+
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%) !important;
+  border: 2px solid #ffc107 !important;
+  box-shadow: 0 8px 24px rgba(255, 193, 7, 0.4),
+              0 0 0 4px rgba(255, 193, 7, 0.2) !important;
 }
 
-/* Accordion global styles */
-::ng-deep .p-accordion .p-accordion-header-link {
-  background-color: white;
-  border-radius: 6px;
-  padding: 1rem;
-  transition: all 0.3s ease;
+/* Forzar animación en el panel completo */
+.highlight-panel {
+  animation: highlight-pulse-effect 1s ease-in-out, 
+             shine-effect 1s ease-in-out !important;
 }
 
-::ng-deep .p-accordion .p-accordion-header-link:hover {
-  background-color: #f8f9fa;
+.highlight-panel .accordion-header {
+  font-weight: 700 !important;
 }
 
-::ng-deep .p-accordion .p-accordion-content {
-  background-color: white;
-  border: none;
-  padding: 1.5rem;
-}
-
-/* 🎨 Animación de highlight para notificaciones */
-@keyframes highlight-pulse {
-  0% {
-    background-color: #fff3cd;
-    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+/* Animación de pulsación */
+@keyframes highlight-pulse-effect {
+  0%, 100% {
+    transform: scale(1);
   }
   50% {
-    background-color: #ffeaa7;
-    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
-  }
-  100% {
-    background-color: white;
-    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+    transform: scale(1.02);
   }
 }
 
-/* Aplicar highlight al acordeón completo */
-::ng-deep .p-accordion-tab.highlighted .p-accordion-header-link {
-  animation: highlight-pulse 1.5s ease-in-out 2;
-  border: 2px solid #ffc107 !important;
+/* Animación de brillo */
+@keyframes shine-effect {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(255, 193, 7, 0.4),
+                0 0 0 4px rgba(255, 193, 7, 0.2);
+  }
+  50% {
+    box-shadow: 0 12px 32px rgba(255, 193, 7, 0.6),
+                0 0 0 6px rgba(255, 193, 7, 0.3);
+  }
 }
 
-/* Clase temporal para la animación */
-::ng-deep .highlight-animation .p-accordion-header-link {
-  animation: highlight-pulse 1.5s ease-in-out 2;
-  border: 2px solid #ffc107 !important;
+/* Animación de rebote para scroll */
+@keyframes scroll-bounce-effect {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
-/* Animación de entrada */
+.scroll-bounce {
+  animation: scroll-bounce-effect 0.6s ease-in-out;
+}
+
+/* ============================================
+   ANIMACIÓN FADE IN
+   ============================================ */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 576px) {
   .accordion-header {
     flex-direction: column;

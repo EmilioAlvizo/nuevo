@@ -1,5 +1,7 @@
 import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
+import { HighlightService } from './highlight';
 
 export interface Notificacion {
   id: number;
@@ -23,7 +25,10 @@ export class NotificationService {
 
   private autoId = 1;
 
-  constructor() {
+  constructor(
+    private router: Router,
+    private highlight: HighlightService,
+    ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     if (this.isBrowser) {
       this.cargarNotificaciones();
@@ -129,4 +134,17 @@ export class NotificationService {
   get contadorNoLeidas(): number {
     return this._notificaciones().filter(n => !n.leida).length;
   }
+
+  verDetalle(n: Notificacion) {
+    if (!n.link || !n.idReferencia) return;
+
+    this.router.navigateByUrl(n.link).then(() => {
+      this.highlight.highlight(n.idReferencia!);
+    });
+
+    // Marcar como leída directamente
+    // this.marcarComoLeida(n.id);
+  }
+
+
 }

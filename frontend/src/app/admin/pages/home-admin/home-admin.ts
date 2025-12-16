@@ -1,13 +1,12 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, User } from '../../../core/services/auth.service';
-import { NotificationService } from '../../../core/services/notificacion';
-import { RouterLink } from '@angular/router';
+import { NotificationService, Notificacion } from '../../../core/services/notificacion';
 
 @Component({
   selector: 'app-home-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './home-admin.html',
   styleUrls: ['./home-admin.css']
 })
@@ -32,7 +31,11 @@ export class HomeAdmin implements OnInit {
   }
 
   marcarRecibida(id: number) {
-    this.notifs.marcarComoLeida(id);
+   this.notifs.marcarComoLeida(id);
+  }
+
+  verDetalleNotificacion(n: Notificacion) {
+   this.notifs.verDetalle(n);
   }
 
 }

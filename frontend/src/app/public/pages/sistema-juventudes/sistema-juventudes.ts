@@ -43,23 +43,14 @@ export class SistemaJuventudes {
     {
       title: 'Sistema de Monitoreo y Evaluación',
       description: 'Espacio digital donde se publican documentos y resultados relacionados con el seguimiento y evaluación de programas.',
-      image: `${this.publicUrl}/sistema_juventudes/monitoreo_evaluacion.png`,
+      image: `${this.publicUrl}/sistema_juventudes/monitoreo_y_evaluacion.png`,
       link: 'https://juventudesgto.guanajuato.gob.mx/index.php/resultados-de-evaluacion/'
     }
   ]);
 
-  // Señal para card activa
-  // activeCard = signal<string>(''); // guarda el link de la card activa
-
-  // // Método para seleccionar card desde la navegación
-  // setActiveCard(link: string) {
-  //   this.activeCard.set(link);
-  // }
-
   navigateToFeatured(link: string): void {
     window.open(link, '_blank');
   }
-
 
 
   flipped: { [key: number]: boolean } = {};

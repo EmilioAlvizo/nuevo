@@ -130,7 +130,6 @@ export class FormTestimonios {
   });
   }
 
-  // Envía el formulario realmente
   private handleSubmit(): void {
     const fd = new FormData();
     Object.entries(this.form.value).forEach(([key, value]) => {

@@ -33,10 +33,6 @@
   transition: max-height 0.4s ease;
 }
 
-.top-bar-content.expanded {
-  /* max-height: 800px; */
-}
-
 .top-bar-main {
   padding: 8px 40px;
   display: flex;
@@ -401,8 +397,6 @@
     max-width: 90rem;
   }
 }
-
-
 
 /* ==================== NOTIFICACIONES ==================== */
 /* === Contenedor de usuario + campana === */
