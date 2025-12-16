@@ -54,7 +54,7 @@ export class RevistaDetalle {
   publicUrl = environment.publicUrl;
 
   // View Child Signal
-  flipbookRef = viewChild(Flipbook);
+  flipbookRef = viewChild(Flipbook2);
 
   items: MenuItem[] = [];
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
@@ -156,25 +156,41 @@ export class RevistaDetalle {
     }
   }
 
-  abrirFlipbookEnPagina(pagina: number | null) {
+  // Sustituye tu método actual por este:
+  abrirFlipbookEnPagina(pagina: number | string | null) {
     if (!pagina) return;
 
+    // 1. FORZAR CONVERSIÓN A NÚMERO
+    // Esto previene errores si la API devuelve "05" o "5" como texto
+    const paginaNumero = Number(pagina);
+
     const flipbook = this.flipbookRef();
+
+    // 2. DIAGNÓSTICO EN CONSOLA
+    // Si no sale este log, el viewChild no está encontrando el componente
     if (!flipbook) {
-      console.error('Flipbook component not ready');
+      console.error('❌ Error: No se encuentra el componente Flipbook2 en la vista.');
       return;
     }
 
-    // Ahora Flipbook.goToPage contiene TU lógica original de cálculo de folios
-    flipbook.goToPage(pagina);
+    // 3. VERIFICAR SI EL PDF ESTÁ LISTO
+    // El flipbook necesita tener folios generados para poder navegar
+    if (flipbook.folios().length === 0) {
+        console.warn('⚠️ El PDF aún no se ha cargado o procesado. Intenta de nuevo en un momento.');
+        return;
+    }
 
-    // Restaurar el comportamiento de scroll suave del original
+    console.log(`✅ Navegando a página: ${paginaNumero} (Original: ${pagina})`);
+
+    // 4. LLAMADA AL COMPONENTE
+    flipbook.goToPage(paginaNumero);
+
+    // 5. SCROLL SUAVE
     setTimeout(() => {
-      // Intentamos buscar por clase wrapper o stage
-      const flipbookEl =
-        document.querySelector('.flipbook-wrapper') || document.querySelector('.book-stage');
-      if (flipbookEl) {
-        flipbookEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Intentamos buscar por la etiqueta del componente nuevo
+      const element = document.querySelector('app-flipbook2');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }, 100);
   }

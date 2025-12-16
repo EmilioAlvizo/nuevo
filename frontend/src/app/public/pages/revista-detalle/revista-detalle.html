@@ -1,23 +1,28 @@
-<div class="min-h-screen bg-gray-50 flex flex-col">
+<div class="min-h-screen !bg-[#ecf0f0] flex flex-col">
   <!-- Header Section -->
-  <div class="bg-white shadow-sm border-b border-gray-200">
+  <div class="!bg-blue-950 pt-36 shadow-sm border-b border-gray-200">
     <div class="container mx-auto px-4 py-4">
       <!-- Breadcrumb -->
-      <p-breadcrumb [home]="home" [model]="items" styleClass="!bg-transparent !p-0 !text-sm text-gray-500 mb-4" />
+      <p-breadcrumb 
+        [home]="home"
+        [model]="items"
+        styleClass="!bg-transparent !p-0 !text-sm text-gray-500 mb-4"
+      />
 
       <!-- Title & Info  -->
       <div *ngIf="revista()" class="max-w-4xl">
         <div class="flex flex-col md:flex-row md:items-center gap-4 mb-2">
           <span
-            class="inline-block px-2 py-1 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider rounded-sm">
+            class="inline-block px-2 py-1 w-fit bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider rounded-sm"
+          >
             Volumen {{ revista()?.volumen }}
           </span>
           <span class="text-gray-500 text-sm font-medium">
-            {{ revista()?.fecha | date:'MMMM y' }}
+            {{ revista()?.fecha | date : 'MMMM y' }}
           </span>
         </div>
 
-        <h1 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight">
+        <h1 class="text-3xl md:text-4xl font-serif font-bold text-gray-50! leading-tight">
           Volumen {{ revista()?.volumen }} — Año {{ revista()?.numero_year }}
         </h1>
       </div>
@@ -26,19 +31,33 @@
 
   <!-- Content Section -->
   <div class="container mx-auto px-4 py-8 flex-grow" *ngIf="revista()">
-
     <!-- Flipbook Container -->
     <div class="bg-zinc-900 rounded-lg shadow-xl overflow-hidden mb-12 border border-zinc-800">
       <div class="w-full flex justify-center py-8">
         <!-- <app-flipbook [src]="publicUrl+'/revistas/' + revista()?.id_revista + '/archivo/' + revista()?.archivo">
         </app-flipbook> -->
-        <app-flipbook2 [src]="publicUrl+'/revistas/' + revista()?.id_revista + '/archivo/' + revista()?.archivo">
-        </app-flipbook2>
+        <!-- <div style="width: 100%; max-width: 1000px; margin: 0 auto">
+          <app-flipbook2
+            [pageWidth]="2000"
+            [src]="
+              publicUrl + '/revistas/' + revista()?.id_revista + '/archivo/' + revista()?.archivo
+            "
+          >
+          </app-flipbook2>
+        </div> -->
+        <app-flipbook2
+            [pageWidth]="3000"
+            [src]="
+              publicUrl + '/revistas/' + revista()?.id_revista + '/archivo/' + revista()?.archivo
+            "
+          >
+          </app-flipbook2>
       </div>
       <div class="bg-zinc-800 p-3 flex justify-end">
         <button
           class="text-gray-300 hover:text-white text-sm font-medium flex items-center gap-2 transition-colors px-4 py-2 rounded-md hover:bg-zinc-700"
-          (click)="descargarPDF()">
+          (click)="descargarPDF()"
+        >
           <i class="pi pi-download"></i> Descargar PDF
         </button>
       </div>
@@ -46,50 +65,65 @@
 
     <!-- Details & Articles Tabs -->
     <div class="max-w-5xl mx-auto">
-      <p-tabs [(value)]="activeTab">
-        <p-tablist>
+      <p-tabs [(value)]="activeTab" class="!bg-[#ecf0f0]">
+        <p-tablist class="!bg-[#ecf0f0]">
           <div class="flex gap-8 border-b border-gray-200 w-full mb-8">
-            <p-tab value="0"
-              class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors">
+            <p-tab
+              value="0"
+              class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors"
+            >
               Artículos en esta edición
             </p-tab>
-            <p-tab value="1"
-              class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors">
+            <p-tab
+              value="1"
+              class="!bg-transparent !border-0 !border-b-2 !border-transparent aria-selected:!border-blue-600 aria-selected:!text-blue-600 !px-0 !pb-2 !font-semibold text-gray-500 transition-colors"
+            >
               Sobre este volumen
             </p-tab>
           </div>
         </p-tablist>
 
-        <p-tabpanels styleClass="!p-0 !bg-transparent">
-
+        <p-tabpanels styleClass="!p-0" class="!bg-[#ecf0f0]">
           <!-- Tab: Articles List -->
           <p-tabpanel value="0">
             <ng-template #content>
               <div class="space-y-6">
-                <div *ngFor="let articulo of articulos()"
-                  class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm hover:border-blue-200 transition-all flex flex-col md:flex-row gap-6 group">
-
+                <div
+                  *ngFor="let articulo of articulos()"
+                  class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm hover:border-blue-200 transition-all flex flex-col md:flex-row gap-6 group"
+                >
                   <!-- Article Image (if exists) -->
-                  <div *ngIf="articulo.imagen"
-                    class="w-full md:w-32 h-32 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
-                    <img [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen"
-                      class="w-full h-full object-cover">
+                  <div
+                    *ngIf="articulo.imagen"
+                    class="w-full md:w-32 h-32 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden"
+                  >
+                    <img
+                      [src]="
+                        publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen
+                      "
+                      class="w-full h-full object-cover"
+                    />
                   </div>
 
                   <div class="flex-grow">
                     <div class="flex justify-between items-start">
                       <div>
                         <div class="flex items-center gap-2 mb-2">
-                          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pág. {{
-                            articulo.pagina_revista }}</span>
+                          <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                            >Pág. {{ articulo.pagina_revista }}</span
+                          >
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 cursor-pointer"
-                          (click)="abrirFlipbookEnPagina(articulo.pagina_revista)">
+                        <h3
+                          class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 cursor-pointer"
+                          (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
+                        >
                           {{ articulo.titulo }}
                         </h3>
                       </div>
-                      <button class="text-gray-400 hover:text-blue-600 transition-colors"
-                        (click)="abrirFlipbookEnPagina(articulo.pagina_revista)">
+                      <button
+                        class="text-gray-400 hover:text-blue-600 transition-colors"
+                        (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
+                      >
                         <i class="pi pi-book text-xl"></i>
                       </button>
                     </div>
@@ -98,8 +132,10 @@
 
                     <p class="text-gray-600 text-sm line-clamp-2 mb-4">{{ articulo.contenido }}</p>
 
-                    <button (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
-                      class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
+                    <button
+                      (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
+                      class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors"
+                    >
                       Leer en Flipbook <i class="pi pi-arrow-right text-xs"></i>
                     </button>
                   </div>
@@ -113,14 +149,14 @@
             <ng-template #content>
               <div class="bg-white p-8 rounded-lg border border-gray-100 shadow-sm">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">Descripción</h3>
-                <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ revista()?.descripcion }}</p>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                  {{ revista()?.descripcion }}
+                </p>
               </div>
             </ng-template>
           </p-tabpanel>
-
         </p-tabpanels>
       </p-tabs>
     </div>
-
   </div>
 </div>

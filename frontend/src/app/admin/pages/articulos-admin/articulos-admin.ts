@@ -24,6 +24,7 @@ import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { AccordionModule } from 'primeng/accordion';
+import { TextareaModule } from 'primeng/textarea';
 
 import { ApiArticulos, Articulos } from '../../../core/services/articulos';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
@@ -60,6 +61,7 @@ interface GroupedArticulo {
     ToastModule,
     ConfirmDialogModule,
     AccordionModule,
+    TextareaModule
   ],
 })
 export class ArticulosAdmin implements OnInit, OnDestroy {

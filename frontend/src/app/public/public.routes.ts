@@ -21,7 +21,7 @@ export const publicRoutes: Routes = [
   { path: 'estadisticas', component: Estadisticas, data: { ocultarDiv: true } },
   { path: 'revista', component: RevistaVoces, data: { ocultarDiv: true } },
   { path: 'articulo/:id', component: RevistaDetalle },
-  { path: 'revista/:id', component: RevistaDetalle },
+  { path: 'revista/:id', component: RevistaDetalle, data: { ocultarDiv: true } },
   { path: 'revista/:id/articulo', component: Articulos, children: ARTICULOS_CHILD_ROUTES },
   //{ path: 'centro-documental', component: CentroDocumental },
   { path: 'informacion', component: InformacionInteres },

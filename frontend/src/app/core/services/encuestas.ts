@@ -37,6 +37,11 @@ export class ApiEncuestas {
   private apiUrl = `${environment.apiUrl}/encuestas`;
   private http = inject(HttpClient);
 
+  // NUEVO: Obtener última finalizada
+  getUltimaFinalizada(): Observable<EncuestaConOpciones> {
+    return this.http.get<EncuestaConOpciones>(`${this.apiUrl}/ultima-finalizada`);
+  }
+
   // Obtener encuestas
   getFiltrados(): Observable<ApiResponse<Encuesta>> {
     return this.http.get<ApiResponse<Encuesta>>(this.apiUrl);

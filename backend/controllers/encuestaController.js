@@ -36,6 +36,19 @@ class EncuestaController {
     }
   }
 
+  static async obtenerUltimaFinalizada(req, res) {
+    try {
+      const ultima = await EncuestaModel.obtenerUltimaFinalizada();
+      if (!ultima) {
+        // Si no hay ninguna encuesta finalizada, devuelve 404
+        return res.status(404).json({ error: "No hay encuestas finalizadas." });
+      }
+      res.json(ultima);
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+
   static async crear(req, res) {
     try {
       const id = await EncuestaModel.create(req.body);
@@ -65,15 +78,40 @@ class EncuestaController {
 
   static async votar(req, res) {
     try {
-      await VotosModel.registrarVoto(
-        req.params.idEncuesta,
-        req.params.idOpcion,
-        req.body.huella
-      );
+      const idEncuesta = req.params.idEncuesta;
+      const idOpcion = req.params.idOpcion;
+      const huella = req.body.huella;
+
+      // 1. OBTENER LA ENCUESTA Y VERIFICAR CADUCIDAD
+      const encuesta = await EncuestaModel.getById(idEncuesta);
+
+      if (!encuesta) {
+        return res.status(404).json({ error: "Encuesta no encontrada." });
+      }
+
+      // ⚠️ Validación de Fechas CRÍTICA
+      const fechaFin = new Date(encuesta.fechaFin);
+      const hoy = new Date();
+
+      if (hoy > fechaFin) {
+        // Si la encuesta ha caducado, devolvemos un error 403 (Forbidden)
+        return res.status(403).json({ error: "Esta encuesta ha finalizado y no acepta más votos." });
+      }
+
+      // 2. Verificar si ya votó (usando la lógica existente)
+      const votoExistente = await EncuestaModel.yaVoto(idEncuesta, huella);
+      if (votoExistente) {
+        // 409 Conflict si ya votó
+        return res.status(409).json({ error: "Ya has votado en esta encuesta." });
+      }
+
+      // 3. Registrar el voto
+      await EncuestaModel.registrarVoto(idEncuesta, idOpcion, huella);
 
       res.json({ ok: true, message: "Voto registrado" });
     } catch (e) {
-      res.status(400).json({ error: e.message });
+      // Usamos 500 para errores internos (DB, código)
+      res.status(500).json({ error: e.message });
     }
   }
 }

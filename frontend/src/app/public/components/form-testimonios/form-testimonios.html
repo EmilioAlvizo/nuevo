@@ -43,7 +43,7 @@
       <!-- DESCRIPCIÓN -->
       <div class="col-12 mb-3">
         <label class="form-label fw-semibold">Descripción *</label>
-        <textarea rows="4" class="form-control" formControlName="descripcion"></textarea>
+        <textarea rows="4" class="form-control" formControlName="descripcion" placeholder="La descripción debe tener al menos 10 caracteres"></textarea>
         @if (isFieldInvalid('descripcion')) {
         <small class="text-danger">Campo requerido</small>
         }@else {

@@ -36,6 +36,9 @@ export class EncuestaActual implements OnInit {
   cargando = signal(true);
   yaVoto = signal(false);
 
+  // Bandera para saber si es histórica y bloquear botones
+  esHistorial = signal(false);
+
   // Paleta de colores (Bootstrap friendly + Vibrantes)
   // Se usarán en orden para los botones y el gráfico
   readonly colores = [
@@ -71,60 +74,95 @@ export class EncuestaActual implements OnInit {
 
   loadEncuesta() {
     this.cargando.set(true);
+    
+    // 1. Intentamos cargar la Activa
     this.api.getEncuestaActiva().subscribe({
       next: (enc) => {
+        if (enc) {
+            this.esHistorial.set(false); // Es LIVE
+            this.encuesta.set(enc);
+            this.verificarEstadoVoto(enc.idEncuesta);
+            this.cargando.set(false);
+        } else {
+            // 2. Si no devuelve encuesta (null), buscamos la última finalizada
+            this.loadUltimaFinalizada();
+        }
+      },
+      error: (err) => {
+          // Manejar errores de conexión o servidor
+          this.cargando.set(false);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Problema al cargar la encuesta.'});
+      },
+    });
+  }
+
+  loadUltimaFinalizada() {
+    this.api.getUltimaFinalizada().subscribe({
+      next: (enc) => {
+        this.esHistorial.set(true); // Es HISTORIAL
         this.encuesta.set(enc);
         this.cargando.set(false);
+        this.verificarEstadoVoto(enc.idEncuesta); // Aunque esté cerrada, es bueno ver si el usuario votó en su momento
+        
+        /* this.messageService.add({
+          severity: 'info',
+          summary: 'Encuesta Finalizada',
+          detail: 'Mostrando resultados de la última votación.'
+        }); */
       },
-      error: () => this.cargando.set(false),
+      error: (err) => {
+        this.cargando.set(false);
+        // Podría ser un 404 si no hay ninguna encuesta finalizada en la DB
+        if (err.status === 404) {
+            this.encuesta.set(null); // No hay nada que mostrar
+        } else {
+            this.messageService.add({severity: 'error', summary: 'Error', detail: 'No se pudo cargar el historial de encuestas.'});
+        }
+      }
     });
   }
 
   votar(idOpcion: number) {
     const enc = this.encuesta();
-    if (!enc) return;
+    
+    // BLOQUEO CRÍTICO: No permitir votar si el componente detecta que está en modo historial.
+    if (!enc || this.esHistorial()) return; 
 
     this.cargando.set(true);
 
-    // 1. Obtenemos una huella única del navegador
-    const huella = this.getClientUUID(); // Asumiendo que ya implementaste getClientUUID
+    const huella = this.getClientUUID(); 
 
     this.api.votar(enc.idEncuesta, idOpcion, huella).subscribe({
       next: () => {
-        // Marcamos localmente, actualizamos estado y recargamos
+        // ... (Mensaje de éxito y reload igual)
         this.marcarVotoLocal(enc.idEncuesta);
         this.yaVoto.set(true);
-        this.loadEncuesta();
-
-        // Mensaje de éxito (Opcional, pero bueno)
+        this.loadEncuesta(); 
+        
         this.messageService.add({
-          severity: 'success',
-          summary: '¡Voto registrado!',
-          detail: 'Gracias por participar. Los resultados se han actualizado.'
+          severity: 'success', 
+          summary: '¡Voto registrado!', 
+          detail: 'Gracias por participar.'
         });
       },
       error: (err) => {
         this.cargando.set(false);
-
-        // Manejo de Error 409 (Conflicto: Ya votaste)
+        
         if (err.status === 409) {
-          this.marcarVotoLocal(enc.idEncuesta); // Bloqueamos la UI localmente también
-          this.yaVoto.set(true);
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Voto no aceptado',
-            detail: 'Ya has votado en esta encuesta. No se permite votar más de una vez.',
-          });
-          // Si el voto fue rechazado, volvemos a cargar para ver los resultados
-          this.loadEncuesta();
-
-        } else {
-          // Otros errores (servidor caído, etc.)
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Ocurrió un error al intentar registrar tu voto. Intenta de nuevo.',
-          });
+            // ... (Ya votó)
+        } 
+        // ⚠️ NUEVO MANEJO DE ERROR 403 (Backend dice: Caducó)
+        else if (err.status === 403) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Votación Cerrada',
+                detail: 'La encuesta ha expirado y no se pueden registrar nuevos votos.'
+            });
+            // Ya que caducó, volvemos a cargar para mostrar el modo historial (aunque lo más probable es que ya esté cargado así)
+            this.loadEncuesta(); 
+        }
+        else {
+          // ... (Otros errores)
         }
       },
     });

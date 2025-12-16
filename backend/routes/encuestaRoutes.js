@@ -14,6 +14,7 @@ const encuestaLimiter = rateLimit({
 
 // Encuesta activa
 router.get("/activa", EncuestaController.obtenerActiva);
+router.get("/ultima-finalizada", EncuestaController.obtenerUltimaFinalizada);
 
 // CRUD
 router.get("/", EncuestaController.listar);

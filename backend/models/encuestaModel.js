@@ -74,6 +74,41 @@ class EncuestaModel {
     }
   }
 
+  // NUEVO: Obtener la última encuesta cuya fechaFin ya pasó.
+  static async obtenerUltimaFinalizada() {
+    try {
+      const pool = await getConnection();
+
+      const encuesta = await pool.request().query(`
+      SELECT TOP 1 *
+      FROM Encuestas
+      WHERE fechaFin < SYSDATETIME()  -- Cuya fecha de fin ya pasó
+      ORDER BY fechaFin DESC;        -- Ordenar por la más reciente
+    `);
+
+      if (encuesta.recordset.length === 0) return null;
+
+      const enc = encuesta.recordset[0];
+
+      // Obtener opciones y votos de la encuesta finalizada
+      const opciones = await pool
+        .request()
+        .input("idEncuesta", mssql.Int, enc.idEncuesta).query(`
+        SELECT *
+        FROM EncuestaOpciones
+        WHERE idEncuesta = @idEncuesta
+      `);
+
+      enc.opciones = opciones.recordset;
+
+      return enc;
+    } catch (error) {
+      throw new Error(
+        "Error al obtener la última encuesta finalizada: " + error.message
+      );
+    }
+  }
+
   // Registrar un voto
   static async registrarVoto(idEncuesta, idOpcion, huella) {
     try {
@@ -202,12 +237,46 @@ class EncuestaModel {
     }
   }
 
-  static async delete(idEncuesta) {
+  /* static async delete(idEncuesta) {
     const pool = await getConnection();
     await pool
       .request()
       .input("idEncuesta", mssql.Int, idEncuesta)
       .query(`DELETE FROM Encuestas WHERE idEncuesta = @idEncuesta`);
+  } */
+  // En tu archivo models/encuestaModel.js (o similar)
+
+  static async delete(idEncuesta) {
+    const pool = await getConnection();
+    const transaction = new mssql.Transaction(pool);
+
+    try {
+      await transaction.begin();
+      const request = new mssql.Request(transaction);
+      request.input("idEncuesta", mssql.Int, idEncuesta);
+
+      // 1. Primero borrar los VOTOS asociados a esta encuesta
+      // (Si no borras esto primero, te dará error luego con la tabla de votos)
+      await request.query(
+        `DELETE FROM EncuestaVotos WHERE idEncuesta = @idEncuesta`
+      );
+
+      // 2. Segundo borrar las OPCIONES asociadas
+      // (Este es el que te estaba dando el error específico FK__EncuestaO...)
+      await request.query(
+        `DELETE FROM EncuestaOpciones WHERE idEncuesta = @idEncuesta`
+      );
+
+      // 3. Finalmente borrar la ENCUESTA principal
+      await request.query(
+        `DELETE FROM Encuestas WHERE idEncuesta = @idEncuesta`
+      );
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error; // Lanza el error para que el controlador lo capture
+    }
   }
 }
 

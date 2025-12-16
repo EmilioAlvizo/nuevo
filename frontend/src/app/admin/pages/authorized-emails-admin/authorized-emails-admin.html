@@ -140,7 +140,7 @@
 
 <!-- Modal de Crear/Editar -->
 <p-dialog 
-  [visible]="modalVisible()" 
+  [(visible)]="modalVisible" 
   [header]="editMode() ? 'Editar Email Autorizado' : 'Nuevo Email Autorizado'"
   [modal]="true" 
   [dismissableMask]="true"

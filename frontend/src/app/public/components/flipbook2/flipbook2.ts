@@ -32,6 +32,15 @@ interface Folio {
     class: 'flipbook-root',
     '[class.fullscreen]': 'isFullscreen()',
     '[attr.tabindex]': '"0"',
+    // --- NUEVOS BINDINGS DE ESTILO ---
+    // 1. Asegura que el componente ocupe todo el ancho disponible
+    '[style.width]': '"100%"',
+    // 2. Centra el componente automáticamente (margin: 0 auto)
+    '[style.margin]': '"0 auto"',
+    // 3. Vincula el max-width CSS directamente a tu input [pageWidth]
+    '[style.max-width.px]': 'basePageWidth()',
+    // 4. Asegura comportamiento de bloque
+    '[style.display]': '"block"',
     '(window:resize)': 'onResize()',
     '(window:keydown)': 'handleKey($event)',
     '(document:fullscreenchange)': 'onFullscreenChange()',
@@ -43,6 +52,7 @@ interface Folio {
 export class Flipbook2 implements OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
+  private elementRef = inject(ElementRef);
 
   // --- Inputs ---
   src = input.required<string>();
@@ -68,6 +78,16 @@ export class Flipbook2 implements OnDestroy {
   cssPageWidth = computed(() => `${this.calculatedPageWidth()}px`);
   // Nuevo signal para almacenar el aspect ratio del PDF
   pdfAspectRatio = signal<number | null>(null);
+
+  // ============================================
+  // 1. NUEVOS SIGNALS PARA ZOOM Y PAN
+  // ============================================
+  zoomScale = signal(1);
+  panX = signal(0);
+  panY = signal(0);
+  isDragging = signal(false);
+  private lastMouseX = 0;
+  private lastMouseY = 0;
 
   // --- Estado Interno (No reactivo) ---
   private pdfDoc: any = null;
@@ -151,6 +171,14 @@ export class Flipbook2 implements OnDestroy {
       // 1. OBTENER Y GUARDAR ASPECT RATIO
       const page = await this.pdfDoc.getPage(1);
       const viewport = page.getViewport({ scale: 1 });
+      console.log(
+        'width',
+        viewport.width,
+        'height',
+        viewport.height,
+        'pages. Aspect Ratio:',
+        viewport.width / viewport.height
+      );
       this.pdfAspectRatio.set(viewport.width / viewport.height);
 
       const numPages = this.pdfDoc.numPages;
@@ -251,7 +279,7 @@ export class Flipbook2 implements OnDestroy {
       const page = await this.pdfDoc.getPage(pageNumber);
       const viewport = page.getViewport({ scale: 1 });
 
-      // 1. Determinar el ancho objetivo en pantalla
+      // Determinar ancho objetivo
       let targetWidth: number;
       if (this.isMobileFullscreen()) {
         targetWidth = this.calculatedPageWidth();
@@ -259,20 +287,20 @@ export class Flipbook2 implements OnDestroy {
         targetWidth = this.calculatedPageWidth() / 2;
       }
 
-      // 2. Configurar calidad alta (Device Pixel Ratio)
+      // --- AQUÍ ESTÁ LA MAGIA DE LA ALTA RESOLUCIÓN ---
+      // Aumentamos la resolución base para permitir zoom sin pixelar.
+      // 2.5 permite un zoom de hasta 250% con nitidez perfecta.
+      const ZOOM_QUALITY_FACTOR = 2.5;
       const dpr = window.devicePixelRatio || 1;
-
-      // 3. EL TRUCO DEL ESCALADO (Bleed):
-      // Multiplicamos por 1.005 (0.5% extra) para que la imagen sea
-      // imperceptiblemente más grande que el hueco, forzando a cerrar las líneas.
-      const bleedScale = 1.005;
+      const bleedScale = 1.005; // Tu corrección de bleed existente
 
       const baseScale = targetWidth / viewport.width;
-      const outputScale = baseScale * dpr * bleedScale; // <--- APLICAR BLEED
+      // Multiplicamos por el factor de calidad extra
+      const outputScale = baseScale * dpr * bleedScale * ZOOM_QUALITY_FACTOR;
 
       const scaledViewport = page.getViewport({ scale: outputScale });
 
-      // 4. Canvas Offscreen con dimensiones enteras
+      // Canvas Offscreen
       const offscreen = document.createElement('canvas');
       offscreen.width = Math.floor(scaledViewport.width);
       offscreen.height = Math.floor(scaledViewport.height);
@@ -280,40 +308,105 @@ export class Flipbook2 implements OnDestroy {
       const ctx = offscreen.getContext('2d', { alpha: false });
       if (!ctx) return;
 
-      // Desactivar suavizado puede ayudar en algunos casos, pero 'high' es mejor para revistas
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // 5. EL TRUCO DEL FONDO (Contrast Background):
-      // Rellenar de negro/gris oscuro antes de renderizar.
-      // Si queda una línea de 1px, será oscura y se mezclará con la imagen.
+      // Fondo oscuro para evitar líneas blancas
       ctx.fillStyle = '#1a1a1a';
       ctx.fillRect(0, 0, offscreen.width, offscreen.height);
 
-      // Renderizar PDF
       await page.render({
         canvasContext: ctx,
         viewport: scaledViewport,
       }).promise;
 
-      // 6. Pasar al Canvas Visible
+      // Pasar al Canvas Visible
       const visibleCtx = canvas.getContext('2d', { alpha: false });
       if (!visibleCtx) return;
 
-      // Asignar tamaño real (físico)
+      // El canvas físico tiene el tamaño "gigante" (High Res)
       canvas.width = offscreen.width;
       canvas.height = offscreen.height;
 
-      // Limpiar y dibujar
-      visibleCtx.fillStyle = '#1a1a1a'; // Fondo oscuro también aquí por seguridad
-      visibleCtx.fillRect(0, 0, canvas.width, canvas.height);
-
+      // CSS (object-fit: fill) se encarga de aplastarlo al tamaño del contenedor,
+      // creando una densidad de píxeles muy alta.
       visibleCtx.drawImage(offscreen, 0, 0);
     } catch (err) {
       console.error(`Error rendering page ${pageNumber}`, err);
     }
   }
   // --- Navegación ---
+  // ============================================
+  // 3. NUEVOS MÉTODOS DE INTERACCIÓN (MOUSE/ZOOM)
+  // ============================================
+
+  onWheel(event: WheelEvent) {
+    // Solo permitimos zoom en fullscreen para no molestar el scroll de la página normal
+    if (this.isFullscreen()) {
+      event.preventDefault();
+      const delta = -Math.sign(event.deltaY) * 0.25; // Sensibilidad
+      const newScale = Math.min(Math.max(this.zoomScale() + delta, 1), 3); // Max zoom 3x
+
+      this.zoomScale.set(newScale);
+
+      // Si volvemos a 1, reseteamos la posición
+      if (newScale === 1) {
+        this.panX.set(0);
+        this.panY.set(0);
+      }
+    }
+  }
+
+  onMouseDown(event: MouseEvent) {
+    if (this.zoomScale() > 1 && this.isFullscreen()) {
+      this.isDragging.set(true);
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
+      event.preventDefault();
+    }
+  }
+
+  onMouseMove(event: MouseEvent) {
+    if (this.isDragging() && this.zoomScale() > 1) {
+      const dx = event.clientX - this.lastMouseX;
+      const dy = event.clientY - this.lastMouseY;
+
+      // Actualizamos posición (Pan)
+      this.panX.update((v) => v + dx);
+      this.panY.update((v) => v + dy);
+
+      this.lastMouseX = event.clientX;
+      this.lastMouseY = event.clientY;
+    }
+  }
+
+  onMouseUp() {
+    if (this.isDragging()) {
+      this.isDragging.set(false);
+    }
+  }
+
+  // --- Botones de Control ---
+  zoomIn() {
+    this.zoomScale.update((s) => Math.min(s + 0.5, 3));
+  }
+
+  zoomOut() {
+    this.zoomScale.update((s) => {
+      const newScale = Math.max(s - 0.5, 1);
+      if (newScale === 1) {
+        this.panX.set(0);
+        this.panY.set(0);
+      }
+      return newScale;
+    });
+  }
+
+  resetZoom() {
+    this.zoomScale.set(1);
+    this.panX.set(0);
+    this.panY.set(0);
+  }
 
   prev() {
     if (this.isTurning()) return;
@@ -409,6 +502,10 @@ export class Flipbook2 implements OnDestroy {
   onResize() {
     this.checkMobileView();
     this.updateDimensions();
+    // Forzar renderizado si las dimensiones cambian drásticamente
+    if (!this.isRendering) {
+      setTimeout(() => this.scheduleRender(), 100);
+    }
   }
 
   checkMobileView() {
@@ -419,25 +516,79 @@ export class Flipbook2 implements OnDestroy {
   updateDimensions() {
     if (!this.isBrowser) return;
 
+    const ar = this.pdfAspectRatio();
+    if (!ar) {
+      this.folioHeight.set(480);
+      return;
+    }
+
     if (this.isFullscreen()) {
       this.calculateFullscreenSize();
     } else {
-      // 💻 MODO NORMAL/ESCRITORIO
-      const maxW = Math.min(this.basePageWidth(), window.innerWidth);
-      this.calculatedPageWidth.set(maxW);
+      // 💻 MODO NORMAL
 
-      const ar = this.pdfAspectRatio();
+      const hostElement = this.elementRef.nativeElement;
+      // Medimos el ancho real disponible en el DOM
+      let containerWidth = hostElement.getBoundingClientRect().width || window.innerWidth;
 
-      if (ar !== null) {
-        // CORRECCIÓN: Calcular la altura basada en el ancho de UNA página y el Aspect Ratio
-        const pageW = maxW / 2;
-        this.folioHeight.set(pageW / ar); // Alto = Ancho / AR
-      } else {
-        // Fallback si el PDF aún no carga
-        this.folioHeight.set(480);
-      }
+      // Ajuste de seguridad para márgenes/padding
+      containerWidth -= 2;
+
+      // LÓGICA DE TAMAÑO:
+      // Usamos el 'basePageWidth' (ej. 1000) como objetivo,
+      // pero nunca excedemos el ancho real del contenedor (containerWidth) para que sea responsive.
+      const availableWidth = Math.min(this.basePageWidth(), containerWidth);
+
+      console.log(
+        `Dimensions -> Target: ${this.basePageWidth()} | Container: ${containerWidth} | Final: ${availableWidth}`
+      );
+
+      // Ancho de UNA página (mitad del libro)
+      const singlePageWidth = availableWidth / 2;
+
+      // Alto calculado EXACTO según el Aspect Ratio
+      const calculatedHeight = singlePageWidth / ar;
+
+      this.calculatedPageWidth.set(availableWidth);
+      this.folioHeight.set(calculatedHeight);
     }
   }
+
+  /*  updateDimensions() {
+    if (!this.isBrowser) return;
+
+    const ar = this.pdfAspectRatio();
+
+    // Si no hay PDF cargado o ratio, usar un default (A4 aprox) o salir
+    if (!ar) {
+      this.folioHeight.set(480); // Default
+      return;
+    }
+
+    if (this.isFullscreen()) {
+      this.calculateFullscreenSize();
+    } else {
+      // 💻 MODO NORMAL/ESCRITORIO (Incrustado en la página)
+
+      // 1. Calcular ancho disponible (restando márgenes del contenedor padre si fuera necesario)
+      // Usamos el input basePageWidth como máximo, pero nos adaptamos a la pantalla
+      let availableWidth = Math.min(this.basePageWidth()); // 32px de padding seguro
+      console.log('Available Width:', availableWidth);
+      // 2. En modo escritorio/normal siempre mostramos "libro abierto" (2 páginas)
+      // Por tanto, el ancho de UNA página es la mitad del ancho total
+      const singlePageWidth = availableWidth / 2;
+      console.log('singlePageWidth Width:', singlePageWidth);
+
+      // 3. Calcular altura basada estrictamente en el Aspect Ratio
+      // AR = Width / Height  ->  Height = Width / AR
+      const calculatedHeight = singlePageWidth / ar;
+      
+      console.log('calculatedHeight Width:', calculatedHeight);
+
+      this.calculatedPageWidth.set(availableWidth);
+      this.folioHeight.set(calculatedHeight);
+    }
+  } */
 
   toggleFullscreen() {
     if (!this.isBrowser) return;
@@ -455,46 +606,59 @@ export class Flipbook2 implements OnDestroy {
     const isFull = !!this.document.fullscreenElement;
     this.isFullscreen.set(isFull);
 
-    if (isFull) {
-      this.calculateFullscreenSize();
-      // Sincronizar página móvil al entrar (Lógica Original)
-      if (this.isMobileView()) {
-        this.currentPageNumber.set(this.currentFolioIndex() * 2 + 1);
-      }
-    } else {
-      this.updateDimensions(); // Resetear a tamaño normal
+    // Resetear zoom al salir de pantalla completa
+    if (!isFull) {
+      this.resetZoom();
     }
+
+    this.updateDimensions();
   }
 
   async calculateFullscreenSize() {
     if (!this.pdfDoc) return;
     try {
-      const page = await this.pdfDoc.getPage(1);
-      const viewport = page.getViewport({ scale: 1 });
-      const ar = viewport.width / viewport.height;
+      // Usamos el signal ya calculado si existe, sino lo calculamos
+      let ar = this.pdfAspectRatio();
+      if (!ar) {
+        const page = await this.pdfDoc.getPage(1);
+        const viewport = page.getViewport({ scale: 1 });
+        ar = viewport.width / viewport.height;
+        this.pdfAspectRatio.set(ar);
+      }
 
-      const availW = window.innerWidth - 40;
-      const availH = window.innerHeight - 120; // Margen para controles
+      const availW = window.innerWidth;
+      const availH = window.innerHeight;
 
       if (this.isMobileView()) {
-        const wBasedH = availW / ar;
-        if (wBasedH <= availH) {
-          this.calculatedPageWidth.set(availW);
-          this.folioHeight.set(wBasedH);
-        } else {
-          this.folioHeight.set(availH);
-          this.calculatedPageWidth.set(availH * ar);
+        // 📱 MÓVIL FULLSCREEN: 1 sola página
+        // Intentamos ajustar por ancho
+        let targetW = availW;
+        let targetH = targetW / ar;
+
+        // Si se sale de alto, ajustamos por alto
+        if (targetH > availH) {
+          targetH = availH;
+          targetW = targetH * ar;
         }
+
+        this.calculatedPageWidth.set(targetW);
+        this.folioHeight.set(targetH);
       } else {
-        const twoPageAR = ar * 2;
-        const wBasedH = availW / twoPageAR;
-        if (wBasedH <= availH) {
-          this.calculatedPageWidth.set(availW);
-          this.folioHeight.set(wBasedH);
-        } else {
-          this.folioHeight.set(availH);
-          this.calculatedPageWidth.set(availH * twoPageAR);
+        // 💻 ESCRITORIO FULLSCREEN: 2 páginas (Libro abierto)
+        // El AR del "libro" es el doble de ancho que una página sola
+        const doublePageAR = ar * 2;
+
+        let targetW = availW;
+        let targetH = targetW / doublePageAR; // (Width / 2) / AR es lo mismo que Width / (AR*2)
+
+        // Si se sale de alto, ajustamos por alto
+        if (targetH > availH) {
+          targetH = availH;
+          targetW = targetH * doublePageAR;
         }
+
+        this.calculatedPageWidth.set(targetW);
+        this.folioHeight.set(targetH);
       }
     } catch (e) {
       console.error(e);
@@ -549,5 +713,4 @@ export class Flipbook2 implements OnDestroy {
   shouldShowBackInMobile(): boolean {
     return this.currentPageNumber() % 2 === 0;
   }
-
 }
