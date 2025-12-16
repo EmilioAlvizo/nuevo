@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
-
 import { HighlightService } from '../../../core/services/highlight';
 
 // PrimeNG
@@ -22,7 +21,6 @@ import { MessageService } from 'primeng/api';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { AccordionModule } from 'primeng/accordion';
-
 import { ApiPropuesta, Propuesta } from '../../../core/services/propuestas_accion';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 
@@ -243,4 +241,5 @@ export class PropuestasAccionAdmin implements OnInit, OnDestroy, AfterViewInit {
       life: 3500,
     });
   }
+
 }
