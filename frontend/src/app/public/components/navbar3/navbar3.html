@@ -55,6 +55,24 @@
               Consejo Estatal de la Juventud
             </a>
           </div>
+          <div class="dropdown-item">
+            <a 
+              routerLink="/sistema" 
+              routerLinkActive="active" 
+              class="dropdown-item-title"
+              (click)="selectCard('https://peb.guanajuato.gob.mx/Busquedas/Programas'); onLinkClick()">
+              Padrón Estatal de Beneficiarios
+            </a>
+          </div>
+          <div class="dropdown-item">
+            <a 
+              routerLink="/sistema" 
+              routerLinkActive="active" 
+              class="dropdown-item-title"
+              (click)="selectCard('https://juventudesgto.guanajuato.gob.mx/index.php/resultados-de-evaluacion/'); onLinkClick()">
+              Sistema de Monitoreo y Evaluación
+            </a>
+          </div>
         </div>
       </div>
 
@@ -64,7 +82,7 @@
         routerLink="/estadisticas" 
         routerLinkActive="active"
         (click)="onLinkClick()">
-        Estadísticas
+        Indicadores
       </a>
       <a 
         class="boton-rutas" 
@@ -100,7 +118,7 @@
               routerLinkActive="active" 
               class="dropdown-item-title"
               (click)="onLinkClick()">
-              Temás de interés
+              Temas de interés
             </a>
           </div>
           <div class="dropdown-item">

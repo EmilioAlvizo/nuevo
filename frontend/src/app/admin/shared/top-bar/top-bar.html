@@ -34,32 +34,75 @@
 
         <!-- Sección de autenticación -->
         <div class="auth-section">
-          <!-- Botón Login (usuario no autenticado) -->
-          @if (!isLoggedIn()) {
-          <button class="login-btn" (click)="goToLogin()" aria-label="Iniciar sesión">
-            <i class="fa-solid fa-user"></i>
-            <span>Login</span>
-          </button>
-          }
 
-          <!-- Botón Admin (usuario autenticado) -->
-          @else {
-          <button
-            class="admin-btn"
-            (click)="toggleAdminMenu($event)"
-            [class.active]="showAdminMenu()"
-            [attr.aria-expanded]="showAdminMenu()"
-            aria-label="Menú de administración"
-          >
-            <i class="fa-solid pi pi-user"></i>
-            <span>{{ currentUser()?.nombre || 'Admin' }}</span>
-            <i
-              class="fa-solid"
-              [class.fa-chevron-down]="!showAdminMenu()"
-              [class.fa-chevron-up]="showAdminMenu()"
-            ></i>
-          </button>
-          }
+
+
+
+
+
+
+
+
+<div *ngIf="isLoggedIn()" class="user-actions">
+
+  <button
+    class="admin-btn"
+    (click)="toggleAdminMenu($event)"
+    [class.active]="showAdminMenu()"
+    aria-label="Menú de administración"
+  >
+    <i class="pi pi-user"></i>
+    <span>{{ currentUser()?.nombre || 'Admin' }}</span>
+    <i class="pi pi-chevron-down" *ngIf="!showAdminMenu()"></i>
+    <i class="pi pi-chevron-up" *ngIf="showAdminMenu()"></i>
+  </button>
+
+  <!-- Campana -->
+  <div class="notifications">
+    <button class="notif-btn" (click)="toggleNotifDropdown()" aria-label="Notificaciones">
+      <i class="pi pi-bell"></i>
+      <span *ngIf="contadorNotificaciones() > 0" class="notif-count">
+        {{ contadorNotificaciones() }}
+      </span>
+    </button>
+
+    <!-- <div class="notif-dropdown" *ngIf="showNotifDropdown()">
+      ...
+    </div> -->
+    <div class="notif-dropdown" *ngIf="showNotifDropdown()">
+
+  <!-- Hay notificaciones -->
+  <a
+    *ngIf="contadorNotificaciones() > 0"
+    class="notif-link"
+    (click)="irANotificaciones()"
+  >
+    <i class="pi pi-list"></i>
+    Ver notificaciones
+  </a>
+
+  <!-- No hay notificaciones -->
+  <div *ngIf="contadorNotificaciones() === 0" class="notif-empty">
+    <i class="pi pi-bell-slash"></i>
+    No hay notificaciones
+  </div>
+
+</div>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
         </div>
       </div>
     </div>
@@ -158,7 +201,7 @@
 
         <div class="admin-nav-section"  (click)="toggleSection(2)" 
         [class.open]="openSection() === 2">
-          <h4><i class="fa-solid fa-chart-line"></i> Estadísticas</h4>
+          <h4><i class="fa-solid fa-chart-line"></i> Indicadores</h4>
           <ul>
             <li>
               <a
@@ -267,7 +310,7 @@
             </li>
             <li>
               <a
-                routerLink="/admin/file-manager"
+                routerLink="/admin/banco-datos"
                 (click)="closeAdminMenu()"
                 routerLinkActive="active"
                 >Banco de datos</a

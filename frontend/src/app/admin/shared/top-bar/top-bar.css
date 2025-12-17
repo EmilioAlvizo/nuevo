@@ -33,10 +33,6 @@
   transition: max-height 0.4s ease;
 }
 
-.top-bar-content.expanded {
-  /* max-height: 800px; */
-}
-
 .top-bar-main {
   padding: 8px 40px;
   display: flex;
@@ -171,6 +167,13 @@
   border-bottom: 1px solid #333;
   margin-bottom: 25px;
 }
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* separación entre botón usuario y campana */
+}
+
 
 .user-avatar {
   width: 60px;
@@ -400,4 +403,139 @@
   .top-bar-content {
     max-width: 90rem;
   }
+}
+
+/* ==================== NOTIFICACIONES ==================== */
+/* === Contenedor de usuario + campana === */
+.auth-section {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Ajusta separación entre usuario y campana */
+}
+
+/* === Botón de notificaciones ==== */
+.notifications {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.notif-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 8px;
+}
+
+.notif-btn i {
+  font-size: 1.4rem;
+  color: #ffffff; /* visible en fondo negro */
+  transition: transform 0.2s;
+}
+
+.notif-btn:hover i {
+  transform: scale(1.1);
+}
+
+/* === Contador === */
+.notif-count {
+  position: absolute;
+  top: 0px;
+  right: 2px;
+  background: #ff4747;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+/* === Dropdown === */
+.notif-dropdown {
+  position: absolute;
+  right: 0;
+  top: 38px;
+  background: #101010;
+  border: 1px solid #333;
+  width: 260px;
+  border-radius: 8px;
+  padding: 10px 0;
+  z-index: 9999;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notif-dropdown li a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #eee;
+  font-size: 13px;
+  border-bottom: 1px solid #222;
+  transition: background 0.2s;
+}
+
+.notif-dropdown li a:hover {
+  background: #1c1c1c;
+}
+
+.notif-dropdown small {
+  display: block;
+  color: #888;
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+/* Botón de marcar todas */
+.mark-all-btn {
+  width: 100%;
+  padding: 10px;
+  background: #004a8b;
+  border: none;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 0 0 8px 8px;
+}
+
+.mark-all-btn:hover {
+  background: #005fb3;
+}
+
+.notif-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 15px;
+  color: #eee;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.notif-link:hover {
+  background: #1c1c1c;
+}
+
+.notif-empty {
+  padding: 12px 15px;
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

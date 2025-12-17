@@ -23,8 +23,11 @@
       </div>
     </div>
 
-    <app-form-testimonios [visible]="showDialog()" (visibleChange)="showDialog.set($event)"
-      (save)="guardarTestimonio($event)" />
+    <app-form-testimonios
+      [visible]="showDialog()"
+      (visibleChange)="showDialog.set($event)"
+     
+    />
   </section>
 
   <!-- Sección 3: Encuestas -->
@@ -79,6 +82,10 @@
               </div>
             </div>
             }
+          </div>
+
+          <div class="text-center mt-4">
+            <a href="/temas" class="btn btn-primary">Ver todos los temas</a>
           </div>
 
           <!-- Controles -->

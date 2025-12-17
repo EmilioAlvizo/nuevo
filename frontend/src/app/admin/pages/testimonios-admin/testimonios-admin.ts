@@ -1,5 +1,14 @@
 // nuevo/frontend/src/app/admin/pages/testimonios-admin/testimonios-admin.ts
-import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { 
+  Component, 
+  OnInit, 
+  OnDestroy, 
+  AfterViewInit,
+  inject, 
+  signal, 
+  effect,
+  ChangeDetectionStrategy 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -20,6 +29,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
+import { HighlightService } from '../../../core/services/highlight';
 
 interface EstatusOption {
   label: string;
@@ -48,12 +58,13 @@ interface EstatusOption {
   styleUrl: './testimonios-admin.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TestimoniosAdmin implements OnInit, OnDestroy {
+export class TestimoniosAdmin implements OnInit, OnDestroy, AfterViewInit {
   private apiTestimonios = inject(ApiTestimonios);
   private msg = inject(MessageService);
   private confirm = inject(ConfirmationService);
   private apiMunicipio = inject(ApiMunicipio);
   private fb = inject(FormBuilder);
+  highlight = inject(HighlightService);
 
   publicUrl = environment.publicUrl;
   // ⭐ Usar signal en lugar de propiedades normales
@@ -88,6 +99,20 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
 
   constructor() {
     this.inicializarFormulario();
+
+    /**
+     * 🔥 EFECTO CLAVE
+     * Escucha el highlight y hace scroll al testimonio correcto
+     */
+    effect(() => {
+      const highlightedId = this.highlight.highlightedId();
+      const list = this.testimonios();
+
+      if (!highlightedId || list.length === 0) return;
+
+      // Llamar al método que hace scroll
+      this.scrollToTestimonio(highlightedId);
+    });
   }
 
   ngOnInit(): void {
@@ -109,7 +134,6 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       });
 
     // ⬇ Escucha *permanente* del BehaviorSubject
-    // Esta suscripción se mantendrá activa y recibirá todas las actualizaciones
     this.apiTestimonios.testimonios$
       .pipe(takeUntil(this.destroy$))
       .subscribe((lista) => {
@@ -119,6 +143,13 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       });
 
     this.cargarMunicipios();
+  }
+
+  ngAfterViewInit() {
+    const idResaltado = this.highlight.highlightedId();
+    if (idResaltado) {
+      this.scrollToTestimonio(idResaltado);
+    }
   }
 
   ngOnDestroy(): void {
@@ -152,10 +183,51 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       });
   }
 
+  // ===========================
+  // 🎯 Scroll automático
+  // ===========================
+  private scrollToTestimonio(idTestimonio: number) {
+    const intentarScroll = (intentos = 0) => {
+      // Buscar la fila por el ID del testimonio
+      let elemento = document.querySelector(`[data-testimonio-id="${idTestimonio}"]`);
+      
+      // Estrategia alternativa: buscar por clase highlight
+      if (!elemento) {
+        elemento = document.querySelector('.highlight-row');
+      }
+      
+      if (elemento) {
+        // Scroll suave
+        elemento.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Agregar clase de animación
+        elemento.classList.add('scroll-bounce');
+        setTimeout(() => {
+          elemento!.classList.remove('scroll-bounce');
+        }, 600);
+        
+        return true;
+      } else if (intentos < 8) {
+        // Reintentar después de 250ms
+        setTimeout(() => intentarScroll(intentos + 1), 250);
+        return false;
+      } else {
+        console.warn('⚠️ No se pudo encontrar el testimonio con ID:', idTestimonio);
+        return false;
+      }
+    };
+    
+    // Iniciar scroll después de un delay
+    setTimeout(() => intentarScroll(), 500);
+  }
+
   // ===============================
   // MODAL
   // ===============================
-
   abrirModal(testimonio?: Testimonios): void {
     if (testimonio) {
       this.editMode = true;
@@ -208,7 +280,6 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   // ===============================
   // ARCHIVO
   // ===============================
-
   onFileSelected(event: any): void {
     const file = event.target.files?.[0];
 
@@ -238,7 +309,6 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   // ===============================
   // SUBMIT
   // ===============================
-
   submitForm(): void {
     if (this.formTestimonio.invalid) {
       this.formTestimonio.markAllAsTouched();
@@ -286,7 +356,6 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   // ===============================
   // CRUD
   // ===============================
-
   crearTestimonio(fd: FormData): void {
     this.apiTestimonios
       .createTestimonio(fd)
@@ -338,7 +407,6 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   // ===============================
   // HELPERS
   // ===============================
-
   hasError(field: string): boolean {
     const control = this.formTestimonio.get(field);
     return !!control && control.invalid && (control.touched || control.dirty);

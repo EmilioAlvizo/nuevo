@@ -17,6 +17,7 @@ import { environment } from '../../../../environments/environment';
 import { TopBar } from '../../../admin/shared/top-bar/top-bar';
 import { filter } from 'rxjs/operators';
 import { InterfazService } from '../../../core/services/interfaz';
+import { SeleccionarCard } from '../../../core/services/seleccionar_card';
 
 @Component({
   selector: 'app-navbar3',
@@ -66,9 +67,14 @@ export class Navbar3 implements OnInit, OnDestroy {
     private renderer: Renderer2,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private interfazService: InterfazService
+    private interfazService: InterfazService,
+    private seleccionarCard: SeleccionarCard
   ) {}
 
+  selectCard(link: string) {
+    this.seleccionarCard.setSelectedCard(link);
+  }
+  
   // effect que previene scroll del body
   private preventBodyScrollEffect = effect(() => {
     if (typeof document === 'undefined') return;

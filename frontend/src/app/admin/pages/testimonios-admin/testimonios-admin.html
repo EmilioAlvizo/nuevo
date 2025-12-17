@@ -49,9 +49,19 @@
       </tr>
     </ng-template>
 
-    <ng-template pTemplate="body" let-testimonio>
+    <!-- <ng-template pTemplate="body" let-testimonio>
       <tr>
-        <td>{{ testimonio.id_testimonios }}</td>
+        <td>{{ testimonio.id_testimonios }}</td> -->
+
+<ng-template pTemplate="body" let-testimonio>
+  <tr 
+    [attr.data-testimonio-id]="testimonio.id_testimonios"
+    [ngClass]="{'highlight-row': highlight.highlightedId() === testimonio.id_testimonios}">
+    <td>{{ testimonio.id_testimonios }}</td>
+    <!-- ... resto de las columnas ... -->
+
+
+
         <td>{{ testimonio.nombreM }}</td>
         <td>{{ testimonio.nombreMunicipio }}</td>
         <td>{{ testimonio.correo }}</td>

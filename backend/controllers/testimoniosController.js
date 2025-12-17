@@ -116,6 +116,7 @@ class TestimoniosController {
 
   /**
    * POST - Crear testimonio público (CON VALIDACIONES ESTRICTAS)
+   * ✅ Retorna el ID correctamente para notificaciones
    */
   static async createPublico(req, res) {
     try {
@@ -168,9 +169,10 @@ class TestimoniosController {
       // 3. Crear testimonio con estatus INACTIVO por defecto
       const nuevoTestimonio = await TestimoniosModel.create(TABLE_NAME, {
         ...datosLimpios,
-        estatus: 'I' // ⚠️ INACTIVO por defecto para moderación
+        estatus: 'B' // ⚠️ INACTIVO por defecto para moderación
       });
 
+      // 🔥 Extraer ID de manera robusta
       const id =
         nuevoTestimonio.insertId ||
         nuevoTestimonio.id_testimonios ||
@@ -180,6 +182,8 @@ class TestimoniosController {
       if (!id) {
         throw new Error('No se pudo obtener el ID del nuevo testimonio');
       }
+
+      console.log('✅ Testimonio público creado con ID:', id);
 
       // 4. Manejar imagen si existe
       const tempPath = `${backendPublicPath}/testimonios/temp`;
@@ -203,17 +207,20 @@ class TestimoniosController {
         );
       }
 
+      // 🎯 RESPUESTA OPTIMIZADA PARA NOTIFICACIONES
+      // Retorna el ID en un formato consistente y fácil de extraer
       res.status(201).json({
         success: true,
         message: 'Testimonio enviado correctamente. Será revisado por un administrador.',
         data: {
-          id,
+          id_testimonios: id, // ✅ ID en formato estándar
+          nombreM: datosLimpios.nombreM,
           mensaje: 'Tu testimonio está pendiente de aprobación'
         }
       });
 
     } catch (err) {
-      console.error('Error al crear testimonio público:', err);
+      console.error('❌ Error al crear testimonio público:', err);
       
       // Limpiar archivos temporales en caso de error
       if (req.files?.imagenT) {
@@ -283,7 +290,7 @@ class TestimoniosController {
     }
   }
 
-  // POST - Crear un nuevo testimonio
+  // POST - Crear un nuevo testimonio (admin)
   static async create(req, res) {
     try {
       const { nombreM, id_municipio, correo, telefono, descripcion, estatus } = req.body;
@@ -303,7 +310,7 @@ class TestimoniosController {
         correo,
         telefono,
         descripcion,
-        estatus: estatus || 'I'
+        estatus: estatus || 'B'
       });
 
       // Detectar correctamente el ID generado

@@ -48,37 +48,91 @@ class Propuestas_accionController {
   }
 
   // POST - Crear un nuevo registro
-  static async create(req, res) {
-    try {
-      const data = req.body;
+  // static async create(req, res) {
+  //   try {
+  //     const data = req.body;
 
-      if (!data || Object.keys(data).length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Datos inválidos o vacíos`,
-        });
-      }
+  //     if (!data || Object.keys(data).length === 0) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: `Datos inválidos o vacíos`,
+  //       });
+  //     }
 
-      const newPropuesta = await Propuestas_accionModel.create(TABLE_NAME, data);
+  //     const newPropuesta = await Propuestas_accionModel.create(TABLE_NAME, data);
       
-      // Si el modelo solo devuelve insertId, construimos el objeto completo
-      const responseData = {
-        id_propuesta: newPropuesta.insertId || newPropuesta.id_propuesta || newPropuesta,
-        ...data
-      };
+  //     // Si el modelo solo devuelve insertId, construimos el objeto completo
+  //     const responseData = {
+  //       id_propuesta: newPropuesta.insertId || newPropuesta.id_propuesta || newPropuesta,
+  //       ...data
+  //     };
 
-      res.status(201).json({
-        success: true,
-        message: "Registro creado exitosamente",
-        data: responseData, // ← Ahora siempre incluye id_propuesta
-      });
-    } catch (error) {
-      res.status(500).json({
+  //     res.status(201).json({
+  //       success: true,
+  //       message: "Registro creado exitosamente",
+  //       data: responseData, // ← Ahora siempre incluye id_propuesta
+  //     });
+  //   } catch (error) {
+  //     res.status(500).json({
+  //       success: false,
+  //       message: error.message,
+  //     });
+  //   }
+  // }
+
+  static async create(req, res) {
+  try {
+    const data = req.body;
+
+    if (!data || Object.keys(data).length === 0) {
+      return res.status(400).json({
         success: false,
-        message: error.message,
+        message: `Datos inválidos o vacíos`,
       });
     }
+
+    const newPropuesta = await Propuestas_accionModel.create(TABLE_NAME, data);
+    
+    // ✅ Extraer SOLO el ID numérico
+    let idPropuesta = null;
+    
+    if (typeof newPropuesta === 'number') {
+      // Si el modelo devuelve directamente el ID
+      idPropuesta = newPropuesta;
+    } else if (typeof newPropuesta === 'object') {
+      // Si devuelve un objeto, extraer el ID
+      idPropuesta = newPropuesta.insertId || 
+                   newPropuesta.id_propuesta || 
+                   newPropuesta.id;
+    }
+    
+    // Validar que tenemos un ID válido
+    if (!idPropuesta || isNaN(Number(idPropuesta))) {
+      console.error('❌ No se pudo extraer ID de:', newPropuesta);
+      return res.status(500).json({
+        success: false,
+        message: 'Error al obtener ID de la propuesta creada'
+      });
+    }
+
+    const responseData = {
+      id_propuesta: Number(idPropuesta), // ✅ Asegurar que sea número
+      ...data
+    };
+
+    res.status(201).json({
+      success: true,
+      message: "Registro creado exitosamente",
+      data: responseData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
+}
+
 
   // PUT - Actualizar un registro
   static async update(req, res) {

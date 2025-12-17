@@ -14,16 +14,18 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service'; // User ya se infiere
+import { NotificationService, Notificacion } from '../../../core/services/notificacion';
 
 @Component({
   selector: 'app-top-bar',
   imports: [CommonModule, RouterModule],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TopBar implements OnInit, OnDestroy {
   // Services
+  private readonly notifs = inject(NotificationService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly renderer = inject(Renderer2);
@@ -38,6 +40,11 @@ export class TopBar implements OnInit, OnDestroy {
   currentUser = this.authService.currentUser;
   isLoggedIn = this.authService.isLoggedIn;
 
+    // Signal derivado para contador de notificaciones no leídas
+  contadorNotificaciones = computed(() => this.notifs.contadorNoLeidas);
+  // Signal derivado para mostrar lista de notificaciones
+  notificaciones = this.notifs.notificaciones; // ya es readonly signal
+
   // ✅ COMPUTED: Derivado del signal de usuario
   isAdmin = computed(() => this.currentUser()?.rol === 'admin');
 
@@ -49,19 +56,39 @@ export class TopBar implements OnInit, OnDestroy {
   private clickOutsideHandler?: () => void;
 
   ngOnInit(): void {
-    // ❌ Eliminada la suscripción a currentUser$. Las Signals se actualizan solas.
-
     // ✅ Detectar clic fuera del menú admin para cerrarlo
-    this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
-      const insideAdminBtn = (event.target as HTMLElement).closest('.admin-btn');
-      const insideAdminMenu = (event.target as HTMLElement).closest('.admin-menu');
+    // this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
+    //   const insideAdminBtn = (event.target as HTMLElement).closest('.admin-btn');
+    //   const insideAdminMenu = (event.target as HTMLElement).closest('.admin-menu');
 
-      if (!insideAdminBtn && !insideAdminMenu) {
-        if (this.showAdminMenu()) {
-          this.showAdminMenu.set(false);
-        }
+    //   if (!insideAdminBtn && !insideAdminMenu) {
+    //     if (this.showAdminMenu()) {
+    //       this.showAdminMenu.set(false);
+    //     }
+    //   }
+    // });
+
+
+    this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
+      const target = event.target as HTMLElement;
+
+      // ===== ADMIN MENU =====
+      const insideAdminBtn = target.closest('.admin-btn');
+      const insideAdminMenu = target.closest('.admin-menu');
+
+      if (!insideAdminBtn && !insideAdminMenu && this.showAdminMenu()) {
+        this.showAdminMenu.set(false);
+      }
+
+      // ===== NOTIFICACIONES =====
+      const insideNotifBtn = target.closest('.notif-btn');
+      const insideNotifDropdown = target.closest('.notif-dropdown');
+
+      if (!insideNotifBtn && !insideNotifDropdown && this.showNotifDropdown()) {
+        this.showNotifDropdown.set(false);
       }
     });
+
   }
 
   ngOnDestroy(): void {
@@ -109,4 +136,25 @@ export class TopBar implements OnInit, OnDestroy {
       this.openSection.set(index);
     }
   }
+
+  showNotifDropdown = signal(false);
+
+  toggleNotifDropdown() {
+    this.showNotifDropdown.update(v => !v);
+  }
+
+  marcarComoLeida(notif: Notificacion) {
+    this.notifs.marcarComoLeida(notif.id);
+  }
+
+  marcarTodasComoLeidas() {
+    this.notifs.marcarTodasComoLeidas();
+  }
+
+  irANotificaciones() {
+  this.showNotifDropdown.set(false);
+  this.router.navigateByUrl('/admin');
+}
+
+
 }

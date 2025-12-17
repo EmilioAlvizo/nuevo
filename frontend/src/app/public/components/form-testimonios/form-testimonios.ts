@@ -7,11 +7,11 @@ import {
   output,
   model,
   effect,
-  EventEmitter,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiMunicipio } from '../../../core/services/municipios';
+import { ApiTestimonios } from '../../../core/services/testimonios';
 import { environment } from '../../../../environments/environment';
 
 import { DialogModule } from 'primeng/dialog';
@@ -19,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
+import { NotificationService } from '../../../core/services/notificacion';
 
 @Component({
   selector: 'app-form-testimonios',
@@ -36,11 +37,13 @@ import { ToastModule } from 'primeng/toast';
 })
 export class FormTestimonios {
   publicUrl = environment.publicUrl;
+
   private confirmationService = inject(ConfirmationService);
   private msg = inject(MessageService);
   private apiMunicipio = inject(ApiMunicipio);
-
+  private apiTestimonios = inject(ApiTestimonios);
   private fb = inject(FormBuilder).nonNullable;
+  private notifs = inject(NotificationService);
 
   // Inputs / Outputs
   visible = model.required<boolean>();
@@ -48,7 +51,6 @@ export class FormTestimonios {
   testimonioToEdit = input<any>(null);
 
   visibleChange = output<boolean>();
-  save = output<FormData>();
 
   // Estado
   formSubmitted = signal(false);
@@ -110,6 +112,108 @@ export class FormTestimonios {
     return !!(c && c.invalid && (c.touched || this.formSubmitted()));
   }
 
+  // Confirmación antes de enviar
+  confirmarEnvio(): void {
+    if (this.form.invalid) {
+      this.formSubmitted.set(true);
+      this.form.markAllAsTouched();
+      this.mostrarAdvertencia('Datos inválidos');
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de enviar este testimonio? Una vez enviado, no podrá ser modificado. Será publicado una vez que sea autorizado por el equipo.',
+      header: 'Confirmación de Envío de Testimonio',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, enviar',
+      rejectLabel: 'No, cancelar',
+      accept: () => this.handleSubmit()
+    });
+  }
+
+  private handleSubmit(): void {
+    const fd = new FormData();
+    Object.entries(this.form.value).forEach(([key, value]) => {
+      fd.append(key, value as any);
+    });
+
+    if (this.imagenFile()) {
+      fd.append('imagenT', this.imagenFile()!);
+    }
+
+    if (this.isEditMode() && this.testimonioToEdit()?.id_testimonio) {
+      fd.append('id_testimonio', this.testimonioToEdit().id_testimonio);
+    }
+
+    this.isSaving.set(true);
+
+    // 🔥 Llamar al servicio para crear el testimonio
+    this.apiTestimonios.createTestimonio(fd).subscribe({
+      next: (resp) => {
+        console.log('✅ Respuesta del servidor:', resp);
+
+        if (resp?.success) {
+          this.mostrarExito('Testimonio registrado correctamente');
+
+          // 🔔 Extraer ID de la respuesta
+          let idTestimonio = null;
+          
+          if (resp?.data?.id_testimonios) {
+            const idTest = resp.data.id_testimonios;
+            
+            // Si id_testimonios es un objeto, buscar el ID dentro
+            if (typeof idTest === 'object' && idTest !== null) {
+              idTestimonio = idTest.id || idTest.insertId || idTest.id_testimonios;
+            } 
+            // Si id_testimonios ya es el número
+            else if (typeof idTest === 'number' || !isNaN(Number(idTest))) {
+              idTestimonio = Number(idTest);
+            }
+          }
+          
+          // Fallback: buscar en otras ubicaciones
+          if (!idTestimonio) {
+            idTestimonio = resp?.data?.id || 
+                        resp?.insertId || 
+                        resp?.id;
+          }
+
+          // ⚠️ VALIDAR que sea un número
+          if (typeof idTestimonio === 'number' || (typeof idTestimonio === 'string' && !isNaN(Number(idTestimonio)))) {
+            const idNumerico = Number(idTestimonio);
+            const nombre = this.form.value.nombreM;
+            
+            // Crear notificación con el ID numérico correcto
+            this.notifs.agregar(
+              `Nuevo testimonio registrado por ${nombre}`,
+              {
+                tipo: 'testimonio',
+                idReferencia: idNumerico, // ✅ SOLO EL NÚMERO
+                link: `/admin/testimonios`
+              }
+            );
+            
+            console.log('✅ Notificación creada con ID:', idNumerico);
+          } else {
+            console.error('❌ No se pudo extraer un ID válido de la respuesta:', resp);
+          }
+
+          this.resetForm();
+          this.visibleChange.emit(false);
+        } else {
+          this.mostrarError(resp?.message || 'Error al registrar el testimonio');
+        }
+
+        this.isSaving.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Error al enviar testimonio:', err);
+        this.mostrarError('No se pudo registrar el testimonio');
+        this.isSaving.set(false);
+      }
+    });
+  }
+
   handleCancel(): void {
     this.resetForm();
     this.visibleChange.emit(false);
@@ -141,32 +245,6 @@ export class FormTestimonios {
     if (t.imagenT) {
       this.imagenPreview.set(this.publicUrl + 'testimonios/' + t.imagenT);
     }
-  }
-
-  handleSubmit(): void {
-    this.formSubmitted.set(true);
-    this.form.markAllAsTouched();
-
-    if (this.form.invalid) {
-      this.mostrarAdvertencia('datos invalidos');
-      return;
-    }
-
-    const fd = new FormData();
-    Object.entries(this.form.value).forEach(([key, value]) => {
-      fd.append(key, value as any);
-    });
-
-    if (this.imagenFile()) {
-      fd.append('imagenT', this.imagenFile()!);
-    }
-
-    if (this.isEditMode() && this.testimonioToEdit()?.id_testimonio) {
-      fd.append('id_testimonio', this.testimonioToEdit().id_testimonio);
-    }
-
-    this.isSaving.set(true);
-    this.save.emit(fd);
   }
 
   private mostrarExito(detail: string): void {
