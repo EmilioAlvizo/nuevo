@@ -1,19 +1,19 @@
-//nuevo/backend/controllers/articulosController.js
-const ArticulosModel = require("../models/articulosModel");
+//nuevo/backend/controllers/articulos_revistaController.js
+const ArticulosRevistaModel = require("../models/articulos_revistaModel");
 const { parseArrayParam, validarCamposRequeridos } = require("../utils/filters");
 
 const path = require("path");
 const fs = require("fs");
 const backendPublicPath = path.join(__dirname, "../public");
 
-const TABLE_NAME = "articulos";
+const TABLE_NAME = "articulos_revista";
 const ID_COLUMN = "id_articulo";
 
 class ArticulosRevistaController {
   // GET - Obtener todos los registros
   static async getAll(req, res) {
     try {
-      const data = await ArticulosModel.getAll(TABLE_NAME);
+      const data = await ArticulosRevistaModel.getAll(TABLE_NAME);
       res.status(200).json({
         success: true,
         data: data,
@@ -31,7 +31,7 @@ class ArticulosRevistaController {
   static async getById(req, res) {
     try {
       const { id } = req.params;
-      const registro = await ArticulosModel.getById(TABLE_NAME, id, ID_COLUMN);
+      const registro = await ArticulosRevistaModel.getById(TABLE_NAME, id, ID_COLUMN);
 
       if (!registro) {
         return res.status(404).json({
@@ -71,6 +71,9 @@ class ArticulosRevistaController {
         // id_articulo
         id_articulo,
         id_articulo_matchMode,
+        // id_revista
+        id_revista,
+        id_revista_matchMode,
         // titulo
         titulo,
         titulo_matchMode,
@@ -86,6 +89,9 @@ class ArticulosRevistaController {
         // fecha_modificacion
         fecha_modificacion,
         fecha_modificacion_matchMode,
+        // pagina_revista
+        pagina_revista,
+        pagina_revista_matchMode,
       } = req.query;
 
       const params = {
@@ -97,6 +103,8 @@ class ArticulosRevistaController {
 
         id_articulo: id_articulo || null,
         id_articulo_matchMode: id_articulo_matchMode || "contains",
+        id_revista: id_revista ? parseArrayParam(id_revista, "int") : [],
+        id_revista_matchMode: id_revista_matchMode || "contains",
         titulo: titulo || null,
         titulo_matchMode: titulo_matchMode || "contains",
         autor: autor ? parseArrayParam(autor, "string") : [],
@@ -104,10 +112,12 @@ class ArticulosRevistaController {
         contenido_matchMode: contenido_matchMode || "contains",
         estatus: estatus ? parseArrayParam(estatus, "string") : [],
         fecha_modificacion: fecha_modificacion || null,
-        fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs"
+        fecha_modificacion_matchMode: fecha_modificacion_matchMode || "dateIs",
+        pagina_revista: pagina_revista || null,
+        pagina_revista_matchMode: pagina_revista_matchMode || "contains",
       };
 
-      const resultado = await ArticulosModel.getFiltrados(params);
+      const resultado = await ArticulosRevistaModel.getFiltrados(params);
 
       res.status(200).json({
         success: true,
@@ -129,7 +139,7 @@ class ArticulosRevistaController {
   // GET - Obtener valores únicos para filtros
   static async getValoresUnicos(req, res) {
     try {
-      const valores = await ArticulosModel.getValoresUnicos();
+      const valores = await ArticulosRevistaModel.getValoresUnicos();
       res.status(200).json({
         success: true,
         data: valores,
@@ -147,18 +157,20 @@ class ArticulosRevistaController {
   static async create(req, res) {
     try {
       const data = req.body;
-    //   if (data.id_revista === '') {
-    //     data.id_revista = null;
-    //   }
+      if (data.id_revista === '') {
+        data.id_revista = null;
+      }
 
       // Validar campos requeridos
       validarCamposRequeridos(data, []);
 
+      //console.log("📥 Datos recibidos:", req.body);
+      //console.log("📎 Archivos recibidos:", req.files);
+
       // 1️⃣ Crear el registro primero (sin archivos)
-      const nuevoRegistro = await ArticulosModel.create(TABLE_NAME, {
+      const nuevoRegistro = await ArticulosRevistaModel.create(TABLE_NAME, {
         ...data,
-        imagen: null,
-        archivo: null
+        imagen: null
       });
 
       //console.log("🆕 Resultado create():", nuevoRegistro);
@@ -223,7 +235,7 @@ class ArticulosRevistaController {
       }
 
       // 📁 Verificar que el registro exista
-      const registroActual = await ArticulosModel.getById(TABLE_NAME, id, ID_COLUMN);
+      const registroActual = await ArticulosRevistaModel.getById(TABLE_NAME, id, ID_COLUMN);
 
       if (!registroActual) {
         return res.status(404).json({
@@ -261,7 +273,7 @@ class ArticulosRevistaController {
       }
 
       // 🔄 Actualizar BD
-      await ArticulosModel.update(TABLE_NAME, id, camposActualizados, ID_COLUMN);
+      await ArticulosRevistaModel.update(TABLE_NAME, id, camposActualizados, ID_COLUMN);
 
       res.status(200).json({
         success: true,
@@ -284,7 +296,7 @@ class ArticulosRevistaController {
       const { id } = req.params;
 
       // 🔍 Verificar existencia
-      const registro = await ArticulosModel.getById(TABLE_NAME, id, ID_COLUMN);
+      const registro = await ArticulosRevistaModel.getById(TABLE_NAME, id, ID_COLUMN);
 
       if (!registro) {
         return res.status(404).json({
@@ -301,7 +313,7 @@ class ArticulosRevistaController {
       }
 
       // 🧾 Eliminar registro en la BD
-      await ArticulosModel.delete(TABLE_NAME, id, ID_COLUMN);
+      await ArticulosRevistaModel.delete(TABLE_NAME, id, ID_COLUMN);
 
       res.status(200).json({
         success: true,
@@ -335,4 +347,4 @@ class ArticulosRevistaController {
   }
 }
 
-module.exports = ArticulosController;
+module.exports = ArticulosRevistaController;

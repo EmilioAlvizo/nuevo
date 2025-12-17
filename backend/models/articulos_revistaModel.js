@@ -1,9 +1,9 @@
-//nuevo/backend/models/articulosModel.js
+//nuevo/backend/models/articulos_revistaModel.js
 const { buildConditions } = require("../utils/filters");
 const { getConnection, mssql } = require("../config/database");
 
-// Modelo generado automáticamente para la tabla: articulos
-class ArticulosModel {
+// Modelo generado automáticamente para la tabla: articulos_revista
+class ArticulosRevistaModel {
   // Obtener todos los registros
   static async getAll(tableName) {
     try {
@@ -35,15 +35,17 @@ class ArticulosModel {
       const pool = await getConnection();
       const request = pool.request();
 
-      let query = `SELECT * FROM articulos WHERE 1=1`;
+      let query = `SELECT * FROM articulos_revista WHERE 1=1`;
 
       // Configuración de filtros
       const filterConfig = [
+        { name: "id_revista", dbField: "id_revista", type: "int", isMulti: true },
         { name: "titulo", dbField: "titulo", type: "string" },
         { name: "autor", dbField: "autor", type: "string", isMulti: true },
         { name: "contenido", dbField: "contenido", type: "string" },
         { name: "estatus", dbField: "estatus", type: "string", isMulti: true },
-        { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" }
+        { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" },
+        { name: "pagina_revista", dbField: "pagina_revista", type: "int" }
       ];
 
       // Construir condiciones
@@ -77,7 +79,7 @@ class ArticulosModel {
 
       // Contar total
       const countQuery = `
-        SELECT COUNT(*) AS total FROM articulos
+        SELECT COUNT(*) AS total FROM articulos_revista
         WHERE 1=1
         ${conditions.length > 0 ? " AND " + conditions.join(" AND ") : ""}
       `;
@@ -106,11 +108,13 @@ class ArticulosModel {
       const valores = {};
 
       const filterConfig = [
+        { name: "id_revista", dbField: "id_revista", type: "int", isMulti: true },
         { name: "titulo", dbField: "titulo", type: "string" },
         { name: "autor", dbField: "autor", type: "string", isMulti: true },
         { name: "contenido", dbField: "contenido", type: "string" },
         { name: "estatus", dbField: "estatus", type: "string", isMulti: true },
-        { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" }
+        { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" },
+        { name: "pagina_revista", dbField: "pagina_revista", type: "int" }
       ];
 
       const camposMultiselect = filterConfig
@@ -120,7 +124,7 @@ class ArticulosModel {
       for (const campo of camposMultiselect) {
         const query = `
           SELECT DISTINCT ${campo.dbField} as valor
-          FROM articulos
+          FROM articulos_revista
           
           WHERE ${campo.dbField} IS NOT NULL AND ${campo.dbField} != ''
           ORDER BY ${campo.dbField}
@@ -200,4 +204,4 @@ class ArticulosModel {
   }
 }
 
-module.exports = ArticulosModel;
+module.exports = ArticulosRevistaModel;
