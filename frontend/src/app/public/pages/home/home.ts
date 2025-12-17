@@ -18,7 +18,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { AnimateOnScrollModule } from 'primeng/animateonscroll'; // ✅ NUEVO
+import { AnimateOnScrollModule } from 'primeng/animateonscroll'; // ✅ NUEVO.
+import { CarouselModule } from 'primeng/carousel';
 
 @Component({
   selector: 'app-home',
@@ -34,6 +35,7 @@ import { AnimateOnScrollModule } from 'primeng/animateonscroll'; // ✅ NUEVO
     EncuestaActual,
     AnimateOnScrollModule,
     Hero,
+    CarouselModule,
   ],
   providers: [MessageService],
   templateUrl: './home.html',
@@ -166,4 +168,19 @@ export class Home implements OnInit {
       },
     });
   }
+
+  carouselDesignTokens = {
+    indicator: {
+      width: '2rem',
+      height: '0.5rem',
+      borderRadius: '1rem',
+      background: '#d1d5db',
+      hoverBackground: '#9ca3af',
+      activeBackground: '#3b82f6',
+      focusRing: {
+        width: '2px',
+        color: '#3b82f680'
+      }
+    }
+  };
 }

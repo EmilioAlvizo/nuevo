@@ -42,6 +42,7 @@
   }
 
   <!-- Sección 4: Temas de interés -->
+  
   <section class="home-section mb-4 container">
     <div class="row align-items-center justify-content-center">
       <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center">
@@ -54,7 +55,6 @@
         </div>
       </div>
 
-      <!-- Columna derecha: Carrusel -->
       <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
         <div id="temasCarousel" class="carousel slide h-100" data-bs-ride="carousel">
           <div class="carousel-inner">
@@ -88,7 +88,6 @@
             <a href="/temas" class="btn btn-primary">Ver todos los temas</a>
           </div>
 
-          <!-- Controles -->
           <button class="carousel-control-prev" type="button" data-bs-target="#temasCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Anterior</span>
@@ -103,4 +102,72 @@
   </section>
 
   <app-form-propuesta [visible]="showPropuesta()" (visibleChange)="showPropuesta.set($event)" />
+
+  <!-- <section class="home-section mb-4 container">
+  <div class="row align-items-center justify-content-center">
+    
+    <div class="col-lg-3 col-md-4 col-sm-12 text-center mb-3 mb-md-0 espacio-25 justify-content-center">
+      <div class="p-4 max-w-sm! bg-light rounded h-100 d-flex flex-column justify-content-center border border-gray-100 shadow-sm">
+        <h5 class="mb-4 text-gray-700 font-bold">¿Quieres proponer una acción o estrategia en favor de las juventudes?</h5>
+        <button
+          class="px-1 py-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-300 focus:outline-none"
+          (click)="showPropuesta.set(true)">
+          Regístrala aquí
+        </button>
+      </div>
+    </div>
+
+    <div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
+      
+      <p-carousel 
+        [value]="temas()" 
+        [numVisible]="1" 
+        [numScroll]="1" 
+        [circular]="true" 
+        [dt]="carouselDesignTokens"
+        styleClass="temas-carousel">
+        
+        <ng-template let-t pTemplate="item">
+          <div class="h-full px-2 py-2">
+            
+            <div class="flex flex-col md:flex-row h-full rounded-[20px] border border-gray-100 bg-white shadow-xl overflow-hidden transition-transform hover:shadow-2xl">
+              
+              <div class="w-full md:w-5/12 relative min-h-[200px] md:min-h-full bg-gray-50 flex items-center justify-center p-4">
+                <img 
+                  [src]="publicUrl + '/temas_interes/' + t.id_tema + '/' + t.imagen" 
+                  [alt]="t.descripcionTema" 
+                  class="rounded-lg object-cover max-h-[250px] w-auto shadow-md" 
+                />
+              </div>
+
+              <div class="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-center">
+                <h5 class="text-2xl font-bold text-blue-600 mb-3">
+                  {{ t.descripcionTema }}
+                </h5>
+                
+                <p class="text-gray-600 text-justify mb-6 leading-relaxed line-clamp-4 md:line-clamp-none">
+                  {{ t.descripcionMas }}
+                </p>
+
+                <div class="mt-auto">
+                  <a [href]="t.link" 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     class="inline-block px-6 py-2 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-300">
+                    Ver más
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </ng-template>
+      </p-carousel>
+
+    </div>
+  </div>
+</section>
+
+<app-form-propuesta [visible]="showPropuesta()" (visibleChange)="showPropuesta.set($event)" /> -->
+
 </div>
