@@ -11,6 +11,7 @@ import {
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiMunicipio } from '../../../core/services/municipios';
+import { ApiTestimonios } from '../../../core/services/testimonios';
 import { environment } from '../../../../environments/environment';
 
 import { DialogModule } from 'primeng/dialog';
@@ -40,6 +41,7 @@ export class FormTestimonios {
   private confirmationService = inject(ConfirmationService);
   private msg = inject(MessageService);
   private apiMunicipio = inject(ApiMunicipio);
+  private apiTestimonios = inject(ApiTestimonios);
   private fb = inject(FormBuilder).nonNullable;
   private notifs = inject(NotificationService);
 
@@ -49,7 +51,6 @@ export class FormTestimonios {
   testimonioToEdit = input<any>(null);
 
   visibleChange = output<boolean>();
-  save = output<FormData>();
 
   // Estado
   formSubmitted = signal(false);
@@ -121,13 +122,13 @@ export class FormTestimonios {
     }
 
     this.confirmationService.confirm({
-    message: '¿Estás seguro de enviar este testimonio? Una vez enviado, no podrá ser modificado. Será revisado por el equipo y, si es aprobado, se publicará.',
-    header: 'Confirmación de Envío de Testimonio',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Sí, enviar',
-    rejectLabel: 'No, cancelar',
-    accept: () => this.handleSubmit()
-  });
+      message: '¿Estás seguro de enviar este testimonio? Una vez enviado, no podrá ser modificado. Será revisado por el equipo y, si es aprobado, se publicará.',
+      header: 'Confirmación de Envío de Testimonio',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, enviar',
+      rejectLabel: 'No, cancelar',
+      accept: () => this.handleSubmit()
+    });
   }
 
   private handleSubmit(): void {
@@ -145,19 +146,72 @@ export class FormTestimonios {
     }
 
     this.isSaving.set(true);
-    this.save.emit(fd);
 
-    // 🔔 Notificación local
-    const nombre = this.form.value.nombreM;
-    const idTestimonio = this.testimonioToEdit()?.id_testimonio || 'nuevo';
-    this.notifs.agregar(
-      `Nuevo testimonio registrado por ${nombre}`,
-      {
-        tipo: 'testimonio',
-        idReferencia: idTestimonio,
-        link: `/admin/testimonios`
+    // 🔥 Llamar al servicio para crear el testimonio
+    this.apiTestimonios.createTestimonio(fd).subscribe({
+      next: (resp) => {
+        console.log('✅ Respuesta del servidor:', resp);
+
+        if (resp?.success) {
+          this.mostrarExito('Testimonio registrado correctamente');
+
+          // 🔔 Extraer ID de la respuesta
+          let idTestimonio = null;
+          
+          if (resp?.data?.id_testimonios) {
+            const idTest = resp.data.id_testimonios;
+            
+            // Si id_testimonios es un objeto, buscar el ID dentro
+            if (typeof idTest === 'object' && idTest !== null) {
+              idTestimonio = idTest.id || idTest.insertId || idTest.id_testimonios;
+            } 
+            // Si id_testimonios ya es el número
+            else if (typeof idTest === 'number' || !isNaN(Number(idTest))) {
+              idTestimonio = Number(idTest);
+            }
+          }
+          
+          // Fallback: buscar en otras ubicaciones
+          if (!idTestimonio) {
+            idTestimonio = resp?.data?.id || 
+                        resp?.insertId || 
+                        resp?.id;
+          }
+
+          // ⚠️ VALIDAR que sea un número
+          if (typeof idTestimonio === 'number' || (typeof idTestimonio === 'string' && !isNaN(Number(idTestimonio)))) {
+            const idNumerico = Number(idTestimonio);
+            const nombre = this.form.value.nombreM;
+            
+            // Crear notificación con el ID numérico correcto
+            this.notifs.agregar(
+              `Nuevo testimonio registrado por ${nombre}`,
+              {
+                tipo: 'testimonio',
+                idReferencia: idNumerico, // ✅ SOLO EL NÚMERO
+                link: `/admin/testimonios`
+              }
+            );
+            
+            console.log('✅ Notificación creada con ID:', idNumerico);
+          } else {
+            console.error('❌ No se pudo extraer un ID válido de la respuesta:', resp);
+          }
+
+          this.resetForm();
+          this.visibleChange.emit(false);
+        } else {
+          this.mostrarError(resp?.message || 'Error al registrar el testimonio');
+        }
+
+        this.isSaving.set(false);
+      },
+      error: (err) => {
+        console.error('❌ Error al enviar testimonio:', err);
+        this.mostrarError('No se pudo registrar el testimonio');
+        this.isSaving.set(false);
       }
-    );
+    });
   }
 
   handleCancel(): void {

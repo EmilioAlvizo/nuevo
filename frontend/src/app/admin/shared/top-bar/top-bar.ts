@@ -57,16 +57,38 @@ export class TopBar implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // ✅ Detectar clic fuera del menú admin para cerrarlo
-    this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
-      const insideAdminBtn = (event.target as HTMLElement).closest('.admin-btn');
-      const insideAdminMenu = (event.target as HTMLElement).closest('.admin-menu');
+    // this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
+    //   const insideAdminBtn = (event.target as HTMLElement).closest('.admin-btn');
+    //   const insideAdminMenu = (event.target as HTMLElement).closest('.admin-menu');
 
-      if (!insideAdminBtn && !insideAdminMenu) {
-        if (this.showAdminMenu()) {
-          this.showAdminMenu.set(false);
-        }
+    //   if (!insideAdminBtn && !insideAdminMenu) {
+    //     if (this.showAdminMenu()) {
+    //       this.showAdminMenu.set(false);
+    //     }
+    //   }
+    // });
+
+
+    this.clickOutsideHandler = this.renderer.listen('document', 'click', (event) => {
+      const target = event.target as HTMLElement;
+
+      // ===== ADMIN MENU =====
+      const insideAdminBtn = target.closest('.admin-btn');
+      const insideAdminMenu = target.closest('.admin-menu');
+
+      if (!insideAdminBtn && !insideAdminMenu && this.showAdminMenu()) {
+        this.showAdminMenu.set(false);
+      }
+
+      // ===== NOTIFICACIONES =====
+      const insideNotifBtn = target.closest('.notif-btn');
+      const insideNotifDropdown = target.closest('.notif-dropdown');
+
+      if (!insideNotifBtn && !insideNotifDropdown && this.showNotifDropdown()) {
+        this.showNotifDropdown.set(false);
       }
     });
+
   }
 
   ngOnDestroy(): void {

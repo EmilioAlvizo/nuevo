@@ -43,64 +43,42 @@
 
 
 
-          <!-- Usuario no autenticado -->
-          <button class="login-btn" *ngIf="!isLoggedIn()" (click)="goToLogin()" aria-label="Iniciar sesión">
-            <i class="fa-solid fa-user"></i>
-            <span>Login</span>
-          </button>
+<div *ngIf="isLoggedIn()" class="user-actions">
 
-          <!-- Usuario autenticado -->
-          <div *ngIf="isLoggedIn()">
-            
+  <button
+    class="admin-btn"
+    (click)="toggleAdminMenu($event)"
+    [class.active]="showAdminMenu()"
+    aria-label="Menú de administración"
+  >
+    <i class="pi pi-user"></i>
+    <span>{{ currentUser()?.nombre || 'Admin' }}</span>
+    <i class="pi pi-chevron-down" *ngIf="!showAdminMenu()"></i>
+    <i class="pi pi-chevron-up" *ngIf="showAdminMenu()"></i>
+  </button>
+
+  <!-- Campana -->
+  <div class="notifications">
+    <button class="notif-btn" (click)="toggleNotifDropdown()" aria-label="Notificaciones">
+      <i class="pi pi-bell"></i>
+      <span *ngIf="contadorNotificaciones() > 0" class="notif-count">
+        {{ contadorNotificaciones() }}
+      </span>
+    </button>
+
+    <div class="notif-dropdown" *ngIf="showNotifDropdown()">
+      ...
+    </div>
+  </div>
+
+</div>
 
 
-          <button
-            class="admin-btn"
-            (click)="toggleAdminMenu($event)"
-            [class.active]="showAdminMenu()"
-            aria-label="Menú de administración"
-          >
-            <i class="pi pi-user"></i>
-            <span>{{ currentUser()?.nombre || 'Admin' }}</span>
-            <i
-              class="pi pi-chevron-down"
-              *ngIf="!showAdminMenu()"
-            ></i>
-            <i
-              class="pi pi-chevron-up"
-              *ngIf="showAdminMenu()"
-            ></i>
-          </button>
 
-          <!-- Ícono de notificaciones -->
-          <div class="notifications">
-            <button class="notif-btn" (click)="toggleNotifDropdown()" aria-label="Notificaciones">
-              <i class="pi pi-bell"></i>
 
-              <span *ngIf="contadorNotificaciones() > 0" class="notif-count">
-                {{ contadorNotificaciones() }}
-              </span>
-            </button>
 
-            <!-- Dropdown -->
-            <div class="notif-dropdown" *ngIf="showNotifDropdown()">
-              <ul>
-                <li *ngFor="let n of notificaciones()">
-                  <a
-                    routerLink="/admin/"
-                    (click)="marcarComoLeida(n)"
-                  >
-                    <span class="notif-text">{{ n.mensaje }}</span>
-                    <small>{{ n.timestamp | date: 'short' }}</small>
-                  </a>
-                </li>
-              </ul>
-                <!-- <button class="mark-all-btn" (click)="marcarTodasComoLeidas()">
-                  Marcar todas como leídas
-                </button> -->
-              </div>
-            </div>
-          </div>
+
+
 
 
 
