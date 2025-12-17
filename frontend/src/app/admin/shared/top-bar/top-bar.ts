@@ -151,4 +151,10 @@ export class TopBar implements OnInit, OnDestroy {
     this.notifs.marcarTodasComoLeidas();
   }
 
+  irANotificaciones() {
+  this.showNotifDropdown.set(false);
+  this.router.navigateByUrl('/admin');
+}
+
+
 }

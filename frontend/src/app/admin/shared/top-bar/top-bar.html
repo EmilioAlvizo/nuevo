@@ -66,9 +66,29 @@
       </span>
     </button>
 
-    <div class="notif-dropdown" *ngIf="showNotifDropdown()">
+    <!-- <div class="notif-dropdown" *ngIf="showNotifDropdown()">
       ...
-    </div>
+    </div> -->
+    <div class="notif-dropdown" *ngIf="showNotifDropdown()">
+
+  <!-- Hay notificaciones -->
+  <a
+    *ngIf="contadorNotificaciones() > 0"
+    class="notif-link"
+    (click)="irANotificaciones()"
+  >
+    <i class="pi pi-list"></i>
+    Ver notificaciones
+  </a>
+
+  <!-- No hay notificaciones -->
+  <div *ngIf="contadorNotificaciones() === 0" class="notif-empty">
+    <i class="pi pi-bell-slash"></i>
+    No hay notificaciones
+  </div>
+
+</div>
+
   </div>
 
 </div>
