@@ -6,7 +6,7 @@ const { crearUpload } = require('../middleware/uploadMiddleware');
 const { authMiddleware } = require("../middleware/authMiddleware");
 
 // Configurar upload para esta tabla
-const uploadArticulosRevista = crearUpload('articulos', {
+const uploadArticulosRevista = crearUpload('articulos_revista', {
   imagen: [
     'image/*'
   ]

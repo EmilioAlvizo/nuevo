@@ -178,8 +178,8 @@ class ArticulosRevistaController {
       if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
 
       // 2️⃣ Definir carpetas
-      const tempPath = path.join(backendPublicPath, 'articulos', 'temp');
-      const baseFolder = path.join(backendPublicPath, 'articulos', id.toString());
+      const tempPath = path.join(backendPublicPath, 'articulos_revista', 'temp');
+      const baseFolder = path.join(backendPublicPath, 'articulos_revista', id.toString());
       fs.mkdirSync(baseFolder, { recursive: true });
 
       // 3️⃣ Procesar archivos
@@ -244,8 +244,8 @@ class ArticulosRevistaController {
         });
       }
 
-      const tempPath = path.join(backendPublicPath, 'articulos', 'temp');
-      const baseFolder = path.join(backendPublicPath, 'articulos', id.toString());
+      const tempPath = path.join(backendPublicPath, 'articulos_revista', 'temp');
+      const baseFolder = path.join(backendPublicPath, 'articulos_revista', id.toString());
       fs.mkdirSync(baseFolder, { recursive: true });
 
       // 🧾 Campos actualizables
@@ -306,7 +306,7 @@ class ArticulosRevistaController {
       }
 
       // 🗂️ Borrar carpeta del archivo físico
-      const dir = path.join(backendPublicPath, 'articulos', id.toString());
+      const dir = path.join(backendPublicPath, 'articulos_revista', id.toString());
       if (fs.existsSync(dir)) {
         fs.rmSync(dir, { recursive: true, force: true });
         //console.log("🗑️ Carpeta eliminada:", dir);
