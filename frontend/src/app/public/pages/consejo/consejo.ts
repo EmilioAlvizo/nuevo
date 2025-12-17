@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiIntegrantesConsejo, IntegrantesConsejo } from '../../../core/services/consejo';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-consejo',
@@ -10,6 +11,7 @@ import { ApiIntegrantesConsejo, IntegrantesConsejo } from '../../../core/service
   styleUrl: './consejo.css',
 })
 export class Consejo implements OnInit {
+  publicUrl = environment.publicUrl;
 
   integrantes: IntegrantesConsejo[] = [];
   loading = true;

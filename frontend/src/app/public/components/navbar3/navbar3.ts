@@ -11,7 +11,7 @@ import {
   OnDestroy,
   effect,
 } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { TopBar } from '../../../admin/shared/top-bar/top-bar';
@@ -20,7 +20,7 @@ import { InterfazService } from '../../../core/services/interfaz';
 
 @Component({
   selector: 'app-navbar3',
-  imports: [CommonModule, NgOptimizedImage, RouterModule, TopBar],
+  imports: [CommonModule, RouterModule, TopBar],
   templateUrl: './navbar3.html',
   styleUrl: './navbar3.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

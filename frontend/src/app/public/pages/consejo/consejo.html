@@ -3,7 +3,7 @@
   <div class="consejo-banner">
     <div class="banner-imagen">
       <img 
-        src="http://localhost:3000/public/integrantes_consejo/1745522053_9ebf51964bdb99c9a118.jpg" 
+        src="{{publicUrl + '/integrantes_consejo/1745522053_9ebf51964bdb99c9a118.jpg'}}"
         alt="Consejo de Dirección"
         class="banner-foto"
       />
@@ -49,7 +49,7 @@
     <div *ngFor="let integrante of integrantes" class="integrante-card">
       <div class="card-imagen">
         <img 
-          [src]="'http://localhost:3000/public' + '/integrantes_consejo/' + integrante.id_integrante + '/' + integrante.imagen"
+          [src]="publicUrl + '/integrantes_consejo/' + integrante.id_integrante + '/' + integrante.imagen"
           [alt]="integrante.nombre"
           class="integrante-foto"
         />

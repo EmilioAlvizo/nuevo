@@ -1,8 +1,9 @@
 // frontend/src/app/services/authorized_emails.ts
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface AuthorizedEmail {
   id: number;
@@ -27,25 +28,24 @@ export interface ApiResponse {
   providedIn: 'root',
 })
 export class ApiAuthorizedEmails {
-  private apiUrl = 'http://localhost:3000/api';
-
-  constructor(private http: HttpClient) {}
+  private apiUrl = `${environment.apiUrl}/authorized-emails`;
+  private http = inject(HttpClient);
 
   getAuthorizedEmails(): Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/authorized-emails`);
+    return this.http.get<ApiResponse>(this.apiUrl);
   }
 
   createAuthorizedEmail(data: { email: string; authorized_by?: string }): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(`${this.apiUrl}/authorized-emails`, data);
+    return this.http.post<ApiResponse>(this.apiUrl, data);
   }
 
   updateAuthorizedEmail(id: number, data: { email: string; used?: boolean }): Observable<ApiResponse> {
-    return this.http.put<ApiResponse>(`${this.apiUrl}/authorized-emails/${id}`, data);
+    return this.http.put<ApiResponse>(`${this.apiUrl}/${id}`, data);
   }
 
   updateUsuarioStatus(usuarioId: number, activo: boolean): Observable<ApiResponse> {
   return this.http.patch<ApiResponse>(
-    `${this.apiUrl}/authorized-emails/usuario/${usuarioId}/status`, 
+    `${this.apiUrl}/usuario/${usuarioId}/status`, 
     { activo }
   );
 }
@@ -58,6 +58,6 @@ export class ApiAuthorizedEmails {
   // }
 
   deleteAuthorizedEmail(id: number): Observable<ApiResponse> {
-    return this.http.delete<ApiResponse>(`${this.apiUrl}/authorized-emails/${id}`);
+    return this.http.delete<ApiResponse>(`${this.apiUrl}/${id}`);
   }
 }

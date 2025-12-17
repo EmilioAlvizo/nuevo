@@ -10,6 +10,7 @@ import {
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 // PrimeNG Imports
 import { TableModule } from 'primeng/table';
@@ -73,6 +74,8 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private msg = inject(MessageService);
   private datePipe = inject(DatePipe);
+
+  publicUrl = environment.publicUrl;
 
   // ===========================
   // Estado (Signals)
@@ -400,7 +403,7 @@ export class ArticulosAdmin implements OnInit, OnDestroy {
 
   getImageUrl(a: Articulos): string {
     // Tip: Mover la URL base a environments
-    return `http://localhost:3000/public/articulos/${a.id_articulo}/${a.imagen}`;
+    return `${this.publicUrl}/articulos/${a.id_articulo}/${a.imagen}`;
   }
 
   getEstatusLabel(e: string): string {

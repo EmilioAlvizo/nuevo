@@ -1,8 +1,10 @@
 // nuevo/frontend/src/app/services/consejo.ts
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
 export interface IntegrantesConsejo {
   id_integrante: number;
@@ -15,35 +17,29 @@ export interface IntegrantesConsejo {
   fecha_modificacion: string;
 }
 
-export interface ApiResponse {
-  success: boolean;
-  data: IntegrantesConsejo[];
-}
-
 @Injectable({
   providedIn: 'root',
 })
 
 export class ApiIntegrantesConsejo {
+  private apiUrl = `${environment.apiUrl}/consejo`;
+  private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:3000/api';
 
-  constructor(private http: HttpClient) {}
-
-  getIntegrantes():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/consejo`,{});
+  getIntegrantes():Observable<ApiResponse<IntegrantesConsejo>> {
+    return this.http.get<ApiResponse<IntegrantesConsejo>>(this.apiUrl);
   }
 
   createIntegrante(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/consejo`, formData);
+    return this.http.post(this.apiUrl, formData);
   }
 
   updateIntegrante(id: number, formData: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/consejo/${id}`, formData);
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
   deleteIntegrante(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/consejo/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
    
 }

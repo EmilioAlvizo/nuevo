@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy }
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 // PrimeNG
 import { TableModule } from 'primeng/table';
@@ -54,6 +55,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   private apiMunicipio = inject(ApiMunicipio);
   private fb = inject(FormBuilder);
 
+  publicUrl = environment.publicUrl;
   // ⭐ Usar signal en lugar de propiedades normales
   testimonios = signal<Testimonios[]>([]);
   municipios = signal<Municipio[]>([]);
@@ -330,7 +332,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
   }
 
   getImageUrl(testimonio: Testimonios): string {
-    return `http://localhost:3000/public/testimonios/${testimonio.id_testimonios}/${testimonio.imagenT}`;
+    return `${this.publicUrl}/testimonios/${testimonio.id_testimonios}/${testimonio.imagenT}`;
   }
 
   // ===============================

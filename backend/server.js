@@ -26,7 +26,7 @@ const { startCleanupScheduler } = require("./scripts/cleanup");
 const Propuestas_accionController = require("./controllers/propuestas_accionController");
 
 const app = express();
-const PORT = 3000;
+const PORT = 3100;
 
 // ⚠️ IMPORTANTE: CORS debe ser lo primero y con configuración correcta
 app.use(cors({

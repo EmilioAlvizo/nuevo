@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 // PrimeNG imports
 import { TableModule } from 'primeng/table';
@@ -64,6 +65,8 @@ export class TemasInteresAdmin implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+
+  publicUrl = environment.publicUrl;
 
   // ===========================
   // ESTADO (SIGNALS)
@@ -336,7 +339,7 @@ export class TemasInteresAdmin implements OnInit, OnDestroy {
   getImageUrl(tema: Temas): string {
     if (!tema.imagen) return '';
     // Idealmente mover URL base a environment.ts
-    return `http://localhost:3000/public/temas_interes/${tema.id_tema}/${tema.imagen}`;
+    return `${this.publicUrl}/temas_interes/${tema.id_tema}/${tema.imagen}`;
   }
 
   getEstatusLabel(estatus: string): string {

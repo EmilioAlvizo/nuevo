@@ -3,6 +3,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
 export interface Temas {
   id_tema: number;
@@ -14,11 +16,6 @@ export interface Temas {
   descripcionMas: string;
 }
 
-export interface ApiResponse {
-  success: boolean;
-  data: Temas[];
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -26,24 +23,23 @@ export interface ApiResponse {
 
 //esto es para comunicarse con el backend real
 export class ApiTemas {
-    private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = `${environment.apiUrl}/temas`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
-
-  getTemas():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/temas`,{});
+  getTemas():Observable<ApiResponse<Temas>> {
+    return this.http.get<ApiResponse<Temas>>(this.apiUrl);
   }
 
   createTema(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/temas`, formData);
+    return this.http.post(this.apiUrl, formData);
   }
 
   updateTema(id: number, formData: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/temas/${id}`, formData);
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
   deleteTema(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/temas/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
  
 }

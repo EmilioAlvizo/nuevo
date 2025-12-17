@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 // PrimeNG imports
 import { TableModule } from 'primeng/table';
@@ -67,6 +68,8 @@ export class ApoyosServiciosAdmin implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+
+  publicUrl = environment.publicUrl;
 
   // ===========================
   // ESTADO (SIGNALS)
@@ -330,7 +333,7 @@ export class ApoyosServiciosAdmin implements OnInit, OnDestroy {
   // ===========================
   getImageUrl(apoyo: Apoyos): string {
     if (!apoyo.imagen) return '';
-    return `http://localhost:3000/public/apoyos_servicios/${apoyo.id_apoyo}/${apoyo.imagen}`;
+    return `${this.publicUrl}/apoyos_servicios/${apoyo.id_apoyo}/${apoyo.imagen}`;
   }
 
   getEstatusLabel(estatus: string): string {

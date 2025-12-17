@@ -12,8 +12,6 @@ import { ApiTemas, Temas } from '../../../core/services/temas_interes';
 import { FormTestimonios } from '../../components/form-testimonios/form-testimonios';
 import { FormPropuesta } from '../../components/form-propuesta/form-propuesta';
 import { EncuestaActual } from '../../components/encuesta-actual/encuesta-actual';
-import { CarruselRevista } from '../../components/carrusel-revista/carrusel-revista';
-import { Carrusel1 } from '../../components/carrusel-1/carrusel-1';
 import { Hero } from '../../components/hero/hero';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -34,9 +32,7 @@ import { AnimateOnScrollModule } from 'primeng/animateonscroll'; // ✅ NUEVO
     FormPropuesta,
     ButtonModule,
     EncuestaActual,
-    CarruselRevista,
     AnimateOnScrollModule,
-    Carrusel1,
     Hero,
   ],
   providers: [MessageService],

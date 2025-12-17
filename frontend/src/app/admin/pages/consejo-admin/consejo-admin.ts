@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, ChangeDetectionStrategy }
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 //PrimeNG
 import { TableModule } from 'primeng/table';
@@ -54,6 +55,8 @@ export class ConsejoAdmin {
   private msg = inject(MessageService);
   private confirm = inject(ConfirmationService);
   private fb = inject(FormBuilder);
+
+  publicUrl = environment.publicUrl;
 
   // ⭐ Usar signal en lugar de propiedades normales
   integrantesConsejo = signal<IntegrantesConsejo[]>([]);
@@ -302,7 +305,7 @@ ngOnInit(): void {
   }
 
   getImageUrl(integrante: IntegrantesConsejo): string {
-    return `http://localhost:3000/public/integrantes_consejo/${integrante.id_integrante}/${integrante.imagen}`;
+    return `${this.publicUrl}/integrantes_consejo/${integrante.id_integrante}/${integrante.imagen}`;
   }
 
   // ===============================

@@ -3,6 +3,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
 export interface Apoyos {
   id_apoyo: number;
@@ -15,11 +17,6 @@ export interface Apoyos {
   descripcion: string;
 }
 
-export interface ApiResponse {
-  success: boolean;
-  data: Apoyos[];
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -27,24 +24,23 @@ export interface ApiResponse {
 
 //esto es para comunicarse con el backend real
 export class ApiApoyos {
-    private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = `${environment.apiUrl}/apoyos`;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
-
-  getApoyos():Observable<ApiResponse> {
-    return this.http.get<ApiResponse>(`${this.apiUrl}/apoyos`,{});
+  getApoyos():Observable<ApiResponse<Apoyos>> {
+    return this.http.get<ApiResponse<Apoyos>>(this.apiUrl);
   }
 
   createApoyo(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/apoyos`, formData);
+    return this.http.post(this.apiUrl, formData);
   }
 
   updateApoyo(id: number, formData: FormData): Observable<any> {
-    return this.http.put(`${this.apiUrl}/apoyos/${id}`, formData);
+    return this.http.put(`${this.apiUrl}/${id}`, formData);
   }
 
   deleteApoyo(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/apoyos/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
  
 }

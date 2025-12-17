@@ -94,7 +94,7 @@ export class InterfazService {
 
   // Construir URL de imagen
   private buildImageUrl(id: number, archivo: string): string {
-    return `http://localhost:3000/public/interfaz/${id}/${archivo}`;
+    return `${this.publicUrl}/interfaz/${id}/${archivo}`;
   }
 
   // Método genérico para obtener cualquier configuración por nombre

@@ -6,6 +6,7 @@ import {
   inject,
   signal,
   ChangeDetectionStrategy,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -26,6 +27,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 
 import { ApiAuthorizedEmails, AuthorizedEmail } from '../../../core/services/authorized_emails';
+import { AuthService } from '../../../core/services/auth.service'; // Importar AuthService
 
 @Component({
   selector: 'app-authorized-emails-admin',
@@ -58,6 +60,7 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private authService = inject(AuthService);
 
   // ===========================
   // STATE (SIGNALS)
@@ -75,10 +78,19 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
 
   constructor() {
     this.inicializarFormulario();
+    effect(() => {
+      const isReady = this.authService.initializationComplete();
+      const isLoggedIn = this.authService.isLoggedIn();
+
+      // Solo cargamos si la auth terminó Y el usuario está logueado
+      if (isReady && isLoggedIn) {
+        // Usamos untracked si no queremos que cargarEmails cree dependencias reactivas extras (opcional pero recomendado)
+        this.cargarEmails();
+      }
+    });
   }
 
-  ngOnInit(): void {
-    this.cargarEmails();  // ← llamado directo, sin setTimeout
+  ngOnInit(): void { // ← llamado directo, sin setTimeout
   }
 
   ngOnDestroy(): void {
@@ -116,6 +128,7 @@ export class AuthorizedEmailsAdmin implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error al cargar emails:', error);
+          console.log('Detalle del error:', error.error);
           this.mostrarError('Error al cargar los emails autorizados. Intente nuevamente.');
           this.loading.set(false);
         },

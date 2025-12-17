@@ -18,7 +18,6 @@ import { TabsModule } from 'primeng/tabs';
 
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
 import { ApiArticulos, Articulos } from '../../../core/services/articulos';
-import { Flipbook } from '../../components/flipbook/flipbook';
 import { Flipbook2 } from '../../components/flipbook2/flipbook2';
 import { environment } from '../../../../environments/environment';
 
@@ -27,7 +26,7 @@ registerLocaleData(localeEs);
 @Component({
   selector: 'app-revista-detalle',
   standalone: true,
-  imports: [CommonModule, Flipbook, Flipbook2, RouterModule, BreadcrumbModule, TabsModule],
+  imports: [CommonModule, Flipbook2, RouterModule, BreadcrumbModule, TabsModule],
   templateUrl: './revista-detalle.html',
   styleUrls: ['./revista-detalle.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,

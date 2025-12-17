@@ -9,7 +9,6 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ApiDocumentosFisicos, DocumentoFisico } from '../../../core/services/documentos_fisicos';
 import { TablaGenerica, ColumnConfig } from '../../shared/tabla-generica/tabla-generica';
-import { FormRevistas } from '../../components/form-revistas/form-revistas';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -19,7 +18,6 @@ import { environment } from '../../../../environments/environment';
     FormsModule,
     TablaGenerica,
     DialogModule,
-    FormRevistas,
     ToastModule,
     ConfirmDialogModule,
   ],
