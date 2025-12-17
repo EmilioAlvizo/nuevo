@@ -155,7 +155,7 @@ class ArticulosRevistaModel {
       });
 
       const query = `INSERT INTO ${tableName} (${columns}) VALUES (${values}); SELECT SCOPE_IDENTITY() AS id;`;
-      console.log("asada: ", query)
+      //console.log("asada: ", query)
       const result = await request.query(query);
 
       return { id: result.recordset[0].id, ...data };

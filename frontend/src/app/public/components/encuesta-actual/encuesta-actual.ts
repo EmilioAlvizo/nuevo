@@ -187,6 +187,9 @@ export class EncuestaActual implements OnInit {
    * Verifica si existe la marca de voto para una encuesta específica
    */
   private verificarEstadoVoto(idEncuesta: number) {
+    if (!this.platform.isBrowser) {
+      return;
+    }
     const key = `voto_encuesta_${idEncuesta}`;
     const haVotado = !!localStorage.getItem(key);
     this.yaVoto.set(haVotado);

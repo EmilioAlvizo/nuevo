@@ -45,7 +45,7 @@ export class ApiRevistas {
   // ✅ NUEVO - Método con filtros (más eficiente)
   getFiltrados(filtros: any): Observable<ApiResponsePaginated<Revistas>> {
     let params = new HttpParams();
-    console.log('Filtros recibidos en el servicio:', filtros);
+    //console.log('Filtros recibidos en el servicio:', filtros);
 
     // Agregar todos los parámetros dinámicamente
     Object.keys(filtros).forEach((key) => {
@@ -62,7 +62,7 @@ export class ApiRevistas {
         }
       }
     });
-    console.log('Llamando a API REVISTAS con params:', params.toString());
+    //console.log('Llamando a API REVISTAS con params:', params.toString());
 
     return this.http.get<ApiResponsePaginated<Revistas>>(`${this.apiUrl}/filtrados`, {
       params,
@@ -70,9 +70,9 @@ export class ApiRevistas {
   }
 
   crearRevista(formData: FormData) {
-    console.log('apiUrl: ', this.apiUrl);
+    //console.log('apiUrl: ', this.apiUrl);
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
+      //console.log(pair[0] + ': ' + pair[1]);
     }
     return this.http.post<any>(this.apiUrl, formData);
   }

@@ -168,8 +168,8 @@ class ArchivosMunicipioController {
       // Validar campos requeridos
       validarCamposRequeridos(data, []);
 
-      console.log("📥 Datos recibidos:", req.body);
-      console.log("📎 Archivos recibidos:", req.files);
+      //console.log("📥 Datos recibidos:", req.body);
+      //console.log("📎 Archivos recibidos:", req.files);
 
       // 1️⃣ Crear el registro primero (sin archivos)
       const nuevoRegistro = await ArchivosMunicipioModel.create(TABLE_NAME, { 
@@ -177,7 +177,7 @@ class ArchivosMunicipioController {
         archivo: null
       });
 
-      console.log("🆕 Resultado create():", nuevoRegistro);
+      //console.log("🆕 Resultado create():", nuevoRegistro);
       const id = nuevoRegistro.id_archivo || nuevoRegistro.insertId || nuevoRegistro.id;
       if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
 
@@ -195,7 +195,7 @@ class ArchivosMunicipioController {
         const newPath = path.join(baseFolder, archivo.filename);
         fs.renameSync(oldPath, newPath);
         archivosActualizados.archivo = archivo.filename;
-        console.log("📂 archivo movido a:", newPath);
+        //console.log("📂 archivo movido a:", newPath);
       } else {
         console.warn("⚠️ No se recibió archivo en req.files.archivo");
       }
@@ -262,14 +262,14 @@ class ArchivosMunicipioController {
           const archivoAnterior = path.join(baseFolder, registroActual.archivo);
           if (fs.existsSync(archivoAnterior)) {
             fs.unlinkSync(archivoAnterior);
-            console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
+            //console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
           }
         }
 
         // Mover el nuevo
         fs.renameSync(oldPath, newPath);
         camposActualizados.archivo = nuevoArchivo.filename;
-        console.log("📂 Nuevo archivo guardado en:", newPath);
+        //console.log("📂 Nuevo archivo guardado en:", newPath);
       }
 
       // 🔄 Actualizar BD
@@ -309,7 +309,7 @@ class ArchivosMunicipioController {
       const dir = path.join(backendPublicPath, TABLE_NAME, id.toString());
       if (fs.existsSync(dir)) {
         fs.rmSync(dir, { recursive: true, force: true });
-        console.log("🗑️ Carpeta eliminada:", dir);
+        //console.log("🗑️ Carpeta eliminada:", dir);
       }
 
       // 🧾 Eliminar registro en la BD

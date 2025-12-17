@@ -53,7 +53,7 @@ export class ApiDocumentosFisicos {
         }
       }
     });
-    console.log('Llamando a API DocumentoFisico con params:', params.toString());
+    //console.log('Llamando a API DocumentoFisico con params:', params.toString());
 
     return this.http.get<ApiResponsePaginated<DocumentoFisico>>(`${this.apiUrl}/filtrados`, {
       params,
@@ -61,9 +61,9 @@ export class ApiDocumentosFisicos {
   }
 
   crear(formData: FormData) {
-    console.log('apiUrl: ', this.apiUrl);
+    //console.log('apiUrl: ', this.apiUrl);
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
+      //console.log(pair[0] + ': ' + pair[1]);
     }
     return this.http.post<any>(this.apiUrl, formData);
   }

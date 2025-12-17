@@ -143,7 +143,7 @@ export class ArchMunicipioPublic implements TableStrategy {
         sortOrder = undefined;
         break;
     }
-    console.log('parametros ', params);
+    //console.log('parametros ', params);
 
     // Construimos los parámetros finales para el servicio
     const backendParams: any = {

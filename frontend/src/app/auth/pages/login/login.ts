@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
     // CORRECCIÓN: Usar paréntesis () para leer las signals del servicio
     if (this.authService.isLoggedIn()) {
       const user = this.authService.currentUser();
-      console.log('✅ Ya está logueado como:', user?.email);
+      //console.log('✅ Ya está logueado como:', user?.email);
       this.navigateAfterLogin(user);
       return;
     }

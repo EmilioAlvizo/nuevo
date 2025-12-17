@@ -57,7 +57,7 @@ export class FormEncuestas {
 
     effect(() => {
       const enc = this.encuestaToEdit();
-      console.log("encuestaToEdit recibida >>>", enc);   // 👈 AGREGA ESTO
+      //console.log("encuestaToEdit recibida >>>", enc);   // 👈 AGREGA ESTO
       const isVisible = this.visible();
       const isEdit = this.isEditMode();
 
@@ -148,7 +148,7 @@ export class FormEncuestas {
 
     this.opcionesArray.clear();
 
-    console.log("cargando opciones ", enc.opciones)
+    //console.log("cargando opciones ", enc.opciones)
 
     if (enc.opciones) {
       enc.opciones.forEach((o: any) => this.addOpcion(o.textoOpcion));

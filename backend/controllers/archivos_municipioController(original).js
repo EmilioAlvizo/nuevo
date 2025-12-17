@@ -368,8 +368,8 @@ static async create(req, res) {
     const idMunicipio = id_municipio ? parseInt(id_municipio, 10) : null;
     const fechaArchivo = fecha_archivo || new Date().toISOString().split('T')[0];
 
-    console.log("📥 Datos recibidos:", req.body);
-    console.log("📎 Archivos recibidos:", req.files);
+    //("📥 Datos recibidos:", req.body);
+    //console.log("📎 Archivos recibidos:", req.files);
 
     // 1️⃣ Crear el registro
     const nuevoArchivo = await Archivos_municipioModel.create(TABLE_NAME, {
@@ -384,7 +384,7 @@ static async create(req, res) {
       archivo: null,
     });
 
-    console.log("🆕 Resultado create():", nuevoArchivo);
+    //console.log("🆕 Resultado create():", nuevoArchivo);
     const id = nuevoArchivo.id_archivo || nuevoArchivo.insertId || nuevoArchivo.id;
     if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
 
@@ -402,7 +402,7 @@ static async create(req, res) {
       const newPath = path.join(baseFolder, archivo.filename);
       fs.renameSync(oldPath, newPath);
       archivoFinal = archivo.filename;
-      console.log("📂 Archivo movido a:", newPath);
+      //console.log("📂 Archivo movido a:", newPath);
     } else {
       console.warn("⚠️ No se recibió archivo en req.files.archivo");
     }
@@ -508,14 +508,14 @@ static async create(req, res) {
         const archivoAnterior = path.join(baseFolder, registro.archivo);
         if (fs.existsSync(archivoAnterior)) {
           fs.unlinkSync(archivoAnterior);
-          console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
+          //console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
         }
       }
 
       // Mover el nuevo
       fs.renameSync(oldPath, newPath);
       camposActualizados.archivo = nuevoArchivo.filename;
-      console.log("📂 Nuevo archivo guardado en:", newPath);
+      //console.log("📂 Nuevo archivo guardado en:", newPath);
     }
 
     // 🔄 Actualizar BD
@@ -596,7 +596,7 @@ static async create(req, res) {
     const dir = path.join(backendPublicPath, 'archivos_municipio', id.toString());
     if (fs.existsSync(dir)) {
       fs.rmSync(dir, { recursive: true, force: true });
-      console.log("🗑️ Carpeta eliminada:", dir);
+      //console.log("🗑️ Carpeta eliminada:", dir);
     }
 
     // 🧾 Eliminar registro en la BD

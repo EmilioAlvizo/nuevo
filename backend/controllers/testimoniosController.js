@@ -461,7 +461,7 @@ class TestimoniosController {
       
       if (fs.existsSync(carpetaTestimonio)) {
         fs.rmSync(carpetaTestimonio, { recursive: true, force: true });
-        console.log(`Carpeta eliminada: ${carpetaTestimonio}`);
+        //console.log(`Carpeta eliminada: ${carpetaTestimonio}`);
       }
 
       res.status(200).json({

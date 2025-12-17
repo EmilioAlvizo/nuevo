@@ -163,7 +163,7 @@ export class TablaArchMunicipios {
   }
 
   editar(doc: any) {
-    console.log('Editar doc:', doc);
+    //console.log('Editar doc:', doc);
     this.revistaToEdit = doc; // 📌 Guarda la doc seleccionada
     this.showDialog.set(true); // 📌 Abre el diálogo
   }
@@ -264,7 +264,7 @@ export class TablaArchMunicipios {
     if (data.subcategoria_archivo) formData.append('subcategoria_archivo', data.subcategoria_archivo); */
 
 
-    console.log('📤 Enviando FormData a backend...');
+    //console.log('📤 Enviando FormData a backend...');
 
     const request$ = this.isEditMode()
       ? this.apiArchivos_municipio.updateArchivo(this.archivoToEdit()!.id_archivo, formData)
@@ -272,7 +272,7 @@ export class TablaArchMunicipios {
 
     request$.subscribe({
       next: (resp) => {
-        console.log('✅ Respuesta del servidor:', resp);
+        //console.log('✅ Respuesta del servidor:', resp);
         this.messageService.add({
           severity: 'success',
           summary: '¡Éxito!',

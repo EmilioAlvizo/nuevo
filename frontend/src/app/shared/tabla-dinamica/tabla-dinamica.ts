@@ -267,7 +267,7 @@ export class TablaDinamica implements OnInit, OnChanges {
     if (strat?.onView) {
       strat.onView(item);
     } else {
-      console.log('Ver:', item);
+      //console.log('Ver:', item);
     }
   }
 

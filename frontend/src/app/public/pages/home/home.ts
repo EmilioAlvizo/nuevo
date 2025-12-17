@@ -122,16 +122,16 @@ export class Home implements OnInit {
   }
 
   guardarTestimonio(fd: FormData) {
-    console.log('💾 guardarTestimonio() llamado desde HOME');
+    //console.log('💾 guardarTestimonio() llamado desde HOME');
 
     // Debug: ver qué contiene el FormData
-    console.log('📦 FormData recibido:');
-    for (let [key, value] of fd.entries()) {
+    //console.log('📦 FormData recibido:');
+    /* for (let [key, value] of fd.entries()) {
       console.log(`  ${key}:`, value);
-    }
+    } */
 
     const id = fd.get('id_testimonio');
-    console.log('🔍 id_testimonio:', id, '(modo:', id ? 'EDIT' : 'CREATE', ')');
+    //console.log('🔍 id_testimonio:', id, '(modo:', id ? 'EDIT' : 'CREATE', ')');
 
     const request = id
       ? this.apiTestimonios.updateTestimonio(Number(id), fd)
@@ -139,7 +139,7 @@ export class Home implements OnInit {
 
     request.subscribe({
       next: (response) => {
-        console.log('✅ Respuesta exitosa en HOME:', response);
+        //console.log('✅ Respuesta exitosa en HOME:', response);
 
         this.msg.add({
           severity: 'success',
@@ -152,11 +152,11 @@ export class Home implements OnInit {
         // Esperar un poco y verificar estado
         setTimeout(() => {
           const current = this.apiTestimonios.getCurrentTestimonios();
-          console.log('📊 Estado después de guardar:', current.length, 'testimonios');
-          console.log(
+          //console.log('📊 Estado después de guardar:', current.length, 'testimonios');
+          /* console.log(
             '📋 IDs actuales:',
             current.map((t) => t.id_testimonios)
-          );
+          ); */
         }, 100);
       },
       error: (err) => {

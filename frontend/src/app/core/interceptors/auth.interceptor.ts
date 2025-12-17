@@ -20,14 +20,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
       // Si es 401 con needsRefresh (backend indica que hay refresh token) -> intentar refresh
       if (error.status === 401 && error.error?.needsRefresh === true && !shouldSkipRefresh) {
-        console.log('🔄 [INTERCEPTOR] Token expirado detectado en:', req.url);
-        console.log('🔄 [INTERCEPTOR] Intentando renovar tokens...');
+        //console.log('🔄 [INTERCEPTOR] Token expirado detectado en:', req.url);
+        //console.log('🔄 [INTERCEPTOR] Intentando renovar tokens...');
 
         return authService.refreshTokensObservable().pipe(
           switchMap((user) => {
             if (user) {
-              console.log('✅ [INTERCEPTOR] Tokens renovados exitosamente');
-              console.log('🔄 [INTERCEPTOR] Reintentando petición original:', req.url);
+              //console.log('✅ [INTERCEPTOR] Tokens renovados exitosamente');
+              //console.log('🔄 [INTERCEPTOR] Reintentando petición original:', req.url);
 
               // Reintentar la petición original con las cookies actualizadas
               const retryReq = req.clone({ withCredentials: true });

@@ -167,7 +167,7 @@ export class TablaDocCendoc {
   }
 
   editar(doc: any) {
-    console.log('Editar doc:', doc);
+    //console.log('Editar doc:', doc);
     this.revistaToEdit.set(doc); // 📌 Guarda la doc seleccionada
     this.showDialog.set(true); // 📌 Abre el diálogo
   }

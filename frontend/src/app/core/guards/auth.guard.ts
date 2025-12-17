@@ -19,7 +19,7 @@ export const AuthGuard: CanActivateFn = (route, state): Observable<boolean | Url
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
 
-  console.log('🛡️ [GUARD] Verificando acceso a:', state.url);
+  //console.log('🛡️ [GUARD] Verificando acceso a:', state.url);
 
   // SSR (server-side rendering): permitir acceso
   if (!isPlatformBrowser(platformId)) {
@@ -36,16 +36,16 @@ export const AuthGuard: CanActivateFn = (route, state): Observable<boolean | Url
 
       // ✅ Si ya hay usuario cargado en memoria, permitir acceso
       if (user) {
-        console.log('✅ [GUARD] Usuario autenticado:', user.email);
+        //console.log('✅ [GUARD] Usuario autenticado:', user.email);
         return of(true);
       }
 
       // 🚀 Si no hay usuario en memoria, intentar verificar sesión con el backend
-      console.log('🔍 [GUARD] Sin usuario en memoria, verificando sesión...');
+      //console.log('🔍 [GUARD] Sin usuario en memoria, verificando sesión...');
       return from(authService.verifySession()).pipe(
         map((verifiedUser) => {
           if (verifiedUser) {
-            console.log('✅ [GUARD] Sesión válida:', verifiedUser.email);
+            //console.log('✅ [GUARD] Sesión válida:', verifiedUser.email);
             return true;
           }
 

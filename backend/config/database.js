@@ -29,7 +29,7 @@ const getConnection = async () => {
   try {
     if (!pool) {
       pool = await mssql.connect(config);
-      console.log("✅ Conectado a SQL Server");
+      //console.log("✅ Conectado a SQL Server");
     }
     return pool;
   } catch (error) {
@@ -44,7 +44,7 @@ const closeConnection = async () => {
     if (pool) {
       await pool.close();
       pool = null;
-      console.log("🔌 Conexión cerrada");
+      //console.log("🔌 Conexión cerrada");
     }
   } catch (error) {
     console.error("❌ Error al cerrar conexión:", error);

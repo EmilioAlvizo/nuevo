@@ -47,7 +47,7 @@ export class ApiTestimonios {
   createTestimonio(formData: FormData): Observable<any> {
     return this.http.post<any>(this.apiUrl, formData).pipe(
       tap((res) => {
-        console.log('📤 POST response:', res);
+        //console.log('📤 POST response:', res);
       }),
       switchMap((res) => {
         if (res.success) {
@@ -56,8 +56,8 @@ export class ApiTestimonios {
             const currentList = this.testimoniosSubject.value;
             const newList = [...currentList, res.data];
             this.testimoniosSubject.next(newList);
-            console.log('✅ Testimonio agregado localmente:', res.data);
-            console.log('📊 BehaviorSubject ahora tiene:', newList.length, 'items');
+            //console.log('✅ Testimonio agregado localmente:', res.data);
+            //console.log('📊 BehaviorSubject ahora tiene:', newList.length, 'items');
             return [res];
           } else {
             // ⚠️ Si NO devuelve data, hacer refresh
@@ -75,7 +75,7 @@ export class ApiTestimonios {
   createTestimonioPublico(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/publico`, formData).pipe(
       tap((res) => {
-        console.log('📤 POST response:', res);
+        //console.log('📤 POST response:', res);
       }),
       switchMap((res) => {
         if (res.success) {
@@ -84,8 +84,8 @@ export class ApiTestimonios {
             const currentList = this.testimoniosSubject.value;
             const newList = [...currentList, res.data];
             this.testimoniosSubject.next(newList);
-            console.log('✅ Testimonio agregado localmente:', res.data);
-            console.log('📊 BehaviorSubject ahora tiene:', newList.length, 'items');
+            //console.log('✅ Testimonio agregado localmente:', res.data);
+            //console.log('📊 BehaviorSubject ahora tiene:', newList.length, 'items');
             return [res];
           } else {
             // ⚠️ Si NO devuelve data, hacer refresh
@@ -104,7 +104,7 @@ export class ApiTestimonios {
   updateTestimonio(id: number, formData: FormData): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, formData).pipe(
       tap((res) => {
-        console.log('📤 PUT response:', res);
+        //console.log('📤 PUT response:', res);
       }),
       switchMap((res) => {
         if (res.success) {
@@ -115,8 +115,8 @@ export class ApiTestimonios {
               t.id_testimonios === id ? { ...t, ...res.data } : t
             );
             this.testimoniosSubject.next(updatedList);
-            console.log('✅ Testimonio actualizado localmente:', res.data);
-            console.log('📊 BehaviorSubject ahora tiene:', updatedList.length, 'items');
+            //console.log('✅ Testimonio actualizado localmente:', res.data);
+            //console.log('📊 BehaviorSubject ahora tiene:', updatedList.length, 'items');
             return [res];
           } else {
             // ⚠️ Si NO devuelve data, hacer refresh
@@ -135,14 +135,14 @@ export class ApiTestimonios {
   deleteTestimonio(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`).pipe(
       tap((res) => {
-        console.log('📤 DELETE response:', res);
+        //console.log('📤 DELETE response:', res);
         if (res.success) {
           // Eliminar el testimonio de la lista
           const currentList = this.testimoniosSubject.value;
           const filteredList = currentList.filter((t) => t.id_testimonios !== id);
           this.testimoniosSubject.next(filteredList);
-          console.log('✅ Testimonio eliminado localmente, ID:', id);
-          console.log('📊 BehaviorSubject ahora tiene:', filteredList.length, 'items');
+          //console.log('✅ Testimonio eliminado localmente, ID:', id);
+          //console.log('📊 BehaviorSubject ahora tiene:', filteredList.length, 'items');
         }
       })
     );
@@ -150,7 +150,7 @@ export class ApiTestimonios {
 
   // 🔄 Método público para refrescar manualmente
   refresh(): Observable<ApiResponse<Testimonios>> {
-    console.log('🔄 Refresh manual solicitado');
+    //console.log('🔄 Refresh manual solicitado');
     return this.getTestimonios();
   }
 
@@ -161,7 +161,7 @@ export class ApiTestimonios {
 
   // 🆕 Método para forzar actualización manual del BehaviorSubject
   setTestimonios(data: Testimonios[]): void {
-    console.log('🔧 Actualizando BehaviorSubject manualmente con', data.length, 'items');
+    //console.log('🔧 Actualizando BehaviorSubject manualmente con', data.length, 'items');
     this.testimoniosSubject.next(data);
   }
 }

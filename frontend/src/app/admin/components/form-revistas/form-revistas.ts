@@ -108,7 +108,7 @@ export class FormRevistas {
       // 3. Hay una revista
       // 4. Es una revista diferente a la última cargada
       if (isVisible && isEdit && revista && revista.id_revista !== this.lastLoadedRevistaId) {
-        console.log('🔄 Effect: Cargando revista', revista.id_revista);
+        //console.log('🔄 Effect: Cargando revista', revista.id_revista);
         this.lastLoadedRevistaId = revista.id_revista;
         this.loadRevistaData(revista);
       } else if (isVisible && !isEdit) {
@@ -129,7 +129,7 @@ export class FormRevistas {
 
   // 🔥 NUEVO: Método para manejar cambios en el estatus
   onEstatusChange(event: any): void {
-    console.log('🔄 Estatus cambiado a:', event.value);
+    //console.log('🔄 Estatus cambiado a:', event.value);
     // Actualizar el formulario explícitamente
     this.revistaForm.patchValue({ estatus: event.value });
     this.revistaForm.get('estatus')?.markAsTouched();
@@ -225,7 +225,7 @@ export class FormRevistas {
       // 🕓 Formato completo local
       const fechaHoraLocal = `${año}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
 
-      console.log('📅 Fecha local enviada:', fechaHoraLocal);
+      //console.log('📅 Fecha local enviada:', fechaHoraLocal);
 
       formData.append('fecha', fechaHoraLocal);
     }
@@ -278,7 +278,7 @@ export class FormRevistas {
   }
 
   loadRevistaData(revista: any): void {
-    console.log('📋 Cargando revista:', revista.id_revista);
+    //console.log('📋 Cargando revista:', revista.id_revista);
 
     // 👇 Cargar los valores directamente sin timeout
     this.revistaForm.patchValue({
@@ -289,8 +289,8 @@ export class FormRevistas {
       estatus: revista.estatus,
     });
 
-    console.log('✅ Formulario después de cargar:', this.revistaForm.value);
-    console.log('✅ Estatus cargado:', this.revistaForm.get('estatus')?.value);
+    //console.log('✅ Formulario después de cargar:', this.revistaForm.value);
+    //console.log('✅ Estatus cargado:', this.revistaForm.get('estatus')?.value);
 
     // Marcar como pristine después de cargar
     this.revistaForm.markAsPristine();

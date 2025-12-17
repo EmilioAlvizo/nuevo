@@ -514,7 +514,7 @@ function isActualFileColumn(columnName, allColumns, config = {}) {
   // 1️⃣ PRIORIDAD ABSOLUTA: Configuración manual explícita
   // Si definiste 'fileColumns' en tu config, SOLO esas columnas son archivos.
   if (config.fileColumns && Array.isArray(config.fileColumns)) {
-    console.log("si se definio columna de archivo ---------")
+    //console.log("si se definio columna de archivo ---------")
     return config.fileColumns.includes(columnName);
   }
 
@@ -552,7 +552,7 @@ function generateController(schema) {
   const fileColumns = columns.filter(col => isActualFileColumn(col.name, columns, config));
   const hasFiles = fileColumns.length > 0;
 
-  console.log(`📂 Columnas de archivo detectadas para ${tableName}:`, fileColumns.map(c => c.name));
+  //console.log(`📂 Columnas de archivo detectadas para ${tableName}:`, fileColumns.map(c => c.name));
 
   // Generar parámetros de query (excluir solo las columnas de archivo reales)
   const fileColumnNames = fileColumns.map(c => c.name.toLowerCase());

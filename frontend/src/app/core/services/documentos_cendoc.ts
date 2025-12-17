@@ -59,7 +59,7 @@ export class ApiDocumentos_cendoc {
         }
       }
     });
-    console.log('Llamando a API DocumentoFisico con params:', params.toString());
+    //console.log('Llamando a API DocumentoFisico con params:', params.toString());
 
     return this.http.get<ApiResponsePaginated<Documentos_cendoc>>(`${this.apiUrl}/filtrados`, {
       params,
@@ -75,9 +75,9 @@ export class ApiDocumentos_cendoc {
   }
 
   crear(formData: FormData) {
-    console.log('apiUrl: ', this.apiUrl);
+    //console.log('apiUrl: ', this.apiUrl);
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
+      //console.log(pair[0] + ': ' + pair[1]);
     }
     return this.http.post<any>(this.apiUrl, formData);
   }

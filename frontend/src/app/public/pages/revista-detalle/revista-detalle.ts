@@ -180,7 +180,7 @@ export class RevistaDetalle {
         return;
     }
 
-    console.log(`✅ Navegando a página: ${paginaNumero} (Original: ${pagina})`);
+    //console.log(`✅ Navegando a página: ${paginaNumero} (Original: ${pagina})`);
 
     // 4. LLAMADA AL COMPONENTE
     flipbook.goToPage(paginaNumero);

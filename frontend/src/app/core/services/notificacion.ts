@@ -94,7 +94,7 @@ export class NotificationService {
 
     this._notificaciones.update(list => [nueva, ...list]);
     this.guardarNotificaciones();
-    console.log("Nueva notificación:", nueva);
+    //console.log("Nueva notificación:", nueva);
   } 
 
   /**

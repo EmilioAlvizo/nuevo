@@ -46,12 +46,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware de logging para debugging
 app.use((req, res, next) => {
-  console.log(`📡 ${req.method} ${req.path}`, {
+  /* console.log(`📡 ${req.method} ${req.path}`, {
     hasCookies: !!req.cookies && Object.keys(req.cookies).length > 0,
     cookies: Object.keys(req.cookies || {}),
     origin: req.headers.origin,
     credentials: req.headers.cookie ? 'yes' : 'no'
-  });
+  }); */
   next();
 });
 
@@ -133,17 +133,17 @@ app.use((err, req, res, next) => {
 
 // Iniciar el servidor
 app.listen(PORT, async () => {
-  console.log(`\n${'='.repeat(60)}`);
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📡 API disponible en http://localhost:${PORT}/api`);
-  console.log(`📚 Documentación en http://localhost:${PORT}/`);
-  console.log(`🍪 CORS habilitado para: http://localhost:4200`);
-  console.log(`${'='.repeat(60)}\n`);
+  //console.log(`\n${'='.repeat(60)}`);
+  //console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+  //console.log(`📡 API disponible en http://localhost:${PORT}/api`);
+  //console.log(`📚 Documentación en http://localhost:${PORT}/`);
+  //console.log(`🍪 CORS habilitado para: http://localhost:4200`);
+  //console.log(`${'='.repeat(60)}\n`);
 
   // 🆕 Iniciar limpiador automático de tokens expirados
   try {
     await startCleanupScheduler();
-    console.log(`🧹 Sistema de limpieza de tokens iniciado\n`);
+    //console.log(`🧹 Sistema de limpieza de tokens iniciado\n`);
   } catch (error) {
     console.error('❌ Error al iniciar limpiador de tokens:', error.message);
   }
@@ -151,7 +151,7 @@ app.listen(PORT, async () => {
 
 // Manejo de cierre graceful
 process.on("SIGINT", async () => {
-  console.log("\n⏹️  Cerrando servidor...");
+  //console.log("\n⏹️  Cerrando servidor...");
   const { closeConnection } = require("./config/database");
   await closeConnection();
   process.exit(0);

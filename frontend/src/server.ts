@@ -34,13 +34,13 @@ app.use((req, res, next) => {
     return next();
   }
 
-  console.log('🔍 SSR Request:', req.originalUrl || req.url);
+  //console.log('🔍 SSR Request:', req.originalUrl || req.url);
   
   angularApp
     .handle(req)
     .then((response) => {
       if (response) {
-        console.log('✅ SSR Success:', req.originalUrl || req.url);
+        //console.log('✅ SSR Success:', req.originalUrl || req.url);
         writeResponseToNodeResponse(response, res);
       } else {
         console.warn('⚠️ No response from Angular:', req.originalUrl || req.url);
@@ -64,8 +64,8 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
       throw error;
     }
 
-    console.log(`🚀 Node Express server listening on http://localhost:${port}`);
-    console.log(`📝 SSR is enabled. All routes will be server-rendered.`);
+    //console.log(`🚀 Node Express server listening on http://localhost:${port}`);
+    //console.log(`📝 SSR is enabled. All routes will be server-rendered.`);
   });
 }
 

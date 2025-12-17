@@ -217,7 +217,7 @@ static async update(req, res) {
       
       if (fs.existsSync(carpetaDirectorio)) {
         fs.rmSync(carpetaDirectorio, { recursive: true, force: true });
-        console.log(`Carpeta eliminada: ${carpetaDirectorio}`);
+        //console.log(`Carpeta eliminada: ${carpetaDirectorio}`);
       }
 
       res.status(200).json({

@@ -213,8 +213,8 @@ export class NuevoArchivoForm {
 
     const fecha2 = this.datePipe.transform(archivo.fecha_archivo, 'yyyy-MM-ddTHH:mm:ss.SSSZ');
 
-    console.log('Parsed fecha', fecha);
-    console.log('Parsed fecha2', fecha2);
+    //console.log('Parsed fecha', fecha);
+    //console.log('Parsed fecha2', fecha2);
 
     this.archivoForm.patchValue({
       nombre_archivo: archivo.nombre_archivo,
@@ -266,9 +266,9 @@ export class NuevoArchivoForm {
           ? raw.fecha_archivo.toISOString()
           : this.datePipe.transform(raw.fecha_archivo, 'yyyy-MM-ddTHH:mm:ss.SSSZ');
 
-      console.log('raw.fecha_archivo', raw.fecha_archivo);
+      //console.log('raw.fecha_archivo', raw.fecha_archivo);
 
-      console.log('Parsed raw', fechaISO);
+      //console.log('Parsed raw', fechaISO);
       fd.append('fecha_archivo', fechaISO || '');
     }
 

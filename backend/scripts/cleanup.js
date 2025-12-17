@@ -5,9 +5,9 @@ const UserModel = require('../models/userModel');
 // Función para limpiar tokens expirados
 async function cleanupExpiredTokens() {
   try {
-    console.log('🧹 Iniciando limpieza de tokens expirados...');
+    //console.log('🧹 Iniciando limpieza de tokens expirados...');
     const deletedCount = await UserModel.cleanExpiredTokens();
-    console.log(`✅ Se eliminaron ${deletedCount} tokens expirados`);
+    //console.log(`✅ Se eliminaron ${deletedCount} tokens expirados`);
   } catch (error) {
     console.error('❌ Error al limpiar tokens:', error.message);
   }
@@ -17,7 +17,7 @@ async function cleanupExpiredTokens() {
 const CLEANUP_INTERVAL = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 
 async function startCleanupScheduler() {
-  console.log('📅 Iniciando programador de limpieza de tokens');
+  //console.log('📅 Iniciando programador de limpieza de tokens');
   
   // Ejecutar inmediatamente
   await cleanupExpiredTokens();

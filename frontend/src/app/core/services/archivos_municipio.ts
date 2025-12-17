@@ -66,7 +66,7 @@ export class ApiArchivos_municipio {
         }
       }
     });
-    console.log('Llamando a API Archivos_municipio con params:', params.toString());
+    //console.log('Llamando a API Archivos_municipio con params:', params.toString());
 
     return this.http.get<ApiResponsePaginated<Archivos_municipio>>(`${this.apiUrl}/filtrados`, {
       params,
@@ -74,9 +74,9 @@ export class ApiArchivos_municipio {
   }
 
   createArchivo(formData: FormData): Observable<any> {
-    console.log('apiUrl: ', this.apiUrl);
+    //console.log('apiUrl: ', this.apiUrl);
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
+      //console.log(pair[0] + ': ' + pair[1]);
     }
     return this.http.post(this.apiUrl, formData);
   }
@@ -147,7 +147,7 @@ export class ApiArchivos_municipio {
       httpParams = httpParams.set('pagina', params.pagina.toString());
     }
 
-    console.log('Llamando a API archivos_municipio con params:', httpParams.toString());
+    //console.log('Llamando a API archivos_municipio con params:', httpParams.toString());
 
     return this.http.get<any>(`${this.apiUrl}/filtrados`, {
       params: httpParams,

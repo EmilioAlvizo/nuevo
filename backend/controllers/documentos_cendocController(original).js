@@ -260,7 +260,7 @@ class Documentos_cendocController {
         const newPath = path.join(baseFolder, archivo.filename);
         fs.renameSync(oldPath, newPath);
         archivoFinal = archivo.filename;
-        console.log("📂 Archivo movido a:", newPath);
+        //console.log("📂 Archivo movido a:", newPath);
       } else {
         console.warn("⚠️ No se recibió archivo en req.files.archivo");
       }

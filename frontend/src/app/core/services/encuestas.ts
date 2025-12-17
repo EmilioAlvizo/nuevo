@@ -56,7 +56,7 @@ export class ApiEncuestas {
   }
 
   crear(data: any) {
-    console.log("Servicio crear encuesta ",data);
+    //console.log("Servicio crear encuesta ",data);
     return this.http.post<any>(this.apiUrl, data);
   }
 

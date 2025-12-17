@@ -165,8 +165,8 @@ class DocumentosCendocController {
       // Validar campos requeridos
       validarCamposRequeridos(data, []);
 
-      console.log("📥 Datos recibidos:", req.body);
-      console.log("📎 Archivos recibidos:", req.files);
+      //console.log("📥 Datos recibidos:", req.body);
+      //console.log("📎 Archivos recibidos:", req.files);
 
       // 1️⃣ Crear el registro primero (sin archivos)
       const nuevoRegistro = await DocumentosCendocModel.create(TABLE_NAME, { 
@@ -174,7 +174,7 @@ class DocumentosCendocController {
         archivo_documento: null
       });
 
-      console.log("🆕 Resultado create():", nuevoRegistro);
+      //console.log("🆕 Resultado create():", nuevoRegistro);
       const id = nuevoRegistro.id_documento || nuevoRegistro.insertId || nuevoRegistro.id;
       if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
 
@@ -192,7 +192,7 @@ class DocumentosCendocController {
         const newPath = path.join(baseFolder, archivo_documento.filename);
         fs.renameSync(oldPath, newPath);
         archivosActualizados.archivo_documento = archivo_documento.filename;
-        console.log("📂 archivo_documento movido a:", newPath);
+        //console.log("📂 archivo_documento movido a:", newPath);
       } else {
         console.warn("⚠️ No se recibió archivo en req.files.archivo_documento");
       }
@@ -223,8 +223,8 @@ class DocumentosCendocController {
       const { id } = req.params;
       const data = req.body;
 
-      console.log("📂 id", id);
-      console.log("📂 data", data);
+      //console.log("📂 id", id);
+      //console.log("📂 data", data);
 
       // 🧩 Validar que haya datos
       if (!data || Object.keys(data).length === 0) {
@@ -262,20 +262,20 @@ class DocumentosCendocController {
           const archivoAnterior = path.join(baseFolder, registroActual.archivo_documento);
           if (fs.existsSync(archivoAnterior)) {
             fs.unlinkSync(archivoAnterior);
-            console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
+            //console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
           }
         }
 
         // Mover el nuevo
         fs.renameSync(oldPath, newPath);
         camposActualizados.archivo_documento = nuevoArchivoDocumento.filename;
-        console.log("📂 Nuevo archivo guardado en:", newPath);
+        //console.log("📂 Nuevo archivo guardado en:", newPath);
       }
 
-      console.log("📂 id", id);
-      console.log("📂 TABLE_NAME", TABLE_NAME);
-      console.log("📂 ID_COLUMN", ID_COLUMN);
-      console.log("📂 camposActualizados", camposActualizados);
+      //console.log("📂 id", id);
+      //console.log("📂 TABLE_NAME", TABLE_NAME);
+      //console.log("📂 ID_COLUMN", ID_COLUMN);
+      //console.log("📂 camposActualizados", camposActualizados);
 
       // 🔄 Actualizar BD
       await DocumentosCendocModel.update(TABLE_NAME, id, camposActualizados, ID_COLUMN);
@@ -314,7 +314,7 @@ class DocumentosCendocController {
       const dir = path.join(backendPublicPath, TABLE_NAME, id.toString());
       if (fs.existsSync(dir)) {
         fs.rmSync(dir, { recursive: true, force: true });
-        console.log("🗑️ Carpeta eliminada:", dir);
+        //console.log("🗑️ Carpeta eliminada:", dir);
       }
 
       // 🧾 Eliminar registro en la BD

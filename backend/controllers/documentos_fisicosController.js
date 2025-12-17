@@ -393,7 +393,7 @@ class Documentos_fisicosController {
       if (fs.existsSync(carpetaRevista)) {
         // Eliminar carpeta recursivamente (carpeta y todo su contenido)
         fs.rmSync(carpetaRevista, { recursive: true, force: true });
-        console.log(`Carpeta eliminada: ${carpetaRevista}`);
+        //console.log(`Carpeta eliminada: ${carpetaRevista}`);
       }
 
       res.status(200).json({

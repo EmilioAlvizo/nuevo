@@ -201,8 +201,8 @@ export class Tabla implements OnInit {
         this.totalResultados = response.total || 0;
         this.totalPaginas = response.totalPaginas || 0;
         this.cargando = false;
-        console.log('params muni', params);
-        console.log('Archivos cargados:', this.filteredArchivos_municipio.length);
+        //console.log('params muni', params);
+        //console.log('Archivos cargados:', this.filteredArchivos_municipio.length);
       },
       error: (err) => {
         console.error('Error fetching archivos filtrados:', err);
@@ -229,8 +229,8 @@ export class Tabla implements OnInit {
         this.totalResultados = response.total || 0;
         this.totalPaginas = response.totalPaginas || 0;
         this.cargando = false;
-        console.log('params doc', params);
-        console.log('Documentos Cendoc cargados:', this.filteredDocumentos_cendoc.length);
+        //console.log('params doc', params);
+        //console.log('Documentos Cendoc cargados:', this.filteredDocumentos_cendoc.length);
       },
       error: (err) => {
         console.error('Error fetching documentos cendoc filtrados:', err);

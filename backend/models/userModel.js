@@ -72,12 +72,12 @@ class UserModel {
   // ✅ ACTUALIZADO: Guardar refresh token (con hash para seguridad)
   static async saveRefreshToken(userId, refreshToken) {
     try {
-      console.log("💾 [MODEL] Guardando refresh token...");
-      console.log("💾 [MODEL] User ID:", userId);
-      console.log(
+      //console.log("💾 [MODEL] Guardando refresh token...");
+      //console.log("💾 [MODEL] User ID:", userId);
+      /* console.log(
         "💾 [MODEL] Token (primeros 30 chars):",
         refreshToken.substring(0, 30) + "..."
-      );
+      ); */
 
       const pool = await getConnection();
 
@@ -87,15 +87,15 @@ class UserModel {
         .update(refreshToken)
         .digest("hex");
 
-      console.log(
+      /* console.log(
         "💾 [MODEL] Token hash (primeros 30 chars):",
         tokenHash.substring(0, 30) + "..."
-      );
+      ); */
 
       // Calcular fecha de expiración (7 días)
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-      console.log("💾 [MODEL] Expira en:", expiresAt.toISOString());
+      //console.log("💾 [MODEL] Expira en:", expiresAt.toISOString());
 
       // ✅ Guardar el HASH del token, no el token completo
       const result = await pool
@@ -109,7 +109,7 @@ class UserModel {
         `);
 
       const insertedId = result.recordset[0].id;
-      console.log("✅ [MODEL] Token guardado con ID:", insertedId);
+      //console.log("✅ [MODEL] Token guardado con ID:", insertedId);
 
       // 🔍 Verificar que se guardó correctamente
       const verification = await pool
@@ -120,9 +120,9 @@ class UserModel {
         );
 
       if (verification.recordset.length > 0) {
-        console.log(
+        /* console.log(
           "✅ [MODEL] Verificación exitosa - Token hash encontrado en BD"
-        );
+        ); */
       } else {
         console.error(
           "❌ [MODEL] ADVERTENCIA: Token hash no encontrado después de guardar"
@@ -139,11 +139,11 @@ class UserModel {
   // ✅ ACTUALIZADO: Verificar si el refresh token existe y es válido
   static async findRefreshToken(refreshToken) {
     try {
-      console.log("🔍 [MODEL] Buscando refresh token...");
-      console.log(
+      //console.log("🔍 [MODEL] Buscando refresh token...");
+      /* console.log(
         "🔍 [MODEL] Token (primeros 30 chars):",
         refreshToken.substring(0, 30) + "..."
-      );
+      ); */
 
       const pool = await getConnection();
 
@@ -153,19 +153,19 @@ class UserModel {
         .update(refreshToken)
         .digest("hex");
 
-      console.log(
+      /* console.log(
         "🔍 [MODEL] Token hash (primeros 30 chars):",
         tokenHash.substring(0, 30) + "..."
       );
-
+ */
       // 🔍 Contar tokens activos
       const countResult = await pool
         .request()
         .query("SELECT COUNT(*) as total FROM RefreshTokens WHERE revoked = 0");
-      console.log(
+      /* console.log(
         "🔍 [MODEL] Total de tokens activos en BD:",
         countResult.recordset[0].total
-      );
+      ); */
 
       // Buscar el token por su hash
       const result = await pool
@@ -191,7 +191,7 @@ class UserModel {
         `);
 
       if (result.recordset.length === 0) {
-        console.log("❌ [MODEL] Token no encontrado");
+        //console.log("❌ [MODEL] Token no encontrado");
 
         // 🔍 Debug: Buscar sin restricciones
         const debugResult = await pool
@@ -201,12 +201,12 @@ class UserModel {
 
         if (debugResult.recordset.length > 0) {
           const token = debugResult.recordset[0];
-          console.log("🔍 [MODEL] Token encontrado pero:");
-          console.log("   - Revoked:", token.revoked);
-          console.log("   - Expires at:", token.expires_at);
-          console.log("   - Now:", new Date());
+          //console.log("🔍 [MODEL] Token encontrado pero:");
+          //console.log("   - Revoked:", token.revoked);
+          //console.log("   - Expires at:", token.expires_at);
+          //console.log("   - Now:", new Date());
         } else {
-          console.log("❌ [MODEL] Token hash no existe en BD");
+          //console.log("❌ [MODEL] Token hash no existe en BD");
 
           // Mostrar últimos 3 tokens
           const recentTokens = await pool.request().query(`
@@ -219,19 +219,19 @@ class UserModel {
             FROM RefreshTokens 
             ORDER BY created_at DESC
           `);
-          console.log(
+          /* console.log(
             "🔍 [MODEL] Últimos 3 tokens en BD:",
             recentTokens.recordset
-          );
+          ); */
         }
 
         return null;
       }
 
-      console.log(
+      /* console.log(
         "✅ [MODEL] Token encontrado para usuario:",
         result.recordset[0].email
-      );
+      ); */
       return result.recordset[0];
     } catch (error) {
       console.error("❌ [MODEL] Error buscando refresh token:", error);
@@ -242,7 +242,7 @@ class UserModel {
   // ✅ ACTUALIZADO: Revocar refresh token
   static async revokeRefreshToken(refreshToken) {
     try {
-      console.log("🗑️  [MODEL] Revocando refresh token...");
+      //console.log("🗑️  [MODEL] Revocando refresh token...");
 
       const pool = await getConnection();
 
@@ -257,7 +257,7 @@ class UserModel {
         .input("tokenHash", mssql.NVarChar, tokenHash)
         .query("UPDATE RefreshTokens SET revoked = 1 WHERE token = @tokenHash");
 
-      console.log("✅ [MODEL] Token revocado exitosamente");
+      //console.log("✅ [MODEL] Token revocado exitosamente");
       return true;
     } catch (error) {
       console.error("❌ [MODEL] Error revocando token:", error);

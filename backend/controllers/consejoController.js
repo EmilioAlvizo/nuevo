@@ -227,7 +227,7 @@ class ConsejoController {
       
       if (fs.existsSync(carpetaIntegrante)) {
         fs.rmSync(carpetaIntegrante, { recursive: true, force: true });
-        console.log(`Carpeta eliminada: ${carpetaIntegrante}`);
+        //console.log(`Carpeta eliminada: ${carpetaIntegrante}`);
       }
 
       res.status(200).json({

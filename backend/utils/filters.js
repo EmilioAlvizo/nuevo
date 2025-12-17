@@ -109,11 +109,11 @@ function buildConditions(params, request, config) {
   config.forEach(({ name, dbField, type = "string", isMulti = false }) => {
     const value = params[name];
     const matchMode = params[`${name}_matchMode`] || "contains";
-    console.log("match ", matchMode)
+    //console.log("match ", matchMode)
 
     // 🟣 MATCH MODES UNIVERSALES PARA NULL
     if (matchMode === "isNull") {
-      console.log("si es  ", matchMode)
+      //console.log("si es  ", matchMode)
       conditions.push(`${dbField} IS NULL`);
       return;
     }
@@ -174,7 +174,7 @@ function buildConditions(params, request, config) {
 
 // 🛠️ Utilidad para parsear parámetros de array
 function parseArrayParam(param, type = "string") {
-  console.log("func   ", param);
+  //console.log("func   ", param);
   if (!param) return [];
 
   // Si ya es un array, devolverlo

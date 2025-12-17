@@ -235,7 +235,7 @@ export class FormPropuesta {
                           resp?.insertId ||
                           resp?.id_propuesta;
         
-        console.log('✅ ID Propuesta:', idPropuesta);
+        //console.log('✅ ID Propuesta:', idPropuesta);
 
         // Crear notificación con link que incluye query param para resaltar
         this.notifs.agregar(

@@ -171,14 +171,14 @@ export class Flipbook2 implements OnDestroy {
       // 1. OBTENER Y GUARDAR ASPECT RATIO
       const page = await this.pdfDoc.getPage(1);
       const viewport = page.getViewport({ scale: 1 });
-      console.log(
+      /* console.log(
         'width',
         viewport.width,
         'height',
         viewport.height,
         'pages. Aspect Ratio:',
         viewport.width / viewport.height
-      );
+      ); */
       this.pdfAspectRatio.set(viewport.width / viewport.height);
 
       const numPages = this.pdfDoc.numPages;
@@ -539,9 +539,9 @@ export class Flipbook2 implements OnDestroy {
       // pero nunca excedemos el ancho real del contenedor (containerWidth) para que sea responsive.
       const availableWidth = Math.min(this.basePageWidth(), containerWidth);
 
-      console.log(
+      /* console.log(
         `Dimensions -> Target: ${this.basePageWidth()} | Container: ${containerWidth} | Final: ${availableWidth}`
-      );
+      ); */
 
       // Ancho de UNA página (mitad del libro)
       const singlePageWidth = availableWidth / 2;

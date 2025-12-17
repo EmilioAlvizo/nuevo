@@ -116,7 +116,7 @@ export class CentroDocumentalAdmin {
   }
 
   editar(revista: any) {
-    console.log('Editar revista:', revista);
+    //console.log('Editar revista:', revista);
     this.revistaToEdit = revista; // 📌 Guarda la revista seleccionada
     this.showDialog.set(true); // 📌 Abre el diálogo
   }

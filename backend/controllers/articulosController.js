@@ -164,8 +164,8 @@ class ArticulosRevistaController {
       // Validar campos requeridos
       validarCamposRequeridos(data, []);
 
-      console.log("📥 Datos recibidos:", req.body);
-      console.log("📎 Archivos recibidos:", req.files);
+      //console.log("📥 Datos recibidos:", req.body);
+      //console.log("📎 Archivos recibidos:", req.files);
 
       // 1️⃣ Crear el registro primero (sin archivos)
       const nuevoRegistro = await ArticulosRevistaModel.create(TABLE_NAME, {
@@ -173,7 +173,7 @@ class ArticulosRevistaController {
         imagen: null
       });
 
-      console.log("🆕 Resultado create():", nuevoRegistro);
+      //console.log("🆕 Resultado create():", nuevoRegistro);
       const id = nuevoRegistro.id_articulo || nuevoRegistro.insertId || nuevoRegistro.id;
       if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
 
@@ -191,7 +191,7 @@ class ArticulosRevistaController {
         const newPath = path.join(baseFolder, imagen.filename);
         fs.renameSync(oldPath, newPath);
         archivosActualizados.imagen = imagen.filename;
-        console.log("📂 imagen movido a:", newPath);
+        //console.log("📂 imagen movido a:", newPath);
       } else {
         console.warn("⚠️ No se recibió archivo en req.files.imagen");
       }
@@ -262,14 +262,14 @@ class ArticulosRevistaController {
           const archivoAnterior = path.join(baseFolder, registroActual.imagen);
           if (fs.existsSync(archivoAnterior)) {
             fs.unlinkSync(archivoAnterior);
-            console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
+            //console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
           }
         }
 
         // Mover el nuevo
         fs.renameSync(oldPath, newPath);
         camposActualizados.imagen = nuevoImagen.filename;
-        console.log("📂 Nuevo archivo guardado en:", newPath);
+        //console.log("📂 Nuevo archivo guardado en:", newPath);
       }
 
       // 🔄 Actualizar BD
@@ -309,7 +309,7 @@ class ArticulosRevistaController {
       const dir = path.join(backendPublicPath, 'articulos', id.toString());
       if (fs.existsSync(dir)) {
         fs.rmSync(dir, { recursive: true, force: true });
-        console.log("🗑️ Carpeta eliminada:", dir);
+        //console.log("🗑️ Carpeta eliminada:", dir);
       }
 
       // 🧾 Eliminar registro en la BD

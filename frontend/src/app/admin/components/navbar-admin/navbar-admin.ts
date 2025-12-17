@@ -16,7 +16,7 @@ export class NavbarAdmin {
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {
-        console.log('✅ Sesión cerrada');
+        //console.log('✅ Sesión cerrada');
         this.router.navigate(['/login']);
       },
       error: (err) => {

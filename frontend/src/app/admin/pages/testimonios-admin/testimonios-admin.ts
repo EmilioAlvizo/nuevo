@@ -97,7 +97,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Testimonios cargados inicialmente');
+          //console.log('✅ Testimonios cargados inicialmente');
           this.loading.set(false);
         },
         error: (err) => {
@@ -111,7 +111,7 @@ export class TestimoniosAdmin implements OnInit, OnDestroy {
     this.apiTestimonios.testimonios$
       .pipe(takeUntil(this.destroy$))
       .subscribe((lista) => {
-        console.log('📊 Admin recibió actualización:', lista.length, 'testimonios');
+        //console.log('📊 Admin recibió actualización:', lista.length, 'testimonios');
         // ⭐ Usar signal para actualizar - Angular detectará el cambio automáticamente
         this.testimonios.set([...lista]);
       });

@@ -189,7 +189,7 @@ export class Navbar3 implements OnInit, OnDestroy {
       this.dropdownOpenId.set(null);
     }
 
-    console.log('📱 [NAVBAR] Menú móvil:', this.mobileMenuOpen() ? 'Abierto' : 'Cerrado');
+    //console.log('📱 [NAVBAR] Menú móvil:', this.mobileMenuOpen() ? 'Abierto' : 'Cerrado');
   }
 
   toggleDropdown(id: string, event: Event) {
@@ -197,7 +197,7 @@ export class Navbar3 implements OnInit, OnDestroy {
 
     this.dropdownOpenId.update((current) => (current === id ? null : id));
 
-    console.log('📋 Dropdown abierto:', this.dropdownOpenId());
+    //console.log('📋 Dropdown abierto:', this.dropdownOpenId());
   }
 
   isOpen(id: string) {
@@ -205,13 +205,13 @@ export class Navbar3 implements OnInit, OnDestroy {
   }
 
   closeMenu(): void {
-    console.log('🔒 [NAVBAR] Cerrando todo');
+    //console.log('🔒 [NAVBAR] Cerrando todo');
     this.mobileMenuOpen.set(false);
     this.dropdownOpenId.set(null);
   }
 
   onLinkClick(): void {
-    console.log('🔗 [NAVBAR] Navegando, cerrando menú');
+    //console.log('🔗 [NAVBAR] Navegando, cerrando menú');
     this.closeMenu();
   }
 }

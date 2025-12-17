@@ -246,7 +246,7 @@ export class TablaGenerica {
       // ahora hago la recarga dentro de untracked para evitar que los cambios internos (data/loading)
       // vuelvan a disparar este mismo effect.
       untracked(() => {
-        console.log('🔄 Recargando tabla por refreshSignal, valor:', current);
+        //console.log('🔄 Recargando tabla por refreshSignal, valor:', current);
         // puedes usar rows() para tamaño de página si lo deseas:
         this.loadData({ first: 0, rows: this.rows() } as TableLazyLoadEvent);
       });

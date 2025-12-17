@@ -157,11 +157,11 @@ export class EncuestasAdmin {
   }
 
   editar(doc: any) {
-    console.log('Editar encuesta:', doc);
+    //console.log('Editar encuesta:', doc);
 
     // 🔥 AQUÍ HACEMOS LA PETICIÓN COMPLETA
     this.documentosCendocService.getPorId(doc.idEncuesta).subscribe((encuestaCompleta) => {
-      console.log('Encuesta con opciones:', encuestaCompleta);
+      //console.log('Encuesta con opciones:', encuestaCompleta);
 
       this.encuestaToEdit = encuestaCompleta; // ← ahora SÍ trae opciones
       this.showDialog.set(true);

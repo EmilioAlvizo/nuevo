@@ -60,9 +60,9 @@ export class ApiArticulos {
   }
 
   crearArticulo(formData: FormData): Observable<any> {
-    console.log('apiUrl: ', this.apiUrl);
+    //console.log('apiUrl: ', this.apiUrl);
     for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ' + pair[1]);
+      //console.log(pair[0] + ': ' + pair[1]);
     }
     return this.http.post(this.apiUrl, formData);
   }

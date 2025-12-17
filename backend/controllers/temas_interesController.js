@@ -218,7 +218,7 @@ static async delete(req, res) {
     if (fs.existsSync(carpetaTema)) {
       // Eliminar carpeta recursivamente (carpeta y todo su contenido)
       fs.rmSync(carpetaTema, { recursive: true, force: true });
-      console.log(`Carpeta eliminada: ${carpetaTema}`);
+      //console.log(`Carpeta eliminada: ${carpetaTema}`);
     }
 
     res.status(200).json({

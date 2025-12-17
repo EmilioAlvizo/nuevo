@@ -153,7 +153,7 @@ class RevistasController {
 
   // 🛠️ Utilidad para parsear parámetros de array
   static parseArrayParam(param, type = "string") {
-    console.log("func   ", param);
+    //console.log("func   ", param);
     if (!param) return [];
 
     // Si ya es un array, devolverlo
@@ -193,11 +193,11 @@ class RevistasController {
     try {
       const { volumen, numero_year, descripcion, fecha, estatus } = req.body;
 
-      console.log("volumen ", volumen);
-      console.log("numero_year ", numero_year);
-      console.log("descripcion ", descripcion);
-      console.log("fecha ", fecha);
-      console.log("fecha ", estatus);
+      //console.log("volumen ", volumen);
+      //console.log("numero_year ", numero_year);
+      //console.log("descripcion ", descripcion);
+      //console.log("fecha ", fecha);
+      //console.log("fecha ", estatus);
 
       // 🕓 Convertir la fecha al horario local de Ciudad de México
       const moment = require("moment-timezone");
@@ -399,7 +399,7 @@ class RevistasController {
       if (fs.existsSync(carpetaRevista)) {
         // Eliminar carpeta recursivamente (carpeta y todo su contenido)
         fs.rmSync(carpetaRevista, { recursive: true, force: true });
-        console.log(`Carpeta eliminada: ${carpetaRevista}`);
+        //console.log(`Carpeta eliminada: ${carpetaRevista}`);
       }
 
       res.status(200).json({
