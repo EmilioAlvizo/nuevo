@@ -122,7 +122,7 @@ export class FormTestimonios {
     }
 
     this.confirmationService.confirm({
-      message: '¿Estás seguro de enviar este testimonio? Una vez enviado, no podrá ser modificado. Será revisado por el equipo y, si es aprobado, se publicará.',
+      message: '¿Estás seguro de enviar este testimonio? Una vez enviado, no podrá ser modificado. Será publicado una vez que sea autorizado por el equipo.',
       header: 'Confirmación de Envío de Testimonio',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, enviar',
