@@ -1,43 +1,66 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { 
+  Component, 
+  OnInit, 
+  ChangeDetectionStrategy, 
+  inject, 
+  signal, 
+  computed 
+} from '@angular/core';
 import { ApiIntegrantesConsejo, IntegrantesConsejo } from '../../../core/services/consejo';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-consejo',
-  imports: [ CommonModule],
   standalone: true,
+  imports: [],
   templateUrl: './consejo.html',
   styleUrl: './consejo.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Consejo implements OnInit {
-  publicUrl = environment.publicUrl;
+  // Inyección de dependencias moderna
+  private readonly _apiService = inject(ApiIntegrantesConsejo);
+  
+  // Constantes
+  readonly publicUrl = environment.publicUrl;
 
-  integrantes: IntegrantesConsejo[] = [];
-  loading = true;
-  error: string | null = null;
+  // Estado con Signals
+  // Usamos 'private' para el estado interno y exponemos solo lo necesario o computado
+  private readonly _integrantesRaw = signal<IntegrantesConsejo[]>([]);
+  readonly loading = signal<boolean>(true);
+  readonly error = signal<string | null>(null);
 
-  constructor(private apiService: ApiIntegrantesConsejo) {}
+  // Estado Derivado (Computed)
+  // La lógica de filtrado y ordenamiento se hace reactiva automáticamente
+  readonly integrantes = computed(() => {
+    const raw = this._integrantesRaw();
+    return raw
+      .filter((integrante) => integrante.estatus === 'A')
+      .sort((a, b) => a.importancia - b.importancia);
+  });
+
+  // Computed para verificar si hay datos vacíos (útil para la UI)
+  readonly hasNoResults = computed(() => 
+    !this.loading() && !this.error() && this.integrantes().length === 0
+  );
 
   ngOnInit(): void {
-    this.getIntegrantes();
+    this.fetchIntegrantes();
   }
 
-  getIntegrantes(): void {
-    this.apiService.getIntegrantes().subscribe({
+  private fetchIntegrantes(): void {
+    this._apiService.getIntegrantes().subscribe({
       next: (response) => {
         if (response.success) {
-          // Filtrar por estatus "A" y ordenar por importancia
-          this.integrantes = response.data
-            .filter((integrante) => integrante.estatus === 'A')
-            .sort((a, b) => a.importancia - b.importancia);
+          // Actualizamos la señal con los datos crudos
+          this._integrantesRaw.set(response.data);
         }
-        this.loading = false;
+        this.loading.set(false);
       },
-      error: (err) => {
+      error: (err: unknown) => {
         console.error('Error al cargar integrantes:', err);
-        this.error = 'Error al cargar los integrantes del consejo';
-        this.loading = false;
+        this.error.set('Error al cargar los integrantes del consejo');
+        this.loading.set(false);
       }
     });
   }

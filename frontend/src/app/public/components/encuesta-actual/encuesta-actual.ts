@@ -224,6 +224,7 @@ export class EncuestaActual implements OnInit {
         },
       ],
     };
+    console.log('Chart Data Construido:', this.chartData);
   }
 
   private configurarOpcionesChart() {
@@ -258,5 +259,6 @@ export class EncuestaActual implements OnInit {
         },
       },
     };
+    console.log('Chart Options Configuradas:', this.chartOptions);
   }
 }

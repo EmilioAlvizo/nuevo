@@ -72,7 +72,6 @@
           [addOnTab]="true"
           separator=","
           placeholder="Escribe y presiona Tab, Enter o Coma"
-          
         ></p-autocomplete>
         <!-- <input pInputText formControlName="palabras_clave" class="form-control" placeholder="Ej: derechos, igualdad" /> -->
       </div>
@@ -83,9 +82,12 @@
         <label class="form-label fw-semibold">Fecha *</label>
         <p-datepicker
           formControlName="fecha_documento"
+          hourFormat="24"
+          [hourFormat]="'24'"
           dateFormat="yy-mm-dd"
           [showIcon]="true"
           [showButtonBar]="true"
+          [showTime]="true"
           iconDisplay="input"
           placeholder="Seleccionar fecha"
           [appendTo]="'body'"
@@ -127,7 +129,8 @@
             [href]="
               publicUrl +
               '/documentos_cendoc/' +
-              docToEdit()?.id_documento +'/'+
+              docToEdit()?.id_documento +
+              '/' +
               docToEdit()?.archivo_documento
             "
             target="_blank"

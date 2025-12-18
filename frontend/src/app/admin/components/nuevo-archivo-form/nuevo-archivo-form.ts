@@ -208,13 +208,20 @@ export class NuevoArchivoForm {
   }
 
   loadArchivoData(archivo: Archivos_municipio): void {
-    // convert possible ISO string to Date safely
-    const fecha = archivo.fecha_archivo ? this.parseSafeDate(archivo.fecha_archivo) : null;
+    let fecha = null;
 
-    const fecha2 = this.datePipe.transform(archivo.fecha_archivo, 'yyyy-MM-ddTHH:mm:ss.SSSZ');
+    if (archivo.fecha_archivo) {
+      // 1. Convertimos a string por seguridad
+      // 2. Quitamos la 'Z' para que el navegador NO haga conversión de zona horaria
+      const fechaSinZ = archivo.fecha_archivo.toString().replace('Z', '');
 
-    //console.log('Parsed fecha', fecha);
-    //console.log('Parsed fecha2', fecha2);
+      // 3. Creamos la fecha "limpia" (13:45 se queda como 13:45)
+      fecha = new Date(fechaSinZ);
+    }
+
+    // Si parseSafeDate hace validaciones extra que necesitas,
+    // podrías usar: this.parseSafeDate(fechaSinZ);
+    // pero new Date(fechaSinZ) suele ser suficiente aquí.
 
     this.archivoForm.patchValue({
       nombre_archivo: archivo.nombre_archivo,
@@ -227,11 +234,9 @@ export class NuevoArchivoForm {
           ? archivo.palabras_clave.split(',').map((p: string) => p.trim())
           : archivo.palabras_clave,
       estatus_archivo: archivo.estatus_archivo,
-      fecha_archivo: fecha,
+      fecha_archivo: fecha, // 👈 Asignamos la fecha corregida
       archivo: null,
     });
-
-    // ensure UI updates if necessary (parent using OnPush will pick this up via signals/effects)
   }
 
   private parseSafeDate(value: string | Date | null | undefined): Date | null {
@@ -261,15 +266,12 @@ export class NuevoArchivoForm {
     fd.append('estatus_archivo', raw.estatus_archivo || 'A');
 
     if (raw.fecha_archivo) {
-      const fechaISO =
-        raw.fecha_archivo instanceof Date
-          ? raw.fecha_archivo.toISOString()
-          : this.datePipe.transform(raw.fecha_archivo, 'yyyy-MM-ddTHH:mm:ss.SSSZ');
+      const fechaLocal = this.datePipe.transform(raw.fecha_archivo, 'yyyy-MM-dd HH:mm:ss');
 
-      //console.log('raw.fecha_archivo', raw.fecha_archivo);
+      console.log('raw.fecha_archivo', raw.fecha_archivo);
+      console.log('Enviando fecha local:', fechaLocal); // Debería decir "2025-12-18 13:45:00"
 
-      //console.log('Parsed raw', fechaISO);
-      fd.append('fecha_archivo', fechaISO || '');
+      fd.append('fecha_archivo', fechaLocal || '');
     }
 
     /* if (raw.fecha_archivo instanceof Date && !isNaN(raw.fecha_archivo.getTime())) {

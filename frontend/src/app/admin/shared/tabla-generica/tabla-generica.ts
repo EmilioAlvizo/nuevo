@@ -484,7 +484,7 @@ export class TablaGenerica {
     // Formatos predefinidos
     const formats: Record<string, Intl.DateTimeFormatOptions> = {
       short: { year: 'numeric', month: '2-digit', day: '2-digit' },
-      medium: { year: 'numeric', month: 'short', day: 'numeric' },
+      medium: { year: 'numeric', month: 'short', day: 'numeric' }, // Ejemplo: 18 dic 2025
       long: {
         year: 'numeric',
         month: 'long',
@@ -506,8 +506,15 @@ export class TablaGenerica {
 
     const options = format === 'custom' && customFormat ? customFormat : formats[format];
 
-    // ✅ toLocaleString ya maneja la zona horaria automáticamente
-    // No necesitas ajustar manualmente el offset
-    return date.toLocaleString(locale, options);
+    // ✅ SOLUCIÓN:
+    // Combinamos las opciones con timeZone: 'UTC'.
+    // Esto le dice al navegador: "No conviertas la hora a la zona horaria de la computadora del usuario.
+    // Muestra la hora tal cual está en el dato (como si estuviéramos en Greenwich)".
+    const finalOptions: Intl.DateTimeFormatOptions = {
+      ...options,
+      timeZone: 'UTC' 
+    };
+
+    return date.toLocaleString(locale, finalOptions);
   }
 }

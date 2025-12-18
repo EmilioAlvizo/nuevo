@@ -37,6 +37,11 @@ export class ApiPropuesta {
     return this.http.post<any>(this.apiUrl, data);
   }
 
+  crearPropuestaPublico(data: any) {
+    console.log('🌐 Llamando a crearPropuestaPublico con datos:', data);
+    return this.http.post<any>(`${this.apiUrl}/publico`, data);
+  }
+
   actualizarPropuesta(id: number, data: any) {
     return this.http.put<any>(`${this.apiUrl}/${id}`, data);
   }

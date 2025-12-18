@@ -190,7 +190,7 @@ export class FormPropuesta {
       necesidades: form.necesidades,
     };
 
-    this.apiPropuesta.crearPropuesta(data).subscribe({
+    this.apiPropuesta.crearPropuestaPublico(data).subscribe({
       next: (resp) => {
         this.msg.add({
           severity: 'success',

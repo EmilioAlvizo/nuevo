@@ -148,7 +148,7 @@ export class FormTestimonios {
     this.isSaving.set(true);
 
     // 🔥 Llamar al servicio para crear el testimonio
-    this.apiTestimonios.createTestimonio(fd).subscribe({
+    this.apiTestimonios.createTestimonioPublico(fd).subscribe({
       next: (resp) => {
         console.log('✅ Respuesta del servidor:', resp);
 

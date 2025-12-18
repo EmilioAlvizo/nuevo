@@ -52,7 +52,7 @@ export const appConfig: ApplicationConfig = {
     }),
     //provideRouter(routes),
     provideRouter(routes, withInMemoryScrolling({
-      scrollPositionRestoration: 'disabled',
+      scrollPositionRestoration: 'top',
     }),),
     provideAppInitializer(() => {
       if (authInitialized) {

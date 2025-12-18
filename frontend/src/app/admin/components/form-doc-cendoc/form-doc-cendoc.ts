@@ -11,6 +11,7 @@ import {
   model,
   ChangeDetectorRef,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 import { ApiCategoriaCendoc, Categoria_cendoc } from '../../../core/services/categorias_cendoc';
@@ -51,6 +52,7 @@ interface Estatus {
     TagModule,
     AutoCompleteModule,
   ],
+  providers: [DatePipe],
   templateUrl: './form-doc-cendoc.html',
   styleUrl: './form-doc-cendoc.css',
 })
@@ -58,6 +60,7 @@ export class FormDocCendoc {
   publicUrl = environment.publicUrl;
   apiCategoriaCendoc = inject(ApiCategoriaCendoc);
   private fb = new FormBuilder().nonNullable;
+  private datePipe = inject(DatePipe);
 
   // Inputs/Outputs
   visible = model.required<boolean>();
@@ -170,11 +173,12 @@ export class FormDocCendoc {
     fd.append('estatus_documento', formValue.estatus_documento);
 
     if (formValue.fecha_documento) {
-      const fecha =
-        formValue.fecha_documento instanceof Date
-          ? formValue.fecha_documento
-          : new Date(formValue.fecha_documento);
-      fd.append('fecha_documento', fecha.toISOString().slice(0, 19).replace('T', ' '));
+      const fechaLocal = this.datePipe.transform(formValue.fecha_documento, 'yyyy-MM-dd HH:mm:ss');
+
+      console.log('raw.fecha_archivo', formValue.fecha_documento);
+      console.log('Enviando fecha local:', fechaLocal); // Debería decir "2025-12-18 13:45:00"
+      
+      fd.append('fecha_documento', fechaLocal || '');
     }
 
     if (this.archivoSeleccionado()) {
@@ -211,6 +215,16 @@ export class FormDocCendoc {
   }
 
   loadDocData(doc: any): void {
+    // 1. Preparamos la fecha corregida
+    let fechaCorregida = null;
+    
+    if (doc.fecha_documento) {
+      // Convertimos a string y quitamos la 'Z' para evitar la conversión de zona horaria (-6h)
+      const fechaSinZ = doc.fecha_documento.toString().replace('Z', '');
+      fechaCorregida = new Date(fechaSinZ);
+    }
+
+    // 2. Llenamos el formulario
     this.docForm.patchValue({
       nombre_documento: doc.nombre_documento,
       autor_documento: doc.autor_documento,
@@ -220,7 +234,9 @@ export class FormDocCendoc {
         typeof doc.palabras_clave === 'string'
           ? doc.palabras_clave.split(',').map((p: string) => p.trim())
           : doc.palabras_clave,
-      fecha_documento: doc.fecha_documento ? new Date(doc.fecha_documento) : null,
+      
+      fecha_documento: fechaCorregida, // 👈 Usamos la variable corregida
+      
       estatus_documento: doc.estatus_documento,
     });
   }

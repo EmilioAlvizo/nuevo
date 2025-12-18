@@ -158,13 +158,17 @@ export class TablaArchMunicipios {
 
   agregar() {
     this.revistaToEdit = null;
+    this.isEditMode.set(false);       // Aseguramos que el signal sea false
+    this.archivoToEdit.set(null);
     this.showDialog.set(true);
     //console.log('asdasd ', this.municipiosOptions());
   }
 
   editar(doc: any) {
-    //console.log('Editar doc:', doc);
+    console.log('Editar doc:', doc);
     this.revistaToEdit = doc; // 📌 Guarda la doc seleccionada
+    this.isEditMode.set(true);        // Activamos la bandera de edición
+    this.archivoToEdit.set(doc);
     this.showDialog.set(true); // 📌 Abre el diálogo
   }
 
@@ -264,7 +268,8 @@ export class TablaArchMunicipios {
     if (data.subcategoria_archivo) formData.append('subcategoria_archivo', data.subcategoria_archivo); */
 
 
-    //console.log('📤 Enviando FormData a backend...');
+    console.log('📤 Enviando FormData a backend...');
+    console.log('es edicion:', this.isEditMode());
 
     const request$ = this.isEditMode()
       ? this.apiArchivos_municipio.updateArchivo(this.archivoToEdit()!.id_archivo, formData)

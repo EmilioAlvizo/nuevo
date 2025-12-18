@@ -189,11 +189,12 @@ class EncuestaModel {
     const transaction = new mssql.Transaction(pool);
 
     // Convertir "1"/"0" → número
-    const activaBit = Number(data.activa); // 1 o 0
+    const activaBit = Number(data.activa);
+
     try {
       await transaction.begin();
 
-      // 1️⃣ Actualizar encuesta
+      // 1️⃣ Actualizar DATOS GENERALES de la encuesta (Esto siempre se hace)
       await transaction
         .request()
         .input("idEncuesta", mssql.Int, idEncuesta)
@@ -201,23 +202,40 @@ class EncuestaModel {
         .input("fechaInicio", mssql.DateTime2, data.fechaInicio)
         .input("fechaFin", mssql.DateTime2, data.fechaFin)
         .input("activa", mssql.Bit, activaBit).query(`
-        UPDATE Encuestas SET
-          pregunta = @pregunta,
-          fechaInicio = @fechaInicio,
-          fechaFin = @fechaFin,
-          activa = @activa,
-          fechaModificacion = SYSDATETIME()
-        WHERE idEncuesta = @idEncuesta
-      `);
+      UPDATE Encuestas SET
+        pregunta = @pregunta,
+        fechaInicio = @fechaInicio,
+        fechaFin = @fechaFin,
+        activa = @activa,
+        fechaModificacion = SYSDATETIME()
+      WHERE idEncuesta = @idEncuesta
+    `);
 
-      // 2️⃣ Borrar opciones anteriores
-      await transaction
+      // 2️⃣ VERIFICACIÓN DE SEGURIDAD PARA OPCIONES
+      // Verificamos si esta encuesta ya tiene votos registrados
+      const checkVotos = await transaction
         .request()
         .input("idEncuesta", mssql.Int, idEncuesta)
-        .query(`DELETE FROM EncuestaOpciones WHERE idEncuesta = @idEncuesta`);
+        .query(
+          "SELECT COUNT(*) as total FROM EncuestaVotos WHERE idEncuesta = @idEncuesta"
+        );
 
-      // 3️⃣ Insertar nuevas opciones
-      if (Array.isArray(data.opciones)) {
+      const tieneVotos = checkVotos.recordset[0].total > 0;
+
+      // LÓGICA: Solo permitimos borrar/recrear opciones si NADIE ha votado todavía.
+      // Si ya hay votos, ignoramos cualquier cambio en las opciones para proteger la integridad de los datos.
+      if (
+        !tieneVotos &&
+        Array.isArray(data.opciones) &&
+        data.opciones.length > 0
+      ) {
+        // Borrar opciones anteriores (Solo si no hay votos)
+        await transaction
+          .request()
+          .input("idEncuesta", mssql.Int, idEncuesta)
+          .query(`DELETE FROM EncuestaOpciones WHERE idEncuesta = @idEncuesta`);
+
+        // Insertar nuevas opciones
         for (const texto of data.opciones) {
           await transaction
             .request()
@@ -228,6 +246,8 @@ class EncuestaModel {
           `);
         }
       }
+      // Si TIENE VOTOS, simplemente no tocamos la tabla EncuestaOpciones.
+      // Los cambios de título/fecha/activa ya se aplicaron en el paso 1.
 
       await transaction.commit();
       return true;
