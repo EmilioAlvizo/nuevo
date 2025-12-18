@@ -1,0 +1,81 @@
+<div class="mb-12 text-center animate-fade-down">
+  <h1 class="mb-2 text-6xl font-bold uppercase text-gray-900 dark:text-neutral-50! sm:text-5xl">
+    Temas de interes
+  </h1>
+  <p class="mx-auto max-w-2xl text-lg text-gray-500 dark:text-neutral-400!">
+    Temas relevantes para las juventudes en Guanajuato.
+  </p>
+</div>
+
+<div class="col-lg-9 col-md-8 col-sm-12 carrusel-espacio">
+  <p-carousel
+    #miCarrusel
+    [value]="temas.length > 0 ? temas : skeletonItems"
+    [numVisible]="1"
+    [numScroll]="1"
+    [circular]="true"
+    [dt]="carouselDesignTokens"
+    [showNavigators]="false"
+    styleClass="temas-carousel"
+  >
+    <ng-template let-t pTemplate="item">
+      <div class="h-full px-2 py-2">
+        <div
+          class="flex flex-col md:flex-row h-full rounded-[20px] border border-gray-100 bg-white overflow-hidden transition-transform "
+        >
+          <div
+            class="w-full md:w-5/12 relative min-h-[200px] md:min-h-full bg-gray-50 flex items-center justify-center p-4"
+          >
+            <img
+              [src]="publicUrl + '/temas_interes/' + t.id_tema + '/' + t.imagen"
+              [alt]="t.descripcionTema"
+              class="rounded-lg object-cover max-h-[250px] w-auto shadow-md"
+            />
+          </div>
+
+          <div class="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-center">
+            <h5 class="text-2xl font-bold text-blue-600 mb-3">
+              {{ t.descripcionTema }}
+            </h5>
+
+            <p
+              class="text-gray-600 text-justify mb-6 leading-relaxed line-clamp-4 md:line-clamp-none"
+            >
+              {{ t.descripcionMas }}
+            </p>
+
+            <div class="mt-auto">
+              <a
+                [href]="t.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-block px-6 py-2 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white! transition-colors duration-300"
+              >
+                Ver más
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </p-carousel>
+  <div class="mt-6 flex items-center justify-center gap-4">
+    <button
+      type="button"
+      (click)="miCarrusel.navBackward($event)"
+      class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full! border border-gray-200 bg-white transition-all duration-300 hover:scale-110 hover:border-blue-600! hover:bg-blue-600! hover:text-white! focus:outline-none"
+      aria-label="Anterior"
+    >
+      <i class="bi bi-chevron-left"></i>
+    </button>
+  
+    <button
+      type="button"
+      (click)="miCarrusel.navForward($event)"
+      class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full! border border-gray-200 bg-white transition-all duration-300 hover:scale-110 hover:border-blue-600! hover:bg-blue-600! hover:text-white! focus:outline-none"
+      aria-label="Siguiente"
+    >
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+</div>

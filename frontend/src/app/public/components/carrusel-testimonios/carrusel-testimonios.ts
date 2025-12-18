@@ -5,7 +5,6 @@ import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
 import { Testimonios } from '../../../core/services/testimonios';
 
-
 @Component({
   selector: 'app-carrusel-testimonios',
   imports: [CommonModule, NgOptimizedImage, CarouselModule, ButtonModule],

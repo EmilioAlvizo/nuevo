@@ -5,6 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 
 import { CarruselTestimonios } from '../../components/carrusel-testimonios/carrusel-testimonios';
+import { CarruselTemas } from '../../components/carrusel-temas/carrusel-temas';
 import { ApiMunicipio, Municipio } from '../../../core/services/municipios';
 import { ApiTestimonios, Testimonios } from '../../../core/services/testimonios';
 import { environment } from '../../../../environments/environment';
@@ -36,6 +37,7 @@ import { CarouselModule } from 'primeng/carousel';
     AnimateOnScrollModule,
     Hero,
     CarouselModule,
+    CarruselTemas,
   ],
   providers: [MessageService],
   templateUrl: './home.html',

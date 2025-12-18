@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ScrollProgressBar } from './scroll-progress-bar';
+import { CarruselTemas } from './carrusel-temas';
 
-describe('ScrollProgressBar', () => {
-  let component: ScrollProgressBar;
-  let fixture: ComponentFixture<ScrollProgressBar>;
+describe('CarruselTemas', () => {
+  let component: CarruselTemas;
+  let fixture: ComponentFixture<CarruselTemas>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScrollProgressBar]
+      imports: [CarruselTemas]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ScrollProgressBar);
+    fixture = TestBed.createComponent(CarruselTemas);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
