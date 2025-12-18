@@ -1,4 +1,4 @@
-// nuevo/frontend/src/app/services/articulos.ts
+// nuevo/frontend/src/app/services/articulos_revista.ts
 
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -7,23 +7,23 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse, ApiResponsePaginated } from '../shared/interface';
 
 // Tipado de los artículos
-export interface ArticulosIndependientes {
+export interface ArticulosRevista {
   id_articulo: number;
+  id_revista: number;
   titulo: string;
   autor: string;
   contenido: string;
-  archivo: string;
+  pagina: number;
   imagen: string;
   estatus: string;
-  fecha_creacion: string;
   fecha_modificacion: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class ApiArticulosIndependientes {
-  private apiUrl = `${environment.apiUrl}/articulos`;
+export class ApiArticulosRevista {
+  private apiUrl = `${environment.apiUrl}/articulos_revista`;
   private http = inject(HttpClient);
 
   getValoresUnicos(): Observable<any> {
@@ -31,7 +31,7 @@ export class ApiArticulosIndependientes {
   }
 
   // ✅ NUEVO - Método con filtros (más eficiente)
-  getFiltrados(filtros: any): Observable<ApiResponsePaginated<ArticulosIndependientes>> {
+  getFiltrados(filtros: any): Observable<ApiResponsePaginated<ArticulosRevista>> {
     let params = new HttpParams();
 
     // Agregar todos los parámetros dinámicamente
@@ -50,13 +50,13 @@ export class ApiArticulosIndependientes {
       }
     });
 
-    return this.http.get<ApiResponsePaginated<ArticulosIndependientes>>(`${this.apiUrl}/filtrados`, {
+    return this.http.get<ApiResponsePaginated<ArticulosRevista>>(`${this.apiUrl}/filtrados`, {
       params,
     });
   }
 
-  getArticulos(): Observable<ApiResponse<ArticulosIndependientes>> {
-    return this.http.get<ApiResponse<ArticulosIndependientes>>(this.apiUrl);
+  getArticulos(): Observable<ApiResponse<ArticulosRevista>> {
+    return this.http.get<ApiResponse<ArticulosRevista>>(this.apiUrl);
   }
 
   crearArticulo(formData: FormData): Observable<any> {

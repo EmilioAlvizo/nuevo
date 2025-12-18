@@ -104,7 +104,7 @@
 }
 
 .notif-info {
-  max-width: 75%;
+  flex: 1;
 }
 
 .fecha {
@@ -124,4 +124,22 @@
 
 .btn-recibido:hover {
   background: #395b86;
+}
+
+.notif-link {
+  cursor: pointer;
+  color: #4a6fa5;
+  text-decoration: none;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.notif-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.notif-link:hover {
+  text-decoration: underline;
 }

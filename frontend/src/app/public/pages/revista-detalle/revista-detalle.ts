@@ -17,7 +17,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { TabsModule } from 'primeng/tabs';
 
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
-import { ApiArticulos, Articulos } from '../../../core/services/articulos';
+import { ApiArticulosRevista, ArticulosRevista } from '../../../core/services/articulos_revista';
 import { Flipbook2 } from '../../components/flipbook2/flipbook2';
 import { environment } from '../../../../environments/environment';
 
@@ -35,12 +35,12 @@ registerLocaleData(localeEs);
 export class RevistaDetalle {
   private route = inject(ActivatedRoute);
   private apiRevistas = inject(ApiRevistas);
-  private apiArticulos = inject(ApiArticulos);
+  private apiArticulos = inject(ApiArticulosRevista);
 
   // Data Signals
   revista = signal<Revistas | null>(null);
-  articuloIndependiente = signal<Articulos | null>(null); // Nuevo: Para modo artículo
-  articulos = signal<Articulos[]>([]);
+  articuloIndependiente = signal<ArticulosRevista | null>(null); // Nuevo: Para modo artículo
+  articulos = signal<ArticulosRevista[]>([]);
   cargandoArticulos = signal(false);
 
   // Tab Signal

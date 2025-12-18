@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
-import { ApiArticulos, Articulos } from '../../../core/services/articulos';
+import { ApiArticulosRevista, ArticulosRevista } from '../../../core/services/articulos_revista';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { TabsModule } from 'primeng/tabs';
 import { MenuItem } from 'primeng/api';
+import { ApiResponsePaginated } from '../../../core/shared/interface';
 
 @Component({
   selector: 'app-revista-voces',
@@ -16,13 +17,13 @@ import { MenuItem } from 'primeng/api';
 })
 export class RevistaVoces implements OnInit {
   private apiRevistas = inject(ApiRevistas);
-  private apiArticulos = inject(ApiArticulos);
+  private apiArticulos = inject(ApiArticulosRevista);
   private router = inject(Router);
 
   publicUrl = environment.publicUrl;
 
   revistas = signal<Revistas[]>([]);
-  articulosIndependientes = signal<Articulos[]>([]);
+  articulosIndependientes = signal<ArticulosRevista[]>([]);
 
   // Breadcrumb
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };

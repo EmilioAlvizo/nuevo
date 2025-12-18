@@ -30,6 +30,7 @@ import { TagModule } from 'primeng/tag';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-form-propuesta',
@@ -45,6 +46,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     TagModule,
     AutoCompleteModule,
     ConfirmDialogModule,
+    CheckboxModule
   ],
   templateUrl: './form-propuesta.html',
   styleUrl: './form-propuesta.css',
@@ -99,6 +101,8 @@ export class FormPropuesta {
       detalle: ['', Validators.required],
       justificacion: ['', Validators.required],
       necesidades: ['', Validators.required],
+
+      aceptaAviso: [false, Validators.requiredTrue],
     });
 
     effect(() => {
@@ -116,14 +120,15 @@ export class FormPropuesta {
   }
 
 
-  sexoOptions = [
+  generoOptions = [
     { label: 'Mujer', value: 'Mujer' },
     { label: 'Hombre', value: 'Hombre' },
+    { label: 'Prefiero no decirlo', value: 'Prefiero no decirlo' },
   ];
 
   actividadOptions = [
     { label: 'Investigador', value: 'Investigador' },
-    { label: 'Ama de casa', value: 'Ama de casa' },
+    { label: 'Labores del hogar', value: 'Labores del hogar' },
     { label: 'Estudiante', value: 'Estudiante' },
     { label: 'Empleado', value: 'Empleado' },
     { label: 'Servidor público', value: 'Servidor público' },

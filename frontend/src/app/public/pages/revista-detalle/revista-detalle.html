@@ -99,7 +99,7 @@
                   >
                     <img
                       [src]="
-                        publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen
+                        publicUrl + '/articulos_revista/' + articulo.id_articulo + '/' + articulo.imagen
                       "
                       class="w-full h-full object-cover"
                     />
@@ -110,19 +110,19 @@
                       <div>
                         <div class="flex items-center gap-2 mb-2">
                           <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide"
-                            >Pág. {{ articulo.pagina_revista }}</span
+                            >Pág. {{ articulo.pagina }}</span
                           >
                         </div>
                         <h3
                           class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 cursor-pointer"
-                          (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
+                          (click)="abrirFlipbookEnPagina(articulo.pagina)"
                         >
                           {{ articulo.titulo }}
                         </h3>
                       </div>
                       <button
                         class="text-gray-400 hover:text-blue-600 transition-colors"
-                        (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
+                        (click)="abrirFlipbookEnPagina(articulo.pagina)"
                       >
                         <i class="pi pi-book text-xl"></i>
                       </button>
@@ -133,7 +133,7 @@
                     <p class="text-gray-600 text-sm line-clamp-2 mb-4">{{ articulo.contenido }}</p>
 
                     <button
-                      (click)="abrirFlipbookEnPagina(articulo.pagina_revista)"
+                      (click)="abrirFlipbookEnPagina(articulo.pagina)"
                       class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors"
                     >
                       Leer en Flipbook <i class="pi pi-arrow-right text-xs"></i>

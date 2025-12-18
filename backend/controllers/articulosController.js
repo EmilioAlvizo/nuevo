@@ -9,7 +9,7 @@ const backendPublicPath = path.join(__dirname, "../public");
 const TABLE_NAME = "articulos";
 const ID_COLUMN = "id_articulo";
 
-class ArticulosRevistaController {
+class ArticulosController {
   // GET - Obtener todos los registros
   static async getAll(req, res) {
     try {
@@ -68,22 +68,16 @@ class ArticulosRevistaController {
         sortOrder,
 
         // Filtros de columna
-        // id_articulo
         id_articulo,
         id_articulo_matchMode,
-        // titulo
         titulo,
         titulo_matchMode,
-        // autor
         autor,
         autor_matchMode,
-        // contenido
         contenido,
         contenido_matchMode,
-        // estatus
         estatus,
         estatus_matchMode,
-        // fecha_modificacion
         fecha_modificacion,
         fecha_modificacion_matchMode,
       } = req.query;
@@ -146,59 +140,76 @@ class ArticulosRevistaController {
   // POST - Crear un nuevo registro
   static async create(req, res) {
     try {
-      const data = req.body;
-    //   if (data.id_revista === '') {
-    //     data.id_revista = null;
-    //   }
+      const { titulo, autor, contenido, estatus } = req.body;
+
+      // 🕓 Convertir la fecha al horario local de Ciudad de México
+      const moment = require("moment-timezone");
+      const fechaLocal = moment
+        .tz(new Date(), "America/Mexico_City")
+        .format("YYYY-MM-DDTHH:mm:ss");
 
       // Validar campos requeridos
-      validarCamposRequeridos(data, []);
+      validarCamposRequeridos({ titulo, autor, contenido, estatus }, []);
 
       // 1️⃣ Crear el registro primero (sin archivos)
       const nuevoRegistro = await ArticulosModel.create(TABLE_NAME, {
-        ...data,
+        titulo,
+        autor,
+        contenido,
+        estatus,
+        fecha_modificacion: fechaLocal,
         imagen: null,
         archivo: null
       });
 
-      //console.log("🆕 Resultado create():", nuevoRegistro);
-      const id = nuevoRegistro.id_articulo || nuevoRegistro.insertId || nuevoRegistro.id;
+      const id = nuevoRegistro.id || nuevoRegistro.id_articulo || nuevoRegistro.insertId;
       if (!id) throw new Error("No se pudo obtener el ID del nuevo registro");
 
       // 2️⃣ Definir carpetas
       const tempPath = path.join(backendPublicPath, 'articulos', 'temp');
       const baseFolder = path.join(backendPublicPath, 'articulos', id.toString());
-      fs.mkdirSync(baseFolder, { recursive: true });
+      const imagenFolder = path.join(baseFolder, 'imagen');
+      const archivoFolder = path.join(baseFolder, 'archivo');
+      
+      fs.mkdirSync(imagenFolder, { recursive: true });
+      fs.mkdirSync(archivoFolder, { recursive: true });
 
       // 3️⃣ Procesar archivos
       const archivosActualizados = {};
 
-      if (req.files && req.files.imagen && req.files.imagen[0]) {
+      // Mover imagen
+      if (req.files?.imagen) {
         const imagen = req.files.imagen[0];
         const oldPath = path.join(tempPath, imagen.filename);
-        const newPath = path.join(baseFolder, imagen.filename);
+        const newPath = path.join(imagenFolder, imagen.filename);
         fs.renameSync(oldPath, newPath);
         archivosActualizados.imagen = imagen.filename;
-        //console.log("📂 imagen movido a:", newPath);
-      } else {
-        console.warn("⚠️ No se recibió archivo en req.files.imagen");
+      }
+
+      // Mover archivo PDF
+      if (req.files?.archivo) {
+        const archivo = req.files.archivo[0];
+        const oldPath = path.join(tempPath, archivo.filename);
+        const newPath = path.join(archivoFolder, archivo.filename);
+        fs.renameSync(oldPath, newPath);
+        archivosActualizados.archivo = archivo.filename;
       }
 
       // 4️⃣ Actualizar registro con archivos
       if (Object.keys(archivosActualizados).length > 0) {
-        await ArticulosRevistaModel.update(TABLE_NAME, id, archivosActualizados, ID_COLUMN);
+        await ArticulosModel.update(TABLE_NAME, id, archivosActualizados, ID_COLUMN);
       }
 
       res.status(201).json({
         success: true,
-        message: "Registro creado correctamente",
-        data: { id, ...archivosActualizados },
+        message: "Artículo creado correctamente",
+        data: { id, ...nuevoRegistro, ...archivosActualizados },
       });
     } catch (err) {
-      console.error("💥 Error en create articulos_revista:", err);
+      console.error("💥 Error en create articulos:", err);
       res.status(500).json({
         success: false,
-        message: "Error al crear registro",
+        message: "Error al crear artículo",
         error: err.message,
       });
     }
@@ -208,14 +219,10 @@ class ArticulosRevistaController {
   static async update(req, res) {
     try {
       const { id } = req.params;
-      const data = req.body;
-
-      if (data.id_revista === '') {
-        data.id_revista = null;
-      }
+      const { titulo, autor, contenido, estatus } = req.body;
 
       // 🧩 Validar que haya datos
-      if (!data || Object.keys(data).length === 0) {
+      if (!titulo && !autor && !contenido && !estatus && !req.files) {
         return res.status(400).json({
           success: false,
           message: "Datos inválidos o vacíos",
@@ -232,32 +239,63 @@ class ArticulosRevistaController {
         });
       }
 
+      // 🕓 Actualizar fecha de modificación
+      const moment = require("moment-timezone");
+      const fechaLocal = moment
+        .tz(new Date(), "America/Mexico_City")
+        .format("YYYY-MM-DDTHH:mm:ss");
+
       const tempPath = path.join(backendPublicPath, 'articulos', 'temp');
       const baseFolder = path.join(backendPublicPath, 'articulos', id.toString());
-      fs.mkdirSync(baseFolder, { recursive: true });
+      const imagenFolder = path.join(baseFolder, 'imagen');
+      const archivoFolder = path.join(baseFolder, 'archivo');
+      
+      fs.mkdirSync(imagenFolder, { recursive: true });
+      fs.mkdirSync(archivoFolder, { recursive: true });
 
       // 🧾 Campos actualizables
-      const camposActualizados = { ...data };
+      const camposActualizados = {
+        titulo,
+        autor,
+        contenido,
+        estatus,
+        fecha_modificacion: fechaLocal
+      };
 
-      // 📂 Si se envían nuevos archivos, reemplazar los anteriores
-      if (req.files && req.files.imagen && req.files.imagen[0]) {
-        const nuevoImagen = req.files.imagen[0];
-        const oldPath = path.join(tempPath, nuevoImagen.filename);
-        const newPath = path.join(baseFolder, nuevoImagen.filename);
+      // 📂 Manejar imagen si viene una nueva
+      if (req.files?.imagen) {
+        const nuevaImagen = req.files.imagen[0];
+        const oldPath = path.join(tempPath, nuevaImagen.filename);
+        const newPath = path.join(imagenFolder, nuevaImagen.filename);
 
-        // Eliminar el archivo anterior (si existe)
+        // Eliminar imagen anterior (si existe)
         if (registroActual.imagen) {
-          const archivoAnterior = path.join(baseFolder, registroActual.imagen);
-          if (fs.existsSync(archivoAnterior)) {
-            fs.unlinkSync(archivoAnterior);
-            //console.log("🗑️ Archivo anterior eliminado:", archivoAnterior);
+          const imagenAnterior = path.join(imagenFolder, registroActual.imagen);
+          if (fs.existsSync(imagenAnterior)) {
+            fs.unlinkSync(imagenAnterior);
           }
         }
 
-        // Mover el nuevo
         fs.renameSync(oldPath, newPath);
-        camposActualizados.imagen = nuevoImagen.filename;
-        //console.log("📂 Nuevo archivo guardado en:", newPath);
+        camposActualizados.imagen = nuevaImagen.filename;
+      }
+
+      // 📂 Manejar archivo PDF si viene uno nuevo
+      if (req.files?.archivo) {
+        const nuevoArchivo = req.files.archivo[0];
+        const oldPath = path.join(tempPath, nuevoArchivo.filename);
+        const newPath = path.join(archivoFolder, nuevoArchivo.filename);
+
+        // Eliminar archivo anterior (si existe)
+        if (registroActual.archivo) {
+          const archivoAnterior = path.join(archivoFolder, registroActual.archivo);
+          if (fs.existsSync(archivoAnterior)) {
+            fs.unlinkSync(archivoAnterior);
+          }
+        }
+
+        fs.renameSync(oldPath, newPath);
+        camposActualizados.archivo = nuevoArchivo.filename;
       }
 
       // 🔄 Actualizar BD
@@ -265,14 +303,14 @@ class ArticulosRevistaController {
 
       res.status(200).json({
         success: true,
-        message: "Registro actualizado correctamente",
+        message: "Artículo actualizado correctamente",
         data: camposActualizados,
       });
     } catch (err) {
-      console.error("💥 Error en update articulos_revista:", err);
+      console.error("💥 Error en update articulos:", err);
       res.status(500).json({
         success: false,
-        message: "Error al actualizar registro",
+        message: "Error al actualizar artículo",
         error: err.message,
       });
     }
@@ -293,11 +331,10 @@ class ArticulosRevistaController {
         });
       }
 
-      // 🗂️ Borrar carpeta del archivo físico
-      const dir = path.join(backendPublicPath, 'articulos', id.toString());
-      if (fs.existsSync(dir)) {
-        fs.rmSync(dir, { recursive: true, force: true });
-        //console.log("🗑️ Carpeta eliminada:", dir);
+      // 🗂️ Borrar carpeta completa del artículo
+      const baseFolder = path.join(backendPublicPath, 'articulos', id.toString());
+      if (fs.existsSync(baseFolder)) {
+        fs.rmSync(baseFolder, { recursive: true, force: true });
       }
 
       // 🧾 Eliminar registro en la BD
@@ -305,33 +342,15 @@ class ArticulosRevistaController {
 
       res.status(200).json({
         success: true,
-        message: "Registro eliminado correctamente",
+        message: "Artículo eliminado correctamente",
       });
     } catch (err) {
-      console.error("💥 Error al eliminar registro:", err);
+      console.error("💥 Error al eliminar artículo:", err);
       res.status(500).json({
         success: false,
         message: err.message,
       });
     }
-  }
-
-  // 🛠️ Utilidad para parsear parámetros de array
-  static parseArrayParam(param, type = "string") {
-    if (!param) return [];
-
-    // Si ya es un array, devolverlo
-    if (Array.isArray(param)) {
-      return type === "int" ? param.map(Number) : param;
-    }
-
-    // Si es un string, dividirlo por comas
-    const arr = param
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    return type === "int" ? arr.map(Number) : arr;
   }
 }
 

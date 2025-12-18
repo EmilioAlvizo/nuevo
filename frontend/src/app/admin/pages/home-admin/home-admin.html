@@ -1,15 +1,3 @@
-<!-- <div class="home-admin-container">
-  <div class="welcome-card">
-    <h1 class="welcome-title">¡Bienvenid@ {{ nombreAdmin }}! 👋</h1>
-    <p class="welcome-subtitle">
-      Aquí puedes gestionar todos los aspectos de la plataforma.
-    </p>
-    <div class="icon-container">
-      <i class="fa-solid fa-user-shield fa-4x"></i>
-    </div>
-  </div>
-</div> -->
-
 <div class="home-admin-container">
 
   <div class="welcome-card">
@@ -37,16 +25,9 @@
           <div class="fecha">{{ n.timestamp | date:'short' }}</div>
         </div>
 
-        <!-- <a *ngIf="n.link"
-          class="notif-link"
-          [routerLink]="n.link">
-          Ver detalle →
-        </a>
-      </div> -->
-
       <a *ngIf="n.link"
         class="notif-link"
-        (click)="verDetalleNotificacion(n)">  <!-- ✅ Cambiar a click -->
+        (click)="verDetalleNotificacion(n)"> 
         Ver detalle →
       </a>
 

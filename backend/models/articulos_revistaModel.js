@@ -45,7 +45,7 @@ class ArticulosRevistaModel {
         { name: "contenido", dbField: "contenido", type: "string" },
         { name: "estatus", dbField: "estatus", type: "string", isMulti: true },
         { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" },
-        { name: "pagina_revista", dbField: "pagina_revista", type: "int" }
+        { name: "pagina", dbField: "pagina", type: "int" }
       ];
 
       // Construir condiciones
@@ -114,7 +114,7 @@ class ArticulosRevistaModel {
         { name: "contenido", dbField: "contenido", type: "string" },
         { name: "estatus", dbField: "estatus", type: "string", isMulti: true },
         { name: "fecha_modificacion", dbField: "fecha_modificacion", type: "date" },
-        { name: "pagina_revista", dbField: "pagina_revista", type: "int" }
+        { name: "pagina", dbField: "pagina", type: "int" }
       ];
 
       const camposMultiselect = filterConfig
