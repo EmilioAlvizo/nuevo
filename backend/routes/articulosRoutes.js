@@ -12,7 +12,6 @@ const uploadArticulos = crearUpload('articulos', {
 });
 
 // Rutas generadas automáticamente para: articulos
-
 router.get('/', ArticulosController.getAll);
 router.get('/filtrados', ArticulosController.getFiltrados);
 router.get('/valores-unicos', ArticulosController.getValoresUnicos);
