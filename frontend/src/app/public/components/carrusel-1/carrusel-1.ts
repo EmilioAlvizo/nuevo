@@ -10,14 +10,14 @@ import { DividerModule } from 'primeng/divider';
 
 // Servicios e Interfaces
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
-import { ApiArticulos, Articulos } from '../../../core/services/articulos';
+import { ApiArticulosRevista, ArticulosRevista } from '../../../core/services/articulos_revista';
 import { environment } from '../../../../environments/environment';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 // Interfaz visual extendida (combina Revista + sus Artículos)
 export interface RevistaVisual extends Revistas {
-  articulos: Articulos[];
+  articulos: ArticulosRevista[];
 }
 
 @Component({
@@ -28,7 +28,7 @@ export interface RevistaVisual extends Revistas {
 })
 export class Carrusel1 {
   private srvRevistas = inject(ApiRevistas);
-  private srvArticulos = inject(ApiArticulos);
+  private srvArticulos = inject(ApiArticulosRevista);
 
   responsiveOptions: any[] | undefined;
   revistas = signal<RevistaVisual[]>([]);

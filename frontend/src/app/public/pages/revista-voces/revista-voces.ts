@@ -1,11 +1,15 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ApiRevistas, Revistas } from '../../../core/services/revistas';
-import { ApiArticulos, Articulos } from '../../../core/services/articulos';
+import { ApiArticulosIndependientes, ArticulosIndependientes } from '../../../core/services/articulos';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { TabsModule } from 'primeng/tabs';
 import { MenuItem } from 'primeng/api';
+import { ApiResponsePaginated } from '../../../core/shared/interface';
+
+//BORRAR
+// import { Flipbook2 } from '../../components/flipbook2/flipbook2';
 
 @Component({
   selector: 'app-revista-voces',
@@ -16,13 +20,13 @@ import { MenuItem } from 'primeng/api';
 })
 export class RevistaVoces implements OnInit {
   private apiRevistas = inject(ApiRevistas);
-  private apiArticulos = inject(ApiArticulos);
+  private apiArticulosIndependientes = inject(ApiArticulosIndependientes);
   private router = inject(Router);
 
   publicUrl = environment.publicUrl;
 
   revistas = signal<Revistas[]>([]);
-  articulosIndependientes = signal<Articulos[]>([]);
+  articulosIndependientes = signal<ArticulosIndependientes[]>([]);
 
   // Breadcrumb
   home: MenuItem = { icon: 'pi pi-home', routerLink: '/' };
@@ -57,25 +61,17 @@ export class RevistaVoces implements OnInit {
       error: (error) => console.error('Error al obtener revistas:', error),
     });
 
-    // 2. Cargar Artículos Independientes
-    // Asumimos que los independientes tienen id_revista NULL o una marca específica.
-    // Usaremos getFiltrados. Por ahora filtramos por 'estatus' A.
-    // Si hay una lógica de 'id_revista' null, se debe pasar aqui.
-    // Al no tener confirmación visual, voy a traer todos y filtraré en memoria o pediré backend si fuese necesario.
-    // ACTUALIZACION: User dijo "la logica es con getFiltrados". Voy a intentar pasar un filtro que indique "independiente".
-    // Si no existe, traeré los recientes.
-    // Probaremos filtrar 'id_revista': 'null' si el backend lo soporta, o simplemente traer recientes.
-    // Para asegurar que se ve algo, traeremos todo paginado y luego refinamos.
-
-    this.apiArticulos.getFiltrados({ id_revista_matchMode: 'isNull', estatus: 'A', limit: 10 }).subscribe({
-      next: (response) => {
-        if (response.data) {
-          // TODO: Refinar filtro para "Independientes" real
-          this.articulosIndependientes.set(response.data);
-        }
-      },
-      error: (err) => console.error(err)
-    });
+    this.apiArticulosIndependientes
+      .getFiltrados({ estatus: 'A', limite: 10 })
+      .subscribe({
+        next: (response) => {
+          if (response.data) {
+            this.articulosIndependientes.set(response.data);
+          }
+        },
+        error: (err) =>
+          console.error('Error al obtener artículos independientes:', err),
+      });
   }
 
   abrirRevista(revista: Revistas): void {

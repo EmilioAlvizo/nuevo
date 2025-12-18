@@ -1,33 +1,33 @@
-//nuevo/backend/routes/articulos_revistaRoutes.js
+//nuevo/backend/routes/articulosRoutes.js
 const express = require('express');
 const router = express.Router();
-const ArticulosRevistaController = require('../controllers/articulosController');
+const ArticulosController = require('../controllers/articulosController');
 const { crearUpload } = require('../middleware/uploadMiddleware');
 const { authMiddleware } = require("../middleware/authMiddleware");
 
 // Configurar upload para esta tabla
-const uploadArticulosRevista = crearUpload('articulos', {
-  imagen: [
-    'image/*'
-  ]
+const uploadArticulos = crearUpload('articulos', {
+  imagen: ['image/*'],
+  archivo: ['application/pdf']
 });
 
-// Rutas generadas automáticamente para: articulos_revista
-
-router.get('/', ArticulosRevistaController.getAll);
-router.get('/filtrados', ArticulosRevistaController.getFiltrados);
-router.get('/valores-unicos', ArticulosRevistaController.getValoresUnicos);
-router.get('/:id', ArticulosRevistaController.getById);
+// Rutas generadas automáticamente para: articulos
+router.get('/', ArticulosController.getAll);
+router.get('/filtrados', ArticulosController.getFiltrados);
+router.get('/valores-unicos', ArticulosController.getValoresUnicos);
+router.get('/:id', ArticulosController.getById);
 
 // Rutas con carga de archivos
-router.post('/', authMiddleware, uploadArticulosRevista.fields([
-  { name: 'imagen', maxCount: 1 }
-]), ArticulosRevistaController.create);
+router.post('/', authMiddleware, uploadArticulos.fields([
+  { name: 'imagen', maxCount: 1 },
+  { name: 'archivo', maxCount: 1 }
+]), ArticulosController.create);
 
-router.put('/:id', authMiddleware, uploadArticulosRevista.fields([
-  { name: 'imagen', maxCount: 1 }
-]), ArticulosRevistaController.update);
+router.put('/:id', authMiddleware, uploadArticulos.fields([
+  { name: 'imagen', maxCount: 1 },
+  { name: 'archivo', maxCount: 1 }
+]), ArticulosController.update);
 
-router.delete('/:id', authMiddleware, ArticulosRevistaController.delete);
+router.delete('/:id', authMiddleware, ArticulosController.delete);
 
 module.exports = router;

@@ -60,6 +60,15 @@
             <div *ngIf="revistas().length === 0" class="text-center py-12 text-gray-400">
               No hay revistas disponibles.
             </div>
+
+          <!-- BORRAR PRUEBA -->
+          <!-- <app-flipbook2
+            [pageWidth]="3000"
+            [src]="'flipbook/probar.pdf'"
+          >
+          </app-flipbook2> -->
+          <!-- BORRAR -->
+
           </ng-template>
         </p-tabpanel>
 
@@ -74,7 +83,7 @@
                   <!-- Optional Article Image -->
                   <div *ngIf="articulo.imagen"
                     class="w-full md:w-48 h-32 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
-                    <img [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/' + articulo.imagen"
+                    <img [src]="publicUrl + '/articulos/' + articulo.id_articulo + '/imagen/' + articulo.imagen"
                       class="w-full h-full object-cover">
                   </div>
 
@@ -98,10 +107,12 @@
                       {{ articulo.contenido }}
                     </p>
 
-                    <button
-                      class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 transition-colors">
+                    <a *ngIf="articulo.archivo"
+                      [href]="publicUrl + '/articulos/' + articulo.id_articulo + '/archivo/' + articulo.archivo"
+                      target="_blank"
+                      class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1">
                       Leer artículo completo <i class="pi pi-file-pdf"></i>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

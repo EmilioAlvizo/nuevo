@@ -20,11 +20,11 @@
       }
     </div>
 
-    <!-- SEXO -->
+    <!-- GÉNERO -->
     <div class="mb-3">
-      <label class="form-label fw-semibold">Sexo *</label>
+      <label class="form-label fw-semibold">Género *</label>
       <p-select
-        [options]="sexoOptions"
+        [options]="generoOptions"
         formControlName="sexo"
         optionLabel="label"
         optionValue="value"
@@ -178,6 +178,32 @@
         <small class="text-danger">Campo requerido</small>
       }
     </div>
+
+    <!-- AVISO DE PRIVACIDAD -->
+    <div class="mb-3">
+      <p-checkbox
+        formControlName="aceptaAviso"
+        binary="true"
+        inputId="avisoPrivacidad"
+      ></p-checkbox>
+
+      <label for="avisoPrivacidad" class="ms-2">
+        He leído y acepto el
+        <a
+          href="https://transparencia.guanajuato.gob.mx/conocenos/aviso_privacidad.php"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          aviso de privacidad
+        </a>
+      </label>
+
+      @if (isFieldInvalid('aceptaAviso')) {
+        <small class="text-danger d-block">
+          Debes aceptar el aviso de privacidad
+        </small>
+      }
+    </div>
   </form>
 
   <!-- FOOTER -->
@@ -194,6 +220,7 @@
         icon="pi pi-check"
         severity="success"
         (onClick)="confirmarEnvio()"
+        [disabled]="propuestaForm.invalid"
       />
     </div>
   </ng-template>

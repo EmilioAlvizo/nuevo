@@ -28,7 +28,7 @@
 
       <!-- NOMBRE -->
       <div class="col-md-6 mb-3">
-        <label class="form-label fw-semibold">Nombre *</label>
+        <label class="form-label fw-semibold">Nombre completo *</label>
         <input class="form-control" formControlName="nombreM" />
         <small class="text-danger" *ngIf="isFieldInvalid('nombreM')">Campo requerido</small>
       </div>
@@ -73,6 +73,32 @@
         <img [src]="imagenPreview()" class="img-fluid rounded shadow" style="max-width: 250px" />
       </div>
     </div>
+
+    <!-- AVISO DE PRIVACIDAD -->
+    <div class="mb-3">
+      <p-checkbox
+        formControlName="aceptaAviso"
+        binary="true"
+        inputId="avisoPrivacidad"
+      ></p-checkbox>
+
+      <label for="avisoPrivacidad" class="ms-2">
+        He leído y acepto el
+        <a
+          href="https://transparencia.guanajuato.gob.mx/conocenos/aviso_privacidad.php"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          aviso de privacidad
+        </a>
+      </label>
+
+      @if (isFieldInvalid('aceptaAviso')) {
+        <small class="text-danger d-block">
+          Debes aceptar el aviso de privacidad
+        </small>
+      }
+    </div>
   </form>
 
   <ng-template pTemplate="footer">
@@ -84,7 +110,7 @@
         severity="success"
         (onClick)="confirmarEnvio()"
         [loading]="isSaving()"
-        [disabled]="isSaving()"
+        [disabled]="form.invalid || isSaving()"
       />
     </div>
   </ng-template>

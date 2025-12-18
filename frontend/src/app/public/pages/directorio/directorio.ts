@@ -28,8 +28,8 @@ export class Directorio implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           // Filtrar solo los directorios activos
-          // this.directorios = response.data.filter(d => d.estatus === 'A');
-          this.directorios.set(response.data);
+          this.directorios.set(response.data.filter((r) => r.estatus === 'A'));
+          // this.directorios.set(response.data);
         }
         this.loading.set(false);
       },

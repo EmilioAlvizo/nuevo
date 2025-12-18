@@ -20,6 +20,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { NotificationService } from '../../../core/services/notificacion';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-form-testimonios',
@@ -30,6 +31,7 @@ import { NotificationService } from '../../../core/services/notificacion';
     ButtonModule,
     ConfirmDialogModule,
     ToastModule,
+    CheckboxModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './form-testimonios.html',
@@ -74,6 +76,8 @@ export class FormTestimonios {
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       estatus: ['B', Validators.required],
       imagenT: [''],
+
+      aceptaAviso: [false, Validators.requiredTrue],
     });
 
     this.loadMunicipios();
